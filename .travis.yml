@@ -8,12 +8,15 @@
 #
 language: php
 
-php: ["5.3", "5.4", "5.5"]
+php: ["5.5"]
 
 env:
   global:
     - ARCHER_PUBLISH_VERSION=5.5
     - secure: "KW7AkI2tN9v4tjVwDbROuAy3oSXpEJ/PrHAW+o0WnMyNhU3TKXgOAme6GghIOsHafNWwtHQypuqBW/UK9Yqlad/mi4aQaRNEvH83MyNbmd9dqCelg9SIDvj0cPNOYmvZnpYwoZV0s8D8KEaLpiTEqGHn2gfB1eKXipVpcduZ2dc="
+
+notifications:
+  flowdock: 9d3bb1597e4a99f21ee0d166c462c4d9
 
 install:
   - ./.travis.install
