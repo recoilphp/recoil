@@ -1,8 +1,8 @@
 {
-    "name": "icecave/cooper",
+    "name": "icecave/recoil",
     "description": "This package needs a description!",
     "keywords": [],
-    "homepage": "https://github.com/IcecaveStudios/cooper",
+    "homepage": "https://github.com/IcecaveStudios/recoil",
     "license": "MIT",
     "authors": [
         {
@@ -12,27 +12,30 @@
         }
     ],
     "require": {
-        "php": ">=5.3",
-        "icecave/isolator": "~2"
+        "php": ">=5.5",
+        "icecave/isolator": "~2",
+        "react/event-loop": "dev-next-tick as 0.3.3"
     },
     "require-dev": {
-        "eloquent/typhoon": "~0.9.0",
-        "icecave/archer": "~1"
+        "eloquent/asplode": "~1",
+        "eloquent/liberator": "~1",
+        "icecave/archer": "~1",
+        "phake/phake": "2.0.0-alpha4 as v1.0.3"
     },
     "suggest": {
         "eloquent/asplode": "Drop-in exception-based error handling."
     },
     "autoload": {
         "psr-0": {
-            "Icecave\\Cooper": "src",
-            "Icecave\\Cooper\\TypeCheck": "src-typhoon"
+            "Icecave\\Recoil": "src"
         }
     },
-    "extra": {
-        "typhoon": {
-            "output-path": "src-typhoon",
-            "validator-namespace": "Icecave\\Cooper\\TypeCheck",
-            "use-native-callable": false
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/jmalloc/react"
         }
-    }
+    ],
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }

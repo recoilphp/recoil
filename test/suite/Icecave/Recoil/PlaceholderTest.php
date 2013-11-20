@@ -1,5 +1,5 @@
 <?php
-namespace Icecave\Cooper;
+namespace Icecave\Recoil;
 
 use PHPUnit_Framework_TestCase;
 

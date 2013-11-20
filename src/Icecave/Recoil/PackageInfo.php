@@ -1,8 +1,8 @@
 <?php
-namespace Icecave\Cooper;
+namespace Icecave\Recoil;
 
 class PackageInfo
 {
-    const NAME = 'Cooper';
+    const NAME = 'Recoil';
     const VERSION = '0.0.0';
 }
