@@ -1,0 +1,1666 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
+    ],
+    "hash": "b310ba0d9d1adb1225f8d52ae5452f22",
+    "packages": [
+        {
+            "name": "icecave/isolator",
+            "version": "2.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/IcecaveStudios/isolator.git",
+                "reference": "2f3fbfcee90790fb3ddde9d4288a2a927cdf6dd6"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/IcecaveStudios/isolator/zipball/2f3fbfcee90790fb3ddde9d4288a2a927cdf6dd6",
+                "reference": "2f3fbfcee90790fb3ddde9d4288a2a927cdf6dd6",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3"
+            },
+            "require-dev": {
+                "icecave/archer": "~0.4"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Icecave\\Isolator": "lib"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "James Harris",
+                    "email": "james.harris@icecave.com.au",
+                    "homepage": "https://github.com/jmalloc"
+                }
+            ],
+            "description": "Isolate PHP tests from the global environment.",
+            "homepage": "https://github.com/IcecaveStudios/isolator",
+            "keywords": [
+                "fake",
+                "mock",
+                "phake",
+                "phpunit",
+                "test",
+                "unit"
+            ],
+            "time": "2013-06-04 05:00:29"
+        }
+    ],
+    "packages-dev": [
+        {
+            "name": "dflydev/markdown",
+            "version": "v1.0.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/dflydev/dflydev-markdown.git",
+                "reference": "6baed9b50f29c980795b6656d43722aadb126f7e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/dflydev/dflydev-markdown/zipball/6baed9b50f29c980795b6656d43722aadb126f7e",
+                "reference": "6baed9b50f29c980795b6656d43722aadb126f7e",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "dflydev\\markdown": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Dragonfly Development Inc.",
+                    "email": "info@dflydev.com",
+                    "homepage": "http://dflydev.com"
+                },
+                {
+                    "name": "Beau Simensen",
+                    "email": "beau@dflydev.com",
+                    "homepage": "http://beausimensen.com"
+                },
+                {
+                    "name": "Michel Fortin",
+                    "homepage": "http://michelf.com"
+                },
+                {
+                    "name": "John Gruber",
+                    "homepage": "http://daringfireball.net"
+                }
+            ],
+            "description": "PHP Markdown & Extra",
+            "homepage": "http://github.com/dflydev/dflydev-markdown",
+            "keywords": [
+                "markdown"
+            ],
+            "time": "2013-09-23 12:00:18"
+        },
+        {
+            "name": "eloquent/asplode",
+            "version": "1.1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/eloquent/asplode.git",
+                "reference": "34591a5919625bc49f86ac4b7a473593c2b8e95e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/eloquent/asplode/zipball/34591a5919625bc49f86ac4b7a473593c2b8e95e",
+                "reference": "34591a5919625bc49f86ac4b7a473593c2b8e95e",
+                "shasum": ""
+            },
+            "require": {
+                "icecave/isolator": "~2",
+                "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "icecave/archer": "1.0.0-alpha.2"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Eloquent\\Asplode": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Erin Millard",
+                    "email": "ezzatron@gmail.com",
+                    "homepage": "http://ezzatron.com/"
+                }
+            ],
+            "description": "Drop-in exception-based error handling for PHP.",
+            "homepage": "https://github.com/eloquent/asplode",
+            "keywords": [
+                "error",
+                "errorexception",
+                "exception",
+                "failure",
+                "fault",
+                "handler",
+                "handling"
+            ],
+            "time": "2013-08-01 10:46:05"
+        },
+        {
+            "name": "eloquent/blox",
+            "version": "1.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/eloquent/blox.git",
+                "reference": "d3e51e6fc6fb1e722f17418eeb19ba674b267cf1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/eloquent/blox/zipball/d3e51e6fc6fb1e722f17418eeb19ba674b267cf1",
+                "reference": "d3e51e6fc6fb1e722f17418eeb19ba674b267cf1",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "phake/phake": "1.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Eloquent\\Blox": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Erin Millard",
+                    "email": "ezzatron@gmail.com",
+                    "homepage": "http://ezzatron.com/"
+                }
+            ],
+            "description": "A parser for block comment documentation.",
+            "homepage": "https://github.com/eloquent/blox",
+            "keywords": [
+                "annotation",
+                "block",
+                "comment",
+                "docblock",
+                "documentation",
+                "parser",
+                "phpDocumentor",
+                "phpdoc",
+                "tag"
+            ],
+            "time": "2012-08-05 06:40:35"
+        },
+        {
+            "name": "eloquent/cosmos",
+            "version": "2.3.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/eloquent/cosmos.git",
+                "reference": "0226b7aa39c629cdbb41bde759adff59d932d16d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/eloquent/cosmos/zipball/0226b7aa39c629cdbb41bde759adff59d932d16d",
+                "reference": "0226b7aa39c629cdbb41bde759adff59d932d16d",
+                "shasum": ""
+            },
+            "require": {
+                "eloquent/equality": "~2",
+                "icecave/isolator": "~2",
+                "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "icecave/archer": "~0.2"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Eloquent\\Cosmos": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Erin Millard",
+                    "email": "ezzatron@gmail.com",
+                    "homepage": "http://ezzatron.com/"
+                }
+            ],
+            "description": "A library for representing and manipulating PHP class names.",
+            "homepage": "https://github.com/eloquent/cosmos",
+            "keywords": [
+                "class",
+                "classname",
+                "name",
+                "namespace",
+                "php",
+                "resolver",
+                "solver"
+            ],
+            "time": "2013-03-04 09:26:13"
+        },
+        {
+            "name": "eloquent/enumeration",
+            "version": "3.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/eloquent/enumeration.git",
+                "reference": "ee87a3062d71a00cb61167f2d59dd479a129caf6"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/eloquent/enumeration/zipball/ee87a3062d71a00cb61167f2d59dd479a129caf6",
+                "reference": "ee87a3062d71a00cb61167f2d59dd479a129caf6",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "icecave/archer": "~0.2"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Eloquent\\Enumeration": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Erin Millard",
+                    "email": "ezzatron@gmail.com",
+                    "homepage": "http://ezzatron.com/"
+                }
+            ],
+            "description": "An enumeration implementation for PHP.",
+            "homepage": "https://github.com/eloquent/enumeration",
+            "keywords": [
+                "class",
+                "enum",
+                "enumeration",
+                "set"
+            ],
+            "time": "2013-03-04 09:52:52"
+        },
+        {
+            "name": "eloquent/equality",
+            "version": "2.1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/eloquent/equality.git",
+                "reference": "83ee596b89786d320470e0ac825df8d0e20d906f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/eloquent/equality/zipball/83ee596b89786d320470e0ac825df8d0e20d906f",
+                "reference": "83ee596b89786d320470e0ac825df8d0e20d906f",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "icecave/archer": "~0.2"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Eloquent\\Equality": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Erin Millard",
+                    "email": "ezzatron@gmail.com",
+                    "homepage": "http://ezzatron.com/"
+                }
+            ],
+            "description": "A better strict comparison for PHP.",
+            "homepage": "https://github.com/eloquent/equality",
+            "keywords": [
+                "comparison",
+                "deep",
+                "equality",
+                "object",
+                "strict"
+            ],
+            "time": "2013-03-04 09:38:33"
+        },
+        {
+            "name": "eloquent/typhax",
+            "version": "0.9.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/eloquent/typhax.git",
+                "reference": "5ef82d0c72ad9a0bd1a3c3e624f67dc8c6c870ef"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/eloquent/typhax/zipball/5ef82d0c72ad9a0bd1a3c3e624f67dc8c6c870ef",
+                "reference": "5ef82d0c72ad9a0bd1a3c3e624f67dc8c6c870ef",
+                "shasum": ""
+            },
+            "require": {
+                "eloquent/cosmos": "~2",
+                "ext-mbstring": "*",
+                "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "icecave/archer": "~0.2"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Eloquent\\Typhax": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Erin Millard",
+                    "email": "ezzatron@gmail.com",
+                    "homepage": "http://ezzatron.com/"
+                }
+            ],
+            "description": "A flexible PHP type hinting syntax.",
+            "homepage": "https://github.com/eloquent/typhax",
+            "keywords": [
+                "check",
+                "checking",
+                "hint",
+                "hinting",
+                "parser",
+                "syntax",
+                "type"
+            ],
+            "time": "2013-03-04 10:28:53"
+        },
+        {
+            "name": "eloquent/typhoon",
+            "version": "0.9.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/eloquent/typhoon.git",
+                "reference": "12c32df4138229d8add4211da4adfc611e3b1f54"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/eloquent/typhoon/zipball/12c32df4138229d8add4211da4adfc611e3b1f54",
+                "reference": "12c32df4138229d8add4211da4adfc611e3b1f54",
+                "shasum": ""
+            },
+            "require": {
+                "eloquent/asplode": "~1",
+                "eloquent/blox": "~1",
+                "eloquent/cosmos": "~2",
+                "eloquent/enumeration": "~3",
+                "eloquent/typhax": "~0.9",
+                "icecave/isolator": "~2",
+                "icecave/pasta-ast": "~0.1",
+                "icecave/rasta": "~0.1",
+                "php": ">=5.3.0",
+                "symfony/console": "~2",
+                "symfony/filesystem": "~2"
+            },
+            "require-dev": {
+                "eloquent/liberator": "~1",
+                "ezzatron/phpunit-extensions": "~1",
+                "icecave/archer": "~0.1"
+            },
+            "bin": [
+                "bin/typhoon"
+            ],
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Eloquent\\Typhoon\\TypeCheck": "src-typhoon",
+                    "Eloquent\\Typhoon": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Erin Millard",
+                    "email": "ezzatron@gmail.com",
+                    "homepage": "http://ezzatron.com/"
+                }
+            ],
+            "description": "Simple, flexible type-checking for PHP.",
+            "homepage": "https://github.com/eloquent/typhoon",
+            "keywords": [
+                "check",
+                "checking",
+                "hint",
+                "hinting",
+                "type"
+            ],
+            "time": "2013-02-18 23:16:04"
+        },
+        {
+            "name": "guzzle/guzzle",
+            "version": "v3.7.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/guzzle/guzzle.git",
+                "reference": "b170b028c6bb5799640e46c8803015b0f9a45ed9"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/b170b028c6bb5799640e46c8803015b0f9a45ed9",
+                "reference": "b170b028c6bb5799640e46c8803015b0f9a45ed9",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "php": ">=5.3.3",
+                "symfony/event-dispatcher": ">=2.1"
+            },
+            "replace": {
+                "guzzle/batch": "self.version",
+                "guzzle/cache": "self.version",
+                "guzzle/common": "self.version",
+                "guzzle/http": "self.version",
+                "guzzle/inflection": "self.version",
+                "guzzle/iterator": "self.version",
+                "guzzle/log": "self.version",
+                "guzzle/parser": "self.version",
+                "guzzle/plugin": "self.version",
+                "guzzle/plugin-async": "self.version",
+                "guzzle/plugin-backoff": "self.version",
+                "guzzle/plugin-cache": "self.version",
+                "guzzle/plugin-cookie": "self.version",
+                "guzzle/plugin-curlauth": "self.version",
+                "guzzle/plugin-error-response": "self.version",
+                "guzzle/plugin-history": "self.version",
+                "guzzle/plugin-log": "self.version",
+                "guzzle/plugin-md5": "self.version",
+                "guzzle/plugin-mock": "self.version",
+                "guzzle/plugin-oauth": "self.version",
+                "guzzle/service": "self.version",
+                "guzzle/stream": "self.version"
+            },
+            "require-dev": {
+                "doctrine/cache": "*",
+                "monolog/monolog": "1.*",
+                "phpunit/phpunit": "3.7.*",
+                "psr/log": "1.0.*",
+                "symfony/class-loader": "*",
+                "zendframework/zend-cache": "2.0.*",
+                "zendframework/zend-log": "2.0.*"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "3.7-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "Guzzle\\Tests": "tests/",
+                    "Guzzle": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Michael Dowling",
+                    "email": "mtdowling@gmail.com",
+                    "homepage": "https://github.com/mtdowling"
+                },
+                {
+                    "name": "Guzzle Community",
+                    "homepage": "https://github.com/guzzle/guzzle/contributors"
+                }
+            ],
+            "description": "Guzzle is a PHP HTTP client library and framework for building RESTful web service clients",
+            "homepage": "http://guzzlephp.org/",
+            "keywords": [
+                "client",
+                "curl",
+                "framework",
+                "http",
+                "http client",
+                "rest",
+                "web service"
+            ],
+            "time": "2013-10-02 20:47:00"
+        },
+        {
+            "name": "icecave/archer",
+            "version": "1.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/IcecaveStudios/archer.git",
+                "reference": "5ab6803e2fbcb27cbad8624f7f137477a5ca0fb3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/IcecaveStudios/archer/zipball/5ab6803e2fbcb27cbad8624f7f137477a5ca0fb3",
+                "reference": "5ab6803e2fbcb27cbad8624f7f137477a5ca0fb3",
+                "shasum": ""
+            },
+            "require": {
+                "phake/phake": "~1",
+                "php": ">=5.3",
+                "sami/sami": "~1.1.0",
+                "satooshi/php-coveralls": "~0.6",
+                "symfony/console": "~2",
+                "symfony/process": "~2"
+            },
+            "require-dev": {
+                "eloquent/liberator": "~1",
+                "symfony/event-dispatcher": "~2.1"
+            },
+            "suggest": {
+                "ext-openssl": "OpenSSL is required to encrypt GitHub OAuth tokens for artifact publication."
+            },
+            "bin": [
+                "bin/archer",
+                "bin/woodhouse"
+            ],
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Icecave\\Archer": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Erin Millard",
+                    "email": "ezzatron@gmail.com",
+                    "homepage": "http://ezzatron.com/"
+                },
+                {
+                    "name": "James Harris",
+                    "email": "james.harris@icecave.com.au",
+                    "homepage": "https://github.com/jmalloc"
+                }
+            ],
+            "description": "Testing, CI and documentation of PHP projects by convention.",
+            "homepage": "https://github.com/IcecaveStudios/archer",
+            "keywords": [
+                "api",
+                "artifacts",
+                "convention",
+                "coverage",
+                "documentation",
+                "phake",
+                "phpunit",
+                "project",
+                "test",
+                "testing",
+                "unit"
+            ],
+            "time": "2013-10-13 23:54:24"
+        },
+        {
+            "name": "icecave/collections",
+            "version": "0.8.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/IcecaveStudios/collections.git",
+                "reference": "c12f606057b91c956a5af4ae7bdd7a13fdbedcd9"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/IcecaveStudios/collections/zipball/c12f606057b91c956a5af4ae7bdd7a13fdbedcd9",
+                "reference": "c12f606057b91c956a5af4ae7bdd7a13fdbedcd9",
+                "shasum": ""
+            },
+            "require": {
+                "ext-mbstring": "*",
+                "icecave/parity": "~0.1.0",
+                "icecave/repr": "~1",
+                "php": ">=5.3"
+            },
+            "require-dev": {
+                "eloquent/liberator": "~1",
+                "eloquent/typhoon": "~0.9.0",
+                "ezzatron/phpunit-extensions": "~1",
+                "icecave/archer": "~1"
+            },
+            "type": "library",
+            "extra": {
+                "typhoon": {
+                    "output-path": "src-typhoon",
+                    "validator-namespace": "Icecave\\Collections\\TypeCheck",
+                    "use-native-callable": false
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "Icecave\\Collections": "src",
+                    "Icecave\\Collections\\TypeCheck": "src-typhoon"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "James Harris",
+                    "email": "james.harris@icecave.com.au",
+                    "homepage": "https://github.com/jmalloc"
+                }
+            ],
+            "description": "A PHP collection library loosely inspired by the .NET runtime and the C++ STL.",
+            "homepage": "https://github.com/IcecaveStudios/collections",
+            "keywords": [
+                "array",
+                "collection",
+                "container",
+                "hash",
+                "map",
+                "queue",
+                "sequence",
+                "stack"
+            ],
+            "time": "2013-09-23 04:36:07"
+        },
+        {
+            "name": "icecave/parity",
+            "version": "0.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/IcecaveStudios/parity.git",
+                "reference": "a68a1c645ced693f34cd39b0da1e44d803fcc7f2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/IcecaveStudios/parity/zipball/a68a1c645ced693f34cd39b0da1e44d803fcc7f2",
+                "reference": "a68a1c645ced693f34cd39b0da1e44d803fcc7f2",
+                "shasum": ""
+            },
+            "require": {
+                "icecave/repr": "~1",
+                "php": ">=5.3"
+            },
+            "require-dev": {
+                "eloquent/typhoon": "~0.9",
+                "icecave/archer": "~0.3"
+            },
+            "type": "library",
+            "extra": {
+                "typhoon": {
+                    "output-path": "lib-typhoon",
+                    "validator-namespace": "Icecave\\Parity\\TypeCheck",
+                    "use-native-callable": false
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "Icecave\\Parity": "lib",
+                    "Icecave\\Parity\\TypeCheck": "lib-typhoon"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "James Harris",
+                    "email": "james.harris@icecave.com.au",
+                    "homepage": "https://github.com/jmalloc"
+                }
+            ],
+            "description": "A comparator library for PHP.",
+            "homepage": "https://github.com/IcecaveStudios/parity",
+            "keywords": [
+                "compare",
+                "comparison",
+                "equal",
+                "equality",
+                "greater",
+                "less",
+                "sort",
+                "sorting"
+            ],
+            "time": "2013-05-29 08:00:22"
+        },
+        {
+            "name": "icecave/pasta-ast",
+            "version": "0.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/IcecaveStudios/pasta-ast.git",
+                "reference": "e60498ac26189a50990b190d34a61b3677a14a69"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/IcecaveStudios/pasta-ast/zipball/e60498ac26189a50990b190d34a61b3677a14a69",
+                "reference": "e60498ac26189a50990b190d34a61b3677a14a69",
+                "shasum": ""
+            },
+            "require": {
+                "eloquent/enumeration": "3.*",
+                "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "phake/phake": "1.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Icecave\\Pasta\\AST": "lib"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "James Harris",
+                    "email": "james.harris@icecave.com.au",
+                    "homepage": "https://github.com/jmalloc"
+                }
+            ],
+            "description": "PHP AST implementation.",
+            "homepage": "https://github.com/IcecaveStudios/pasta-ast",
+            "keywords": [
+                "abstract",
+                "ast",
+                "parser",
+                "syntax",
+                "tree"
+            ],
+            "time": "2012-11-28 12:00:39"
+        },
+        {
+            "name": "icecave/rasta",
+            "version": "0.1.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/IcecaveStudios/rasta.git",
+                "reference": "aa384531bcab779af0fc25552287866b470ece00"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/IcecaveStudios/rasta/zipball/aa384531bcab779af0fc25552287866b470ece00",
+                "reference": "aa384531bcab779af0fc25552287866b470ece00",
+                "shasum": ""
+            },
+            "require": {
+                "icecave/collections": "*",
+                "icecave/pasta-ast": "0.1.*",
+                "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "icecave/testing": "1.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Icecave\\Rasta": "lib"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "James Harris",
+                    "email": "james.harris@icecave.com.au",
+                    "homepage": "https://github.com/jmalloc"
+                }
+            ],
+            "description": "PHP code generation library.",
+            "homepage": "https://github.com/IcecaveStudios/rasta",
+            "keywords": [
+                "ast",
+                "parser"
+            ],
+            "time": "2013-01-14 14:06:52"
+        },
+        {
+            "name": "icecave/repr",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/IcecaveStudios/repr.git",
+                "reference": "9a78b2b12dbb6fbf46d995f7255ee1f1118bfd8b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/IcecaveStudios/repr/zipball/9a78b2b12dbb6fbf46d995f7255ee1f1118bfd8b",
+                "reference": "9a78b2b12dbb6fbf46d995f7255ee1f1118bfd8b",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "phake/phake": "1.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Icecave\\Repr": "lib"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "James Harris",
+                    "email": "james.harris@icecave.com.au",
+                    "homepage": "https://github.com/jmalloc"
+                }
+            ],
+            "description": "Human readable string representations of everything.",
+            "homepage": "https://github.com/IcecaveStudios/repr",
+            "keywords": [
+                "repr",
+                "representation",
+                "string"
+            ],
+            "time": "2013-01-11 00:04:43"
+        },
+        {
+            "name": "nikic/php-parser",
+            "version": "v0.9.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/nikic/PHP-Parser.git",
+                "reference": "1e5e280ae88a27effa2ae4aa2bd088494ed8594f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/nikic/PHP-Parser/zipball/1e5e280ae88a27effa2ae4aa2bd088494ed8594f",
+                "reference": "1e5e280ae88a27effa2ae4aa2bd088494ed8594f",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.2"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "0.9-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "PHPParser": "lib/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Nikita Popov"
+                }
+            ],
+            "description": "A PHP parser written in PHP",
+            "keywords": [
+                "parser",
+                "php"
+            ],
+            "time": "2013-08-25 17:11:40"
+        },
+        {
+            "name": "phake/phake",
+            "version": "v1.0.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/mlively/Phake.git",
+                "reference": "4d822246b401f4dc609500d47e42dac8df645f4f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/mlively/Phake/zipball/4d822246b401f4dc609500d47e42dac8df645f4f",
+                "reference": "4d822246b401f4dc609500d47e42dac8df645f4f",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.2.0"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "include-path": [
+                "src"
+            ],
+            "license": [
+                "BSD"
+            ],
+            "authors": [
+                {
+                    "name": "Mike Lively",
+                    "email": "m@digitalsandwich.com"
+                }
+            ],
+            "description": "The Phake mock testing library",
+            "homepage": "https://github.com/mlively/Phake",
+            "keywords": [
+                "mock",
+                "testing"
+            ],
+            "time": "2012-05-14 15:06:51"
+        },
+        {
+            "name": "pimple/pimple",
+            "version": "v1.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/fabpot/Pimple.git",
+                "reference": "ae11e57e8c2bb414b2ff93396dbbfc0eb92feb94"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/fabpot/Pimple/zipball/ae11e57e8c2bb414b2ff93396dbbfc0eb92feb94",
+                "reference": "ae11e57e8c2bb414b2ff93396dbbfc0eb92feb94",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "Pimple": "lib/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                }
+            ],
+            "description": "Pimple is a simple Dependency Injection Container for PHP 5.3",
+            "homepage": "http://pimple.sensiolabs.org",
+            "keywords": [
+                "container",
+                "dependency injection"
+            ],
+            "time": "2013-03-08 08:21:40"
+        },
+        {
+            "name": "psr/log",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-fig/log.git",
+                "reference": "fe0936ee26643249e916849d48e3a51d5f5e278b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-fig/log/zipball/fe0936ee26643249e916849d48e3a51d5f5e278b",
+                "reference": "fe0936ee26643249e916849d48e3a51d5f5e278b",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Psr\\Log\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "PHP-FIG",
+                    "homepage": "http://www.php-fig.org/"
+                }
+            ],
+            "description": "Common interface for logging libraries",
+            "keywords": [
+                "log",
+                "psr",
+                "psr-3"
+            ],
+            "time": "2012-12-21 11:40:51"
+        },
+        {
+            "name": "sami/sami",
+            "version": "v1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/fabpot/Sami.git",
+                "reference": "46c58957ce4823c613e8535626b81e2fd80a9865"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/fabpot/Sami/zipball/46c58957ce4823c613e8535626b81e2fd80a9865",
+                "reference": "46c58957ce4823c613e8535626b81e2fd80a9865",
+                "shasum": ""
+            },
+            "require": {
+                "dflydev/markdown": "1.0.*",
+                "nikic/php-parser": "0.9.*",
+                "php": ">=5.3.0",
+                "pimple/pimple": "1.0.*",
+                "symfony/console": "~2.1",
+                "symfony/filesystem": "~2.1",
+                "symfony/finder": "~2.1",
+                "symfony/process": "~2.1",
+                "symfony/yaml": "~2.1",
+                "twig/twig": "1.*"
+            },
+            "bin": [
+                "sami.php"
+            ],
+            "type": "application",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "Sami": "."
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                }
+            ],
+            "description": "Sami, an API documentation generator",
+            "homepage": "http://sami.sensiolabs.org",
+            "keywords": [
+                "phpdoc"
+            ],
+            "time": "2013-08-04 13:56:41"
+        },
+        {
+            "name": "satooshi/php-coveralls",
+            "version": "v0.6.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/satooshi/php-coveralls.git",
+                "reference": "dd0df95bd37a7cf5c5c50304dfe260ffe4b50760"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/satooshi/php-coveralls/zipball/dd0df95bd37a7cf5c5c50304dfe260ffe4b50760",
+                "reference": "dd0df95bd37a7cf5c5c50304dfe260ffe4b50760",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "ext-json": "*",
+                "ext-simplexml": "*",
+                "guzzle/guzzle": ">=3.0",
+                "php": ">=5.3",
+                "psr/log": "1.0.0",
+                "symfony/config": ">=2.0",
+                "symfony/console": ">=2.0",
+                "symfony/stopwatch": ">=2.2",
+                "symfony/yaml": ">=2.0"
+            },
+            "require-dev": {
+                "apigen/apigen": "2.8.*@stable",
+                "pdepend/pdepend": "dev-master",
+                "phpmd/phpmd": "dev-master",
+                "phpunit/php-invoker": ">=1.1.0,<1.2.0",
+                "phpunit/phpunit": "3.7.*@stable",
+                "sebastian/finder-facade": "dev-master",
+                "sebastian/phpcpd": "1.4.*@stable",
+                "squizlabs/php_codesniffer": "1.4.*@stable",
+                "theseer/fdomdocument": "dev-master"
+            },
+            "bin": [
+                "composer/bin/coveralls"
+            ],
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Contrib\\Component": "src/",
+                    "Contrib\\Bundle": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Kitamura Satoshi",
+                    "email": "with.no.parachute@gmail.com",
+                    "homepage": "https://www.facebook.com/satooshi.jp"
+                }
+            ],
+            "description": "PHP client library for Coveralls API",
+            "homepage": "https://github.com/satooshi/php-coveralls",
+            "keywords": [
+                "ci",
+                "coverage",
+                "github",
+                "test"
+            ],
+            "time": "2013-05-04 08:07:33"
+        },
+        {
+            "name": "symfony/config",
+            "version": "v2.3.7",
+            "target-dir": "Symfony/Component/Config",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/Config.git",
+                "reference": "1ced3d6c88b22df8cd1fe5209dbd6a89df362a29"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/Config/zipball/1ced3d6c88b22df8cd1fe5209dbd6a89df362a29",
+                "reference": "1ced3d6c88b22df8cd1fe5209dbd6a89df362a29",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3",
+                "symfony/filesystem": "~2.3"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.3-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "Symfony\\Component\\Config\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "http://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony Config Component",
+            "homepage": "http://symfony.com",
+            "time": "2013-09-19 09:45:20"
+        },
+        {
+            "name": "symfony/console",
+            "version": "v2.3.7",
+            "target-dir": "Symfony/Component/Console",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/Console.git",
+                "reference": "00848d3e13cf512e77c7498c2b3b0192f61f4b18"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/Console/zipball/00848d3e13cf512e77c7498c2b3b0192f61f4b18",
+                "reference": "00848d3e13cf512e77c7498c2b3b0192f61f4b18",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3"
+            },
+            "require-dev": {
+                "symfony/event-dispatcher": "~2.1"
+            },
+            "suggest": {
+                "symfony/event-dispatcher": ""
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.3-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "Symfony\\Component\\Console\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "http://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony Console Component",
+            "homepage": "http://symfony.com",
+            "time": "2013-11-13 21:27:40"
+        },
+        {
+            "name": "symfony/event-dispatcher",
+            "version": "v2.3.7",
+            "target-dir": "Symfony/Component/EventDispatcher",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/EventDispatcher.git",
+                "reference": "2d8ece3c610726a73d0c95c885134efea182610e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/EventDispatcher/zipball/2d8ece3c610726a73d0c95c885134efea182610e",
+                "reference": "2d8ece3c610726a73d0c95c885134efea182610e",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3"
+            },
+            "require-dev": {
+                "symfony/dependency-injection": "~2.0"
+            },
+            "suggest": {
+                "symfony/dependency-injection": "",
+                "symfony/http-kernel": ""
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.3-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "Symfony\\Component\\EventDispatcher\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "http://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony EventDispatcher Component",
+            "homepage": "http://symfony.com",
+            "time": "2013-10-13 06:32:10"
+        },
+        {
+            "name": "symfony/filesystem",
+            "version": "v2.3.7",
+            "target-dir": "Symfony/Component/Filesystem",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/Filesystem.git",
+                "reference": "2b8995042086c5552c94d33b5553c492e9cfc00e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/Filesystem/zipball/2b8995042086c5552c94d33b5553c492e9cfc00e",
+                "reference": "2b8995042086c5552c94d33b5553c492e9cfc00e",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.3-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "Symfony\\Component\\Filesystem\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "http://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony Filesystem Component",
+            "homepage": "http://symfony.com",
+            "time": "2013-09-19 09:45:20"
+        },
+        {
+            "name": "symfony/finder",
+            "version": "v2.3.7",
+            "target-dir": "Symfony/Component/Finder",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/Finder.git",
+                "reference": "a175521f680b178e63c5d0ab87c6b046c0990c3f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/Finder/zipball/a175521f680b178e63c5d0ab87c6b046c0990c3f",
+                "reference": "a175521f680b178e63c5d0ab87c6b046c0990c3f",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.3-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "Symfony\\Component\\Finder\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "http://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony Finder Component",
+            "homepage": "http://symfony.com",
+            "time": "2013-09-19 09:45:20"
+        },
+        {
+            "name": "symfony/process",
+            "version": "v2.3.7",
+            "target-dir": "Symfony/Component/Process",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/Process.git",
+                "reference": "82898108f79040314a7b3ba430a72c32c7f61d14"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/Process/zipball/82898108f79040314a7b3ba430a72c32c7f61d14",
+                "reference": "82898108f79040314a7b3ba430a72c32c7f61d14",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.3-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "Symfony\\Component\\Process\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "http://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony Process Component",
+            "homepage": "http://symfony.com",
+            "time": "2013-10-30 08:30:20"
+        },
+        {
+            "name": "symfony/stopwatch",
+            "version": "v2.3.7",
+            "target-dir": "Symfony/Component/Stopwatch",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/Stopwatch.git",
+                "reference": "2d3491564a1413ea98074c557491b73ae46294ac"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/Stopwatch/zipball/2d3491564a1413ea98074c557491b73ae46294ac",
+                "reference": "2d3491564a1413ea98074c557491b73ae46294ac",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.3-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "Symfony\\Component\\Stopwatch\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "http://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony Stopwatch Component",
+            "homepage": "http://symfony.com",
+            "time": "2013-10-17 11:48:01"
+        },
+        {
+            "name": "symfony/yaml",
+            "version": "v2.3.7",
+            "target-dir": "Symfony/Component/Yaml",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/Yaml.git",
+                "reference": "c1bda5b459d792cb253de12c65beba3040163b2b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/Yaml/zipball/c1bda5b459d792cb253de12c65beba3040163b2b",
+                "reference": "c1bda5b459d792cb253de12c65beba3040163b2b",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.3-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "Symfony\\Component\\Yaml\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "http://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony Yaml Component",
+            "homepage": "http://symfony.com",
+            "time": "2013-10-17 11:48:01"
+        },
+        {
+            "name": "twig/twig",
+            "version": "v1.14.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/fabpot/Twig.git",
+                "reference": "ca445842fcea4f844d68203ffa2d00f5e3cdea64"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/fabpot/Twig/zipball/ca445842fcea4f844d68203ffa2d00f5e3cdea64",
+                "reference": "ca445842fcea4f844d68203ffa2d00f5e3cdea64",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.2.4"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.14-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "Twig_": "lib/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Armin Ronacher",
+                    "email": "armin.ronacher@active-4.com"
+                }
+            ],
+            "description": "Twig, the flexible, fast, and secure template language for PHP",
+            "homepage": "http://twig.sensiolabs.org",
+            "keywords": [
+                "templating"
+            ],
+            "time": "2013-10-30 08:20:53"
+        }
+    ],
+    "aliases": [
+
+    ],
+    "minimum-stability": "stable",
+    "stability-flags": [
+
+    ],
+    "platform": {
+        "php": ">=5.3"
+    },
+    "platform-dev": [
+
+    ]
+}
