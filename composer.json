@@ -1,0 +1,38 @@
+{
+    "name": "icecave/cooper",
+    "description": "This package needs a description!",
+    "keywords": [],
+    "homepage": "https://github.com/IcecaveStudios/cooper",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "James Harris",
+            "email": "james.harris@icecave.com.au",
+            "homepage": "https://github.com/jmalloc"
+        }
+    ],
+    "require": {
+        "php": ">=5.3",
+        "icecave/isolator": "~2"
+    },
+    "require-dev": {
+        "eloquent/typhoon": "~0.9.0",
+        "icecave/archer": "~1"
+    },
+    "suggest": {
+        "eloquent/asplode": "Drop-in exception-based error handling."
+    },
+    "autoload": {
+        "psr-0": {
+            "Icecave\\Cooper": "src",
+            "Icecave\\Cooper\\TypeCheck": "src-typhoon"
+        }
+    },
+    "extra": {
+        "typhoon": {
+            "output-path": "src-typhoon",
+            "validator-namespace": "Icecave\\Cooper\\TypeCheck",
+            "use-native-callable": false
+        }
+    }
+}
