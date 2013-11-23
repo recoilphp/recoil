@@ -1,0 +1,47 @@
+#!/usr/bin/env php
+<?php
+require dirname(__DIR__) . '/vendor/autoload.php';
+
+Eloquent\Asplode\Asplode::instance()->install();
+
+use Icecave\Recoil\Kernel\Kernel;
+use Icecave\Recoil\Recoil;
+use React\Dns\Resolver\Factory AS ResolverFactory;
+
+// Create the co-routine kernel ...
+$kernel = new Kernel;
+
+// Create the DNS resolver ...
+$resolverFactory = new ResolverFactory;
+$resolver = $resolverFactory->create(
+    '8.8.8.8',
+    $kernel->eventLoop()
+);
+
+/**
+ * Resolve a name to an IP address.
+ *
+ * @param string $name
+ */
+function resolve($name, $resolver)
+{
+    try {
+
+        $ip = (yield $resolver->resolve($name));
+
+        echo 'Resolved "' . $name . '" to ' . $ip . PHP_EOL;
+
+    } catch (Exception $e) {
+
+        echo 'Failed to resolve "' . $name . '" - ' . $e->getMessage() . PHP_EOL;
+
+    }
+}
+
+// Enqueue some resolution tasks ...
+$kernel->execute(resolve('icecave.com.au', $resolver));
+$kernel->execute(resolve('igor.io', $resolver));
+$kernel->execute(resolve('probably-wont-resolve', $resolver));
+
+// Run the React event-loop ...
+$kernel->eventLoop()->run();

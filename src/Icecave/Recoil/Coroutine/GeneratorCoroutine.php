@@ -11,7 +11,7 @@ use Icecave\Recoil\Kernel\StrandInterface;
 class GeneratorCoroutine implements CoroutineInterface
 {
     /**
-     * @param Generator The PHP generator that implements the co-routine logic.
+     * @param Generator $generator The PHP generator that implements the co-routine logic.
      */
     public function __construct(Generator $generator)
     {
@@ -91,6 +91,7 @@ class GeneratorCoroutine implements CoroutineInterface
      */
     public function cancel()
     {
+        $this->pending = false;
         $this->generator = null;
         $this->value = null;
         $this->exception = null;

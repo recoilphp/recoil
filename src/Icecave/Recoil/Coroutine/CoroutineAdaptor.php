@@ -6,6 +6,7 @@ use Icecave\Recoil\Kernel\StrandInterface;
 use Icecave\Recoil\Recoil;
 use Icecave\Repr\Repr;
 use InvalidArgumentException;
+use React\Promise\PromiseInterface;
 
 /**
  * The default co-routine adaptor implementation.
@@ -27,6 +28,8 @@ class CoroutineAdaptor implements CoroutineAdaptorInterface
             return $value;
         } elseif ($value instanceof Generator) {
             return new GeneratorCoroutine($value);
+        } elseif ($value instanceof PromiseInterface) {
+            return new PromiseCoroutine($value);
         } elseif (null === $value) {
             return Recoil::cooperate();
         }
