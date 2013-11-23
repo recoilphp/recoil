@@ -5,14 +5,25 @@ use Exception;
 use Generator;
 use Icecave\Recoil\Kernel\StrandInterface;
 
+/**
+ * A co-routine wrapper for PHP generators.
+ */
 class GeneratorCoroutine implements CoroutineInterface
 {
+    /**
+     * @param Generator The PHP generator that implements the co-routine logic.
+     */
     public function __construct(Generator $generator)
     {
         $this->generator = $generator;
         $this->pending = true;
     }
 
+    /**
+     * Perform the next unit-of-work.
+     *
+     * @param StrandInterface $strand The currently executing strand.
+     */
     public function tick(StrandInterface $strand)
     {
         try {
@@ -53,18 +64,31 @@ class GeneratorCoroutine implements CoroutineInterface
         }
     }
 
+    /**
+     * Set the value to send to the co-routine on the next tick.
+     *
+     * @param mixed $value The value to send.
+     */
     public function setValue($value)
     {
         $this->value = $value;
         $this->exception = null;
     }
 
+    /**
+     * Set the exception to throw to the co-routine on the next tick.
+     *
+     * @param mixed $value The value to send.
+     */
     public function setException(Exception $exception)
     {
         $this->value = null;
         $this->exception = $exception;
     }
 
+    /**
+     * Cancel execution of the co-routine.
+     */
     public function cancel()
     {
         $this->generator = null;

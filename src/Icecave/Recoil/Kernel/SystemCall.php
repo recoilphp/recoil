@@ -6,6 +6,11 @@ use Exception;
 use Icecave\Recoil\Coroutine\CoroutineInterface;
 use LogicException;
 
+/**
+ * Represents a system-call.
+ *
+ * The call is proxied on to the Kernel API implementation.
+ */
 class SystemCall implements CoroutineInterface
 {
     /**
@@ -18,6 +23,11 @@ class SystemCall implements CoroutineInterface
         $this->arguments = $arguments;
     }
 
+    /**
+     * Perform the next unit-of-work.
+     *
+     * @param StrandInterface $strand The currently executing strand.
+     */
     public function tick(StrandInterface $strand)
     {
         $method = [$strand->kernel()->api(), $this->name];
@@ -35,6 +45,10 @@ class SystemCall implements CoroutineInterface
     }
 
     /**
+     * Set the value to send to the co-routine on the next tick.
+     *
+     * @param mixed $value The value to send.
+     *
      * @codeCoverageIgnore
      */
     public function setValue($value)
@@ -43,6 +57,10 @@ class SystemCall implements CoroutineInterface
     }
 
     /**
+     * Set the exception to throw to the co-routine on the next tick.
+     *
+     * @param mixed $value The value to send.
+     *
      * @codeCoverageIgnore
      */
     public function setException(Exception $exception)
@@ -51,6 +69,8 @@ class SystemCall implements CoroutineInterface
     }
 
     /**
+     * Cancel execution of the co-routine.
+     *
      * @codeCoverageIgnore
      */
     public function cancel()

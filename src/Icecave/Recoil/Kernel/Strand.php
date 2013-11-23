@@ -5,11 +5,16 @@ use Exception;
 use Icecave\Recoil\Coroutine\CoroutineInterface;
 use SplStack;
 
+/**
+ * A strand represents a user-space "thread" of execution.
+ */
 class Strand implements StrandInterface
 {
-    public function __construct($id, KernelInterface $kernel)
+    /**
+     * @param KernelInterface The co-routine kernel.
+     */
+    public function __construct(KernelInterface $kernel)
     {
-        $this->id = $id;
         $this->kernel = $kernel;
         $this->stack = new SplStack;
         $this->stack->push(new StackRoot);
@@ -59,13 +64,11 @@ class Strand implements StrandInterface
                 ->kernel()
                 ->coroutineAdaptor()
                 ->adapt($this, $coroutine);
+
+            $this->stack->push($coroutine);
         } catch (Exception $e) {
             $this->current()->setException($e);
-
-            return;
         }
-
-        $this->stack->push($coroutine);
     }
 
     /**
@@ -116,7 +119,7 @@ class Strand implements StrandInterface
         $this->suspended = false;
 
         $this->current()->setValue($value);
-        $this->kernel()->executeStrand($this);
+        $this->kernel()->attachStrand($this);
     }
 
     /**
@@ -127,7 +130,7 @@ class Strand implements StrandInterface
         $this->suspended = false;
 
         $this->current()->setException($exception);
-        $this->kernel()->executeStrand($this);
+        $this->kernel()->attachStrand($this);
     }
 
     public function tick()
@@ -141,7 +144,6 @@ class Strand implements StrandInterface
         return true;
     }
 
-    private $id;
     private $kernel;
     private $stack;
     private $suspended;

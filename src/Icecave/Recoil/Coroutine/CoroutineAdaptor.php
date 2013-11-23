@@ -7,8 +7,20 @@ use Icecave\Recoil\Recoil;
 use Icecave\Repr\Repr;
 use InvalidArgumentException;
 
+/**
+ * The default co-routine adaptor implementation.
+ */
 class CoroutineAdaptor implements CoroutineAdaptorInterface
 {
+    /**
+     * Adapt a value into a co-routine.
+     *
+     * @param StrandInterface $strand The currently executing strand.
+     * @param mixed           $value  The value to adapt.
+     *
+     * @return CoroutineInterface
+     * @throws InvalidArgumentException if now valid adaptation can be made.
+     */
     public function adapt(StrandInterface $strand, $value)
     {
         if ($value instanceof CoroutineInterface) {
