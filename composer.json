@@ -14,12 +14,15 @@
     "require": {
         "php": ">=5.5",
         "icecave/isolator": "~2",
+        "icecave/repr": "~1",
+        "psr/log": "~1",
         "react/event-loop": "dev-next-tick as 0.3.3"
     },
     "require-dev": {
         "eloquent/asplode": "~1",
         "eloquent/liberator": "~1",
         "icecave/archer": "~1",
+        "monolog/monolog": "~1",
         "phake/phake": "2.0.0-alpha4 as v1.0.3"
     },
     "suggest": {
