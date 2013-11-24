@@ -4,7 +4,6 @@ namespace Icecave\Recoil\Coroutine;
 use Exception;
 use Icecave\Recoil\Kernel\StrandInterface;
 use React\Promise\ResolverInterface;
-use RuntimeException;
 
 /**
  * A co-routine that resolves a promise when it is resumed.
@@ -12,8 +11,8 @@ use RuntimeException;
 class ResolverCoroutine implements CoroutineInterface
 {
     /**
-     * @param ResolverInterface $resolver The ReactPHP promise resolver.
-     * @param mixed $coroutine
+     * @param ResolverInterface $resolver  The ReactPHP promise resolver.
+     * @param mixed             $coroutine
      */
     public function __construct(ResolverInterface $resolver, $coroutine)
     {
@@ -25,42 +24,22 @@ class ResolverCoroutine implements CoroutineInterface
     /**
      * Perform the next unit-of-work.
      *
-     * @param StrandInterface $strand The currently executing strand.
+     * @param StrandInterface $strand    The currently executing strand.
+     * @param mixed           $value
+     * @param Exception|null  $exception
      */
-    public function tick(StrandInterface $strand)
+    public function tick(StrandInterface $strand, $value = null, Exception $exception = null)
     {
         if ($this->pending) {
             $this->pending = false;
             $strand->call($this->coroutine);
-        } elseif ($this->exception) {
-            $this->resolver->reject($this->exception);
+        } elseif ($exception) {
+            $this->resolver->reject($exception);
             $strand->returnValue(false);
         } else {
-            $this->resolver->resolve($this->value);
+            $this->resolver->resolve($value);
             $strand->returnValue(true);
         }
-    }
-
-    /**
-     * Set the value to send to the co-routine on the next tick.
-     *
-     * @param mixed $value The value to send.
-     */
-    public function setValue($value)
-    {
-        $this->value = $value;
-        $this->exception = null;
-    }
-
-    /**
-     * Set the exception to throw to the co-routine on the next tick.
-     *
-     * @param mixed $value The value to send.
-     */
-    public function setException(Exception $exception)
-    {
-        $this->value = null;
-        $this->exception = $exception;
     }
 
     /**
@@ -70,13 +49,9 @@ class ResolverCoroutine implements CoroutineInterface
     {
         $this->resolver = null;
         $this->pending = false;
-        $this->value = null;
-        $this->exception = null;
     }
 
     private $resolver;
     private $coroutine;
     private $pending;
-    private $value;
-    private $exception;
 }

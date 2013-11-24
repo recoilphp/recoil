@@ -16,35 +16,17 @@ class StackRoot implements CoroutineInterface
     /**
      * Perform the next unit-of-work.
      *
-     * @param StrandInterface $strand The currently executing strand.
+     * @param StrandInterface $strand    The currently executing strand.
+     * @param mixed           $value
+     * @param Exception|null  $exception
      */
-    public function tick(StrandInterface $strand)
+    public function tick(StrandInterface $strand, $value = null, Exception $exception = null)
     {
-        if ($this->exception) {
-            throw $this->exception;
+        if ($exception) {
+            throw $exception;
         }
 
         $strand->pop();
-    }
-
-    /**
-     * Set the value to send to the co-routine on the next tick.
-     *
-     * @param mixed $value The value to send.
-     */
-    public function setValue($value)
-    {
-        $this->exception = null;
-    }
-
-    /**
-     * Set the exception to throw to the co-routine on the next tick.
-     *
-     * @param mixed $value The value to send.
-     */
-    public function setException(Exception $exception)
-    {
-        $this->exception = $exception;
     }
 
     /**

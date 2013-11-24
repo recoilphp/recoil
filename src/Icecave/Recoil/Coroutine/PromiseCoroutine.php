@@ -22,9 +22,11 @@ class PromiseCoroutine implements CoroutineInterface
     /**
      * Perform the next unit-of-work.
      *
-     * @param StrandInterface $strand The currently executing strand.
+     * @param StrandInterface $strand    The currently executing strand.
+     * @param mixed           $value
+     * @param Exception|null  $exception
      */
-    public function tick(StrandInterface $strand)
+    public function tick(StrandInterface $strand, $value = null, Exception $exception = null)
     {
         if (null === $this->strand) {
             $this->strand = $strand;
@@ -33,33 +35,11 @@ class PromiseCoroutine implements CoroutineInterface
                 [$this, 'onPromiseFulfilled'],
                 [$this, 'onPromiseRejected']
             );
-        } elseif ($this->exception) {
-            $strand->throwException($this->exception);
+        } elseif ($exception) {
+            $strand->throwException($exception);
         } else {
-            $strand->returnValue($this->value);
+            $strand->returnValue($value);
         }
-    }
-
-    /**
-     * Set the value to send to the co-routine on the next tick.
-     *
-     * @param mixed $value The value to send.
-     */
-    public function setValue($value)
-    {
-        $this->value = $value;
-        $this->exception = null;
-    }
-
-    /**
-     * Set the exception to throw to the co-routine on the next tick.
-     *
-     * @param mixed $value The value to send.
-     */
-    public function setException(Exception $exception)
-    {
-        $this->value = null;
-        $this->exception = $exception;
     }
 
     /**
@@ -69,8 +49,6 @@ class PromiseCoroutine implements CoroutineInterface
     {
         $this->promise = null;
         $this->strand = null;
-        $this->value = null;
-        $this->exception = null;
     }
 
     /**
@@ -103,6 +81,4 @@ class PromiseCoroutine implements CoroutineInterface
 
     private $promise;
     private $strand;
-    private $value;
-    private $exception;
 }

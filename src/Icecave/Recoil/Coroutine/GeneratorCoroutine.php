@@ -22,9 +22,11 @@ class GeneratorCoroutine implements CoroutineInterface
     /**
      * Perform the next unit-of-work.
      *
-     * @param StrandInterface $strand The currently executing strand.
+     * @param StrandInterface $strand    The currently executing strand.
+     * @param mixed           $value
+     * @param Exception|null  $exception
      */
-    public function tick(StrandInterface $strand)
+    public function tick(StrandInterface $strand, $value = null, Exception $exception = null)
     {
         try {
             // The generator has not been started yet ...
@@ -32,12 +34,12 @@ class GeneratorCoroutine implements CoroutineInterface
                 $this->pending = false;
 
             // The generator is running and there as exception to be sent ...
-            } elseif ($this->exception) {
-                $this->generator->throw($this->exception);
+            } elseif ($exception) {
+                $this->generator->throw($exception);
 
             // Otherwise send the value ...
             } else {
-                $this->generator->send($this->value);
+                $this->generator->send($value);
             }
 
             $valid = $this->generator->valid();
@@ -47,11 +49,6 @@ class GeneratorCoroutine implements CoroutineInterface
             $strand->throwException($e);
 
             return;
-
-        // Always clean up the value/exception ...
-        } finally {
-            $this->value = null;
-            $this->exception = null;
         }
 
         // The generator yielded a co-routine to execute ...
@@ -65,40 +62,14 @@ class GeneratorCoroutine implements CoroutineInterface
     }
 
     /**
-     * Set the value to send to the co-routine on the next tick.
-     *
-     * @param mixed $value The value to send.
-     */
-    public function setValue($value)
-    {
-        $this->value = $value;
-        $this->exception = null;
-    }
-
-    /**
-     * Set the exception to throw to the co-routine on the next tick.
-     *
-     * @param mixed $value The value to send.
-     */
-    public function setException(Exception $exception)
-    {
-        $this->value = null;
-        $this->exception = $exception;
-    }
-
-    /**
      * Cancel execution of the co-routine.
      */
     public function cancel()
     {
         $this->generator = null;
         $this->pending = false;
-        $this->value = null;
-        $this->exception = null;
     }
 
     private $generator;
     private $pending;
-    private $value;
-    private $exception;
 }

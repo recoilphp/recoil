@@ -82,7 +82,8 @@ class Strand implements StrandInterface
             $this->push($coroutine);
             $this->nextTickImmediate();
         } catch (Exception $e) {
-            $this->current()->setException($e);
+            $this->nextValue = null;
+            $this->nextException = $e;
         }
     }
 
@@ -93,8 +94,10 @@ class Strand implements StrandInterface
      */
     public function returnValue($value = null)
     {
+        $this->nextValue = $value;
+        $this->nextException = null;
+
         $this->pop();
-        $this->current()->setValue($value);
         $this->nextTickDeferred();
     }
 
@@ -105,8 +108,10 @@ class Strand implements StrandInterface
      */
     public function throwException(Exception $exception)
     {
+        $this->nextValue = null;
+        $this->nextException = $exception;
+
         $this->pop();
-        $this->current()->setException($exception);
         $this->nextTickDeferred();
     }
 
@@ -132,7 +137,9 @@ class Strand implements StrandInterface
      */
     public function resume($value = null)
     {
-        $this->current()->setValue($value);
+        $this->nextValue = $value;
+        $this->nextException = null;
+
         $this->kernel()->attachStrand($this);
         $this->nextTickDeferred();
     }
@@ -140,9 +147,11 @@ class Strand implements StrandInterface
     /**
      * Resume execution of this strand.
      */
-    public function resumeWithException(Exception $exception = null)
+    public function resumeWithException(Exception $exception)
     {
-        $this->current()->setException($exception);
+        $this->nextValue = null;
+        $this->nextException = $exception;
+
         $this->kernel()->attachStrand($this);
         $this->nextTickDeferred();
     }
@@ -175,7 +184,11 @@ class Strand implements StrandInterface
                 return;
             }
 
-            $this->current()->tick($this);
+            $value = $this->nextValue;
+            $exception = $this->nextException;
+            $this->nextValue = $this->nextException = null;
+
+            $this->current()->tick($this, $value, $exception);
 
         } while ($this->immediate);
     }
@@ -183,4 +196,6 @@ class Strand implements StrandInterface
     private $kernel;
     private $stack;
     private $immediate;
+    private $nextValue;
+    private $nextException;
 }

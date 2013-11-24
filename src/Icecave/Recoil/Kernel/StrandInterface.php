@@ -83,7 +83,7 @@ interface StrandInterface
     /**
      * Resume execution of this strand.
      */
-    public function resumeWithException(Exception $exception = null);
+    public function resumeWithException(Exception $exception);
 
     /**
      * Instructs the strand to resume immediately after the next tick.

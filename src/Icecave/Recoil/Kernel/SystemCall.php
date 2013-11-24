@@ -26,9 +26,11 @@ class SystemCall implements CoroutineInterface
     /**
      * Perform the next unit-of-work.
      *
-     * @param StrandInterface $strand The currently executing strand.
+     * @param StrandInterface $strand    The currently executing strand.
+     * @param mixed           $value
+     * @param Exception|null  $exception
      */
-    public function tick(StrandInterface $strand)
+    public function tick(StrandInterface $strand, $value = null, Exception $exception = null)
     {
         $method = [$strand->kernel()->api(), $this->name];
 
@@ -42,30 +44,6 @@ class SystemCall implements CoroutineInterface
                 new BadMethodCallException('Kernel API does not support the "' . $this->name . '" system-call.')
             );
         }
-    }
-
-    /**
-     * Set the value to send to the co-routine on the next tick.
-     *
-     * @param mixed $value The value to send.
-     *
-     * @codeCoverageIgnore
-     */
-    public function setValue($value)
-    {
-        throw new LogicException('Not supported.');
-    }
-
-    /**
-     * Set the exception to throw to the co-routine on the next tick.
-     *
-     * @param mixed $value The value to send.
-     *
-     * @codeCoverageIgnore
-     */
-    public function setException(Exception $exception)
-    {
-        throw new LogicException('Not supported.');
     }
 
     /**
