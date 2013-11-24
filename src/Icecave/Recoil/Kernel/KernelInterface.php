@@ -16,6 +16,8 @@ interface KernelInterface
      * the kernel's co-routine adaptor.
      *
      * @param mixed $coroutine The co-routine to execute.
+     *
+     * @return StrandInterface The strand on which the co-routine will execute.
      */
     public function execute($coroutine);
 

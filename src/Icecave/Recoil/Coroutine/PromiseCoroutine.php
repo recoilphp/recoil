@@ -7,7 +7,7 @@ use React\Promise\PromiseInterface;
 use RuntimeException;
 
 /**
- * A co-routine wrapper for ReactPHP promises.
+ * A co-routine that resumes when a promise is fulfilled or rejected.
  */
 class PromiseCoroutine implements CoroutineInterface
 {

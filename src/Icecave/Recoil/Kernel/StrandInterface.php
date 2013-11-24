@@ -85,9 +85,18 @@ interface StrandInterface
      */
     public function resumeWithException(Exception $exception = null);
 
+    /**
+     * Instructs the strand to resume immediately after the next tick.
+     */
     public function nextTickImmediate();
 
+    /**
+     * Instructs the strand to defer after the next tick.
+     */
     public function nextTickDeferred();
 
+    /**
+     * Perform the next unit-of-work for this strand.
+     */
     public function tick();
 }

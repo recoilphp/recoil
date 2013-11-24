@@ -147,16 +147,25 @@ class Strand implements StrandInterface
         $this->nextTickDeferred();
     }
 
+    /**
+     * Instructs the strand to resume immediately after the next tick.
+     */
     public function nextTickImmediate()
     {
         $this->immediate = true;
     }
 
+    /**
+     * Instructs the strand to defer after the next tick.
+     */
     public function nextTickDeferred()
     {
         $this->immediate = false;
     }
 
+    /**
+     * Perform the next unit-of-work for this strand.
+     */
     public function tick()
     {
         do {

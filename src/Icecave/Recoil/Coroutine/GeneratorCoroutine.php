@@ -91,8 +91,8 @@ class GeneratorCoroutine implements CoroutineInterface
      */
     public function cancel()
     {
-        $this->pending = false;
         $this->generator = null;
+        $this->pending = false;
         $this->value = null;
         $this->exception = null;
     }
