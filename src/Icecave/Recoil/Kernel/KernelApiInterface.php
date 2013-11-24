@@ -39,7 +39,14 @@ interface KernelApiInterface
     public function suspend(StrandInterface $strand, callable $callback);
 
     /**
-     * Do nothing (delays execution of the strand until the next tick).
+     * Resume the strand immediately.
+     *
+     * @param StrandInterface $strand The currently executing strand.
+     */
+    public function noop(StrandInterface $strand);
+
+    /**
+     * Suspend the strand until the next tick.
      *
      * @param StrandInterface $strand The currently executing strand.
      */

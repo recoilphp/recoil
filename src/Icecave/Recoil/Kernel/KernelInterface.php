@@ -27,6 +27,13 @@ interface KernelInterface
     public function attachStrand(StrandInterface $strand);
 
     /**
+     * Detach an existing strand from this kernel.
+     *
+     * @param StrandInterface The strand to detach.
+     */
+    public function detachStrand(StrandInterface $strand);
+
+    /**
      * Fetch the object that implements the kernel's system calls.
      *
      * @return KernelApiInterface The kernel's API implementation.

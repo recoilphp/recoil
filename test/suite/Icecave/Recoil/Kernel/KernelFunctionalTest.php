@@ -6,6 +6,7 @@ use Exception;
 use Icecave\Recoil\Recoil;
 use InvalidArgumentException;
 use PHPUnit_Framework_TestCase;
+use React\Promise\FulfilledPromise;
 
 class KernelFunctionalTest extends PHPUnit_Framework_TestCase
 {
@@ -262,17 +263,18 @@ class KernelFunctionalTest extends PHPUnit_Framework_TestCase
             echo 1;
             echo (yield Recoil::suspend(
                 function ($s) use (&$strand) {
-                    echo 3;
+                    echo 2;
                     $strand = $s;
                 }
             ));
         };
 
         $resumer = function () use (&$strand) {
-            echo 2;
-            yield;
+            echo 3;
             $strand->resume(5);
             echo 4;
+
+            return; yield; // enforce generator
         };
 
         $this->kernel->execute($coroutine());
@@ -296,7 +298,7 @@ class KernelFunctionalTest extends PHPUnit_Framework_TestCase
             try {
                 yield Recoil::suspend(
                     function ($s) use (&$strand) {
-                        echo 3;
+                        echo 2;
                         $strand = $s;
                     }
                 );
@@ -306,15 +308,91 @@ class KernelFunctionalTest extends PHPUnit_Framework_TestCase
         };
 
         $resumer = function () use (&$strand) {
-            echo 2;
-            yield;
+            echo 3;
             $strand->resumeWithException(new Exception(5));
             echo 4;
+
+            return; yield; // enforce generator
         };
 
         $this->kernel->execute($coroutine());
         $this->kernel->execute($resumer());
 
         $this->kernel->eventLoop()->run();
+    }
+
+    /**
+     * Test that strands can yield execution to other strands using
+     * Recoil::cooperate().
+     */
+    public function testCooperate()
+    {
+        $this->expectOutputString('1A2A1B2B');
+
+        $coroutine = function ($id) {
+            echo $id . 'A';
+            yield Recoil::cooperate();
+            echo $id . 'B';
+        };
+
+        $this->kernel->execute($coroutine(1));
+        $this->kernel->execute($coroutine(2));
+
+        $this->kernel->eventLoop()->run();
+    }
+
+    /**
+     * Test that strands can yield execution to other strands by yeilding null.
+     */
+    public function testCooperateWithNull()
+    {
+        $this->expectOutputString('1A2A1B2B');
+
+        $coroutine = function ($id) {
+            echo $id . 'A';
+            yield;
+            echo $id . 'B';
+        };
+
+        $this->kernel->execute($coroutine(1));
+        $this->kernel->execute($coroutine(2));
+
+        $this->kernel->eventLoop()->run();
+    }
+
+    /**
+     * Test that the no-op operation is no-cooperative.
+     */
+    public function testNoOp()
+    {
+        $this->expectOutputString('1A1B2A2B');
+
+        $coroutine = function ($id) {
+            echo $id . 'A';
+            yield Recoil::noop();
+            echo $id . 'B';
+        };
+
+        $this->kernel->execute($coroutine(1));
+        $this->kernel->execute($coroutine(2));
+
+        $this->kernel->eventLoop()->run();
+    }
+
+    /**
+     * Test that a ReactPHP promise can be yielded directly.
+     */
+    public function testFulfilledPromise()
+    {
+        $value = null;
+        $coroutine = function () use (&$value) {
+            $value = (yield new FulfilledPromise(123));
+        };
+
+        $this->kernel->execute($coroutine());
+
+        $this->kernel->eventLoop()->run();
+
+        $this->assertSame(123, $value);
     }
 }

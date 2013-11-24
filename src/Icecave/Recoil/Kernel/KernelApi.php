@@ -17,7 +17,9 @@ class KernelApi implements KernelApiInterface
 
         $strand->returnValue($value);
 
-        $strand->kernel()->execute($coroutine);
+        $strand
+            ->kernel()
+            ->execute($coroutine);
     }
 
     /**
@@ -32,7 +34,9 @@ class KernelApi implements KernelApiInterface
 
         $strand->throwException($exception);
 
-        $strand->kernel()->execute($coroutine);
+        $strand
+            ->kernel()
+            ->execute($coroutine);
     }
 
     /**
@@ -58,11 +62,22 @@ class KernelApi implements KernelApiInterface
     }
 
     /**
-     * Do nothing (delays execution of the strand until the next tick).
+     * Suspend the strand until the next tick.
      *
      * @param StrandInterface $strand The currently executing strand.
      */
     public function cooperate(StrandInterface $strand)
     {
+        $strand->nextTickDeferred();
+    }
+
+    /**
+     * Resume the strand immediately.
+     *
+     * @param StrandInterface $strand The currently executing strand.
+     */
+    public function noop(StrandInterface $strand)
+    {
+        $strand->nextTickImmediate();
     }
 }

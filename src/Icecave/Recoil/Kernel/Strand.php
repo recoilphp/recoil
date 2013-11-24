@@ -18,6 +18,8 @@ class Strand implements StrandInterface
         $this->kernel = $kernel;
         $this->stack = new SplStack;
         $this->stack->push(new StackRoot);
+
+        $this->nextTickDeferred();
     }
 
     /**
@@ -41,6 +43,23 @@ class Strand implements StrandInterface
     }
 
     /**
+     * Push a co-routine onto the stack.
+     *
+     * The value must be adaptable using the kernel's co-routine adaptor.
+     *
+     * @param mixed $coroutine The co-routine to call.
+     */
+    public function push($coroutine)
+    {
+        $coroutine = $this
+            ->kernel()
+            ->coroutineAdaptor()
+            ->adapt($this, $coroutine);
+
+        $this->stack->push($coroutine);
+    }
+
+    /**
      * Pop the current co-routine off the stack.
      *
      * @return CoroutineInterface
@@ -60,12 +79,8 @@ class Strand implements StrandInterface
     public function call($coroutine)
     {
         try {
-            $coroutine = $this
-                ->kernel()
-                ->coroutineAdaptor()
-                ->adapt($this, $coroutine);
-
-            $this->stack->push($coroutine);
+            $this->push($coroutine);
+            $this->nextTickImmediate();
         } catch (Exception $e) {
             $this->current()->setException($e);
         }
@@ -79,8 +94,8 @@ class Strand implements StrandInterface
     public function returnValue($value = null)
     {
         $this->pop();
-
         $this->current()->setValue($value);
+        $this->nextTickDeferred();
     }
 
     /**
@@ -91,8 +106,8 @@ class Strand implements StrandInterface
     public function throwException(Exception $exception)
     {
         $this->pop();
-
         $this->current()->setException($exception);
+        $this->nextTickDeferred();
     }
 
     /**
@@ -108,7 +123,8 @@ class Strand implements StrandInterface
      */
     public function suspend()
     {
-        $this->suspended = true;
+        $this->kernel()->detachStrand($this);
+        $this->nextTickDeferred();
     }
 
     /**
@@ -116,10 +132,9 @@ class Strand implements StrandInterface
      */
     public function resume($value = null)
     {
-        $this->suspended = false;
-
         $this->current()->setValue($value);
         $this->kernel()->attachStrand($this);
+        $this->nextTickDeferred();
     }
 
     /**
@@ -127,24 +142,36 @@ class Strand implements StrandInterface
      */
     public function resumeWithException(Exception $exception = null)
     {
-        $this->suspended = false;
-
         $this->current()->setException($exception);
         $this->kernel()->attachStrand($this);
+        $this->nextTickDeferred();
+    }
+
+    public function nextTickImmediate()
+    {
+        $this->immediate = true;
+    }
+
+    public function nextTickDeferred()
+    {
+        $this->immediate = false;
     }
 
     public function tick()
     {
-        if ($this->suspended || $this->stack->isEmpty()) {
-            return false;
-        }
+        do {
+            if ($this->stack->isEmpty()) {
+                $this->suspend();
 
-        $this->current()->tick($this);
+                return;
+            }
 
-        return true;
+            $this->current()->tick($this);
+
+        } while ($this->immediate);
     }
 
     private $kernel;
     private $stack;
-    private $suspended;
+    private $immediate;
 }

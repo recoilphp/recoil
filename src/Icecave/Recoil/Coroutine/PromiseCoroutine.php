@@ -28,11 +28,11 @@ class PromiseCoroutine implements CoroutineInterface
     {
         if (null === $this->strand) {
             $this->strand = $strand;
+            $this->strand->suspend();
             $this->promise->then(
                 [$this, 'onPromiseFulfilled'],
                 [$this, 'onPromiseRejected']
             );
-            $strand->suspend();
         } elseif ($this->exception) {
             $strand->throwException($this->exception);
         } else {
@@ -78,9 +78,11 @@ class PromiseCoroutine implements CoroutineInterface
      */
     public function onPromiseFulfilled($value)
     {
-        if ($this->strand) {
-            $this->strand->resume($value);
+        if (!$this->strand) {
+            return;
         }
+
+        $this->strand->resume($value);
     }
 
     /**
@@ -88,13 +90,15 @@ class PromiseCoroutine implements CoroutineInterface
      */
     public function onPromiseRejected($reason)
     {
-        if ($this->strand) {
-            if (!$reason instanceof Exception) {
-                $reason = new RuntimeException($reason);
-            }
-
-            $this->strand->resumeWithException($reason);
+        if (!$this->strand) {
+            return;
         }
+
+        if (!$reason instanceof Exception) {
+            $reason = new RuntimeException($reason);
+        }
+
+        $this->strand->resumeWithException($reason);
     }
 
     private $promise;

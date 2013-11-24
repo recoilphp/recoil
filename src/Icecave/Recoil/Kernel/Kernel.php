@@ -5,7 +5,7 @@ use Icecave\Recoil\Coroutine\CoroutineAdaptor;
 use Icecave\Recoil\Coroutine\CoroutineAdaptorInterface;
 use React\EventLoop\Factory as EventLoopFactory;
 use React\EventLoop\LoopInterface;
-use SplQueue;
+use SplObjectStorage;
 
 /**
  * The default kernel implementation.
@@ -44,7 +44,7 @@ class Kernel implements KernelInterface
         $this->coroutineAdaptor = $coroutineAdaptor;
         $this->strandFactory = $strandFactory;
         $this->eventLoop = $eventLoop;
-        $this->strands = new SplQueue;
+        $this->strands = new SplObjectStorage;
     }
 
     /**
@@ -69,15 +69,21 @@ class Kernel implements KernelInterface
      */
     public function attachStrand(StrandInterface $strand)
     {
-        if ($this->strands->isEmpty()) {
-            $this->eventLoop()->nextTick(
-                function () {
-                    $this->tick();
-                }
-            );
+        if (0 === $this->strands->count()) {
+            $this->registerTick();
         }
 
-        $this->strands->push($strand);
+        $this->strands->attach($strand);
+    }
+
+    /**
+     * Detach an existing strand from this kernel.
+     *
+     * @param StrandInterface The strand to detach.
+     */
+    public function detachStrand(StrandInterface $strand)
+    {
+        $this->strands->detach($strand);
     }
 
     /**
@@ -125,16 +131,22 @@ class Kernel implements KernelInterface
      */
     protected function tick()
     {
-        $strands = $this->strands;
-        $this->strands = new SplQueue;
-
-        while (!$strands->isEmpty()) {
-            $strand = $strands->dequeue();
-
-            if ($strand->tick()) {
-                $this->attachStrand($strand);
-            }
+        foreach ($this->strands as $strand) {
+            $strand->tick();
         }
+
+        if (0 !== $this->strands->count()) {
+            $this->registerTick();
+        }
+    }
+
+    protected function registerTick()
+    {
+        $this->eventLoop()->nextTick(
+            function () {
+                $this->tick();
+            }
+        );
     }
 
     private $api;

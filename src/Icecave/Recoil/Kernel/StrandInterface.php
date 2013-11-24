@@ -24,6 +24,15 @@ interface StrandInterface
     public function current();
 
     /**
+     * Push a co-routine onto the stack.
+     *
+     * The value must be adaptable using the kernel's co-routine adaptor.
+     *
+     * @param mixed $coroutine The co-routine to call.
+     */
+    public function push($coroutine);
+
+    /**
      * Pop the current co-routine off the stack.
      *
      * @return CoroutineInterface
@@ -34,6 +43,9 @@ interface StrandInterface
      * Call the given co-routine.
      *
      * The value must be adaptable using the kernel's co-routine adaptor.
+     *
+     * A 'call' operation is similar to a 'push' except that co-routine
+     * adaptation errors are sent to the next co-routine on the stack.
      *
      * @param mixed $coroutine The co-routine to call.
      */
@@ -72,6 +84,10 @@ interface StrandInterface
      * Resume execution of this strand.
      */
     public function resumeWithException(Exception $exception = null);
+
+    public function nextTickImmediate();
+
+    public function nextTickDeferred();
 
     public function tick();
 }
