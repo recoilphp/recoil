@@ -2,6 +2,7 @@
 namespace Icecave\Recoil\Kernel;
 
 use Exception;
+use Icecave\Recoil\Kernel\Exception\TimeoutException;
 
 class KernelApi implements KernelApiInterface
 {
@@ -127,7 +128,7 @@ class KernelApi implements KernelApiInterface
             ->addTimer(
                 $timeout,
                 function () use ($strand, $substrand) {
-                    $strand->resumeWithException(new Exception\TimeoutException);
+                    $strand->resumeWithException(new TimeoutException);
                     $substrand->terminate();
                 }
             );

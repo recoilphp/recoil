@@ -138,8 +138,8 @@ class ChannelTest extends PHPUnit_Framework_TestCase
             'A reading' . PHP_EOL .
             'B reading' . PHP_EOL .
             'closing' . PHP_EOL .
-            'A closed' . PHP_EOL .
-            'B closed' . PHP_EOL
+            'B closed' . PHP_EOL .
+            'A closed' . PHP_EOL
         );
 
         $reader = function ($id) {
@@ -156,6 +156,7 @@ class ChannelTest extends PHPUnit_Framework_TestCase
         $this->kernel->execute(
             call_user_func(
                 function () {
+                    yield;
                     echo 'closing' . PHP_EOL;
                     yield $this->channel->close();
                 }
@@ -171,8 +172,8 @@ class ChannelTest extends PHPUnit_Framework_TestCase
             'A writing' . PHP_EOL .
             'B writing' . PHP_EOL .
             'closing' . PHP_EOL .
-            'A closed' . PHP_EOL .
-            'B closed' . PHP_EOL
+            'B closed' . PHP_EOL .
+            'A closed' . PHP_EOL
         );
 
         $writer = function ($id) {
@@ -189,6 +190,7 @@ class ChannelTest extends PHPUnit_Framework_TestCase
         $this->kernel->execute(
             call_user_func(
                 function () {
+                    yield;
                     echo 'closing' . PHP_EOL;
                     yield $this->channel->close();
                 }

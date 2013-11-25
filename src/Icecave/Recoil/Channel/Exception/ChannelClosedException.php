@@ -7,7 +7,7 @@ use Icecave\Recoil\Channel\ChannelInterface;
 /**
  * A read or write operation was attempted on a channel that has been closed.
  */
-class ChannelClosedException extends Exception implements ChannelExceptionInterface
+class ChannelClosedException extends Exception
 {
     /**
      * @param ChannelInterface $channel  The channel that has been closed.
