@@ -18,8 +18,6 @@ class Strand implements StrandInterface
         $this->kernel = $kernel;
         $this->stack = new SplStack;
         $this->stack->push(new StackRoot);
-
-        $this->nextTickDeferred();
     }
 
     /**
@@ -98,7 +96,6 @@ class Strand implements StrandInterface
         $this->nextException = null;
 
         $this->pop();
-        $this->nextTickDeferred();
     }
 
     /**
@@ -112,7 +109,6 @@ class Strand implements StrandInterface
         $this->nextException = $exception;
 
         $this->pop();
-        $this->nextTickDeferred();
     }
 
     /**
@@ -129,7 +125,6 @@ class Strand implements StrandInterface
     public function suspend()
     {
         $this->kernel()->detachStrand($this);
-        $this->nextTickDeferred();
     }
 
     /**
@@ -141,11 +136,10 @@ class Strand implements StrandInterface
         $this->nextException = null;
 
         $this->kernel()->attachStrand($this);
-        $this->nextTickDeferred();
     }
 
     /**
-     * Resume execution of this strand.
+     * Resume execution of this strand and indicate an error condition.
      */
     public function resumeWithException(Exception $exception)
     {
@@ -153,11 +147,11 @@ class Strand implements StrandInterface
         $this->nextException = $exception;
 
         $this->kernel()->attachStrand($this);
-        $this->nextTickDeferred();
     }
 
     /**
-     * Instructs the strand to resume immediately after the next tick.
+     * Instructs the strand to execute the next-tick immediately after the
+     * current tick.
      */
     public function nextTickImmediate()
     {
@@ -165,7 +159,8 @@ class Strand implements StrandInterface
     }
 
     /**
-     * Instructs the strand to defer after the next tick.
+     * Instructs the strand not to execute the next-tick until the kernel
+     * calls tick().
      */
     public function nextTickDeferred()
     {
@@ -178,15 +173,19 @@ class Strand implements StrandInterface
     public function tick()
     {
         do {
+
             if ($this->stack->isEmpty()) {
                 $this->suspend();
 
                 return;
             }
 
+            $this->nextTickDeferred();
+
             $value = $this->nextValue;
             $exception = $this->nextException;
-            $this->nextValue = $this->nextException = null;
+            $this->nextValue = null;
+            $this->nextException = null;
 
             $this->current()->tick($this, $value, $exception);
 

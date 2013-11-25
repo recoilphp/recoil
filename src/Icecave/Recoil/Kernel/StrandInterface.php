@@ -44,9 +44,6 @@ interface StrandInterface
      *
      * The value must be adaptable using the kernel's co-routine adaptor.
      *
-     * A 'call' operation is similar to a 'push' except that co-routine
-     * adaptation errors are sent to the next co-routine on the stack.
-     *
      * @param mixed $coroutine The co-routine to call.
      */
     public function call($coroutine);
@@ -72,6 +69,8 @@ interface StrandInterface
 
     /**
      * Suspend execution of this strand.
+     *
+     * The kernel will not call tick() until the strand is resumed.
      */
     public function suspend();
 
@@ -81,17 +80,19 @@ interface StrandInterface
     public function resume($value = null);
 
     /**
-     * Resume execution of this strand.
+     * Resume execution of this strand and indicate an error condition.
      */
     public function resumeWithException(Exception $exception);
 
     /**
-     * Instructs the strand to resume immediately after the next tick.
+     * Instructs the strand to execute the next-tick immediately after the
+     * current tick.
      */
     public function nextTickImmediate();
 
     /**
-     * Instructs the strand to defer after the next tick.
+     * Instructs the strand not to execute the next-tick until the kernel
+     * calls tick().
      */
     public function nextTickDeferred();
 

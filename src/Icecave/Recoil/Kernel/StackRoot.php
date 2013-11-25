@@ -26,7 +26,7 @@ class StackRoot implements CoroutineInterface
             throw $exception;
         }
 
-        $strand->pop();
+        $strand->returnValue($value);
     }
 
     /**

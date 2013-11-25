@@ -32,9 +32,18 @@ interface KernelApiInterface
     public function terminate(StrandInterface $strand);
 
     /**
-     * Suspend execution of the strand.
+     * Suspend execution for a specified period of time.
      *
-     * @param StrandInterface $strand The currently executing strand.
+     * @param StrandInterface $strand  The currently executing strand.
+     * @param number          $timeout The number of seconds to wait before resuming.
+     */
+    public function sleep(StrandInterface $strand, $timeout);
+
+    /**
+     * Suspend execution of the strand until it is resumed manually.
+     *
+     * @param StrandInterface $strand   The currently executing strand.
+     * @param callable        $callback A callback which is passed the strand after it is suspended.
      */
     public function suspend(StrandInterface $strand, callable $callback);
 

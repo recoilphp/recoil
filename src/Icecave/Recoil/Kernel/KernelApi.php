@@ -50,6 +50,22 @@ class KernelApi implements KernelApiInterface
     }
 
     /**
+     * Suspend execution for a specified period of time.
+     *
+     * @param StrandInterface $strand  The currently executing strand.
+     * @param number          $timeout The number of seconds to wait before resuming.
+     */
+    public function sleep(StrandInterface $strand, $timeout)
+    {
+        $strand->suspend();
+
+        $strand
+            ->kernel()
+            ->eventLoop()
+            ->addTimer($timeout, [$strand, 'resume']);
+    }
+
+    /**
      * Suspend execution of the strand.
      *
      * @param StrandInterface $strand The currently executing strand.

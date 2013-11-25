@@ -227,27 +227,25 @@ class KernelFunctionalTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test that strands of execution can be suspended and left unresumed.
+     * Test that strands of can use Recoil::sleep() to suspend execution for a
+     * set number of seconds.
      */
-    public function testSuspend()
+    public function testSleep()
     {
-        $this->expectOutputString('12');
+        $start = 0;
+        $end = 0;
 
-        $strand = null;
-
-        $coroutine = function () {
-            echo 1;
-            echo (yield Recoil::suspend(
-                function ($strand) {
-                    echo 2;
-                }
-            ));
-            echo 'X';
+        $coroutine = function () use (&$start, &$end) {
+            $start = microtime(true);
+            yield Recoil::sleep(0.15);
+            $end = microtime(true);
         };
 
         $this->kernel->execute($coroutine());
 
         $this->kernel->eventLoop()->run();
+
+        $this->assertEquals(0.15, $end - $start, '', 0.01);
     }
 
     /**
@@ -322,7 +320,7 @@ class KernelFunctionalTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test that strands can yield execution to other strands using
+     * Test that strands can 'co-operate' (give control to another strand) using
      * Recoil::cooperate().
      */
     public function testCooperate()
@@ -342,7 +340,8 @@ class KernelFunctionalTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test that strands can yield execution to other strands by yeilding null.
+     * Test that strands can 'co-operate' (give control to another strand) by
+     * yielding null.
      */
     public function testCooperateWithNull()
     {
@@ -361,7 +360,8 @@ class KernelFunctionalTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test that the no-op operation is no-cooperative.
+     * Test that strands can perform a 'no-op' yield that does not give control
+     * to another strand.
      */
     public function testNoOp()
     {
@@ -382,7 +382,7 @@ class KernelFunctionalTest extends PHPUnit_Framework_TestCase
     /**
      * Test that a ReactPHP promise can be yielded directly.
      */
-    public function testFulfilledPromise()
+    public function testPromise()
     {
         $value = null;
         $coroutine = function () use (&$value) {
