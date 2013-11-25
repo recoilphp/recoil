@@ -135,7 +135,7 @@ class Kernel implements KernelInterface
      */
     protected function tick()
     {
-        foreach ($this->strands as $strand) {
+        foreach (clone $this->strands as $strand) {
             $strand->tick();
         }
 

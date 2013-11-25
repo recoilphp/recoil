@@ -26,6 +26,8 @@ class Channel implements ReadableChannelInterface, WritableChannelInterface
      */
     public function read()
     {
+        yield;
+
         if ($this->isClosed()) {
             throw new Exception\ChannelClosedException($this);
         } elseif ($this->writes->isEmpty()) {
@@ -38,7 +40,9 @@ class Channel implements ReadableChannelInterface, WritableChannelInterface
         }
 
         yield Recoil::return_($value);
+    // @codeCoverageIgnoreStart
     }
+    // @codeCoverageIgnoreEnd
 
     /**
      * Write to this channel.
@@ -50,6 +54,8 @@ class Channel implements ReadableChannelInterface, WritableChannelInterface
      */
     public function write($value)
     {
+        yield;
+
         if ($this->isClosed()) {
             throw new Exception\ChannelClosedException($this);
         } elseif ($this->reads->isEmpty()) {

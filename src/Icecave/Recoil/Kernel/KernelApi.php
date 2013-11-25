@@ -6,12 +6,34 @@ use Exception;
 class KernelApi implements KernelApiInterface
 {
     /**
-     * Return a value to the calling co-routine and continue executing.
+     * Return a value to the calling co-routine.
      *
      * @param StrandInterface $strand The currently executing strand.
      * @param mixed           $value  The value to send to the calling co-routine.
      */
     public function return_(StrandInterface $strand, $value = null)
+    {
+        $strand->returnValue($value);
+    }
+
+    /**
+     * Throw an exception to the calling co-routine.
+     *
+     * @param StrandInterface $strand    The currently executing strand.
+     * @param Exception       $exception The error to send to the calling co-routine.
+     */
+    public function throw_(StrandInterface $strand, Exception $exception)
+    {
+        $strand->throwException($exception);
+    }
+
+    /**
+     * Return a value to the calling co-routine, and optionally continue executing.
+     *
+     * @param StrandInterface $strand The currently executing strand.
+     * @param mixed           $value  The value to send to the calling co-routine.
+     */
+    public function returnAndResume(StrandInterface $strand, $value = null)
     {
         $coroutine = $strand->current();
 
@@ -28,7 +50,7 @@ class KernelApi implements KernelApiInterface
      * @param StrandInterface $strand    The currently executing strand.
      * @param Exception       $exception The error to send to the calling co-routine.
      */
-    public function throw_(StrandInterface $strand, Exception $exception)
+    public function throwAndResume(StrandInterface $strand, Exception $exception)
     {
         $coroutine = $strand->current();
 
@@ -78,13 +100,64 @@ class KernelApi implements KernelApiInterface
     }
 
     /**
+     * Execute a co-routine with a time limit.
+     *
+     * If the co-routine does not complete within the specified time it is
+     * cancelled.
+     *
+     * @param StrandInterface $strand    The currently executing strand.
+     * @param number          $timeout   The number of seconds to wait before cancelling.
+     * @param mixed           $coroutine The coroutine to execute.
+     */
+    public function timeout(StrandInterface $strand, $timeout, $coroutine)
+    {
+        // Suspend the current strand ...
+        $strand->suspend();
+
+        // Create a new strand to execute the coroutine ...
+        $substrand = $strand
+            ->kernel()
+            ->execute($coroutine);
+
+        // Set up a timer to terminate the new strand after the timeout period
+        // has elapsed.
+        $timer = $strand
+            ->kernel()
+            ->eventLoop()
+            ->addTimer(
+                $timeout,
+                function () use ($strand, $substrand) {
+                    $strand->resumeWithException(new Exception\TimeoutException);
+                    $substrand->terminate();
+                }
+            );
+
+        // Cancel the timeout timer if the substrand completes before it is due.
+        $substrand->then(
+            function ($value) use ($strand, $timer) {
+                $timer->cancel();
+                $strand->resume($value);
+            },
+            function ($exception) use ($strand, $timer) {
+                $timer->cancel();
+                $strand->resumeWithException($exception);
+            }
+        );
+    }
+
+    /**
      * Suspend the strand until the next tick.
      *
      * @param StrandInterface $strand The currently executing strand.
      */
     public function cooperate(StrandInterface $strand)
     {
-        $strand->nextTickDeferred();
+        $strand->suspend();
+
+        $strand
+            ->kernel()
+            ->eventLoop()
+            ->nextTick([$strand, 'resume']);
     }
 
     /**
@@ -94,6 +167,5 @@ class KernelApi implements KernelApiInterface
      */
     public function noop(StrandInterface $strand)
     {
-        $strand->nextTickImmediate();
     }
 }

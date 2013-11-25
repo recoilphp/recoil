@@ -60,20 +60,20 @@ class KernelFunctionalTest extends PHPUnit_Framework_TestCase
     /**
      * Test that one co-routine can return a value to the caller and resume.
      */
-    public function testReturn()
+    public function testReturnAndResume()
     {
         $this->expectOutputString('12345');
 
         $coroutine = function () {
             $f = function () {
                 echo 2;
-                yield Recoil::return_(4);
-                echo 3;
+                yield Recoil::returnAndResume(3);
+                echo 5;
             };
 
             echo 1;
             echo (yield $f());
-            echo 5;
+            echo 4;
         };
 
         $this->kernel->execute($coroutine());
@@ -84,15 +84,15 @@ class KernelFunctionalTest extends PHPUnit_Framework_TestCase
     /**
      * Test that one co-routine can throw an exception to the caller and resume.
      */
-    public function testThrow()
+    public function testThrowAndResume()
     {
         $this->expectOutputString('12345');
 
         $coroutine = function () {
             $f = function () {
                 echo 2;
-                yield Recoil::throw_(new Exception(4));
-                echo 3;
+                yield Recoil::throwAndResume(new Exception(3));
+                echo 5;
             };
 
             echo 1;
@@ -101,7 +101,7 @@ class KernelFunctionalTest extends PHPUnit_Framework_TestCase
             } catch (Exception $e) {
                 echo $e->getMessage();
             }
-            echo 5;
+            echo 4;
         };
 
         $this->kernel->execute($coroutine());
@@ -395,4 +395,126 @@ class KernelFunctionalTest extends PHPUnit_Framework_TestCase
 
         $this->assertSame(123, $value);
     }
+
+    /**
+     * Test that a strand can be used as a promise.
+     */
+    public function testStrandAsPromise()
+    {
+        $coroutine = function () {
+            yield Recoil::return_(123);
+        };
+
+        $strand = $this->kernel->execute($coroutine());
+
+        $value = null;
+        $strand->then(
+            function ($v) use (&$value) {
+                $value = $v;
+            }
+        );
+
+        $this->kernel->eventLoop()->run();
+
+        $this->assertSame(123, $value);
+    }
+
+    /**
+     * Test that exceptions are still propagated when a strand is used as a
+     * promise but no error handler is provided.
+     */
+    public function testStrandAsPromiseWithError()
+    {
+        $coroutine = function () {
+            yield Recoil::throw_(new Exception('This is the exception.'));
+        };
+
+        $strand = $this->kernel->execute($coroutine());
+
+        $strand->then();
+
+        $this->setExpectedException('Exception', 'This is the exception.');
+        $this->kernel->eventLoop()->run();
+    }
+
+    /**
+     * Test that a strand used as a promise with an error handler can prevent
+     * exceptions from propagating.
+     */
+    public function testStrandAsPromiseWithErrorHandler()
+    {
+        $coroutine = function () {
+            yield Recoil::throw_(new Exception('This is the exception.'));
+        };
+
+        $strand = $this->kernel->execute($coroutine());
+
+        $exception = null;
+        $strand->then(
+            null,
+            function ($error) use (&$exception) {
+                $exception = $error;
+            }
+        );
+
+        $this->kernel->eventLoop()->run();
+
+        $this->assertInstanceOf('Exception', $exception);
+        $this->assertSame('This is the exception.', $exception->getMessage());
+    }
+
+    /**
+     * Test that a strand can be used as a promise after the strand has
+     * terminated.
+     */
+    public function testStrandAsPromiseAfterTermination()
+    {
+        $coroutine = function () {
+            yield Recoil::return_(123);
+        };
+
+        $strand = $this->kernel->execute($coroutine());
+
+        $this->kernel->eventLoop()->run();
+
+        $value = null;
+        $strand->then(
+            function ($v) use (&$value) {
+                $value = $v;
+            }
+        );
+
+        $this->assertSame(123, $value);
+    }
+
+    /**
+     * Test that a strand can be used as a promise after the strand has
+     * terminated.
+     */
+    public function testStrandAsPromiseAfterTerminationWithException()
+    {
+        $coroutine = function () {
+            yield Recoil::throw_(new Exception('This is the exception.'));
+        };
+
+        $strand = $this->kernel->execute($coroutine());
+
+        try {
+            $this->kernel->eventLoop()->run();
+        } catch (Exception $e) {
+            // ignore
+        }
+
+        $exception = null;
+        $strand->then(
+            null,
+            function ($error) use (&$exception) {
+                $exception = $error;
+            }
+        );
+
+        $this->assertInstanceOf('Exception', $exception);
+        $this->assertSame('This is the exception.', $exception->getMessage());
+    }
+
 }

@@ -4,6 +4,7 @@ namespace Icecave\Recoil\Kernel;
 use Exception;
 use Icecave\Recoil\Coroutine\CoroutineInterface;
 use SplStack;
+use React\Promise\Deferred;
 
 /**
  * A strand represents a user-space "thread" of execution.
@@ -15,9 +16,14 @@ class Strand implements StrandInterface
      */
     public function __construct(KernelInterface $kernel)
     {
-        $this->kernel = $kernel;
-        $this->stack = new SplStack;
-        $this->stack->push(new StackRoot);
+        $this->kernel    = $kernel;
+        $this->suspended = false;
+        $this->deferred  = new Deferred;
+        $this->stack     = new SplStack;
+
+        $this->stack->push(
+            new StackBase($this->deferred->resolver())
+        );
     }
 
     /**
@@ -78,7 +84,6 @@ class Strand implements StrandInterface
     {
         try {
             $this->push($coroutine);
-            $this->nextTickImmediate();
         } catch (Exception $e) {
             $this->nextValue = null;
             $this->nextException = $e;
@@ -117,6 +122,8 @@ class Strand implements StrandInterface
     public function terminate()
     {
         $this->stack = new SplStack;
+
+        $this->suspend();
     }
 
     /**
@@ -124,6 +131,8 @@ class Strand implements StrandInterface
      */
     public function suspend()
     {
+        $this->suspended = true;
+
         $this->kernel()->detachStrand($this);
     }
 
@@ -132,6 +141,8 @@ class Strand implements StrandInterface
      */
     public function resume($value = null)
     {
+        $this->suspended = false;
+
         $this->nextValue = $value;
         $this->nextException = null;
 
@@ -143,6 +154,8 @@ class Strand implements StrandInterface
      */
     public function resumeWithException(Exception $exception)
     {
+        $this->suspended = false;
+
         $this->nextValue = null;
         $this->nextException = $exception;
 
@@ -150,51 +163,42 @@ class Strand implements StrandInterface
     }
 
     /**
-     * Instructs the strand to execute the next-tick immediately after the
-     * current tick.
-     */
-    public function nextTickImmediate()
-    {
-        $this->immediate = true;
-    }
-
-    /**
-     * Instructs the strand not to execute the next-tick until the kernel
-     * calls tick().
-     */
-    public function nextTickDeferred()
-    {
-        $this->immediate = false;
-    }
-
-    /**
      * Perform the next unit-of-work for this strand.
      */
     public function tick()
     {
-        do {
-
-            if ($this->stack->isEmpty()) {
-                $this->suspend();
-
-                return;
-            }
-
-            $this->nextTickDeferred();
-
+        while (!$this->suspended) {
             $value = $this->nextValue;
             $exception = $this->nextException;
             $this->nextValue = null;
             $this->nextException = null;
 
             $this->current()->tick($this, $value, $exception);
+        }
+    }
 
-        } while ($this->immediate);
+    /**
+     * Register promise handlers.
+     *
+     * @param callable|null $fulfilledHandler
+     * @param callable|null $errorHandler
+     * @param callable|null $progressHandler
+     *
+     * @return PromiseInterface
+     */
+    public function then($fulfilledHandler = null, $errorHandler = null, $progressHandler = null)
+    {
+        if ($errorHandler && !$this->stack->isEmpty()) {
+            $this->stack->bottom()->disableExceptionPropagation();
+        }
+
+        return $this->deferred->then($fulfilledHandler, $errorHandler, $progressHandler);
     }
 
     private $kernel;
+    private $suspended;
+    private $deferred;
     private $stack;
-    private $immediate;
     private $nextValue;
     private $nextException;
 }

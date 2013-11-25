@@ -3,11 +3,12 @@ namespace Icecave\Recoil\Kernel;
 
 use Exception;
 use Icecave\Recoil\Coroutine\CoroutineInterface;
+use React\Promise\PromiseInterface;
 
 /**
  * A strand represents a user-space "thread" of execution.
  */
-interface StrandInterface
+interface StrandInterface extends PromiseInterface
 {
     /**
      * Fetch the kernel on which this strand is executing.
@@ -83,18 +84,6 @@ interface StrandInterface
      * Resume execution of this strand and indicate an error condition.
      */
     public function resumeWithException(Exception $exception);
-
-    /**
-     * Instructs the strand to execute the next-tick immediately after the
-     * current tick.
-     */
-    public function nextTickImmediate();
-
-    /**
-     * Instructs the strand not to execute the next-tick until the kernel
-     * calls tick().
-     */
-    public function nextTickDeferred();
 
     /**
      * Perform the next unit-of-work for this strand.

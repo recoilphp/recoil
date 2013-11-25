@@ -81,47 +81,23 @@ class ChannelTest extends PHPUnit_Framework_TestCase
 
     public function testMultipleReaders()
     {
-        $this->expectOutputString(
-            '0: 1' . PHP_EOL .
-            '1: 2' . PHP_EOL .
-            '0: 3' . PHP_EOL .
-            '1: 4' . PHP_EOL .
-            '0: 5' . PHP_EOL .
-            '1: 6' . PHP_EOL .
-            '0: 7' . PHP_EOL .
-            '1: 8' . PHP_EOL .
-            '0: 9' . PHP_EOL .
-            '1: 10' . PHP_EOL .
-            '0: 11' . PHP_EOL .
-            '1: 12' . PHP_EOL .
-            '0: 13' . PHP_EOL .
-            '1: 14' . PHP_EOL .
-            '0: 15' . PHP_EOL .
-            '0 closed' . PHP_EOL .
-            '1 closed' . PHP_EOL
-        );
+        $this->expectOutputString('A1B2A3B4A5');
 
         $reader = function ($id) {
-            try {
-                while (true) {
-                    echo $id . ': ' . (yield $this->channel->read()) . PHP_EOL;
-                }
-            } catch (Exception $e) {
-                echo $id . ' closed' . PHP_EOL;
+            while (true) {
+                echo $id . (yield $this->channel->read());
             }
         };
 
-        $this->kernel->execute($reader(0));
-        $this->kernel->execute($reader(1));
+        $this->kernel->execute($reader('A'));
+        $this->kernel->execute($reader('B'));
 
         $this->kernel->execute(
             call_user_func(
                 function () {
-                    for ($i = 1; $i <= 15; ++$i) {
+                    for ($i = 1; $i <= 5; ++$i) {
                         yield $this->channel->write($i);
                     }
-
-                    yield $this->channel->close();
                 }
             )
         );
@@ -131,48 +107,24 @@ class ChannelTest extends PHPUnit_Framework_TestCase
 
     public function testMultipleWriters()
     {
-        $this->expectOutputString(
-            '0: 1' . PHP_EOL .
-            '1: 1' . PHP_EOL .
-            '0: 2' . PHP_EOL .
-            '1: 2' . PHP_EOL .
-            '0: 3' . PHP_EOL .
-            '1: 3' . PHP_EOL .
-            '0: 4' . PHP_EOL .
-            '1: 4' . PHP_EOL .
-            '0: 5' . PHP_EOL .
-            '1: 5' . PHP_EOL .
-            '0: 6' . PHP_EOL .
-            '1: 6' . PHP_EOL .
-            '0: 7' . PHP_EOL .
-            '1: 7' . PHP_EOL .
-            '0: 8' . PHP_EOL .
-            '0 closed' . PHP_EOL .
-            '1 closed' . PHP_EOL
-        );
+        $this->expectOutputString('A1B2A3B4A5');
 
-        $writer = function ($id) {
-            try {
-                $i = 1;
-                while (true) {
-                    yield $this->channel->write($id . ': ' . $i++);
-                }
-            } catch (Exception $e) {
-                echo $id . ' closed' . PHP_EOL;
+        $next = 1;
+        $writer = function ($id) use (&$next) {
+            while (true) {
+                yield $this->channel->write($id . $next++);
             }
         };
 
-        $this->kernel->execute($writer(0));
-        $this->kernel->execute($writer(1));
+        $this->kernel->execute($writer('A'));
+        $this->kernel->execute($writer('B'));
 
         $this->kernel->execute(
             call_user_func(
                 function () {
-                    for ($i = 1; $i <= 15; ++$i) {
-                        echo (yield $this->channel->read()) . PHP_EOL;
+                    for ($i = 1; $i <= 5; ++$i) {
+                        echo (yield $this->channel->read());
                     }
-
-                    yield $this->channel->close();
                 }
             )
         );
@@ -183,21 +135,32 @@ class ChannelTest extends PHPUnit_Framework_TestCase
     public function testCloseWithPendingReaders()
     {
         $this->expectOutputString(
-            'Reader #1 closed' . PHP_EOL .
-            'Reader #2 closed' . PHP_EOL
+            'A reading' . PHP_EOL .
+            'B reading' . PHP_EOL .
+            'closing' . PHP_EOL .
+            'A closed' . PHP_EOL .
+            'B closed' . PHP_EOL
         );
 
         $reader = function ($id) {
             try {
+                echo $id . ' reading' . PHP_EOL;
                 yield $this->channel->read();
             } catch (ChannelClosedException $e) {
-                echo 'Reader #' . $id . ' closed' . PHP_EOL;
+                echo $id . ' closed' . PHP_EOL;
             }
         };
 
-        $this->kernel->execute($reader(1));
-        $this->kernel->execute($reader(2));
-        $this->kernel->execute($this->channel->close());
+        $this->kernel->execute($reader('A'));
+        $this->kernel->execute($reader('B'));
+        $this->kernel->execute(
+            call_user_func(
+                function () {
+                    echo 'closing' . PHP_EOL;
+                    yield $this->channel->close();
+                }
+            )
+        );
 
         $this->kernel->eventLoop()->run();
     }
@@ -205,21 +168,32 @@ class ChannelTest extends PHPUnit_Framework_TestCase
     public function testCloseWithPendingWriters()
     {
         $this->expectOutputString(
-            'Writer #1 closed' . PHP_EOL .
-            'Writer #2 closed' . PHP_EOL
+            'A writing' . PHP_EOL .
+            'B writing' . PHP_EOL .
+            'closing' . PHP_EOL .
+            'A closed' . PHP_EOL .
+            'B closed' . PHP_EOL
         );
 
         $writer = function ($id) {
             try {
+                echo $id . ' writing' . PHP_EOL;
                 yield $this->channel->write($id);
             } catch (ChannelClosedException $e) {
-                echo 'Writer #' . $id . ' closed' . PHP_EOL;
+                echo $id . ' closed' . PHP_EOL;
             }
         };
 
-        $this->kernel->execute($writer(1));
-        $this->kernel->execute($writer(2));
-        $this->kernel->execute($this->channel->close());
+        $this->kernel->execute($writer('A'));
+        $this->kernel->execute($writer('B'));
+        $this->kernel->execute(
+            call_user_func(
+                function () {
+                    echo 'closing' . PHP_EOL;
+                    yield $this->channel->close();
+                }
+            )
+        );
 
         $this->kernel->eventLoop()->run();
     }

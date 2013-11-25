@@ -9,7 +9,7 @@ use Exception;
 interface KernelApiInterface
 {
     /**
-     * Return a value to the calling co-routine and continue executing.
+     * Return a value to the calling co-routine.
      *
      * @param StrandInterface $strand The currently executing strand.
      * @param mixed           $value  The value to send to the calling co-routine.
@@ -17,12 +17,28 @@ interface KernelApiInterface
     public function return_(StrandInterface $strand, $value = null);
 
     /**
-     * Throw an exception to the calling co-routine and continue executing.
+     * Throw an exception to the calling co-routine.
      *
      * @param StrandInterface $strand    The currently executing strand.
      * @param Exception       $exception The error to send to the calling co-routine.
      */
     public function throw_(StrandInterface $strand, Exception $exception);
+
+    /**
+     * Return a value to the calling co-routine and continue executing.
+     *
+     * @param StrandInterface $strand The currently executing strand.
+     * @param mixed           $value  The value to send to the calling co-routine.
+     */
+    public function returnAndResume(StrandInterface $strand, $value = null);
+
+    /**
+     * Throw an exception to the calling co-routine and continue executing.
+     *
+     * @param StrandInterface $strand    The currently executing strand.
+     * @param Exception       $exception The error to send to the calling co-routine.
+     */
+    public function throwAndResume(StrandInterface $strand, Exception $exception);
 
     /**
      * Terminate execution of the strand.
@@ -46,6 +62,18 @@ interface KernelApiInterface
      * @param callable        $callback A callback which is passed the strand after it is suspended.
      */
     public function suspend(StrandInterface $strand, callable $callback);
+
+    /**
+     * Execute a co-routine with a time limit.
+     *
+     * If the co-routine does not complete within the specified time it is
+     * cancelled.
+     *
+     * @param StrandInterface $strand    The currently executing strand.
+     * @param number          $timeout   The number of seconds to wait before cancelling.
+     * @param mixed           $coroutine The coroutine to execute.
+     */
+    public function timeout(StrandInterface $strand, $timeout, $coroutine);
 
     /**
      * Resume the strand immediately.
