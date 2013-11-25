@@ -2,6 +2,7 @@
 namespace Icecave\Recoil\Kernel;
 
 use Exception;
+use Icecave\Recoil\Kernel\Exception\StrandTerminatedException;
 use Icecave\Recoil\Kernel\Exception\TimeoutException;
 use Icecave\Recoil\Recoil;
 use PHPUnit_Framework_TestCase;
@@ -204,31 +205,6 @@ class KernelApiTest extends PHPUnit_Framework_TestCase
         $this->kernel->eventLoop()->run();
     }
 
-    public function testTimeoutWhenTerminated()
-    {
-        $this->expectOutputString('');
-
-        $immediate = function () {
-            yield Recoil::terminate();
-        };
-
-        $coroutine = function () use ($immediate) {
-            yield Recoil::timeout(0.01, $immediate());
-            echo 'X';
-        };
-
-        $strand = $this->kernel->execute($coroutine());
-
-        $this->kernel->eventLoop()->run();
-
-        // $strand->then(
-        //     null,
-        //     function ($exception) {
-        //         throw $exception;
-        //     }
-        // );
-    }
-
     public function testTimeoutExceeded()
     {
         $this->expectOutputString('1');
@@ -248,6 +224,34 @@ class KernelApiTest extends PHPUnit_Framework_TestCase
         $this->kernel->execute($coroutine());
 
         $this->kernel->eventLoop()->run();
+    }
+
+    public function testTimeoutWhenSubStrandIsTerminated()
+    {
+        $this->expectOutputString('');
+
+        $immediate = function () {
+            yield Recoil::terminate();
+        };
+
+        $coroutine = function () use ($immediate) {
+            yield Recoil::timeout(0.01, $immediate());
+            echo 'X';
+        };
+
+        $strand = $this->kernel->execute($coroutine());
+
+        $this->kernel->eventLoop()->run();
+
+        $exception = null;
+        $strand->then(
+            null,
+            function ($e) use (&$exception) {
+                $exception = $e;
+            }
+        );
+
+        $this->assertInstanceOf(StrandTerminatedException::CLASS, $exception);
     }
 
     public function testCooperate()

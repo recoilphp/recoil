@@ -151,8 +151,6 @@ class KernelApi implements KernelApiInterface
                 $strand->resume($value);
             },
             function ($exception) use ($strand, $timer) {
-                $timer->cancel();
-
                 // Some non-timeout error has occurred ...
                 if (!$exception instanceof StrandTerminatedException) {
                     $strand->resumeWithException($exception);
@@ -161,6 +159,8 @@ class KernelApi implements KernelApiInterface
                 } elseif ($timer->isActive()) {
                     $strand->terminate();
                 }
+
+                $timer->cancel();
             }
         );
     }
