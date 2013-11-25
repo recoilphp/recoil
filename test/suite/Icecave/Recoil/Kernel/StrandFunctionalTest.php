@@ -2,6 +2,7 @@
 namespace Icecave\Recoil\Kernel;
 
 use Exception;
+use Icecave\Recoil\Kernel\Exception\StrandTerminatedException;
 use Icecave\Recoil\Recoil;
 use PHPUnit_Framework_TestCase;
 
@@ -148,6 +149,30 @@ class StrandFunctionalTest extends PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('Exception', $exception);
         $this->assertSame('This is the exception.', $exception->getMessage());
+    }
+
+    /**
+     * Test that a strand can be used as a promise.
+     */
+    public function testPromiseErrorHandlerCalledWhenStrandTerminated()
+    {
+        $coroutine = function () {
+            yield Recoil::terminate();
+        };
+
+        $strand = $this->kernel->execute($coroutine());
+
+        $exception = null;
+        $strand->then(
+            null,
+            function ($error) use (&$exception) {
+                $exception = $error;
+            }
+        );
+
+        $this->kernel->eventLoop()->run();
+
+        $this->assertInstanceOf(StrandTerminatedException::CLASS, $exception);
     }
 
     /**

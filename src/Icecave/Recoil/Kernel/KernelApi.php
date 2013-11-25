@@ -2,10 +2,21 @@
 namespace Icecave\Recoil\Kernel;
 
 use Exception;
+use Icecave\Recoil\Kernel\Exception\StrandTerminatedException;
 use Icecave\Recoil\Kernel\Exception\TimeoutException;
 
 class KernelApi implements KernelApiInterface
 {
+    /**
+     * Get the strand the co-routine is executing on.
+     *
+     * @param StrandInterface $strand The currently executing strand.
+     */
+    public function strand(StrandInterface $strand)
+    {
+        $strand->resume($strand);
+    }
+
     /**
      * Return a value to the calling co-routine.
      *
@@ -82,7 +93,7 @@ class KernelApi implements KernelApiInterface
     {
         $strand->suspend();
 
-        $strand
+        $timer = $strand
             ->kernel()
             ->eventLoop()
             ->addTimer($timeout, [$strand, 'resume']);
@@ -127,7 +138,7 @@ class KernelApi implements KernelApiInterface
             ->eventLoop()
             ->addTimer(
                 $timeout,
-                function () use ($strand, $substrand) {
+                function ($timer) use ($strand, $substrand) {
                     $strand->resumeWithException(new TimeoutException);
                     $substrand->terminate();
                 }
@@ -141,7 +152,15 @@ class KernelApi implements KernelApiInterface
             },
             function ($exception) use ($strand, $timer) {
                 $timer->cancel();
-                $strand->resumeWithException($exception);
+
+                // Some non-timeout error has occurred ...
+                if (!$exception instanceof StrandTerminatedException) {
+                    $strand->resumeWithException($exception);
+
+                // The substrand was terminated, but not by the time-out ...
+                } elseif ($timer->isActive()) {
+                    $strand->terminate();
+                }
             }
         );
     }

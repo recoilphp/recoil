@@ -75,7 +75,7 @@ class PromiseCoroutineTest extends PHPUnit_Framework_TestCase
         $this->assertSame('This is the exception.', $exception->getMessage());
     }
 
-    public function testCancelThenFulfill()
+    public function testTerminateThenFulfill()
     {
         $promise = new Deferred;
         $promiseCoroutine = new PromiseCoroutine($promise);
@@ -87,13 +87,14 @@ class PromiseCoroutineTest extends PHPUnit_Framework_TestCase
             $resumed = true;
         };
 
-        $canceller = function () use ($promise, $promiseCoroutine) {
-            $promiseCoroutine->cancel();
+        $strand = $this->kernel->execute($coroutine());
+
+        $canceller = function () use ($promise, $strand) {
+            $strand->terminate();
+            yield;
             $promise->resolve();
-            yield Recoil::noop();
         };
 
-        $this->kernel->execute($coroutine());
         $this->kernel->execute($canceller());
 
         $this->kernel->eventLoop()->run();
@@ -113,13 +114,14 @@ class PromiseCoroutineTest extends PHPUnit_Framework_TestCase
             $resumed = true;
         };
 
-        $canceller = function () use ($promise, $promiseCoroutine) {
-            $promiseCoroutine->cancel();
+        $strand = $this->kernel->execute($coroutine());
+
+        $canceller = function () use ($promise, $strand) {
+            $strand->terminate();
+            yield;
             $promise->reject();
-            yield Recoil::noop();
         };
 
-        $this->kernel->execute($coroutine());
         $this->kernel->execute($canceller());
 
         $this->kernel->eventLoop()->run();

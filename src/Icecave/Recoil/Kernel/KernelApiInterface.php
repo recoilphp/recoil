@@ -9,6 +9,13 @@ use Exception;
 interface KernelApiInterface
 {
     /**
+     * Get the strand the co-routine is executing on.
+     *
+     * @param StrandInterface $strand The currently executing strand.
+     */
+    public function strand(StrandInterface $strand);
+
+    /**
      * Return a value to the calling co-routine.
      *
      * @param StrandInterface $strand The currently executing strand.

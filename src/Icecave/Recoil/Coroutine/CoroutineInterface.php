@@ -20,6 +20,8 @@ interface CoroutineInterface
 
     /**
      * Cancel execution of the co-routine.
+     *
+     * @param StrandInterface $strand The currently executing strand.
      */
-    public function cancel();
+    public function cancel(StrandInterface $strand);
 }

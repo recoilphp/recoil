@@ -13,6 +13,20 @@ class KernelApiTest extends PHPUnit_Framework_TestCase
         $this->kernel = new Kernel;
     }
 
+    public function testStrand()
+    {
+        $strand = null;
+        $coroutine = function () use (&$strand) {
+            $strand = (yield Recoil::strand());
+        };
+
+        $expectedStrand = $this->kernel->execute($coroutine());
+
+        $this->kernel->eventLoop()->run();
+
+        $this->assertSame($expectedStrand, $strand);
+    }
+
     public function testReturn()
     {
         $this->expectOutputString('1');
@@ -188,6 +202,31 @@ class KernelApiTest extends PHPUnit_Framework_TestCase
         $this->kernel->execute($coroutine());
 
         $this->kernel->eventLoop()->run();
+    }
+
+    public function testTimeoutWhenTerminated()
+    {
+        $this->expectOutputString('');
+
+        $immediate = function () {
+            yield Recoil::terminate();
+        };
+
+        $coroutine = function () use ($immediate) {
+            yield Recoil::timeout(0.01, $immediate());
+            echo 'X';
+        };
+
+        $strand = $this->kernel->execute($coroutine());
+
+        $this->kernel->eventLoop()->run();
+
+        // $strand->then(
+        //     null,
+        //     function ($exception) {
+        //         throw $exception;
+        //     }
+        // );
     }
 
     public function testTimeoutExceeded()

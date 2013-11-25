@@ -3,7 +3,7 @@ namespace Icecave\Recoil\Kernel;
 
 use Exception;
 use Icecave\Recoil\Coroutine\CoroutineInterface;
-use LogicException;
+use Icecave\Recoil\Kernel\Exception\StrandTerminatedException;
 use React\Promise\ResolverInterface;
 
 /**
@@ -26,7 +26,8 @@ class StackBase implements CoroutineInterface
      */
     public function tick(StrandInterface $strand, $value = null, Exception $exception = null)
     {
-        $strand->terminate();
+        $strand->pop();
+        $strand->suspend();
 
         if ($exception) {
             $this->resolver->reject($exception);
@@ -42,11 +43,14 @@ class StackBase implements CoroutineInterface
     /**
      * Cancel execution of the co-routine.
      *
-     * @codeCoverageIgnore
+     * @param StrandInterface $strand The currently executing strand.
      */
-    public function cancel()
+    public function cancel(StrandInterface $strand)
     {
-        throw new LogicException('Not supported.');
+        $strand->pop();
+        $strand->suspend();
+
+        $this->resolver->reject(new StrandTerminatedException);
     }
 
     public function disableExceptionPropagation()

@@ -4,7 +4,6 @@ namespace Icecave\Recoil\Kernel;
 use BadMethodCallException;
 use Exception;
 use Icecave\Recoil\Coroutine\CoroutineInterface;
-use LogicException;
 
 /**
  * Represents a system-call.
@@ -50,10 +49,12 @@ class SystemCall implements CoroutineInterface
      * Cancel execution of the co-routine.
      *
      * @codeCoverageIgnore
+     *
+     * @param StrandInterface $strand The currently executing strand.
      */
-    public function cancel()
+    public function cancel(StrandInterface $strand)
     {
-        throw new LogicException('Not supported.');
+        $strand->pop();
     }
 
     private $name;

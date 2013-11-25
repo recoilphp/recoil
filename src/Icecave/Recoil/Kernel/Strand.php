@@ -16,10 +16,11 @@ class Strand implements StrandInterface
      */
     public function __construct(KernelInterface $kernel)
     {
-        $this->kernel    = $kernel;
-        $this->suspended = false;
-        $this->deferred  = new Deferred;
-        $this->stack     = new SplStack;
+        $this->kernel     = $kernel;
+        $this->cancelling = false;
+        $this->suspended  = false;
+        $this->deferred   = new Deferred;
+        $this->stack      = new SplStack;
 
         $this->stack->push(
             new StackBase($this->deferred->resolver())
@@ -121,9 +122,12 @@ class Strand implements StrandInterface
      */
     public function terminate()
     {
-        $this->stack = new SplStack;
+        $this->cancelling = true;
+        $this->suspended = false;
+        $this->nextValue = null;
+        $this->nextException = null;
 
-        $this->suspend();
+        $this->kernel()->attachStrand($this);
     }
 
     /**
@@ -142,7 +146,6 @@ class Strand implements StrandInterface
     public function resume($value = null)
     {
         $this->suspended = false;
-
         $this->nextValue = $value;
         $this->nextException = null;
 
@@ -155,7 +158,6 @@ class Strand implements StrandInterface
     public function resumeWithException(Exception $exception)
     {
         $this->suspended = false;
-
         $this->nextValue = null;
         $this->nextException = $exception;
 
@@ -168,12 +170,16 @@ class Strand implements StrandInterface
     public function tick()
     {
         while (!$this->suspended) {
-            $value = $this->nextValue;
-            $exception = $this->nextException;
-            $this->nextValue = null;
-            $this->nextException = null;
+            if ($this->cancelling) {
+                $this->current()->cancel($this);
+            } else {
+                $value = $this->nextValue;
+                $exception = $this->nextException;
+                $this->nextValue = null;
+                $this->nextException = null;
 
-            $this->current()->tick($this, $value, $exception);
+                $this->current()->tick($this, $value, $exception);
+            }
         }
     }
 
@@ -196,6 +202,7 @@ class Strand implements StrandInterface
     }
 
     private $kernel;
+    private $cancelling;
     private $suspended;
     private $deferred;
     private $stack;

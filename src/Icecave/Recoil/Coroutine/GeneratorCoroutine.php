@@ -63,9 +63,13 @@ class GeneratorCoroutine implements CoroutineInterface
 
     /**
      * Cancel execution of the co-routine.
+     *
+     * @param StrandInterface $strand The currently executing strand.
      */
-    public function cancel()
+    public function cancel(StrandInterface $strand)
     {
+        $strand->pop();
+
         $this->generator = null;
         $this->pending = false;
     }
