@@ -3,6 +3,8 @@ namespace Icecave\Recoil\Kernel;
 
 use Icecave\Recoil\Coroutine\CoroutineAdaptor;
 use Icecave\Recoil\Coroutine\CoroutineAdaptorInterface;
+use Icecave\Recoil\Kernel\ExceptionHandler\ExceptionHandlerInterface;
+use Icecave\Recoil\Kernel\ExceptionHandler\StrictExceptionHandler;
 use React\EventLoop\Factory as EventLoopFactory;
 use React\EventLoop\LoopInterface;
 use SplObjectStorage;
@@ -16,12 +18,14 @@ class Kernel implements KernelInterface
      * @param KernelApiInterface|null        $api              The kernel's API implementation.
      * @param CoroutineAdaptorInterface|null $coroutineAdaptor The kernel's co-routine adaptor.
      * @param StrandFactoryInterface|null    $strandFactory    The kernel's strand factory.
+     * @param ExceptionHandlerInterface|null $exceptionHandler The kernel's exception handler.
      * @param LoopInterface|null             $eventLoop        The ReactPHP event-loop.
      */
     public function __construct(
         KernelApiInterface $api = null,
         CoroutineAdaptorInterface $coroutineAdaptor = null,
         StrandFactoryInterface $strandFactory = null,
+        ExceptionHandlerInterface $exceptionHandler = null,
         LoopInterface $eventLoop = null
     ) {
         if (null === $api) {
@@ -36,6 +40,10 @@ class Kernel implements KernelInterface
             $strandFactory = new StrandFactory;
         }
 
+        if (null === $exceptionHandler) {
+            $exceptionHandler = new StrictExceptionHandler;
+        }
+
         if (null === $eventLoop) {
             $eventLoop = EventLoopFactory::create();
         }
@@ -43,6 +51,7 @@ class Kernel implements KernelInterface
         $this->api = $api;
         $this->coroutineAdaptor = $coroutineAdaptor;
         $this->strandFactory = $strandFactory;
+        $this->exceptionHandler = $exceptionHandler;
         $this->eventLoop = $eventLoop;
         $this->strands = new SplObjectStorage;
     }
@@ -122,6 +131,17 @@ class Kernel implements KernelInterface
     }
 
     /**
+     * Fetch the exception handler used when an exception reaches the top of a
+     * strand's call-stack.
+     *
+     * @return ExceptionHandlerInterface The kerne's exception handler.
+     */
+    public function exceptionHandler()
+    {
+        return $this->exceptionHandler;
+    }
+
+    /**
      * Fetch the ReactPHP event-loop.
      *
      * @return LoopInterface The ReactPHP event-loop.
@@ -157,6 +177,7 @@ class Kernel implements KernelInterface
     private $api;
     private $coroutineAdaptor;
     private $strandFactory;
+    private $exceptionHandler;
     private $eventLoop;
     private $strands;
 }

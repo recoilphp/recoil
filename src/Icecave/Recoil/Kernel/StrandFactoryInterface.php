@@ -9,7 +9,7 @@ interface StrandFactoryInterface
     /**
      * Create a strand.
      *
-     * @param KernelInterface The kernel on which the strand will execute.
+     * @param KernelInterface $kernel The kernel on which the strand will execute.
      *
      * @return StrandInterface
      */

@@ -41,7 +41,10 @@ class StackBase extends AbstractCoroutine
         $this->resolver->reject($exception);
 
         if (!$this->suppressExceptions) {
-            throw $exception;
+            $strand
+                ->kernel()
+                ->exceptionHandler()
+                ->handleException($strand, $exception);
         }
     }
 
