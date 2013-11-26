@@ -34,7 +34,6 @@ class SystemCall implements CoroutineInterface
         $method = [$strand->kernel()->api(), $this->name];
 
         if (is_callable($method)) {
-            $strand->pop();
             $arguments = $this->arguments;
             array_unshift($arguments, $strand);
             call_user_func_array($method, $arguments);
