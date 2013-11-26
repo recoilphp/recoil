@@ -2,50 +2,50 @@
 namespace Icecave\Recoil\Kernel;
 
 use Exception;
-use Icecave\Recoil\Coroutine\CoroutineInterface;
+use Icecave\Recoil\Coroutine\AbstractCoroutine;
 use Icecave\Recoil\Kernel\Exception\StrandTerminatedException;
 use React\Promise\ResolverInterface;
 
 /**
  * The base co-routine in a strand's call-stack.
  */
-class StackBase implements CoroutineInterface
+class StackBase extends AbstractCoroutine
 {
     public function __construct(ResolverInterface $resolver)
     {
         $this->resolver = $resolver;
-        $this->propagateExceptions = true;
+        $this->suppressExceptions = false;
+
+        parent::__construct();
     }
 
-    /**
-     * Perform the next unit-of-work.
-     *
-     * @param StrandInterface $strand    The currently executing strand.
-     * @param mixed           $value
-     * @param Exception|null  $exception
-     */
-    public function tick(StrandInterface $strand, $value = null, Exception $exception = null)
+    public function call(StrandInterface $strand)
+    {
+        $strand->pop();
+        $strand->suspend();
+    }
+
+    public function resume(StrandInterface $strand, $value)
     {
         $strand->pop();
         $strand->suspend();
 
-        if ($exception) {
-            $this->resolver->reject($exception);
+        $this->resolver->resolve($value);
+    }
 
-            if ($this->propagateExceptions) {
-                throw $exception;
-            }
-        } else {
-            $this->resolver->resolve($value);
+    public function error(StrandInterface $strand, Exception $exception)
+    {
+        $strand->pop();
+        $strand->suspend();
+
+        $this->resolver->reject($exception);
+
+        if (!$this->suppressExceptions) {
+            throw $exception;
         }
     }
 
-    /**
-     * Cancel execution of the co-routine.
-     *
-     * @param StrandInterface $strand The currently executing strand.
-     */
-    public function cancel(StrandInterface $strand)
+    public function terminate(StrandInterface $strand)
     {
         $strand->pop();
         $strand->suspend();
@@ -53,11 +53,11 @@ class StackBase implements CoroutineInterface
         $this->resolver->reject(new StrandTerminatedException);
     }
 
-    public function disableExceptionPropagation()
+    public function suppressExceptions()
     {
-        $this->propagateExceptions = false;
+        $this->suppressExceptions = true;
     }
 
     private $resolver;
-    private $propagateExceptions;
+    private $suppressExceptions;
 }

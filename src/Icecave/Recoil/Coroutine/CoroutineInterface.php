@@ -5,23 +5,33 @@ use Exception;
 use Icecave\Recoil\Kernel\StrandInterface;
 
 /**
- * A resumable sub-routine.
+ * A co-routine represents a unit of work that can be suspended and resumed.
  */
 interface CoroutineInterface
 {
     /**
-     * Perform the next unit-of-work.
+     * Execute the next unit of work.
      *
-     * @param StrandInterface $strand    The currently executing strand.
-     * @param mixed           $value
-     * @param Exception|null  $exception
+     * @param StrandInterface $strand The strand that is executing the co-routine.
      */
-    public function tick(StrandInterface $strand, $value = null, Exception $exception = null);
+    public function tick(StrandInterface $strand);
 
     /**
-     * Cancel execution of the co-routine.
+     * Store a value to send to the co-routine on the next tick.
      *
-     * @param StrandInterface $strand The currently executing strand.
+     * @param mixed $value The value to send.
      */
-    public function cancel(StrandInterface $strand);
+    public function sendOnNextTick($value);
+
+    /**
+     * Store an exception to send to the co-routine on the next tick.
+     *
+     * @param Exception $exception The exception to send.
+     */
+    public function throwOnNextTick(Exception $exception);
+
+    /**
+     * Instruct the co-routine to terminate execution on the next tick.
+     */
+    public function terminateOnNextTick();
 }

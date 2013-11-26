@@ -61,7 +61,8 @@ class Kernel implements KernelInterface
     {
         $strand = $this->strandFactory()->createStrand($this);
         $strand->call($coroutine);
-        $strand->resume();
+
+        $this->attachStrand($strand);
 
         return $strand;
     }

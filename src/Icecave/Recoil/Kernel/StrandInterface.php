@@ -30,6 +30,8 @@ interface StrandInterface extends PromiseInterface
      * The value must be adaptable using the kernel's co-routine adaptor.
      *
      * @param mixed $coroutine The co-routine to call.
+     *
+     * @return CoroutineInterface The adapted co-routine.
      */
     public function push($coroutine);
 
@@ -46,6 +48,8 @@ interface StrandInterface extends PromiseInterface
      * The value must be adaptable using the kernel's co-routine adaptor.
      *
      * @param mixed $coroutine The co-routine to call.
+     *
+     * @return CoroutineInterface|null The adapted co-routine, or null if no adaptation could be made.
      */
     public function call($coroutine);
 

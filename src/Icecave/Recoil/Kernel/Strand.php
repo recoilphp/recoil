@@ -16,11 +16,10 @@ class Strand implements StrandInterface
      */
     public function __construct(KernelInterface $kernel)
     {
-        $this->kernel     = $kernel;
-        $this->cancelling = false;
-        $this->suspended  = false;
-        $this->deferred   = new Deferred;
-        $this->stack      = new SplStack;
+        $this->kernel      = $kernel;
+        $this->suspended   = false;
+        $this->deferred    = new Deferred;
+        $this->stack       = new SplStack;
 
         $this->stack->push(
             new StackBase($this->deferred->resolver())
@@ -53,6 +52,8 @@ class Strand implements StrandInterface
      * The value must be adaptable using the kernel's co-routine adaptor.
      *
      * @param mixed $coroutine The co-routine to call.
+     *
+     * @return CoroutineInterface The adapted co-routine.
      */
     public function push($coroutine)
     {
@@ -62,6 +63,8 @@ class Strand implements StrandInterface
             ->adapt($this, $coroutine);
 
         $this->stack->push($coroutine);
+
+        return $coroutine;
     }
 
     /**
@@ -80,15 +83,18 @@ class Strand implements StrandInterface
      * The value must be adaptable using the kernel's co-routine adaptor.
      *
      * @param mixed $coroutine The co-routine to call.
+     *
+     * @return CoroutineInterface|null The adapted co-routine, or null if no adaptation could be made.
      */
     public function call($coroutine)
     {
         try {
-            $this->push($coroutine);
+            return $this->push($coroutine);
         } catch (Exception $e) {
-            $this->nextValue = null;
-            $this->nextException = $e;
+            $this->current()->throwOnNextTick($e);
         }
+
+        return null;
     }
 
     /**
@@ -98,10 +104,8 @@ class Strand implements StrandInterface
      */
     public function returnValue($value = null)
     {
-        $this->nextValue = $value;
-        $this->nextException = null;
-
         $this->pop();
+        $this->current()->sendOnNextTick($value);
     }
 
     /**
@@ -111,10 +115,8 @@ class Strand implements StrandInterface
      */
     public function throwException(Exception $exception)
     {
-        $this->nextValue = null;
-        $this->nextException = $exception;
-
         $this->pop();
+        $this->current()->throwOnNextTick($exception);
     }
 
     /**
@@ -122,12 +124,12 @@ class Strand implements StrandInterface
      */
     public function terminate()
     {
-        $this->cancelling = true;
-        $this->suspended = false;
-        $this->nextValue = null;
-        $this->nextException = null;
+        $this->current()->terminateOnNextTick();
 
-        $this->kernel()->attachStrand($this);
+        if ($this->suspended) {
+            $this->suspended = false;
+            $this->kernel()->attachStrand($this);
+        }
     }
 
     /**
@@ -146,9 +148,8 @@ class Strand implements StrandInterface
     public function resume($value = null)
     {
         $this->suspended = false;
-        $this->nextValue = $value;
-        $this->nextException = null;
 
+        $this->current()->sendOnNextTick($value);
         $this->kernel()->attachStrand($this);
     }
 
@@ -158,9 +159,8 @@ class Strand implements StrandInterface
     public function resumeWithException(Exception $exception)
     {
         $this->suspended = false;
-        $this->nextValue = null;
-        $this->nextException = $exception;
 
+        $this->current()->throwOnNextTick($exception);
         $this->kernel()->attachStrand($this);
     }
 
@@ -170,16 +170,7 @@ class Strand implements StrandInterface
     public function tick()
     {
         while (!$this->suspended) {
-            if ($this->cancelling) {
-                $this->current()->cancel($this);
-            } else {
-                $value = $this->nextValue;
-                $exception = $this->nextException;
-                $this->nextValue = null;
-                $this->nextException = null;
-
-                $this->current()->tick($this, $value, $exception);
-            }
+            $this->current()->tick($this);
         }
     }
 
@@ -195,17 +186,14 @@ class Strand implements StrandInterface
     public function then($fulfilledHandler = null, $errorHandler = null, $progressHandler = null)
     {
         if ($errorHandler && !$this->stack->isEmpty()) {
-            $this->stack->bottom()->disableExceptionPropagation();
+            $this->stack->bottom()->suppressExceptions();
         }
 
         return $this->deferred->then($fulfilledHandler, $errorHandler, $progressHandler);
     }
 
     private $kernel;
-    private $cancelling;
     private $suspended;
     private $deferred;
     private $stack;
-    private $nextValue;
-    private $nextException;
 }

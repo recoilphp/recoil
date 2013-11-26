@@ -8,7 +8,7 @@ use Icecave\Recoil\Kernel\StrandInterface;
 /**
  * A co-routine wrapper for PHP generators.
  */
-class GeneratorCoroutine implements CoroutineInterface
+class GeneratorCoroutine extends AbstractCoroutine
 {
     /**
      * @param Generator $generator The PHP generator that implements the co-routine logic.
@@ -16,64 +16,98 @@ class GeneratorCoroutine implements CoroutineInterface
     public function __construct(Generator $generator)
     {
         $this->generator = $generator;
-        $this->pending = true;
+
+        parent::__construct();
     }
 
     /**
-     * Perform the next unit-of-work.
+     * Invoked when tick() is called for the first time.
      *
-     * @param StrandInterface $strand    The currently executing strand.
-     * @param mixed           $value
-     * @param Exception|null  $exception
+     * @param StrandInterface $strand The strand that is executing the co-routine.
      */
-    public function tick(StrandInterface $strand, $value = null, Exception $exception = null)
+    public function call(StrandInterface $strand)
     {
         try {
-            // The generator has not been started yet ...
-            if ($this->pending) {
-                $this->pending = false;
-
-            // The generator is running and there as exception to be sent ...
-            } elseif ($exception) {
-                $this->generator->throw($exception);
-
-            // Otherwise send the value ...
-            } else {
-                $this->generator->send($value);
-            }
-
+            $e = null;
             $valid = $this->generator->valid();
-
-        // An exception was thrown, propagate it to the caller ...
         } catch (Exception $e) {
-            $strand->throwException($e);
-
-            return;
+            $valid = false;
         }
 
-        // The generator yielded a co-routine to execute ...
-        if ($valid) {
-            $strand->call($this->generator->current());
+        $this->dispatch($strand, $valid, $e);
+    }
 
-        // There's nothing left to do ...
+    /**
+     * Invoked when tick() is called after sendOnNextTick().
+     *
+     * @param StrandInterface $strand The strand that is executing the co-routine.
+     * @param mixed $value The value passed to sendOnNextTick().
+     */
+    public function resume(StrandInterface $strand, $value)
+    {
+        try {
+            $e = null;
+            $this->generator->send($value);
+            $valid = $this->generator->valid();
+        } catch (Exception $e) {
+            $valid = false;
+        }
+
+        $this->dispatch($strand, $valid, $e);
+    }
+
+    /**
+     * Invoked when tick() is called after throwOnNextTick().
+     *
+     * @param StrandInterface $strand The strand that is executing the co-routine.
+     * @param Exception $exception The exception passed to throwOnNextTick().
+     */
+    public function error(StrandInterface $strand, Exception $exception)
+    {
+        try {
+            $e = null;
+            $this->generator->throw($exception);
+            $valid = $this->generator->valid();
+        } catch (Exception $e) {
+            $valid = false;
+        }
+
+        $this->dispatch($strand, $valid, $e);
+    }
+
+    /**
+     * Invoked when tick() is called after terminateOnNextTick().
+     *
+     * @param StrandInterface $strand The strand that is executing the co-routine.
+     */
+    public function terminate(StrandInterface $strand)
+    {
+        $this->generator = null;
+
+        $strand->pop();
+        $strand->terminate();
+    }
+
+    /**
+     * Dispatch the value or exception produced by the latest tick of the
+     * generator.
+     *
+     * @param StrandInterface $strand The strand that is executing the co-routine.
+     * @param boolean $valid Whether or not the generator is valid.
+     * @param Exception|null $exception The exception thrown during the latest tick, if any.
+     */
+    protected function dispatch(StrandInterface $strand, $valid, Exception $exception = null)
+    {
+        if ($exception) {
+            $strand->throwException($exception);
+        } elseif ($valid) {
+            $strand->call(
+                $this->generator->current()
+            );
         } else {
             $strand->returnValue(null);
         }
     }
 
-    /**
-     * Cancel execution of the co-routine.
-     *
-     * @param StrandInterface $strand The currently executing strand.
-     */
-    public function cancel(StrandInterface $strand)
-    {
-        $strand->pop();
-
-        $this->generator = null;
-        $this->pending = false;
-    }
-
     private $generator;
-    private $pending;
 }

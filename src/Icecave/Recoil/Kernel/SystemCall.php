@@ -3,14 +3,14 @@ namespace Icecave\Recoil\Kernel;
 
 use BadMethodCallException;
 use Exception;
-use Icecave\Recoil\Coroutine\CoroutineInterface;
+use Icecave\Recoil\Coroutine\AbstractCoroutine;
 
 /**
  * Represents a system-call.
  *
  * The call is proxied on to the Kernel API implementation.
  */
-class SystemCall implements CoroutineInterface
+class SystemCall extends AbstractCoroutine
 {
     /**
      * @param string $name      The name of the system-call to invoke.
@@ -20,16 +20,16 @@ class SystemCall implements CoroutineInterface
     {
         $this->name = $name;
         $this->arguments = $arguments;
+
+        parent::__construct();
     }
 
     /**
-     * Perform the next unit-of-work.
+     * Invoked when tick() is called for the first time.
      *
-     * @param StrandInterface $strand    The currently executing strand.
-     * @param mixed           $value
-     * @param Exception|null  $exception
+     * @param StrandInterface $strand The strand that is executing the co-routine.
      */
-    public function tick(StrandInterface $strand, $value = null, Exception $exception = null)
+    public function call(StrandInterface $strand)
     {
         $method = [$strand->kernel()->api(), $this->name];
 
@@ -45,15 +45,36 @@ class SystemCall implements CoroutineInterface
     }
 
     /**
-     * Cancel execution of the co-routine.
+     * Invoked when tick() is called after sendOnNextTick().
      *
-     * @codeCoverageIgnore
-     *
-     * @param StrandInterface $strand The currently executing strand.
+     * @param StrandInterface $strand The strand that is executing the co-routine.
+     * @param mixed $value The value passed to sendOnNextTick().
      */
-    public function cancel(StrandInterface $strand)
+    public function resume(StrandInterface $strand, $value)
+    {
+        $strand->returnValue($value);
+    }
+
+    /**
+     * Invoked when tick() is called after throwOnNextTick().
+     *
+     * @param StrandInterface $strand The strand that is executing the co-routine.
+     * @param Exception $exception The exception passed to throwOnNextTick().
+     */
+    public function error(StrandInterface $strand, Exception $exception)
+    {
+        $strand->throwException($exception);
+    }
+
+    /**
+     * Invoked when tick() is called after terminateOnNextTick().
+     *
+     * @param StrandInterface $strand The strand that is executing the co-routine.
+     */
+    public function terminate(StrandInterface $strand)
     {
         $strand->pop();
+        $strand->terminate();
     }
 
     private $name;

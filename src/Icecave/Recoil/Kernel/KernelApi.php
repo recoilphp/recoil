@@ -55,6 +55,8 @@ class KernelApi implements KernelApiInterface
 
         $strand->returnValue($value);
 
+        $coroutine->sendOnNextTick(null);
+
         $strand
             ->kernel()
             ->execute($coroutine);
@@ -73,6 +75,8 @@ class KernelApi implements KernelApiInterface
         $coroutine = $strand->current();
 
         $strand->throwException($exception);
+
+        $coroutine->sendOnNextTick(null);
 
         $strand
             ->kernel()
@@ -202,5 +206,7 @@ class KernelApi implements KernelApiInterface
     public function noop(StrandInterface $strand)
     {
         $strand->pop();
+
+        $strand->current()->sendOnNextTick(null);
     }
 }

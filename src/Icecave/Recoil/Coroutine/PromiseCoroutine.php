@@ -9,7 +9,7 @@ use RuntimeException;
 /**
  * A co-routine that resumes when a promise is fulfilled or rejected.
  */
-class PromiseCoroutine implements CoroutineInterface
+class PromiseCoroutine extends AbstractCoroutine
 {
     /**
      * @param PromiseInterface $promise The ReactPHP promise.
@@ -17,72 +17,85 @@ class PromiseCoroutine implements CoroutineInterface
     public function __construct(PromiseInterface $promise)
     {
         $this->promise = $promise;
+
+        parent::__construct();
     }
 
     /**
-     * Perform the next unit-of-work.
+     * Invoked when tick() is called for the first time.
      *
-     * @param StrandInterface $strand    The currently executing strand.
-     * @param mixed           $value
-     * @param Exception|null  $exception
+     * @param StrandInterface $strand The strand that is executing the co-routine.
      */
-    public function tick(StrandInterface $strand, $value = null, Exception $exception = null)
+    public function call(StrandInterface $strand)
     {
-        if (null === $this->strand) {
-            $this->strand = $strand;
-            $this->strand->suspend();
-            $this->promise->then(
-                [$this, 'onPromiseFulfilled'],
-                [$this, 'onPromiseRejected']
-            );
-        } elseif ($exception) {
-            $strand->throwException($exception);
-        } else {
-            $strand->returnValue($value);
-        }
+        $strand->suspend();
+
+        $this->promise->then(
+            function ($value) use ($strand) {
+                if ($this->promise) {
+                    $strand->resume($value);
+                }
+            },
+            function ($reason) use ($strand) {
+                if ($this->promise) {
+                    $strand->resumeWithException(
+                        $this->adaptReasonToException($reason)
+                    );
+                }
+            }
+        );
     }
 
     /**
-     * Cancel execution of the co-routine.
+     * Invoked when tick() is called after sendOnNextTick().
      *
-     * @param StrandInterface $strand The currently executing strand.
+     * @param StrandInterface $strand The strand that is executing the co-routine.
+     * @param mixed $value The value passed to sendOnNextTick().
      */
-    public function cancel(StrandInterface $strand)
+    public function resume(StrandInterface $strand, $value)
     {
-        $strand->pop();
+        $strand->returnValue($value);
+    }
 
+    /**
+     * Invoked when tick() is called after throwOnNextTick().
+     *
+     * @param StrandInterface $strand The strand that is executing the co-routine.
+     * @param Exception $exception The exception passed to throwOnNextTick().
+     */
+    public function error(StrandInterface $strand, Exception $exception)
+    {
+        $strand->throwException($exception);
+    }
+
+    /**
+     * Invoked when tick() is called after terminateOnNextTick().
+     *
+     * @param StrandInterface $strand The strand that is executing the co-routine.
+     */
+    public function terminate(StrandInterface $strand)
+    {
         $this->promise = null;
-        $this->strand = null;
+
+        $strand->pop();
+        $strand->terminate();
     }
 
     /**
-     * @param mixed $value
-     */
-    public function onPromiseFulfilled($value)
-    {
-        if (!$this->strand) {
-            return;
-        }
-
-        $this->strand->resume($value);
-    }
-
-    /**
+     * Adapt a promise rejection reason into an exception.
+     *
      * @param mixed $reason
+     *
+     * @return Exception
      */
-    public function onPromiseRejected($reason)
+    protected function adaptReasonToException($reason)
     {
-        if (!$this->strand) {
-            return;
+        if ($reason instanceof Exception) {
+            return $reason;
         }
 
-        if (!$reason instanceof Exception) {
-            $reason = new RuntimeException($reason);
-        }
-
-        $this->strand->resumeWithException($reason);
+        return new RuntimeException($reason);
     }
 
     private $promise;
-    private $strand;
 }
