@@ -3,14 +3,15 @@ namespace Icecave\Recoil\Kernel;
 
 use BadMethodCallException;
 use Exception;
-use Icecave\Recoil\Coroutine\AbstractCoroutine;
+use Icecave\Recoil\Coroutine\CoroutineInterface;
+use LogicException;
 
 /**
  * Represents a system-call.
  *
  * The call is proxied on to the Kernel API implementation.
  */
-class SystemCall extends AbstractCoroutine
+class SystemCall implements CoroutineInterface
 {
     /**
      * @param string $name      The name of the system-call to invoke.
@@ -20,12 +21,10 @@ class SystemCall extends AbstractCoroutine
     {
         $this->name = $name;
         $this->arguments = $arguments;
-
-        parent::__construct();
     }
 
     /**
-     * Invoked when tick() is called for the first time.
+     * Execute the next unit of work.
      *
      * @param StrandInterface $strand The strand that is executing the co-routine.
      */
@@ -34,6 +33,7 @@ class SystemCall extends AbstractCoroutine
         $method = [$strand->kernel()->api(), $this->name];
 
         if (is_callable($method)) {
+            $strand->pop();
             $arguments = $this->arguments;
             array_unshift($arguments, $strand);
             call_user_func_array($method, $arguments);
@@ -45,36 +45,37 @@ class SystemCall extends AbstractCoroutine
     }
 
     /**
-     * Invoked when tick() is called after sendOnNextTick().
+     * Store a value to send to the co-routine on the next tick.
      *
-     * @param StrandInterface $strand The strand that is executing the co-routine.
-     * @param mixed           $value  The value passed to sendOnNextTick().
+     * @codeCoverageIgnore
+     *
+     * @param mixed $value The value to send.
      */
-    public function resume(StrandInterface $strand, $value)
+    public function sendOnNextTick($value)
     {
-        $strand->returnValue($value);
+        throw new LogicException('Not supported.');
     }
 
     /**
-     * Invoked when tick() is called after throwOnNextTick().
+     * Store an exception to send to the co-routine on the next tick.
      *
-     * @param StrandInterface $strand    The strand that is executing the co-routine.
-     * @param Exception       $exception The exception passed to throwOnNextTick().
+     * @codeCoverageIgnore
+     *
+     * @param Exception $exception The exception to send.
      */
-    public function error(StrandInterface $strand, Exception $exception)
+    public function throwOnNextTick(Exception $exception)
     {
-        $strand->throwException($exception);
+        throw new LogicException('Not supported.');
     }
 
     /**
-     * Invoked when tick() is called after terminateOnNextTick().
+     * Instruct the co-routine to terminate execution on the next tick.
      *
-     * @param StrandInterface $strand The strand that is executing the co-routine.
+     * @codeCoverageIgnore
      */
-    public function terminate(StrandInterface $strand)
+    public function terminateOnNextTick()
     {
-        $strand->pop();
-        $strand->terminate();
+        throw new LogicException('Not supported.');
     }
 
     private $name;

@@ -14,7 +14,7 @@ class KernelApi implements KernelApiInterface
      */
     public function strand(StrandInterface $strand)
     {
-        $strand->returnValue($strand);
+        $strand->current()->sendOnNextTick($strand);
     }
 
     /**
@@ -25,7 +25,6 @@ class KernelApi implements KernelApiInterface
      */
     public function return_(StrandInterface $strand, $value = null)
     {
-        $strand->pop();
         $strand->returnValue($value);
     }
 
@@ -37,7 +36,6 @@ class KernelApi implements KernelApiInterface
      */
     public function throw_(StrandInterface $strand, Exception $exception)
     {
-        $strand->pop();
         $strand->throwException($exception);
     }
 
@@ -49,8 +47,6 @@ class KernelApi implements KernelApiInterface
      */
     public function returnAndResume(StrandInterface $strand, $value = null)
     {
-        $strand->pop();
-
         $coroutine = $strand->current();
 
         $strand->returnValue($value);
@@ -70,8 +66,6 @@ class KernelApi implements KernelApiInterface
      */
     public function throwAndResume(StrandInterface $strand, Exception $exception)
     {
-        $strand->pop();
-
         $coroutine = $strand->current();
 
         $strand->throwException($exception);
@@ -101,8 +95,6 @@ class KernelApi implements KernelApiInterface
      */
     public function sleep(StrandInterface $strand, $timeout)
     {
-        $strand->pop();
-
         $strand->suspend();
 
         $timer = $strand
@@ -118,8 +110,6 @@ class KernelApi implements KernelApiInterface
      */
     public function suspend(StrandInterface $strand, callable $callback)
     {
-        $strand->pop();
-
         $strand->suspend();
 
         $callback($strand);
@@ -137,8 +127,6 @@ class KernelApi implements KernelApiInterface
      */
     public function timeout(StrandInterface $strand, $timeout, $coroutine)
     {
-        $strand->pop();
-
         // Suspend the current strand ...
         $strand->suspend();
 
@@ -188,8 +176,6 @@ class KernelApi implements KernelApiInterface
      */
     public function cooperate(StrandInterface $strand)
     {
-        $strand->pop();
-
         $strand->suspend();
 
         $strand
@@ -205,8 +191,6 @@ class KernelApi implements KernelApiInterface
      */
     public function noop(StrandInterface $strand)
     {
-        $strand->pop();
-
         $strand->current()->sendOnNextTick(null);
     }
 }
