@@ -1,5 +1,7 @@
 <?php
-namespace Icecave\Recoil\Kernel;
+namespace Icecave\Recoil\Kernel\Strand;
+
+use Icecave\Recoil\Kernel\KernelInterface;
 
 /**
  * A factory for strands.

@@ -2,7 +2,7 @@
 namespace Icecave\Recoil\Coroutine;
 
 use Exception;
-use Icecave\Recoil\Kernel\StrandInterface;
+use Icecave\Recoil\Kernel\Strand\StrandInterface;
 
 /**
  * A co-routine represents a unit of work that can be suspended and resumed.

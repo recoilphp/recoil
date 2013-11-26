@@ -1,7 +1,7 @@
 <?php
 namespace Icecave\Recoil\Coroutine;
 
-use Icecave\Recoil\Kernel\StrandInterface;
+use Icecave\Recoil\Kernel\Strand\StrandInterface;
 use InvalidArgumentException;
 
 /**

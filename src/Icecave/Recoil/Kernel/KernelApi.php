@@ -4,6 +4,7 @@ namespace Icecave\Recoil\Kernel;
 use Exception;
 use Icecave\Recoil\Kernel\Exception\StrandTerminatedException;
 use Icecave\Recoil\Kernel\Exception\TimeoutException;
+use Icecave\Recoil\Kernel\Strand\StrandInterface;
 
 class KernelApi implements KernelApiInterface
 {

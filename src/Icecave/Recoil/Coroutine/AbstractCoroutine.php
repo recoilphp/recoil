@@ -2,7 +2,7 @@
 namespace Icecave\Recoil\Coroutine;
 
 use Exception;
-use Icecave\Recoil\Kernel\StrandInterface;
+use Icecave\Recoil\Kernel\Strand\StrandInterface;
 
 /**
  * A base class for co-routines that keeps track of next tick state behaviour.

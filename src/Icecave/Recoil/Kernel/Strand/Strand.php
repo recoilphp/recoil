@@ -1,10 +1,11 @@
 <?php
-namespace Icecave\Recoil\Kernel;
+namespace Icecave\Recoil\Kernel\Strand;
 
 use Exception;
 use Icecave\Recoil\Coroutine\CoroutineInterface;
-use SplStack;
+use Icecave\Recoil\Kernel\KernelInterface;
 use React\Promise\Deferred;
+use SplStack;
 
 /**
  * A strand represents a user-space "thread" of execution.

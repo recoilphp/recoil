@@ -4,6 +4,7 @@ namespace Icecave\Recoil\Kernel;
 use BadMethodCallException;
 use Exception;
 use Icecave\Recoil\Coroutine\CoroutineInterface;
+use Icecave\Recoil\Kernel\Strand\StrandInterface;
 use LogicException;
 
 /**

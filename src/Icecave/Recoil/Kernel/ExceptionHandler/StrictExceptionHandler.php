@@ -2,7 +2,7 @@
 namespace Icecave\Recoil\Kernel\ExceptionHandler;
 
 use Exception;
-use Icecave\Recoil\Kernel\StrandInterface;
+use Icecave\Recoil\Kernel\Strand\StrandInterface;
 
 /**
  * An exception handler that rethrows uncaught exceptions.

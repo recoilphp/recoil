@@ -1,5 +1,5 @@
 <?php
-namespace Icecave\Recoil\Kernel;
+namespace Icecave\Recoil\Kernel\Strand;
 
 use Exception;
 use Icecave\Recoil\Coroutine\AbstractCoroutine;

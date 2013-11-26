@@ -2,7 +2,7 @@
 namespace Icecave\Recoil\Coroutine;
 
 use Generator;
-use Icecave\Recoil\Kernel\StrandInterface;
+use Icecave\Recoil\Kernel\Strand\StrandInterface;
 use Icecave\Recoil\Recoil;
 use Icecave\Repr\Repr;
 use InvalidArgumentException;

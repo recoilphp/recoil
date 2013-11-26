@@ -3,7 +3,7 @@ namespace Icecave\Recoil\Coroutine;
 
 use Exception;
 use Generator;
-use Icecave\Recoil\Kernel\StrandInterface;
+use Icecave\Recoil\Kernel\Strand\StrandInterface;
 
 /**
  * A co-routine wrapper for PHP generators.

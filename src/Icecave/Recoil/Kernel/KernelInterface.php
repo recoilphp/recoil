@@ -3,6 +3,8 @@ namespace Icecave\Recoil\Kernel;
 
 use Icecave\Recoil\Coroutine\CoroutineAdaptorInterface;
 use Icecave\Recoil\Kernel\ExceptionHandler\ExceptionHandlerInterface;
+use Icecave\Recoil\Kernel\Strand\StrandFactoryInterface;
+use Icecave\Recoil\Kernel\Strand\StrandInterface;
 use React\EventLoop\LoopInterface;
 
 /**

@@ -2,6 +2,7 @@
 namespace Icecave\Recoil\Kernel;
 
 use Exception;
+use Icecave\Recoil\Kernel\Strand\StrandInterface;
 
 /**
  * Public interface for manipulating the kernel and the current strand.
