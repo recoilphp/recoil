@@ -1,5 +1,5 @@
 <?php
-namespace Icecave\Recoil\Kernel;
+namespace Icecave\Recoil\Kernel\Api;
 
 use BadMethodCallException;
 use Exception;
@@ -41,7 +41,7 @@ class KernelApiCall implements CoroutineInterface
             call_user_func_array($method, $arguments);
         } else {
             $strand->throwException(
-                new BadMethodCallException('Unknown kernel API call: "' . $this->name . '".')
+                new BadMethodCallException('The kernel API does not have an operation named "' . $this->name . '".')
             );
         }
     }

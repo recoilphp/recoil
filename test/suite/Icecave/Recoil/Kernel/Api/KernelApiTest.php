@@ -1,9 +1,10 @@
 <?php
-namespace Icecave\Recoil\Kernel;
+namespace Icecave\Recoil\Kernel\Api;
 
 use Exception;
 use Icecave\Recoil\Kernel\Exception\StrandTerminatedException;
 use Icecave\Recoil\Kernel\Exception\TimeoutException;
+use Icecave\Recoil\Kernel\Kernel;
 use Icecave\Recoil\Recoil;
 use PHPUnit_Framework_TestCase;
 

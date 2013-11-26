@@ -1,8 +1,9 @@
 <?php
-namespace Icecave\Recoil\Kernel;
+namespace Icecave\Recoil\Kernel\Api;
 
 use BadMethodCallException;
 use Exception;
+use Icecave\Recoil\Kernel\Kernel;
 use Icecave\Recoil\Recoil;
 use Phake;
 use PHPUnit_Framework_TestCase;
@@ -36,7 +37,7 @@ class KernelApiCallTest extends PHPUnit_Framework_TestCase
                 $this->fail('Expected exception was not thrown.');
             } catch (BadMethodCallException $e) {
                 $this->assertSame(
-                    'Kernel API does not support the "foo" system-call.',
+                    'The kernel API does not have an operation named "foo".',
                     $e->getMessage()
                 );
             }

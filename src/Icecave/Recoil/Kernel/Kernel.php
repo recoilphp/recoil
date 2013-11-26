@@ -3,6 +3,8 @@ namespace Icecave\Recoil\Kernel;
 
 use Icecave\Recoil\Coroutine\CoroutineAdaptor;
 use Icecave\Recoil\Coroutine\CoroutineAdaptorInterface;
+use Icecave\Recoil\Kernel\Api\KernelApi;
+use Icecave\Recoil\Kernel\Api\KernelApiInterface;
 use Icecave\Recoil\Kernel\ExceptionHandler\ExceptionHandlerInterface;
 use Icecave\Recoil\Kernel\ExceptionHandler\StrictExceptionHandler;
 use Icecave\Recoil\Kernel\Strand\StrandFactory;

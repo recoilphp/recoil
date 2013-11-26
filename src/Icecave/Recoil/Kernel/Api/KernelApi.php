@@ -1,5 +1,5 @@
 <?php
-namespace Icecave\Recoil\Kernel;
+namespace Icecave\Recoil\Kernel\Api;
 
 use Exception;
 use Icecave\Recoil\Kernel\Exception\StrandTerminatedException;
@@ -96,12 +96,9 @@ class KernelApi implements KernelApiInterface
      */
     public function sleep(StrandInterface $strand, $timeout)
     {
-        $strand->suspend();
-
-        $timer = $strand
-            ->kernel()
-            ->eventLoop()
-            ->addTimer($timeout, [$strand, 'resume']);
+        $strand->call(
+            new Sleep($timeout)
+        );
     }
 
     /**

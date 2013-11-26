@@ -1,7 +1,7 @@
 <?php
 namespace Icecave\Recoil;
 
-use Icecave\Recoil\Kernel\KernelApiCall;
+use Icecave\Recoil\Kernel\Api\KernelApiCall;
 
 /**
  * Public facade for Kernel API calls.
