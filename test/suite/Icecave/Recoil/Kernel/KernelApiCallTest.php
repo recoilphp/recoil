@@ -7,7 +7,7 @@ use Icecave\Recoil\Recoil;
 use Phake;
 use PHPUnit_Framework_TestCase;
 
-class SystemCallTest extends PHPUnit_Framework_TestCase
+class KernelApiCallTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
     {

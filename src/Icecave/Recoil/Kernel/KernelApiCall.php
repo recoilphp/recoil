@@ -8,15 +8,16 @@ use Icecave\Recoil\Kernel\Strand\StrandInterface;
 use LogicException;
 
 /**
- * Represents a system-call.
+ * Represents a call to a feature provided by the Kernel API.
  *
- * The call is proxied on to the Kernel API implementation.
+ * @see Icecave\Recoil\Kernel\KernelApiInterface
+ * @see Icecave\Recoil\Kernel\KernelInterface::api()
  */
-class SystemCall implements CoroutineInterface
+class KernelApiCall implements CoroutineInterface
 {
     /**
-     * @param string $name      The name of the system-call to invoke.
-     * @param array  $arguments The arguments to the system-call.
+     * @param string $name      The name of the kernel API function to invoke.
+     * @param array  $arguments The arguments to the kernel API function.
      */
     public function __construct($name, array $arguments)
     {
@@ -40,7 +41,7 @@ class SystemCall implements CoroutineInterface
             call_user_func_array($method, $arguments);
         } else {
             $strand->throwException(
-                new BadMethodCallException('Kernel API does not support the "' . $this->name . '" system-call.')
+                new BadMethodCallException('Unknown kernel API call: "' . $this->name . '".')
             );
         }
     }

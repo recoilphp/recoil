@@ -104,7 +104,7 @@ class Kernel implements KernelInterface
     }
 
     /**
-     * Fetch the object that implements the kernel's system calls.
+     * Fetch the object that implements the kernel API.
      *
      * @return KernelApiInterface The kernel's API implementation.
      */

@@ -39,7 +39,7 @@ interface KernelInterface
     public function detachStrand(StrandInterface $strand);
 
     /**
-     * Fetch the object that implements the kernel's system calls.
+     * Fetch the object that implements the kernel API.
      *
      * @return KernelApiInterface The kernel's API implementation.
      */

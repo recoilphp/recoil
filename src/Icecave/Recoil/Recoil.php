@@ -1,10 +1,10 @@
 <?php
 namespace Icecave\Recoil;
 
-use Icecave\Recoil\Kernel\SystemCall;
+use Icecave\Recoil\Kernel\KernelApiCall;
 
 /**
- * Public facade for co-routine system calls.
+ * Public facade for Kernel API calls.
  *
  * This class contains no implementation; it is a proxy for the kernel API
  * implementation provided by whichever co-routine kernel is currently being
@@ -16,17 +16,18 @@ use Icecave\Recoil\Kernel\SystemCall;
 abstract class Recoil
 {
     /**
-     * Invoke a method on the current kernel's system-call factory implementation.
+     * Invoke a kernel API function.
      *
      * @see Icecave\Recoil\Kernel\KernelApiInterface
+     * @see Icecave\Recoil\Kernel\KernelInterface::api()
      *
      * @coroutine
      *
-     * @param string $name
-     * @param array  $arguments
+     * @param string $name      The name of the kernel API function to invoke.
+     * @param array  $arguments The arguments to the kernel API function.
      */
     public static function __callStatic($name, array $arguments)
     {
-        return new SystemCall($name, $arguments);
+        return new KernelApiCall($name, $arguments);
     }
 }
