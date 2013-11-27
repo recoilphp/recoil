@@ -6,6 +6,9 @@ use Icecave\Recoil\Kernel\Exception\StrandTerminatedException;
 use Icecave\Recoil\Recoil;
 use PHPUnit_Framework_TestCase;
 
+/**
+ * @group functional
+ */
 class StrandFunctionalTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()

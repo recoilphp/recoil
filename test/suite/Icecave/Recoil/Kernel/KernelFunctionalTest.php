@@ -7,6 +7,9 @@ use InvalidArgumentException;
 use PHPUnit_Framework_TestCase;
 use React\Promise\FulfilledPromise;
 
+/**
+ * @group functional
+ */
 class KernelFunctionalTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
