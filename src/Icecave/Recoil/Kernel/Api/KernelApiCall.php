@@ -26,17 +26,37 @@ class KernelApiCall implements CoroutineInterface
     }
 
     /**
+     * Fetch the name of the kernel API function to invoke.
+     *
+     * @return string The name of the kernel API function to invoke.
+     */
+    public function name()
+    {
+        return $this->name;
+    }
+
+    /**
+     * Fetch the arguments to the kernel API function.
+     *
+     * @return array The arguments to the kernel API function.
+     */
+    public function arguments()
+    {
+        return $this->arguments;
+    }
+
+    /**
      * Execute the next unit of work.
      *
      * @param StrandInterface $strand The strand that is executing the co-routine.
      */
     public function tick(StrandInterface $strand)
     {
-        $method = [$strand->kernel()->api(), $this->name];
+        $method = [$strand->kernel()->api(), $this->name()];
 
         if (is_callable($method)) {
             $strand->pop();
-            $arguments = $this->arguments;
+            $arguments = $this->arguments();
             array_unshift($arguments, $strand);
             call_user_func_array($method, $arguments);
         } else {

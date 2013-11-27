@@ -12,13 +12,23 @@ use RuntimeException;
 class PromiseCoroutine extends AbstractCoroutine
 {
     /**
-     * @param PromiseInterface $promise The ReactPHP promise.
+     * @param PromiseInterface $promise The wrapped promise object.
      */
     public function __construct(PromiseInterface $promise)
     {
         $this->promise = $promise;
 
         parent::__construct();
+    }
+
+    /**
+     * Fetch the wrapped promise object.
+     *
+     * @return PromiseInterface The wrapped promise object.
+     */
+    public function promise()
+    {
+        return $this->promise;
     }
 
     /**

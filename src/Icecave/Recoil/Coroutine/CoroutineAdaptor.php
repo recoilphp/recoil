@@ -24,6 +24,10 @@ class CoroutineAdaptor implements CoroutineAdaptorInterface
      */
     public function adapt(StrandInterface $strand, $value)
     {
+        while ($value instanceof CoroutineProviderInterface) {
+            $value = $value->coroutine($strand);
+        }
+
         if ($value instanceof CoroutineInterface) {
             return $value;
         } elseif ($value instanceof Generator) {
