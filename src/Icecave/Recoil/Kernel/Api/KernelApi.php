@@ -140,7 +140,11 @@ class KernelApi implements KernelApiInterface
         $strand
             ->kernel()
             ->eventLoop()
-            ->nextTick([$strand, 'resume']);
+            ->nextTick(
+                function () use ($strand) {
+                    $strand->resumeWithValue(null);
+                }
+            );
     }
 
     /**

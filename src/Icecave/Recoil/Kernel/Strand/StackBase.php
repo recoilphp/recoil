@@ -25,7 +25,7 @@ class StackBase extends AbstractCoroutine
         $strand->suspend();
     }
 
-    public function resume(StrandInterface $strand, $value)
+    public function resumeWithValue(StrandInterface $strand, $value)
     {
         $strand->pop();
         $strand->suspend();
@@ -33,7 +33,7 @@ class StackBase extends AbstractCoroutine
         $this->resolver->resolve($value);
     }
 
-    public function error(StrandInterface $strand, Exception $exception)
+    public function resumeWithException(StrandInterface $strand, Exception $exception)
     {
         $strand->pop();
         $strand->suspend();

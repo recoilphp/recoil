@@ -121,19 +121,6 @@ class Strand implements StrandInterface
     }
 
     /**
-     * Terminate this execution context.
-     */
-    public function terminate()
-    {
-        $this->current()->terminateOnNextTick();
-
-        if ($this->suspended) {
-            $this->suspended = false;
-            $this->kernel()->attachStrand($this);
-        }
-    }
-
-    /**
      * Suspend execution of this strand.
      */
     public function suspend()
@@ -144,9 +131,9 @@ class Strand implements StrandInterface
     }
 
     /**
-     * Resume execution of this strand.
+     * Resume execution of this strand and send a value to the current co-routine.
      */
-    public function resume($value = null)
+    public function resumeWithValue($value)
     {
         $this->suspended = false;
 
@@ -155,7 +142,7 @@ class Strand implements StrandInterface
     }
 
     /**
-     * Resume execution of this strand and indicate an error condition.
+     * Resume execution of this strand and throw an excption to the current co-routine.
      */
     public function resumeWithException(Exception $exception)
     {
@@ -163,6 +150,19 @@ class Strand implements StrandInterface
 
         $this->current()->throwOnNextTick($exception);
         $this->kernel()->attachStrand($this);
+    }
+
+    /**
+     * Terminate this execution context.
+     */
+    public function terminate()
+    {
+        $this->current()->terminateOnNextTick();
+
+        if ($this->suspended) {
+            $this->suspended = false;
+            $this->kernel()->attachStrand($this);
+        }
     }
 
     /**

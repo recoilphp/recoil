@@ -29,7 +29,7 @@ abstract class AbstractCoroutine implements CoroutineInterface
      * @param StrandInterface $strand The strand that is executing the co-routine.
      * @param mixed           $value  The value passed to sendOnNextTick().
      */
-    abstract public function resume(StrandInterface $strand, $value);
+    abstract public function resumeWithValue(StrandInterface $strand, $value);
 
     /**
      * Invoked when tick() is called after throwOnNextTick().
@@ -37,7 +37,7 @@ abstract class AbstractCoroutine implements CoroutineInterface
      * @param StrandInterface $strand    The strand that is executing the co-routine.
      * @param Exception       $exception The exception passed to throwOnNextTick().
      */
-    abstract public function error(StrandInterface $strand, Exception $exception);
+    abstract public function resumeWithException(StrandInterface $strand, Exception $exception);
 
     /**
      * Invoked when tick() is called after terminateOnNextTick().
@@ -70,7 +70,7 @@ abstract class AbstractCoroutine implements CoroutineInterface
     public function sendOnNextTick($value)
     {
         $this->tickLogic = function ($strand) use ($value) {
-            $this->resume($strand, $value);
+            $this->resumeWithValue($strand, $value);
         };
     }
 
@@ -82,7 +82,7 @@ abstract class AbstractCoroutine implements CoroutineInterface
     public function throwOnNextTick(Exception $exception)
     {
         $this->tickLogic = function ($strand) use ($exception) {
-            $this->error($strand, $exception);
+            $this->resumeWithException($strand, $exception);
         };
     }
 

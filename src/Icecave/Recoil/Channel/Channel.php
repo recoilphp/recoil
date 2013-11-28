@@ -36,7 +36,7 @@ class Channel implements ReadableChannelInterface, WritableChannelInterface
             ));
         } else {
             list($strand, $value) = $this->writes->dequeue();
-            $strand->resume();
+            $strand->resumeWithValue(null);
         }
 
         yield Recoil::return_($value);
@@ -66,7 +66,7 @@ class Channel implements ReadableChannelInterface, WritableChannelInterface
             );
         } else {
             $strand = $this->reads->dequeue();
-            $strand->resume($value);
+            $strand->resumeWithValue($value);
         }
     }
 

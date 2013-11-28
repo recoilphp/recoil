@@ -19,7 +19,7 @@ class StrandFunctionalTest extends PHPUnit_Framework_TestCase
     /**
      * Test that strands of execution can be suspended and resumed.
      */
-    public function testSuspendAndResume()
+    public function testSuspendAndResumeWithValue()
     {
         $this->expectOutputString('12345');
 
@@ -37,7 +37,7 @@ class StrandFunctionalTest extends PHPUnit_Framework_TestCase
 
         $resumer = function () use (&$strand) {
             echo 3;
-            $strand->resume(5);
+            $strand->resumeWithValue(5);
             echo 4;
 
             return; yield; // make this closure a generator

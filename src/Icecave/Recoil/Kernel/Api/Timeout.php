@@ -43,7 +43,7 @@ class Timeout extends AbstractCoroutine
      * @param StrandInterface $strand The strand that is executing the co-routine.
      * @param mixed           $value  The value passed to sendOnNextTick().
      */
-    public function resume(StrandInterface $strand, $value)
+    public function resumeWithValue(StrandInterface $strand, $value)
     {
         $this->timer->cancel();
 
@@ -56,7 +56,7 @@ class Timeout extends AbstractCoroutine
      * @param StrandInterface $strand    The strand that is executing the co-routine.
      * @param Exception       $exception The exception passed to throwOnNextTick().
      */
-    public function error(StrandInterface $strand, Exception $exception)
+    public function resumeWithException(StrandInterface $strand, Exception $exception)
     {
         $this->timer->cancel();
 

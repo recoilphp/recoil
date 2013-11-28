@@ -68,11 +68,6 @@ interface StrandInterface extends PromiseInterface
     public function throwException(Exception $exception);
 
     /**
-     * Terminate execution of this strand.
-     */
-    public function terminate();
-
-    /**
      * Suspend execution of this strand.
      *
      * The kernel will not call tick() until the strand is resumed.
@@ -80,14 +75,19 @@ interface StrandInterface extends PromiseInterface
     public function suspend();
 
     /**
-     * Resume execution of this strand.
+     * Resume execution of this strand and send a value to the current co-routine.
      */
-    public function resume($value = null);
+    public function resumeWithValue($value);
 
     /**
-     * Resume execution of this strand and indicate an error condition.
+     * Resume execution of this strand and throw an excption to the current co-routine.
      */
     public function resumeWithException(Exception $exception);
+
+    /**
+     * Terminate execution of this strand.
+     */
+    public function terminate();
 
     /**
      * Perform the next unit-of-work for this strand.

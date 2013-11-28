@@ -31,7 +31,7 @@ class SleepTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(0.15, $end - $start, '', 0.01);
     }
 
-    public function testResumeBeforeTimeout()
+    public function testResumeWithValueBeforeTimeout()
     {
         $start = 0;
         $end = 0;
@@ -45,7 +45,7 @@ class SleepTest extends PHPUnit_Framework_TestCase
         $strand = $this->kernel->execute($coroutine());
 
         $canceller = function () use ($strand) {
-            $strand->resume(123);
+            $strand->resumeWithValue(123);
 
             return; yield; // make this closure a generator
         };
