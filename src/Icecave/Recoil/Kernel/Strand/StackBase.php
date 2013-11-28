@@ -19,12 +19,24 @@ class StackBase extends AbstractCoroutine
         parent::__construct();
     }
 
+    /**
+     * Invoked when tick() is called for the first time.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param StrandInterface $strand The strand that is executing the co-routine.
+     */
     public function call(StrandInterface $strand)
     {
-        $strand->pop();
-        $strand->suspend();
+        throw new Exception('Not supported.');
     }
 
+    /**
+     * Invoked when tick() is called after sendOnNextTick().
+     *
+     * @param StrandInterface $strand The strand that is executing the co-routine.
+     * @param mixed           $value  The value passed to sendOnNextTick().
+     */
     public function resumeWithValue(StrandInterface $strand, $value)
     {
         $strand->pop();
@@ -33,6 +45,12 @@ class StackBase extends AbstractCoroutine
         $this->resolver->resolve($value);
     }
 
+    /**
+     * Invoked when tick() is called after throwOnNextTick().
+     *
+     * @param StrandInterface $strand    The strand that is executing the co-routine.
+     * @param Exception       $exception The exception passed to throwOnNextTick().
+     */
     public function resumeWithException(StrandInterface $strand, Exception $exception)
     {
         $strand->pop();
@@ -45,9 +63,16 @@ class StackBase extends AbstractCoroutine
                 ->kernel()
                 ->exceptionHandler()
                 ->handleException($strand, $exception);
+        // @codeCoverageIgnoreStart
         }
+        // @codeCoverageIgnoreEnd
     }
 
+    /**
+     * Invoked when tick() is called after terminateOnNextTick().
+     *
+     * @param StrandInterface $strand The strand that is executing the co-routine.
+     */
     public function terminate(StrandInterface $strand)
     {
         $strand->pop();
@@ -56,6 +81,9 @@ class StackBase extends AbstractCoroutine
         $this->resolver->reject(new StrandTerminatedException);
     }
 
+    /**
+     * Prevent exceptions from being sent to the kernel's exception handler.
+     */
     public function suppressExceptions()
     {
         $this->suppressExceptions = true;
