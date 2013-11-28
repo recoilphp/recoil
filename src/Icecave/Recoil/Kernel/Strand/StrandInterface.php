@@ -75,6 +75,11 @@ interface StrandInterface extends PromiseInterface
     public function suspend();
 
     /**
+     * Resume execution of this strand.
+     */
+    public function resume();
+
+    /**
      * Resume execution of this strand and send a value to the current co-routine.
      */
     public function resumeWithValue($value);

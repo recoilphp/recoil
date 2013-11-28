@@ -131,14 +131,22 @@ class Strand implements StrandInterface
     }
 
     /**
+     * Resume execution of this strand.
+     */
+    public function resume()
+    {
+        $this->suspended = false;
+
+        $this->kernel()->attachStrand($this);
+    }
+
+    /**
      * Resume execution of this strand and send a value to the current co-routine.
      */
     public function resumeWithValue($value)
     {
-        $this->suspended = false;
-
+        $this->resume();
         $this->current()->sendOnNextTick($value);
-        $this->kernel()->attachStrand($this);
     }
 
     /**
@@ -146,10 +154,8 @@ class Strand implements StrandInterface
      */
     public function resumeWithException(Exception $exception)
     {
-        $this->suspended = false;
-
+        $this->resume();
         $this->current()->throwOnNextTick($exception);
-        $this->kernel()->attachStrand($this);
     }
 
     /**
@@ -157,12 +163,8 @@ class Strand implements StrandInterface
      */
     public function terminate()
     {
+        $this->resume();
         $this->current()->terminateOnNextTick();
-
-        if ($this->suspended) {
-            $this->suspended = false;
-            $this->kernel()->attachStrand($this);
-        }
     }
 
     /**

@@ -88,6 +88,37 @@ class StrandFunctionalTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test that strands of execution can be suspended and resumed before being started.
+     */
+    public function testSuspendAndResume()
+    {
+        $this->expectOutputString('123');
+
+        $strand = null;
+
+        $coroutine = function () use (&$strand) {
+            echo 3;
+
+            return; yield; // make this closure a generator
+        };
+
+        $resumer = function () use (&$strand) {
+            echo 1;
+            $strand->resume();
+            echo 2;
+
+            return; yield; // make this closure a generator
+        };
+
+        $strand = $this->kernel->execute($coroutine());
+        $strand->suspend();
+
+        $this->kernel->execute($resumer());
+
+        $this->kernel->eventLoop()->run();
+    }
+
+    /**
      * Test that a strand can be used as a promise.
      */
     public function testPromise()
