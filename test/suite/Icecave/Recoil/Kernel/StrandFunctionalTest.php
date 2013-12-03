@@ -2,7 +2,6 @@
 namespace Icecave\Recoil\Kernel;
 
 use Exception;
-use Icecave\Recoil\Kernel\Exception\StrandTerminatedException;
 use Icecave\Recoil\Recoil;
 use PHPUnit_Framework_TestCase;
 
@@ -119,147 +118,24 @@ class StrandFunctionalTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test that a strand can be used as a promise.
+     * Test that strands can be terminated, and that no exception is propagated.
      */
-    public function testPromise()
+    public function testTerminate()
     {
+        $this->expectOutputString('12');
+
         $coroutine = function () {
-            yield Recoil::return_(123);
+            try {
+                echo 1;
+                yield Recoil::terminate();
+                echo 'X';
+            } finally {
+                echo 2;
+            }
         };
 
-        $strand = $this->kernel->execute($coroutine());
-
-        $value = null;
-        $strand->then(
-            function ($v) use (&$value) {
-                $value = $v;
-            }
-        );
+        $this->kernel->execute($coroutine());
 
         $this->kernel->eventLoop()->run();
-
-        $this->assertSame(123, $value);
-    }
-
-    /**
-     * Test that exceptions are still propagated when a strand is used as a
-     * promise but no error handler is provided.
-     */
-    public function testPromiseWithNoErrorHandler()
-    {
-        $coroutine = function () {
-            yield Recoil::throw_(new Exception('This is the exception.'));
-        };
-
-        $strand = $this->kernel->execute($coroutine());
-
-        $strand->then();
-
-        $this->setExpectedException('Exception', 'This is the exception.');
-        $this->kernel->eventLoop()->run();
-    }
-
-    /**
-     * Test that a strand used as a promise with an error handler prevents
-     * exceptions from propagating.
-     */
-    public function testStrandAsPromiseWithErrorHandler()
-    {
-        $coroutine = function () {
-            yield Recoil::throw_(new Exception('This is the exception.'));
-        };
-
-        $strand = $this->kernel->execute($coroutine());
-
-        $exception = null;
-        $strand->then(
-            null,
-            function ($error) use (&$exception) {
-                $exception = $error;
-            }
-        );
-
-        $this->kernel->eventLoop()->run();
-
-        $this->assertInstanceOf('Exception', $exception);
-        $this->assertSame('This is the exception.', $exception->getMessage());
-    }
-
-    /**
-     * Test that a strand can be used as a promise.
-     */
-    public function testPromiseErrorHandlerCalledWhenStrandTerminated()
-    {
-        $coroutine = function () {
-            yield Recoil::terminate();
-        };
-
-        $strand = $this->kernel->execute($coroutine());
-
-        $exception = null;
-        $strand->then(
-            null,
-            function ($error) use (&$exception) {
-                $exception = $error;
-            }
-        );
-
-        $this->kernel->eventLoop()->run();
-
-        $this->assertInstanceOf(StrandTerminatedException::CLASS, $exception);
-    }
-
-    /**
-     * Test that a strand can be used as a promise after the strand has
-     * terminated.
-     */
-    public function testPromiseResolvedAfterStrandTerminated()
-    {
-        $coroutine = function () {
-            yield Recoil::return_(123);
-        };
-
-        $strand = $this->kernel->execute($coroutine());
-
-        $this->kernel->eventLoop()->run();
-
-        $value = null;
-        $strand->then(
-            function ($v) use (&$value) {
-                $value = $v;
-            }
-        );
-
-        $this->assertSame(123, $value);
-    }
-
-    /**
-     * Test that a strand can be used as a promise after the strand has
-     * terminated.
-     */
-    public function testPromiseRejectedAfterStrandTerminated()
-    {
-        $coroutine = function () {
-            yield Recoil::throw_(new Exception('This is the exception.'));
-        };
-
-        $strand = $this->kernel->execute($coroutine());
-
-        try {
-            $this->kernel->eventLoop()->run();
-        } catch (Exception $e) {
-            // ignore
-        }
-
-        $exception = null;
-        $strand->then(
-            null,
-            function ($error) use (&$exception) {
-                $exception = $error;
-            }
-        );
-
-        $this->assertInstanceOf('Exception', $exception);
-        $this->assertSame('This is the exception.', $exception->getMessage());
     }
 }

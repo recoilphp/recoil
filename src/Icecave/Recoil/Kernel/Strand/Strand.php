@@ -4,7 +4,6 @@ namespace Icecave\Recoil\Kernel\Strand;
 use Exception;
 use Icecave\Recoil\Coroutine\CoroutineInterface;
 use Icecave\Recoil\Kernel\KernelInterface;
-use React\Promise\Deferred;
 use SplStack;
 
 /**
@@ -15,16 +14,17 @@ class Strand implements StrandInterface
     /**
      * @param KernelInterface The co-routine kernel.
      */
-    public function __construct(KernelInterface $kernel)
+    public function __construct(KernelInterface $kernel, ResultHandlerInterface $resultHandler)
     {
-        $this->kernel      = $kernel;
-        $this->suspended   = false;
-        $this->deferred    = new Deferred;
-        $this->stack       = new SplStack;
+        $this->kernel    = $kernel;
+        $this->suspended = false;
+        $this->stack     = new SplStack;
 
         $this->stack->push(
-            new StackBase($this->deferred->resolver())
+            new Detail\StackBase
         );
+
+        $this->setResultHandler($resultHandler);
     }
 
     /**
@@ -35,6 +35,26 @@ class Strand implements StrandInterface
     public function kernel()
     {
         return $this->kernel;
+    }
+
+    /**
+     * Fetch the result handler that is notified when the strand produces a result.
+     *
+     * @return ResultHandlerInterface The strand's result handler.
+     */
+    public function resultHandler()
+    {
+        return $this->resultHandler;
+    }
+
+    /**
+     * Set the result handler that is notified when the strand produces a result.
+     *
+     * @param ResultHandlerInterface $resultHandler The strand's result handler.
+     */
+    public function setResultHandler(ResultHandlerInterface $resultHandler)
+    {
+        $this->resultHandler = $resultHandler;
     }
 
     /**
@@ -177,26 +197,8 @@ class Strand implements StrandInterface
         }
     }
 
-    /**
-     * Register promise handlers.
-     *
-     * @param callable|null $fulfilledHandler
-     * @param callable|null $errorHandler
-     * @param callable|null $progressHandler
-     *
-     * @return PromiseInterface
-     */
-    public function then($fulfilledHandler = null, $errorHandler = null, $progressHandler = null)
-    {
-        if ($errorHandler && !$this->stack->isEmpty()) {
-            $this->stack->bottom()->suppressExceptions();
-        }
-
-        return $this->deferred->then($fulfilledHandler, $errorHandler, $progressHandler);
-    }
-
     private $kernel;
+    private $resultHandler;
     private $suspended;
-    private $deferred;
     private $stack;
 }

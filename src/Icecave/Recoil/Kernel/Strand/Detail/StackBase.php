@@ -1,24 +1,15 @@
 <?php
-namespace Icecave\Recoil\Kernel\Strand;
+namespace Icecave\Recoil\Kernel\Strand\Detail;
 
 use Exception;
 use Icecave\Recoil\Coroutine\AbstractCoroutine;
-use Icecave\Recoil\Kernel\Exception\StrandTerminatedException;
-use React\Promise\ResolverInterface;
+use Icecave\Recoil\Kernel\Strand\StrandInterface;
 
 /**
  * The base co-routine in a strand's call-stack.
  */
 class StackBase extends AbstractCoroutine
 {
-    public function __construct(ResolverInterface $resolver)
-    {
-        $this->resolver = $resolver;
-        $this->suppressExceptions = false;
-
-        parent::__construct();
-    }
-
     /**
      * Invoked when tick() is called for the first time.
      *
@@ -42,7 +33,9 @@ class StackBase extends AbstractCoroutine
         $strand->pop();
         $strand->suspend();
 
-        $this->resolver->resolve($value);
+        $strand
+            ->resultHandler()
+            ->handleResult($strand, new ValueResult($value));
     }
 
     /**
@@ -56,16 +49,9 @@ class StackBase extends AbstractCoroutine
         $strand->pop();
         $strand->suspend();
 
-        $this->resolver->reject($exception);
-
-        if (!$this->suppressExceptions) {
-            $strand
-                ->kernel()
-                ->exceptionHandler()
-                ->handleException($strand, $exception);
-        // @codeCoverageIgnoreStart
-        }
-        // @codeCoverageIgnoreEnd
+        $strand
+            ->resultHandler()
+            ->handleResult($strand, new ExceptionResult($exception));
     }
 
     /**
@@ -78,17 +64,8 @@ class StackBase extends AbstractCoroutine
         $strand->pop();
         $strand->suspend();
 
-        $this->resolver->reject(new StrandTerminatedException);
+        $strand
+            ->resultHandler()
+            ->handleResult($strand, new TerminatedResult);
     }
-
-    /**
-     * Prevent exceptions from being sent to the kernel's exception handler.
-     */
-    public function suppressExceptions()
-    {
-        $this->suppressExceptions = true;
-    }
-
-    private $resolver;
-    private $suppressExceptions;
 }

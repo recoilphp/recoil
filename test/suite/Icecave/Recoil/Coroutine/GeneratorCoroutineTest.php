@@ -6,6 +6,10 @@ use Icecave\Recoil\Recoil;
 use Icecave\Recoil\Kernel\Kernel;
 use PHPUnit_Framework_TestCase;
 
+/**
+ * @covers Icecave\Recoil\Coroutine\GeneratorCoroutine
+ * @covers Icecave\Recoil\Coroutine\AbstractCoroutine
+ */
 class GeneratorCoroutineTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()

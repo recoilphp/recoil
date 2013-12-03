@@ -10,6 +10,10 @@ use React\Promise\FulfilledPromise;
 use React\Promise\RejectedPromise;
 use RuntimeException;
 
+/**
+ * @covers Icecave\Recoil\Coroutine\PromiseCoroutine
+ * @covers Icecave\Recoil\Coroutine\AbstractCoroutine
+ */
 class PromiseCoroutineTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()

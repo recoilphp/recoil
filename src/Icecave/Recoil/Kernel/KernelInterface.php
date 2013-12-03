@@ -2,7 +2,6 @@
 namespace Icecave\Recoil\Kernel;
 
 use Icecave\Recoil\Coroutine\CoroutineAdaptorInterface;
-use Icecave\Recoil\Kernel\ExceptionHandler\ExceptionHandlerInterface;
 use Icecave\Recoil\Kernel\Strand\StrandFactoryInterface;
 use Icecave\Recoil\Kernel\Strand\StrandInterface;
 use React\EventLoop\LoopInterface;
@@ -58,14 +57,6 @@ interface KernelInterface
      * @return StrandFactoryInterface The kernel's strand factory.
      */
     public function strandFactory();
-
-    /**
-     * Fetch the exception handler used when an exception reaches the top of a
-     * strand's call-stack.
-     *
-     * @return ExceptionHandlerInterface The kerne's exception handler.
-     */
-    public function exceptionHandler();
 
     /**
      * Fetch the ReactPHP event-loop.

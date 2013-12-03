@@ -2,7 +2,6 @@
 namespace Icecave\Recoil\Kernel\Api;
 
 use Exception;
-use Icecave\Recoil\Kernel\Exception\StrandTerminatedException;
 use Icecave\Recoil\Kernel\Exception\TimeoutException;
 use Icecave\Recoil\Kernel\Kernel;
 use Icecave\Recoil\Recoil;
@@ -89,16 +88,10 @@ class TimeoutTest extends PHPUnit_Framework_TestCase
 
         $strand = $this->kernel->execute($coroutine());
 
+        $start = microtime(true);
         $this->kernel->eventLoop()->run();
+        $end = microtime(true);
 
-        $exception = null;
-        $strand->then(
-            null,
-            function ($e) use (&$exception) {
-                $exception = $e;
-            }
-        );
-
-        $this->assertInstanceOf(StrandTerminatedException::CLASS, $exception);
+        $this->assertLessThan(1, $end - $start);
     }
 }
