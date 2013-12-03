@@ -4,6 +4,7 @@ namespace Icecave\Recoil\Kernel\Api;
 use Exception;
 use Icecave\Recoil\Kernel\Exception\TimeoutException;
 use Icecave\Recoil\Kernel\Kernel;
+use Icecave\Recoil\Kernel\Strand\StrandInterface;
 use Icecave\Recoil\Recoil;
 use PHPUnit_Framework_TestCase;
 
@@ -235,5 +236,32 @@ class KernelApiTest extends PHPUnit_Framework_TestCase
         $this->kernel->execute($coroutine(2));
 
         $this->kernel->eventLoop()->run();
+    }
+
+    public function testExecute()
+    {
+        $this->expectOutputString('123');
+
+        $strand = null;
+        $coroutine = function () use (&$strands) {
+            $f = function ($id) {
+                echo $id;
+                yield Recoil::noop();
+            };
+
+            $strands = (yield Recoil::execute(
+                $f(1),
+                $f(2),
+                $f(3)
+            ));
+        };
+
+        $this->kernel->execute($coroutine());
+
+        $this->kernel->eventLoop()->run();
+
+        $this->assertTrue(is_array($strands));
+        $this->assertSame(3, count($strands));
+        $this->assertContainsOnly(StrandInterface::CLASS, $strands);
     }
 }

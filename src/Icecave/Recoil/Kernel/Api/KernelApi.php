@@ -156,4 +156,25 @@ class KernelApi implements KernelApiInterface
     {
         $strand->current()->sendOnNextTick(null);
     }
+
+    /**
+     * Execute one or more co-routines on their own strands.
+     *
+     * @param StrandInterface $strand        The currently executing strand.
+     * @param mixed           $coroutine,... The co-routine to execute.
+     */
+    public function execute(StrandInterface $strand)
+    {
+        $strands = [];
+
+        foreach (func_get_args() as $index => $coroutine) {
+            if ($index > 0) {
+                $strands[] = $strand
+                    ->kernel()
+                    ->execute($coroutine);
+            }
+        }
+
+        $strand->current()->sendOnNextTick($strands);
+    }
 }
