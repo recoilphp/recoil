@@ -98,10 +98,10 @@ interface KernelApiInterface
     public function cooperate(StrandInterface $strand);
 
     /**
-     * Execute one or more co-routines on their own strands.
+     * Execute a co-routine on its own strand.
      *
-     * @param StrandInterface $strand        The currently executing strand.
-     * @param mixed           $coroutine,... The co-routine to execute.
+     * @param StrandInterface $strand    The currently executing strand.
+     * @param mixed           $coroutine The co-routine to execute.
      */
-    public function execute(StrandInterface $strand);
+    public function execute(StrandInterface $strand, $coroutine);
 }

@@ -243,25 +243,21 @@ class KernelApiTest extends PHPUnit_Framework_TestCase
         $this->expectOutputString('123');
 
         $strand = null;
-        $coroutine = function () use (&$strands) {
-            $f = function ($id) {
-                echo $id;
+        $coroutine = function () use (&$strand) {
+            $f = function () {
+                echo 3;
                 yield Recoil::noop();
             };
 
-            $strands = (yield Recoil::execute(
-                $f(1),
-                $f(2),
-                $f(3)
-            ));
+            echo 1;
+            $strand = (yield Recoil::execute($f()));
+            echo 2;
         };
 
         $this->kernel->execute($coroutine());
 
         $this->kernel->eventLoop()->run();
 
-        $this->assertTrue(is_array($strands));
-        $this->assertSame(3, count($strands));
-        $this->assertContainsOnly(StrandInterface::CLASS, $strands);
+        $this->assertInstanceOf(StrandInterface::CLASS, $strand);
     }
 }

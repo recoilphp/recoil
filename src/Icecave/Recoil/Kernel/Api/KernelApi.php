@@ -158,23 +158,17 @@ class KernelApi implements KernelApiInterface
     }
 
     /**
-     * Execute one or more co-routines on their own strands.
+     * Execute a co-routine on its own strand.
      *
-     * @param StrandInterface $strand        The currently executing strand.
-     * @param mixed           $coroutine,... The co-routine to execute.
+     * @param StrandInterface $strand    The currently executing strand.
+     * @param mixed           $coroutine The co-routine to execute.
      */
-    public function execute(StrandInterface $strand)
+    public function execute(StrandInterface $strand, $coroutine)
     {
-        $strands = [];
+        $substrand = $strand
+            ->kernel()
+            ->execute($coroutine);
 
-        foreach (func_get_args() as $index => $coroutine) {
-            if ($index > 0) {
-                $strands[] = $strand
-                    ->kernel()
-                    ->execute($coroutine);
-            }
-        }
-
-        $strand->current()->sendOnNextTick($strands);
+        $strand->current()->sendOnNextTick($substrand);
     }
 }
