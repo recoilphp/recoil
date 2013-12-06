@@ -13,10 +13,12 @@
     ],
     "require": {
         "php": ">=5.5",
+        "evenement/evenement": "~1",
         "icecave/isolator": "~2",
         "icecave/repr": "~1",
         "psr/log": "~1",
-        "react/event-loop": "dev-next-tick as 0.3.3"
+        "react/promise": "~1",
+        "react/react": "dev-master"
     },
     "require-dev": {
         "eloquent/asplode": "~1",
@@ -33,12 +35,6 @@
             "Icecave\\Recoil": "src"
         }
     },
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/jmalloc/react"
-        }
-    ],
     "minimum-stability": "dev",
     "prefer-stable": true
 }
