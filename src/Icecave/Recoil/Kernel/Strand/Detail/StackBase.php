@@ -33,9 +33,7 @@ class StackBase extends AbstractCoroutine
         $strand->pop();
         $strand->suspend();
 
-        $strand
-            ->resultHandler()
-            ->handleResult($strand, new ValueResult($value));
+        $strand->emit('exit', [$strand, $value]);
     }
 
     /**
@@ -49,9 +47,17 @@ class StackBase extends AbstractCoroutine
         $strand->pop();
         $strand->suspend();
 
-        $strand
-            ->resultHandler()
-            ->handleResult($strand, new ExceptionResult($exception));
+        $throwException = true;
+
+        $preventDefault = function () use (&$throwException) {
+            $throwException = false;
+        };
+
+        $strand->emit('error', [$strand, $exception, $preventDefault]);
+
+        if ($throwException) {
+            throw $exception;
+        }
     }
 
     /**
@@ -64,8 +70,6 @@ class StackBase extends AbstractCoroutine
         $strand->pop();
         $strand->suspend();
 
-        $strand
-            ->resultHandler()
-            ->handleResult($strand, new TerminatedResult);
+        $strand->emit('terminate', [$strand]);
     }
 }

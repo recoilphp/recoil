@@ -1,6 +1,7 @@
 <?php
 namespace Icecave\Recoil\Kernel\Strand;
 
+use Evenement\EventEmitter;
 use Exception;
 use Icecave\Recoil\Coroutine\CoroutineInterface;
 use Icecave\Recoil\Kernel\KernelInterface;
@@ -8,13 +9,19 @@ use SplStack;
 
 /**
  * A strand represents a user-space "thread" of execution.
+ *
+ * @event exit      (StrandInterface $strand, $value)
+ * @event error     (StrandInterface $strand, Exception $exception, callable $preventDefault)
+ * @event terminate (StrandInterface $strand)
+ * @event suspend   (StrandInterface $strand)
+ * @event resumed   (StrandInterface $strand)
  */
-class Strand implements StrandInterface
+class Strand extends EventEmitter implements StrandInterface
 {
     /**
      * @param KernelInterface The co-routine kernel.
      */
-    public function __construct(KernelInterface $kernel, ResultHandlerInterface $resultHandler)
+    public function __construct(KernelInterface $kernel)
     {
         $this->kernel    = $kernel;
         $this->suspended = false;
@@ -23,8 +30,6 @@ class Strand implements StrandInterface
         $this->stack->push(
             new Detail\StackBase
         );
-
-        $this->setResultHandler($resultHandler);
     }
 
     /**
@@ -35,26 +40,6 @@ class Strand implements StrandInterface
     public function kernel()
     {
         return $this->kernel;
-    }
-
-    /**
-     * Fetch the result handler that is notified when the strand produces a result.
-     *
-     * @return ResultHandlerInterface The strand's result handler.
-     */
-    public function resultHandler()
-    {
-        return $this->resultHandler;
-    }
-
-    /**
-     * Set the result handler that is notified when the strand produces a result.
-     *
-     * @param ResultHandlerInterface $resultHandler The strand's result handler.
-     */
-    public function setResultHandler(ResultHandlerInterface $resultHandler)
-    {
-        $this->resultHandler = $resultHandler;
     }
 
     /**
@@ -148,6 +133,8 @@ class Strand implements StrandInterface
         $this->suspended = true;
 
         $this->kernel()->detachStrand($this);
+
+        $this->emit('suspend', [$this]);
     }
 
     /**
@@ -158,6 +145,8 @@ class Strand implements StrandInterface
         $this->suspended = false;
 
         $this->kernel()->attachStrand($this);
+
+        $this->emit('resume', [$this]);
     }
 
     /**
@@ -165,8 +154,8 @@ class Strand implements StrandInterface
      */
     public function resumeWithValue($value)
     {
-        $this->resume();
         $this->current()->sendOnNextTick($value);
+        $this->resume();
     }
 
     /**
@@ -174,8 +163,8 @@ class Strand implements StrandInterface
      */
     public function resumeWithException(Exception $exception)
     {
-        $this->resume();
         $this->current()->throwOnNextTick($exception);
+        $this->resume();
     }
 
     /**
@@ -183,8 +172,8 @@ class Strand implements StrandInterface
      */
     public function terminate()
     {
-        $this->resume();
         $this->current()->terminateOnNextTick();
+        $this->resume();
     }
 
     /**
@@ -198,7 +187,6 @@ class Strand implements StrandInterface
     }
 
     private $kernel;
-    private $resultHandler;
     private $suspended;
     private $stack;
 }

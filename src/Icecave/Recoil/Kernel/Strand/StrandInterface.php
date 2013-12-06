@@ -1,13 +1,20 @@
 <?php
 namespace Icecave\Recoil\Kernel\Strand;
 
+use Evenement\EventEmitterInterface;
 use Exception;
 use Icecave\Recoil\Coroutine\CoroutineInterface;
 
 /**
  * A strand represents a user-space "thread" of execution.
+ *
+ * @event exit      (StrandInterface $strand, $value)
+ * @event error     (StrandInterface $strand, Exception $exception, callable $preventDefault)
+ * @event terminate (StrandInterface $strand)
+ * @event suspend   (StrandInterface $strand)
+ * @event resumed   (StrandInterface $strand)
  */
-interface StrandInterface
+interface StrandInterface extends EventEmitterInterface
 {
     /**
      * Fetch the kernel on which this strand is executing.
@@ -15,20 +22,6 @@ interface StrandInterface
      * @return KernelInterface The co-routine kernel.
      */
     public function kernel();
-
-    /**
-     * Fetch the result handler that is notified when the strand produces a result.
-     *
-     * @return ResultHandlerInterface The strand's result handler.
-     */
-    public function resultHandler();
-
-    /**
-     * Set the result handler that is notified when the strand produces a result.
-     *
-     * @param ResultHandlerInterface $resultHandler The strand's result handler.
-     */
-    public function setResultHandler(ResultHandlerInterface $resultHandler);
 
     /**
      * Fetch the co-routine this strand is currently executing.
