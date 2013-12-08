@@ -11,6 +11,7 @@ class Timeout extends AbstractCoroutine
     public function __construct($timeout, $coroutine)
     {
         $this->timeout = $timeout;
+        $this->timeoutReached = false;
         $this->coroutine = $coroutine;
 
         parent::__construct();
@@ -31,8 +32,8 @@ class Timeout extends AbstractCoroutine
             ->addTimer(
                 $this->timeout,
                 function () use ($strand) {
-                    $this->coroutine->terminate($strand);
-                    $strand->resumeWithException(new TimeoutException);
+                    $strand->terminate();
+                    $this->timeoutReached = true;
                 }
             );
     }
@@ -70,13 +71,18 @@ class Timeout extends AbstractCoroutine
      */
     public function terminate(StrandInterface $strand)
     {
-        $this->timer->cancel();
+        if ($this->timeoutReached) {
+            $strand->resumeWithException(new TimeoutException);
+        } else {
+            $this->timer->cancel();
 
-        $strand->pop();
-        $strand->terminate();
+            $strand->pop();
+            $strand->terminate();
+        }
     }
 
     private $timeout;
+    private $timeoutReached;
     private $coroutine;
     private $timer;
 }

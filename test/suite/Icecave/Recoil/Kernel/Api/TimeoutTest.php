@@ -54,17 +54,29 @@ class TimeoutTest extends PHPUnit_Framework_TestCase
 
     public function testTimeoutExceeded()
     {
-        $this->expectOutputString('1');
+        $this->expectOutputString('1234');
 
         $forever = function () {
-            yield Recoil::suspend(function () {});
+            $f = function () {
+                try {
+                    echo 2;
+                    yield Recoil::suspend(function () {});
+                    echo 'X';
+                } finally {
+                    echo 3;
+                }
+            };
+
+            echo 1;
+            yield $f();
+            echo 'X';
         };
 
         $coroutine = function () use ($forever) {
             try {
                 yield new Timeout(0.01, $forever());
             } catch (TimeoutException $e) {
-                echo 1;
+                echo 4;
             }
         };
 
