@@ -1,9 +1,8 @@
 <?php
-namespace Icecave\Recoil\Kernel\Strand\Detail;
+namespace Icecave\Recoil\Kernel\Strand;
 
 use Exception;
 use Icecave\Recoil\Coroutine\AbstractCoroutine;
-use Icecave\Recoil\Kernel\Strand\StrandInterface;
 
 /**
  * The base co-routine in a strand's call-stack.
