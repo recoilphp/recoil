@@ -171,4 +171,17 @@ class KernelApi implements KernelApiInterface
 
         $strand->current()->sendOnNextTick($substrand);
     }
+
+    /**
+     * Wait for one or more of the given strands to exit.
+     *
+     * @param StrandInterface        $strand  The currently executing strand.
+     * @param array<StrandInterface> $strands The strands to wait for.
+     */
+    public function select(StrandInterface $strand, array $strands)
+    {
+        $strand->call(
+            new Select($strands)
+        );
+    }
 }
