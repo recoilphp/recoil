@@ -33,7 +33,9 @@ class StackBase extends AbstractCoroutine
         $strand->pop();
         $strand->suspend();
 
-        $strand->emit('exit', [$strand, $value]);
+        $strand->emit('success', [$strand, $value]);
+        $strand->emit('exit', [$strand]);
+        $strand->removeAllListeners();
     }
 
     /**
@@ -54,6 +56,8 @@ class StackBase extends AbstractCoroutine
         };
 
         $strand->emit('error', [$strand, $exception, $preventDefault]);
+        $strand->emit('exit', [$strand]);
+        $strand->removeAllListeners();
 
         if ($throwException) {
             throw $exception;
@@ -71,5 +75,7 @@ class StackBase extends AbstractCoroutine
         $strand->suspend();
 
         $strand->emit('terminate', [$strand]);
+        $strand->emit('exit', [$strand]);
+        $strand->removeAllListeners();
     }
 }

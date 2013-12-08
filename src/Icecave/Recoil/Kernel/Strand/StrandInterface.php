@@ -8,11 +8,12 @@ use Icecave\Recoil\Coroutine\CoroutineInterface;
 /**
  * A strand represents a user-space "thread" of execution.
  *
- * @event exit      (StrandInterface $strand, $value)
- * @event error     (StrandInterface $strand, Exception $exception, callable $preventDefault)
- * @event terminate (StrandInterface $strand)
- * @event suspend   (StrandInterface $strand)
- * @event resumed   (StrandInterface $strand)
+ * @event exit      The strand exited (for any reason).
+ * @event success   The strand exited normally.
+ * @event error     The strand exited due to an exception.
+ * @event terminate The strand exited due to being terminated.
+ * @event suspend   Execution of the strand has been suspended.
+ * @event resumed   Execution of the strand has been resumed.
  */
 interface StrandInterface extends EventEmitterInterface
 {
@@ -99,6 +100,13 @@ interface StrandInterface extends EventEmitterInterface
      * Terminate execution of this strand.
      */
     public function terminate();
+
+    /**
+     * Check if the strand has exited.
+     *
+     * @return boolean True if the strand has exited; otherwise false.
+     */
+    public function hasExited();
 
     /**
      * Perform the next unit-of-work for this strand.

@@ -19,6 +19,4 @@ class StrandFactory implements StrandFactoryInterface
     {
         return new Strand($kernel);
     }
-
-    private $resultHandler;
 }

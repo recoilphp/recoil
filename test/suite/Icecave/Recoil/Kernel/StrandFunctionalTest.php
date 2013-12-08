@@ -140,6 +140,69 @@ class StrandFunctionalTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test that the hasExited() method returns true after execution of the
+     * strand has completed.
+     */
+    public function testHasExited()
+    {
+        $coroutine = function () {
+            yield Recoil::noop();
+        };
+
+        $strand = $this->kernel->execute($coroutine());
+
+        $this->assertFalse($strand->hasExited());
+
+        $this->kernel->eventLoop()->run();
+
+        $this->assertTrue($strand->hasExited());
+    }
+
+    /**
+     * Test that the hasExited() method returns true after execution of the
+     * strand has completed due to an exception.
+     */
+    public function testHasExitedWithException()
+    {
+        $coroutine = function () {
+            yield Recoil::throw_(new Exception('This is the exception.'));
+        };
+
+        $strand = $this->kernel->execute($coroutine());
+
+        $this->assertFalse($strand->hasExited());
+
+        try {
+            $this->kernel->eventLoop()->run();
+        } catch (Exception $e) {
+            if ($e->getMessage() !== 'This is the exception.') {
+                throw $e;
+            }
+        }
+
+        $this->assertTrue($strand->hasExited());
+    }
+
+    /**
+     * Test that the hasExited() method returns true after execution of the
+     * strand has completed due to termination.
+     */
+    public function testHasExitedWhenTerminated()
+    {
+        $coroutine = function () {
+            yield Recoil::terminate();
+        };
+
+        $strand = $this->kernel->execute($coroutine());
+
+        $this->assertFalse($strand->hasExited());
+
+        $this->kernel->eventLoop()->run();
+
+        $this->assertTrue($strand->hasExited());
+    }
+
+    /**
      * Test that the 'suspend' and 'resume' events are fired as appropriate.
      */
     public function testSuspendAndResumeEvents()
@@ -172,11 +235,11 @@ class StrandFunctionalTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test the exit event.
+     * Test the success event.
      */
-    public function testExitEvent()
+    public function testSuccessEvent()
     {
-        $this->expectOutputString('123');
+        $this->expectOutputString('123X');
 
         $coroutine = function () {
             yield Recoil::return_(123);
@@ -184,9 +247,14 @@ class StrandFunctionalTest extends PHPUnit_Framework_TestCase
 
         $strand = $this->kernel->execute($coroutine());
 
-        $strand->on('exit', function ($eventStrand, $value) use ($strand) {
+        $strand->on('success', function ($eventStrand, $value) use ($strand) {
             $this->assertSame($strand, $eventStrand);
             echo $value;
+        });
+
+        $strand->on('exit', function ($eventStrand) use ($strand) {
+            $this->assertSame($strand, $eventStrand);
+            echo 'X';
         });
 
         $this->kernel->eventLoop()->run();
@@ -197,7 +265,7 @@ class StrandFunctionalTest extends PHPUnit_Framework_TestCase
      */
     public function testErrorEvent()
     {
-        $this->expectOutputString('error');
+        $this->expectOutputString('EX');
 
         $exception = new Exception('This is the exception.');
 
@@ -210,7 +278,12 @@ class StrandFunctionalTest extends PHPUnit_Framework_TestCase
         $strand->on('error', function ($eventStrand, $eventException) use ($strand, $exception) {
             $this->assertSame($strand, $eventStrand);
             $this->assertSame($exception, $eventException);
-            echo 'error';
+            echo 'E';
+        });
+
+        $strand->on('exit', function ($eventStrand) use ($strand) {
+            $this->assertSame($strand, $eventStrand);
+            echo 'X';
         });
 
         try {
@@ -226,7 +299,7 @@ class StrandFunctionalTest extends PHPUnit_Framework_TestCase
      */
     public function testErrorEventWithoutRethrow()
     {
-        $this->expectOutputString('error');
+        $this->expectOutputString('EX');
 
         $coroutine = function () {
             yield Recoil::throw_(new Exception('This is the exception.'));
@@ -236,7 +309,12 @@ class StrandFunctionalTest extends PHPUnit_Framework_TestCase
 
         $strand->on('error', function ($strand, $exception, $preventDefault) {
             $preventDefault();
-            echo 'error';
+            echo 'E';
+        });
+
+        $strand->on('exit', function ($eventStrand) use ($strand) {
+            $this->assertSame($strand, $eventStrand);
+            echo 'X';
         });
 
         $this->kernel->eventLoop()->run();
@@ -247,7 +325,7 @@ class StrandFunctionalTest extends PHPUnit_Framework_TestCase
      */
     public function testTerminateEvent()
     {
-        $this->expectOutputString('terminated');
+        $this->expectOutputString('TX');
 
         $coroutine = function () {
             yield Recoil::terminate();
@@ -257,7 +335,12 @@ class StrandFunctionalTest extends PHPUnit_Framework_TestCase
 
         $strand->on('terminate', function ($eventStrand) use ($strand) {
             $this->assertSame($strand, $eventStrand);
-            echo 'terminated';
+            echo 'T';
+        });
+
+        $strand->on('exit', function ($eventStrand) use ($strand) {
+            $this->assertSame($strand, $eventStrand);
+            echo 'X';
         });
 
         $this->kernel->eventLoop()->run();
