@@ -29,6 +29,8 @@ class Strand extends EventEmitter implements StrandInterface
         $this->stack     = new SplStack;
 
         $this->stack->push(new StackBase);
+
+        $kernel->attachStrand($this);
     }
 
     /**

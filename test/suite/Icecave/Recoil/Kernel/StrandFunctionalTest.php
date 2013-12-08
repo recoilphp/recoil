@@ -235,6 +235,49 @@ class StrandFunctionalTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test that the 'suspend' event is only fired if not previously suspended.
+     */
+    public function testSuspendEventOnlyFiredOnce()
+    {
+        $this->expectOutputString('S');
+
+        $coroutine = function () {
+            return; yield; // make this closure a generator
+        };
+
+        $strand = $this->kernel->execute($coroutine());
+
+        $strand->on('suspend', function () {
+            echo 'S';
+        });
+
+        $strand->suspend();
+        $strand->suspend();
+    }
+
+    /**
+     * Test that the 'resume' event is only fired if suspended.
+     */
+    public function testResumeEventOnlyFiredOnce()
+    {
+        $this->expectOutputString('R');
+
+        $coroutine = function () {
+            return; yield; // make this closure a generator
+        };
+
+        $strand = $this->kernel->execute($coroutine());
+
+        $strand->on('resume', function () {
+            echo 'R';
+        });
+
+        $strand->suspend();
+        $strand->resume();
+        $strand->resume();
+    }
+
+    /**
      * Test the success event.
      */
     public function testSuccessEvent()
@@ -255,6 +298,10 @@ class StrandFunctionalTest extends PHPUnit_Framework_TestCase
         $strand->on('exit', function ($eventStrand) use ($strand) {
             $this->assertSame($strand, $eventStrand);
             echo 'X';
+        });
+
+        $strand->on('suspend', function () {
+            echo '!'; // This should not be fired.
         });
 
         $this->kernel->eventLoop()->run();
@@ -286,6 +333,10 @@ class StrandFunctionalTest extends PHPUnit_Framework_TestCase
             echo 'X';
         });
 
+        $strand->on('suspend', function () {
+            echo '!'; // This should not be fired.
+        });
+
         try {
             $this->kernel->eventLoop()->run();
             $this->fail('Expected exception was not thrown.');
@@ -315,6 +366,10 @@ class StrandFunctionalTest extends PHPUnit_Framework_TestCase
         $strand->on('exit', function ($eventStrand) use ($strand) {
             $this->assertSame($strand, $eventStrand);
             echo 'X';
+        });
+
+        $strand->on('suspend', function () {
+            echo '!'; // This should not be fired.
         });
 
         $this->kernel->eventLoop()->run();

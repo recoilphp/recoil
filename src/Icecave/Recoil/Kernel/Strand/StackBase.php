@@ -29,12 +29,12 @@ class StackBase extends AbstractCoroutine
      */
     public function resumeWithValue(StrandInterface $strand, $value)
     {
-        $strand->pop();
-        $strand->suspend();
-
         $strand->emit('success', [$strand, $value]);
         $strand->emit('exit', [$strand]);
         $strand->removeAllListeners();
+
+        $strand->pop();
+        $strand->suspend();
     }
 
     /**
@@ -45,9 +45,6 @@ class StackBase extends AbstractCoroutine
      */
     public function resumeWithException(StrandInterface $strand, Exception $exception)
     {
-        $strand->pop();
-        $strand->suspend();
-
         $throwException = true;
 
         $preventDefault = function () use (&$throwException) {
@@ -57,6 +54,9 @@ class StackBase extends AbstractCoroutine
         $strand->emit('error', [$strand, $exception, $preventDefault]);
         $strand->emit('exit', [$strand]);
         $strand->removeAllListeners();
+
+        $strand->pop();
+        $strand->suspend();
 
         if ($throwException) {
             throw $exception;
@@ -70,11 +70,11 @@ class StackBase extends AbstractCoroutine
      */
     public function terminate(StrandInterface $strand)
     {
-        $strand->pop();
-        $strand->suspend();
-
         $strand->emit('terminate', [$strand]);
         $strand->emit('exit', [$strand]);
         $strand->removeAllListeners();
+
+        $strand->pop();
+        $strand->suspend();
     }
 }
