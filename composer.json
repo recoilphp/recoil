@@ -14,9 +14,7 @@
     "require": {
         "php": ">=5.5",
         "evenement/evenement": "~1",
-        "icecave/isolator": "~2",
         "icecave/repr": "~1",
-        "psr/log": "~1",
         "react/promise": "~1",
         "react/react": "dev-master"
     },
