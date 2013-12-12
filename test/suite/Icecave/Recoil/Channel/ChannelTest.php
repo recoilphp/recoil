@@ -3,6 +3,7 @@ namespace Icecave\Recoil\Channel;
 
 use Exception;
 use Icecave\Recoil\Channel\Exception\ChannelClosedException;
+use Icecave\Recoil\Channel\Exception\ChannelLockedException;
 use Icecave\Recoil\Kernel\Kernel;
 use Icecave\Recoil\Recoil;
 use PHPUnit_Framework_TestCase;
@@ -24,25 +25,20 @@ class ChannelTest extends PHPUnit_Framework_TestCase
             'Read foo' . PHP_EOL
         );
 
-        $this->kernel->execute(
-            call_user_func(
-                function () {
-                    echo 'Reading' . PHP_EOL;
-                    $value = (yield $this->channel->read());
-                    echo 'Read ' . $value . PHP_EOL;
-                }
-            )
-        );
+        $reader = function () {
+            echo 'Reading' . PHP_EOL;
+            $value = (yield $this->channel->read());
+            echo 'Read ' . $value . PHP_EOL;
+        };
 
-        $this->kernel->execute(
-            call_user_func(
-                function () {
-                    echo 'Writing' . PHP_EOL;
-                    yield $this->channel->write('foo');
-                    echo 'Write complete' . PHP_EOL;
-                }
-            )
-        );
+        $writer = function () {
+            echo 'Writing' . PHP_EOL;
+            yield $this->channel->write('foo');
+            echo 'Write complete' . PHP_EOL;
+        };
+
+        $this->kernel->execute($reader());
+        $this->kernel->execute($writer());
 
         $this->kernel->eventLoop()->run();
     }
@@ -52,210 +48,132 @@ class ChannelTest extends PHPUnit_Framework_TestCase
         $this->expectOutputString(
             'Writing' . PHP_EOL .
             'Reading' . PHP_EOL .
-            'Read foo' . PHP_EOL .
-            'Write complete' . PHP_EOL
+            'Write complete' . PHP_EOL .
+            'Read foo' . PHP_EOL
         );
 
-        $this->kernel->execute(
-            call_user_func(
-                function () {
-                    echo 'Writing' . PHP_EOL;
-                    yield $this->channel->write('foo');
-                    echo 'Write complete' . PHP_EOL;
-                }
-            )
-        );
-
-        $this->kernel->execute(
-            call_user_func(
-                function () {
-                    echo 'Reading' . PHP_EOL;
-                    $value = (yield $this->channel->read());
-                    echo 'Read ' . $value . PHP_EOL;
-                }
-            )
-        );
-
-        $this->kernel->eventLoop()->run();
-    }
-
-    public function testMultipleReaders()
-    {
-        $this->expectOutputString('A1B2A3B4A5');
-
-        $reader = function ($id) {
-            while (true) {
-                echo $id . (yield $this->channel->read());
-            }
+        $reader = function () {
+            echo 'Reading' . PHP_EOL;
+            $value = (yield $this->channel->read());
+            echo 'Read ' . $value . PHP_EOL;
         };
 
-        $this->kernel->execute($reader('A'));
-        $this->kernel->execute($reader('B'));
-
-        $this->kernel->execute(
-            call_user_func(
-                function () {
-                    for ($i = 1; $i <= 5; ++$i) {
-                        yield $this->channel->write($i);
-                    }
-                }
-            )
-        );
-
-        $this->kernel->eventLoop()->run();
-    }
-
-    public function testMultipleWriters()
-    {
-        $this->expectOutputString('A1B2A3B4A5');
-
-        $next = 1;
-        $writer = function ($id) use (&$next) {
-            while (true) {
-                yield $this->channel->write($id . $next++);
-            }
+        $writer = function () {
+            echo 'Writing' . PHP_EOL;
+            yield $this->channel->write('foo');
+            echo 'Write complete' . PHP_EOL;
         };
 
-        $this->kernel->execute($writer('A'));
-        $this->kernel->execute($writer('B'));
-
-        $this->kernel->execute(
-            call_user_func(
-                function () {
-                    for ($i = 1; $i <= 5; ++$i) {
-                        echo (yield $this->channel->read());
-                    }
-                }
-            )
-        );
+        $this->kernel->execute($writer());
+        $this->kernel->execute($reader());
 
         $this->kernel->eventLoop()->run();
     }
 
-    public function testCloseWithPendingReaders()
+    public function testCloseWithPendingReader()
     {
         $this->expectOutputString(
-            'A reading' . PHP_EOL .
-            'B reading' . PHP_EOL .
-            'closing' . PHP_EOL .
-            'B closed' . PHP_EOL .
-            'A closed' . PHP_EOL
+            'Reading' . PHP_EOL .
+            'Closing' . PHP_EOL .
+            'Closed' . PHP_EOL
         );
 
-        $reader = function ($id) {
+        $reader = function () {
             try {
-                echo $id . ' reading' . PHP_EOL;
+                echo 'Reading' . PHP_EOL;
                 yield $this->channel->read();
             } catch (ChannelClosedException $e) {
-                echo $id . ' closed' . PHP_EOL;
+                echo 'Closed' . PHP_EOL;
             }
         };
 
-        $this->kernel->execute($reader('A'));
-        $this->kernel->execute($reader('B'));
-        $this->kernel->execute(
-            call_user_func(
-                function () {
-                    yield;
-                    echo 'closing' . PHP_EOL;
-                    yield $this->channel->close();
-                }
-            )
-        );
+        $closer = function () {
+            echo 'Closing' . PHP_EOL;
+            yield $this->channel->close();
+        };
+
+        $this->kernel->execute($reader());
+        $this->kernel->execute($closer());
 
         $this->kernel->eventLoop()->run();
     }
 
-    public function testCloseWithPendingWriters()
+    public function testCloseWithPendingWriter()
     {
         $this->expectOutputString(
-            'A writing' . PHP_EOL .
-            'B writing' . PHP_EOL .
-            'closing' . PHP_EOL .
-            'B closed' . PHP_EOL .
-            'A closed' . PHP_EOL
+            'Writing' . PHP_EOL .
+            'Closing' . PHP_EOL .
+            'Closed' . PHP_EOL
         );
 
-        $writer = function ($id) {
+        $writer = function () {
             try {
-                echo $id . ' writing' . PHP_EOL;
-                yield $this->channel->write($id);
+                echo 'Writing' . PHP_EOL;
+                yield $this->channel->write(null);
             } catch (ChannelClosedException $e) {
-                echo $id . ' closed' . PHP_EOL;
+                echo 'Closed' . PHP_EOL;
             }
         };
 
-        $this->kernel->execute($writer('A'));
-        $this->kernel->execute($writer('B'));
-        $this->kernel->execute(
-            call_user_func(
-                function () {
-                    yield;
-                    echo 'closing' . PHP_EOL;
-                    yield $this->channel->close();
-                }
-            )
-        );
+        $closer = function () {
+            echo 'Closing' . PHP_EOL;
+            yield $this->channel->close();
+        };
+
+        $this->kernel->execute($writer());
+        $this->kernel->execute($closer());
 
         $this->kernel->eventLoop()->run();
     }
 
     public function testReadWhenClosed()
     {
-        $this->kernel->execute(
-            call_user_func(
-                function () {
-                    yield $this->channel->close();
-                    $this->setExpectedException(ChannelClosedException::CLASS);
-                    yield $this->channel->read();
-                }
-            )
-        );
+        $reader = function () {
+            yield $this->channel->close();
+            $this->setExpectedException(ChannelClosedException::CLASS);
+            yield $this->channel->read();
+        };
+
+        $this->kernel->execute($reader());
 
         $this->kernel->eventLoop()->run();
     }
 
     public function testWriteWhenClosed()
     {
-        $this->kernel->execute(
-            call_user_func(
-                function () {
-                    yield $this->channel->close();
-                    $this->setExpectedException(ChannelClosedException::CLASS);
-                    yield $this->channel->write('foo');
-                }
-            )
-        );
+        $writer = function () {
+            yield $this->channel->close();
+            $this->setExpectedException(ChannelClosedException::CLASS);
+            yield $this->channel->write(null);
+        };
+
+        $this->kernel->execute($writer());
 
         $this->kernel->eventLoop()->run();
     }
 
-    public function testReadyToRead()
+    public function testReadWhenLocked()
     {
-        $this->kernel->execute(
-            call_user_func(
-                function () {
-                    $this->assertFalse($this->channel->readyToRead());
-                    yield $this->channel->write('foo');
-                    $this->assertTrue($this->channel->readyToRead());
-                }
-            )
-        );
+        $reader = function () {
+            $this->setExpectedException(ChannelLockedException::CLASS);
+            yield $this->channel->read();
+        };
+
+        $this->kernel->execute($this->channel->read());
+        $this->kernel->execute($reader());
 
         $this->kernel->eventLoop()->run();
     }
 
-    public function testWriteWillBlock()
+    public function testWriteWhenLocked()
     {
-        $this->kernel->execute(
-            call_user_func(
-                function () {
-                    $this->assertFalse($this->channel->readyForWrite());
-                    yield $this->channel->read();
-                    $this->assertTrue($this->channel->readyForWrite());
-                }
-            )
-        );
+        $writer = function () {
+            $this->setExpectedException(ChannelLockedException::CLASS);
+            yield $this->channel->write(null);
+        };
+
+        $this->kernel->execute($this->channel->write(null));
+        $this->kernel->execute($writer());
 
         $this->kernel->eventLoop()->run();
     }

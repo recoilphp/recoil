@@ -13,6 +13,7 @@ interface ReadableChannelInterface extends ChannelInterface
      *
      * @return mixed                            The value read from the channel.
      * @throws Exception\ChannelClosedException if the channel has been closed.
+     * @throws Exception\ChannelLockedException if the channel is locked.
      */
     public function read();
 }

@@ -14,6 +14,7 @@ interface WritableChannelInterface extends ChannelInterface
      * @param mixed $value The value to write to the channel.
      *
      * @throws Exception\ChannelClosedException if the channel has been closed.
+     * @throws Exception\ChannelLockedException if the channel is locked.
      */
     public function write($value);
 }
