@@ -9,74 +9,14 @@ use PHPUnit_Framework_TestCase;
 
 class QueueChannelTest extends PHPUnit_Framework_TestCase
 {
+    use LoopbackChannelTestTrait;
+    use ReadableChannelTestTrait;
+    use WritableChannelTestTrait;
+
     public function setUp()
     {
         $this->kernel  = new Kernel;
         $this->channel = new QueueChannel;
-    }
-
-    public function testReadThenWrite()
-    {
-        $this->expectOutputString(
-            'Reading' . PHP_EOL .
-            'Writing' . PHP_EOL .
-            'Write complete' . PHP_EOL .
-            'Read foo' . PHP_EOL
-        );
-
-        $this->kernel->execute(
-            call_user_func(
-                function () {
-                    echo 'Reading' . PHP_EOL;
-                    $value = (yield $this->channel->read());
-                    echo 'Read ' . $value . PHP_EOL;
-                }
-            )
-        );
-
-        $this->kernel->execute(
-            call_user_func(
-                function () {
-                    echo 'Writing' . PHP_EOL;
-                    yield $this->channel->write('foo');
-                    echo 'Write complete' . PHP_EOL;
-                }
-            )
-        );
-
-        $this->kernel->eventLoop()->run();
-    }
-
-    public function testWriteThenRead()
-    {
-        $this->expectOutputString(
-            'Writing' . PHP_EOL .
-            'Reading' . PHP_EOL .
-            'Read foo' . PHP_EOL .
-            'Write complete' . PHP_EOL
-        );
-
-        $this->kernel->execute(
-            call_user_func(
-                function () {
-                    echo 'Writing' . PHP_EOL;
-                    yield $this->channel->write('foo');
-                    echo 'Write complete' . PHP_EOL;
-                }
-            )
-        );
-
-        $this->kernel->execute(
-            call_user_func(
-                function () {
-                    echo 'Reading' . PHP_EOL;
-                    $value = (yield $this->channel->read());
-                    echo 'Read ' . $value . PHP_EOL;
-                }
-            )
-        );
-
-        $this->kernel->eventLoop()->run();
     }
 
     public function testMultipleReaders()
@@ -89,25 +29,27 @@ class QueueChannelTest extends PHPUnit_Framework_TestCase
             }
         };
 
+        $writer = function () {
+            for ($i = 1; $i <= 5; ++$i) {
+                yield $this->channel->write($i);
+            }
+        };
+
         $this->kernel->execute($reader('A'));
         $this->kernel->execute($reader('B'));
-
-        $this->kernel->execute(
-            call_user_func(
-                function () {
-                    for ($i = 1; $i <= 5; ++$i) {
-                        yield $this->channel->write($i);
-                    }
-                }
-            )
-        );
-
+        $this->kernel->execute($writer());
         $this->kernel->eventLoop()->run();
     }
 
     public function testMultipleWriters()
     {
         $this->expectOutputString('A1B2A3B4A5');
+
+        $reader = function () {
+            for ($i = 1; $i <= 5; ++$i) {
+                echo (yield $this->channel->read());
+            }
+        };
 
         $next = 1;
         $writer = function ($id) use (&$next) {
@@ -118,145 +60,71 @@ class QueueChannelTest extends PHPUnit_Framework_TestCase
 
         $this->kernel->execute($writer('A'));
         $this->kernel->execute($writer('B'));
-
-        $this->kernel->execute(
-            call_user_func(
-                function () {
-                    for ($i = 1; $i <= 5; ++$i) {
-                        echo (yield $this->channel->read());
-                    }
-                }
-            )
-        );
-
+        $this->kernel->execute($reader());
         $this->kernel->eventLoop()->run();
     }
 
-    public function testCloseWithPendingReaders()
+    public function testCloseWithMultiplePendingReaders()
     {
-        $this->expectOutputString(
-            'A reading' . PHP_EOL .
-            'B reading' . PHP_EOL .
-            'closing' . PHP_EOL .
-            'B closed' . PHP_EOL .
-            'A closed' . PHP_EOL
-        );
+        $output = [];
 
-        $reader = function ($id) {
+        $reader = function ($id) use (&$output) {
             try {
-                echo $id . ' reading' . PHP_EOL;
+                $output[] = $id . ' reading';
                 yield $this->channel->read();
             } catch (ChannelClosedException $e) {
-                echo $id . ' closed' . PHP_EOL;
+                $output[] = $id . ' closed';
             }
+        };
+
+        $closer = function () use (&$output) {
+            $output[] = 'closing';
+            yield $this->channel->close();
         };
 
         $this->kernel->execute($reader('A'));
         $this->kernel->execute($reader('B'));
-        $this->kernel->execute(
-            call_user_func(
-                function () {
-                    yield;
-                    echo 'closing' . PHP_EOL;
-                    yield $this->channel->close();
-                }
-            )
-        );
-
+        $this->kernel->execute($closer());
         $this->kernel->eventLoop()->run();
+
+        $this->assertContains(
+            $output,
+            [
+                ['A reading', 'B reading', 'closing', 'A closed', 'B closed'],
+                ['A reading', 'B reading', 'closing', 'B closed', 'A closed'],
+            ]
+        );
     }
 
-    public function testCloseWithPendingWriters()
+    public function testCloseWithMultiplePendingWriters()
     {
-        $this->expectOutputString(
-            'A writing' . PHP_EOL .
-            'B writing' . PHP_EOL .
-            'closing' . PHP_EOL .
-            'B closed' . PHP_EOL .
-            'A closed' . PHP_EOL
-        );
+        $output = [];
 
-        $writer = function ($id) {
+        $writer = function ($id) use (&$output) {
             try {
-                echo $id . ' writing' . PHP_EOL;
+                $output[] = $id . ' writing';
                 yield $this->channel->write($id);
             } catch (ChannelClosedException $e) {
-                echo $id . ' closed' . PHP_EOL;
+                $output[] = $id . ' closed';
             }
+        };
+
+        $closer = function () use (&$output) {
+            $output[] = 'closing';
+            yield $this->channel->close();
         };
 
         $this->kernel->execute($writer('A'));
         $this->kernel->execute($writer('B'));
-        $this->kernel->execute(
-            call_user_func(
-                function () {
-                    yield;
-                    echo 'closing' . PHP_EOL;
-                    yield $this->channel->close();
-                }
-            )
-        );
-
+        $this->kernel->execute($closer());
         $this->kernel->eventLoop()->run();
-    }
 
-    public function testReadWhenClosed()
-    {
-        $this->kernel->execute(
-            call_user_func(
-                function () {
-                    yield $this->channel->close();
-                    $this->setExpectedException(ChannelClosedException::CLASS);
-                    yield $this->channel->read();
-                }
-            )
+        $this->assertContains(
+            $output,
+            [
+                ['A writing', 'B writing', 'closing', 'A closed', 'B closed'],
+                ['A writing', 'B writing', 'closing', 'B closed', 'A closed'],
+            ]
         );
-
-        $this->kernel->eventLoop()->run();
-    }
-
-    public function testWriteWhenClosed()
-    {
-        $this->kernel->execute(
-            call_user_func(
-                function () {
-                    yield $this->channel->close();
-                    $this->setExpectedException(ChannelClosedException::CLASS);
-                    yield $this->channel->write('foo');
-                }
-            )
-        );
-
-        $this->kernel->eventLoop()->run();
-    }
-
-    public function testReadyToRead()
-    {
-        $this->kernel->execute(
-            call_user_func(
-                function () {
-                    $this->assertFalse($this->channel->readyToRead());
-                    yield $this->channel->write('foo');
-                    $this->assertTrue($this->channel->readyToRead());
-                }
-            )
-        );
-
-        $this->kernel->eventLoop()->run();
-    }
-
-    public function testWriteWillBlock()
-    {
-        $this->kernel->execute(
-            call_user_func(
-                function () {
-                    $this->assertFalse($this->channel->readyForWrite());
-                    yield $this->channel->read();
-                    $this->assertTrue($this->channel->readyForWrite());
-                }
-            )
-        );
-
-        $this->kernel->eventLoop()->run();
     }
 }

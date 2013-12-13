@@ -3,7 +3,8 @@ namespace Icecave\Recoil\Channel\Stream;
 
 use Exception;
 use Icecave\Recoil\Channel\Exception\ChannelClosedException;
-use Icecave\Recoil\Channel\Exception\ChannelLockedException;
+use Icecave\Recoil\Channel\ExclusiveReadableChannelTestTrait;
+use Icecave\Recoil\Channel\ReadableChannelTestTrait;
 use Icecave\Recoil\Kernel\Kernel;
 use Icecave\Recoil\Recoil;
 use Phake;
@@ -13,6 +14,9 @@ use React\Stream\Stream;
 
 class ReadableStreamChannelTest extends PHPUnit_Framework_TestCase
 {
+    use ReadableChannelTestTrait;
+    use ExclusiveReadableChannelTestTrait;
+
     public function setUp()
     {
         $this->eventLoop = Phake::partialMock(StreamSelectLoop::CLASS);
@@ -46,7 +50,6 @@ class ReadableStreamChannelTest extends PHPUnit_Framework_TestCase
         };
 
         $this->kernel->execute($reader());
-
         $this->kernel->eventLoop()->run();
     }
 
@@ -75,7 +78,6 @@ class ReadableStreamChannelTest extends PHPUnit_Framework_TestCase
         };
 
         $this->kernel->execute($reader());
-
         $this->kernel->eventLoop()->run();
     }
 
@@ -89,33 +91,6 @@ class ReadableStreamChannelTest extends PHPUnit_Framework_TestCase
         };
 
         $this->kernel->execute($reader());
-
-        $this->kernel->eventLoop()->run();
-    }
-
-    public function testReadWhenClosed()
-    {
-        $reader = function () {
-            yield $this->channel->close();
-            $this->setExpectedException(ChannelClosedException::CLASS);
-            yield $this->channel->read();
-        };
-
-        $this->kernel->execute($reader());
-
-        $this->kernel->eventLoop()->run();
-    }
-
-    public function testReadWhenLocked()
-    {
-        $reader = function () {
-            $this->setExpectedException(ChannelLockedException::CLASS);
-            yield $this->channel->read();
-        };
-
-        $this->kernel->execute($this->channel->read());
-        $this->kernel->execute($reader());
-
         $this->kernel->eventLoop()->run();
     }
 }

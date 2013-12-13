@@ -14,8 +14,8 @@ class QueueChannel implements ReadableChannelInterface, WritableChannelInterface
     public function __construct()
     {
         $this->closed = false;
-        $this->reads  = new SplQueue;
-        $this->writes = new SplQueue;
+        $this->readStrands = new SplQueue;
+        $this->writeStrands = new SplQueue;
     }
 
     /**
@@ -33,18 +33,20 @@ class QueueChannel implements ReadableChannelInterface, WritableChannelInterface
      */
     public function read()
     {
-        yield;
-
         if ($this->isClosed()) {
-            throw new Exception\ChannelClosedException($this);
-        } elseif ($this->writes->isEmpty()) {
-            $value = (yield Recoil::suspend(
-                [$this->reads, 'push']
-            ));
-        } else {
-            list($strand, $value) = $this->writes->dequeue();
-            $strand->resumeWithValue(null);
+            throw new ChannelClosedException($this);
         }
+
+        $value = (yield Recoil::suspend(
+            function ($strand) {
+                $this->readStrands->push($strand);
+
+                if (!$this->writeStrands->isEmpty()) {
+                    $writeStrand = $this->writeStrands->dequeue();
+                    $writeStrand->resumeWithValue(null);
+                }
+            }
+        ));
 
         yield Recoil::return_($value);
     // @codeCoverageIgnoreStart
@@ -68,24 +70,25 @@ class QueueChannel implements ReadableChannelInterface, WritableChannelInterface
      */
     public function write($value)
     {
-        yield;
-
         if ($this->isClosed()) {
-            throw new Exception\ChannelClosedException($this);
-        } elseif ($this->reads->isEmpty()) {
-            yield Recoil::suspend(
-                function ($strand) use ($value) {
-                    $this->writes->push([$strand, $value]);
-                }
-            );
-        } else {
-            $strand = $this->reads->dequeue();
-            $strand->resumeWithValue($value);
+            throw new ChannelClosedException($this);
         }
+
+        if ($this->readStrands->isEmpty()) {
+            yield Recoil::suspend(
+                [$this->writeStrands, 'push']
+            );
+        }
+
+        $readStrand = $this->readStrands->dequeue();
+        $readStrand->resumeWithValue($value);
     }
 
     /**
      * Close this channel.
+     *
+     * Closing a channel indicates that no more values will be read from or
+     * written to the channel. Any future read/write operations will fail.
      *
      * @coroutine
      */
@@ -93,41 +96,21 @@ class QueueChannel implements ReadableChannelInterface, WritableChannelInterface
     {
         $this->closed = true;
 
-        while (!$this->writes->isEmpty()) {
-            list($strand) = $this->writes->pop();
-            $strand->resumeWithException(
-                new Exception\ChannelClosedException($this)
-            );
+        while (!$this->writeStrands->isEmpty()) {
+            $this
+                ->writeStrands
+                ->pop()
+                ->resumeWithException(new ChannelClosedException($this));
         }
 
-        while (!$this->reads->isEmpty()) {
-            $strand = $this->reads->pop();
-            $strand->resumeWithException(
-                new Exception\ChannelClosedException($this)
-            );
+        while (!$this->readStrands->isEmpty()) {
+            $this
+                ->readStrands
+                ->pop()
+                ->resumeWithException(new ChannelClosedException($this));
         }
 
         yield Recoil::noop();
-    }
-
-    /**
-     * Check if a value can be read from the channel without blocking.
-     *
-     * @return boolean False if a call to read() will block; otherwise, true.
-     */
-    public function readyToRead()
-    {
-        return !$this->writes->isEmpty();
-    }
-
-    /**
-     * Check if a value can be written to the channel without blocking.
-     *
-     * @return boolean False if a call to write() will block; otherwise, true.
-     */
-    public function readyForWrite()
-    {
-        return !$this->reads->isEmpty();
     }
 
     /**
@@ -141,6 +124,6 @@ class QueueChannel implements ReadableChannelInterface, WritableChannelInterface
     }
 
     private $closed;
-    private $read;
-    private $writes;
+    private $readStrands;
+    private $writeStrands;
 }
