@@ -8,6 +8,13 @@ use Icecave\Recoil\Channel\ReadableChannelInterface;
 use Icecave\Recoil\Recoil;
 use React\Stream\ReadableStreamInterface;
 
+/**
+ * Adapts a ReactPHP readable stream into a readable channel.
+ *
+ * Channel read operations produce strings read from the stream.
+ *
+ * The channel is closed when the stream 'end' event is emitted.
+ */
 class ReadableStreamChannel implements ReadableChannelInterface
 {
     public function __construct(ReadableStreamInterface $stream)
