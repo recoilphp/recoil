@@ -7,12 +7,12 @@ use Icecave\Recoil\Kernel\Kernel;
 use Icecave\Recoil\Recoil;
 use PHPUnit_Framework_TestCase;
 
-class UnbufferedQueueChannelTest extends PHPUnit_Framework_TestCase
+class QueueChannelTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
         $this->kernel  = new Kernel;
-        $this->channel = new UnbufferedQueueChannel;
+        $this->channel = new QueueChannel;
     }
 
     public function testReadThenWrite()

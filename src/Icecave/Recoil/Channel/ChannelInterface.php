@@ -2,12 +2,15 @@
 namespace Icecave\Recoil\Channel;
 
 /**
- * A data channel is a (possibly asynchronous) queue of objects.
+ * A data channel is primitive for sending values between strands.
  */
 interface ChannelInterface
 {
     /**
      * Close this channel.
+     *
+     * Closing a channel indicates that no more values will be read from or
+     * written to the channel. Any future read/write operations will fail.
      *
      * @coroutine
      */

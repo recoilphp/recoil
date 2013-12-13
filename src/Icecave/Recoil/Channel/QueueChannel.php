@@ -1,31 +1,35 @@
 <?php
 namespace Icecave\Recoil\Channel;
 
+use Icecave\Recoil\Channel\Exception\ChannelClosedException;
 use Icecave\Recoil\Recoil;
 use SplQueue;
 
 /**
- * An unbuffered data channel that allows multiple readers to queue
- * for values.
+ * An unbuffered (synchronous) data channel that allows multiple concurrent
+ * read/write operations.
  */
-class UnbufferedQueueChannel implements
-    ReadableChannelInterface,
-    WritableChannelInterface
+class QueueChannel implements ReadableChannelInterface, WritableChannelInterface
 {
     public function __construct()
     {
+        $this->closed = false;
         $this->reads  = new SplQueue;
         $this->writes = new SplQueue;
-        $this->closed = false;
     }
 
     /**
-     * Read from this channel.
+     * Read a value from this channel.
+     *
+     * Execution of the current strand is suspended until a value is available.
+     *
+     * If the channel is already closed, or is closed while a read operation is
+     * pending a ChannelClosedException is thrown.
      *
      * @coroutine
      *
-     * @return mixed                            The value read from the channel.
-     * @throws Exception\ChannelClosedException if the channel has been closed.
+     * @return mixed                  The value read from the channel.
+     * @throws ChannelClosedException if the channel has been closed.
      */
     public function read()
     {
@@ -48,12 +52,19 @@ class UnbufferedQueueChannel implements
     // @codeCoverageIgnoreEnd
 
     /**
-     * Write to this channel.
+     * Write a value to this channel.
+     *
+     * Execution of the current strand is suspended until the value has been
+     * consumed.
+     *
+     * If the channel is already closed, or is closed while a write operation is
+     * pending a ChannelClosedException is thrown.
      *
      * @coroutine
      *
-     * @param  mixed                            $value The value to write to the channel.
-     * @throws Exception\ChannelClosedException if the channel has been closed.
+     * @param mixed $value The value to write to the channel.
+     *
+     * @throws ChannelClosedException if the channel has been closed.
      */
     public function write($value)
     {
@@ -129,7 +140,7 @@ class UnbufferedQueueChannel implements
         return $this->closed;
     }
 
+    private $closed;
     private $read;
     private $writes;
-    private $closed;
 }

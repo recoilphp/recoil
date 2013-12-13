@@ -23,12 +23,21 @@ class ReadableStreamChannel implements ReadableChannelInterface
     }
 
     /**
-     * Read from this channel.
+     * Read a value from this channel.
+     *
+     * Execution of the current strand is suspended until a value is available.
+     *
+     * If the channel is already closed, or is closed while a read operation is
+     * pending a ChannelClosedException is thrown.
+     *
+     * Read operations must be exclusive. If concurrent reads are attempted
+     * a ChannelLockedException is thrown.
      *
      * @coroutine
      *
-     * @return mixed                            The value read from the channel.
-     * @throws Exception\ChannelClosedException if the channel has been closed.
+     * @return string                 The value read from the channel.
+     * @throws ChannelClosedException if the channel has been closed.
+     * @throws ChannelLockedException if concurrent reads are attempted.
      */
     public function read()
     {
@@ -52,6 +61,9 @@ class ReadableStreamChannel implements ReadableChannelInterface
 
     /**
      * Close this channel.
+     *
+     * Closing a channel indicates that no more values will be read from or
+     * written to the channel. Any future read/write operations will fail.
      *
      * @coroutine
      */
