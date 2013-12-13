@@ -89,7 +89,8 @@ class PromiseCoroutineTest extends PHPUnit_Framework_TestCase
 
     public function testTerminateThenFulfill()
     {
-        $promise = new Deferred;
+        $deferred = new Deferred;
+        $promise = $deferred->promise();
         $promiseCoroutine = new PromiseCoroutine($promise);
 
         $resumed = null;
@@ -101,10 +102,10 @@ class PromiseCoroutineTest extends PHPUnit_Framework_TestCase
 
         $strand = $this->kernel->execute($coroutine());
 
-        $canceller = function () use ($promise, $strand) {
+        $canceller = function () use ($deferred, $strand) {
             $strand->terminate();
             yield;
-            $promise->resolve();
+            $deferred->resolve();
         };
 
         $this->kernel->execute($canceller());
@@ -116,7 +117,8 @@ class PromiseCoroutineTest extends PHPUnit_Framework_TestCase
 
     public function testCancelThenReject()
     {
-        $promise = new Deferred;
+        $deferred = new Deferred;
+        $promise = $deferred->promise();
         $promiseCoroutine = new PromiseCoroutine($promise);
 
         $resumed = null;
@@ -128,10 +130,10 @@ class PromiseCoroutineTest extends PHPUnit_Framework_TestCase
 
         $strand = $this->kernel->execute($coroutine());
 
-        $canceller = function () use ($promise, $strand) {
+        $canceller = function () use ($deferred, $strand) {
             $strand->terminate();
             yield;
-            $promise->reject();
+            $deferred->reject();
         };
 
         $this->kernel->execute($canceller());

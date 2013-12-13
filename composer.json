@@ -15,13 +15,12 @@
         "php": ">=5.5",
         "evenement/evenement": "~1",
         "icecave/repr": "~1",
-        "react/promise": "~1",
         "react/react": "dev-master"
     },
     "require-dev": {
         "eloquent/asplode": "~1",
         "eloquent/liberator": "~1",
-        "icecave/archer": "~1",
+        "icecave/archer": "dev-feature/travis-build-verbosity",
         "monolog/monolog": "~1",
         "phake/phake": "2.0.0-alpha4 as v1.0.3"
     },

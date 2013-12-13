@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "7e714cb6ba7931e0480a4c60de0e4a55",
+    "hash": "d3139d31a9f553493fe3674fd5a205c4",
     "packages": [
         {
             "name": "evenement/evenement",
@@ -185,31 +185,34 @@
         },
         {
             "name": "react/promise",
-            "version": "v1.0.4",
+            "version": "v2.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/reactphp/promise.git",
-                "reference": "d6de8cae1dbb4878d909c41cb89aff764504472c"
+                "reference": "58129a9cb9da88f2055309a805e2696b06928bb0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/reactphp/promise/zipball/d6de8cae1dbb4878d909c41cb89aff764504472c",
-                "reference": "d6de8cae1dbb4878d909c41cb89aff764504472c",
+                "url": "https://api.github.com/repos/reactphp/promise/zipball/58129a9cb9da88f2055309a805e2696b06928bb0",
+                "reference": "58129a9cb9da88f2055309a805e2696b06928bb0",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.3.3"
+                "php": ">=5.4.0"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.0-dev"
+                    "dev-master": "2.0-dev"
                 }
             },
             "autoload": {
                 "psr-0": {
                     "React\\Promise": "src/"
-                }
+                },
+                "files": [
+                    "src/React/Promise/functions.php"
+                ]
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
@@ -224,7 +227,7 @@
                 }
             ],
             "description": "A lightweight implementation of CommonJS Promises/A for PHP",
-            "time": "2013-04-03 14:05:55"
+            "time": "2013-12-10 15:40:36"
         },
         {
             "name": "react/react",
@@ -232,19 +235,19 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/reactphp/react.git",
-                "reference": "489bf685a14eeb0e37f94d58269c2abe657044d1"
+                "reference": "f690b165e12de490413282a9b3d9f3d21d9bddeb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/reactphp/react/zipball/489bf685a14eeb0e37f94d58269c2abe657044d1",
-                "reference": "489bf685a14eeb0e37f94d58269c2abe657044d1",
+                "url": "https://api.github.com/repos/reactphp/react/zipball/f690b165e12de490413282a9b3d9f3d21d9bddeb",
+                "reference": "f690b165e12de490413282a9b3d9f3d21d9bddeb",
                 "shasum": ""
             },
             "require": {
                 "evenement/evenement": "1.0.*",
                 "guzzle/parser": "~3.0",
                 "php": ">=5.4.0",
-                "react/promise": "~1.0"
+                "react/promise": "~2.0"
             },
             "replace": {
                 "react/cache": "self.version",
@@ -280,7 +283,7 @@
                 "event-loop",
                 "reactor"
             ],
-            "time": "2013-12-07 17:31:49"
+            "time": "2013-12-10 18:58:45"
         },
         {
             "name": "symfony/event-dispatcher",
@@ -547,16 +550,16 @@
         },
         {
             "name": "icecave/archer",
-            "version": "1.1.0",
+            "version": "dev-feature/travis-build-verbosity",
             "source": {
                 "type": "git",
                 "url": "https://github.com/IcecaveStudios/archer.git",
-                "reference": "5ab6803e2fbcb27cbad8624f7f137477a5ca0fb3"
+                "reference": "f0c0ae11d0a8745758ad4a646ca0b09786288604"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/IcecaveStudios/archer/zipball/5ab6803e2fbcb27cbad8624f7f137477a5ca0fb3",
-                "reference": "5ab6803e2fbcb27cbad8624f7f137477a5ca0fb3",
+                "url": "https://api.github.com/repos/IcecaveStudios/archer/zipball/f0c0ae11d0a8745758ad4a646ca0b09786288604",
+                "reference": "f0c0ae11d0a8745758ad4a646ca0b09786288604",
                 "shasum": ""
             },
             "require": {
@@ -615,7 +618,7 @@
                 "testing",
                 "unit"
             ],
-            "time": "2013-10-13 23:54:24"
+            "time": "2013-12-13 02:29:08"
         },
         {
             "name": "icecave/isolator",
@@ -1438,7 +1441,8 @@
     ],
     "minimum-stability": "dev",
     "stability-flags": {
-        "react/react": 20
+        "react/react": 20,
+        "icecave/archer": 20
     },
     "platform": {
         "php": ">=5.5"
