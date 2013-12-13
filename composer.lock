@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "d3139d31a9f553493fe3674fd5a205c4",
+    "hash": "fe6d37556a71517cca979516982c3bed",
     "packages": [
         {
             "name": "evenement/evenement",
@@ -550,16 +550,16 @@
         },
         {
             "name": "icecave/archer",
-            "version": "dev-feature/travis-build-verbosity",
+            "version": "1.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/IcecaveStudios/archer.git",
-                "reference": "f0c0ae11d0a8745758ad4a646ca0b09786288604"
+                "reference": "5ab6803e2fbcb27cbad8624f7f137477a5ca0fb3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/IcecaveStudios/archer/zipball/f0c0ae11d0a8745758ad4a646ca0b09786288604",
-                "reference": "f0c0ae11d0a8745758ad4a646ca0b09786288604",
+                "url": "https://api.github.com/repos/IcecaveStudios/archer/zipball/5ab6803e2fbcb27cbad8624f7f137477a5ca0fb3",
+                "reference": "5ab6803e2fbcb27cbad8624f7f137477a5ca0fb3",
                 "shasum": ""
             },
             "require": {
@@ -618,7 +618,7 @@
                 "testing",
                 "unit"
             ],
-            "time": "2013-12-13 02:29:08"
+            "time": "2013-10-13 23:54:24"
         },
         {
             "name": "icecave/isolator",
@@ -1441,8 +1441,7 @@
     ],
     "minimum-stability": "dev",
     "stability-flags": {
-        "react/react": 20,
-        "icecave/archer": 20
+        "react/react": 20
     },
     "platform": {
         "php": ">=5.5"
