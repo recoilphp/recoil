@@ -13,7 +13,7 @@ php: ["5.5"]
 env:
   global:
     - ARCHER_PUBLISH_VERSION=5.5
-    - secure: "KW7AkI2tN9v4tjVwDbROuAy3oSXpEJ/PrHAW+o0WnMyNhU3TKXgOAme6GghIOsHafNWwtHQypuqBW/UK9Yqlad/mi4aQaRNEvH83MyNbmd9dqCelg9SIDvj0cPNOYmvZnpYwoZV0s8D8KEaLpiTEqGHn2gfB1eKXipVpcduZ2dc="
+    - secure: "FJBqoXtOYyQ5I1r6trN3sFVA5lArCx41KiqsJC924WqSthGFfjmCepD7ki/Vu2GHbUds7+BB71wd+RrrvnETqvxUqPH4vaCelIUbK1iJXDHkKlQSBbxfpWStTyYIqT3fCCK/PwXGE2nD1aCRarKPH7L14i+nqpWvSr+Wsmueo6c="
 
 install:
   - ./.travis.install
