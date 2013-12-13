@@ -74,7 +74,7 @@ class WritableStreamChannel implements WritableChannelInterface
      */
     public function close()
     {
-        $this->stream->close();
+        $this->stream->end();
 
         yield Recoil::noop();
     }

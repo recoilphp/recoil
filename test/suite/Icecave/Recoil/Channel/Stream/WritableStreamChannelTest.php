@@ -2,6 +2,7 @@
 namespace Icecave\Recoil\Channel\Stream;
 
 use Exception;
+use Icecave\Recoil\Channel\Exception\ChannelClosedException;
 use Icecave\Recoil\Channel\ExclusiveWritableChannelTestTrait;
 use Icecave\Recoil\Channel\WritableChannelTestTrait;
 use Icecave\Recoil\Kernel\Kernel;
@@ -116,5 +117,72 @@ class WritableStreamChannelTest extends PHPUnit_Framework_TestCase
 
         $this->kernel->execute($writer());
         $this->kernel->eventLoop()->run();
+    }
+
+    /**
+     * @override
+     *
+     * Stream semantics allow for a stream to drain after the 'end'
+     * method has been called.
+     */
+    public function testCloseWithPendingWriter()
+    {
+        $output = [];
+
+        $writer = function () use (&$output) {
+            $output[] = 'writing';
+            yield $this->channel->write('foo');
+            $output[] = 'drained';
+
+            try {
+                yield $this->channel->write('bar');
+            } catch (ChannelClosedException $e) {
+                $output[] = 'closed';
+            }
+        };
+
+        $closer = function () use (&$output) {
+            $output[] = 'closing';
+            yield $this->channel->close();
+        };
+
+        $this->kernel->execute($writer());
+        $this->kernel->execute($closer());
+        $this->kernel->eventLoop()->run();
+
+        $this->assertEquals(
+            ['writing', 'closing', 'drained', 'closed'],
+            $output
+        );
+    }
+
+    public function testStreamClosedBeforeDrained()
+    {
+        $output = [];
+
+        $writer = function () use (&$output) {
+            try {
+                $output[] = 'writing';
+                yield $this->channel->write('foo');
+            } catch (ChannelClosedException $e) {
+                $output[] = 'closed';
+            }
+        };
+
+        $closer = function () use (&$output) {
+            $output[] = 'closing stream';
+            $this->stream->close();
+
+            yield Recoil::noop();
+        };
+
+        $this->kernel->execute($writer());
+        $this->kernel->execute($closer());
+        $this->kernel->eventLoop()->run();
+
+        $this->assertEquals(
+            ['writing', 'closing stream', 'closed'],
+            $output
+        );
     }
 }
