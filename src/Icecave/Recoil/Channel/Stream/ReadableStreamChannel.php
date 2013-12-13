@@ -87,11 +87,10 @@ class ReadableStreamChannel implements ReadableChannelInterface
         return !$this->stream->isReadable();
     }
 
-   /**
-     * @param string                  $data
-     * @param ReadableStreamInterface $stream
+    /**
+     * @internal
      */
-    public function onStreamData($data, ReadableStreamInterface $stream)
+    public function onStreamData($data)
     {
         $this->stream->pause();
 
@@ -102,9 +101,9 @@ class ReadableStreamChannel implements ReadableChannelInterface
     }
 
     /**
-     * @param ReadableStreamInterface $stream
+     * @internal
      */
-    public function onStreamEnd(ReadableStreamInterface $stream)
+    public function onStreamEnd()
     {
         $this->stream->removeListener('data',  [$this, 'onStreamData']);
         $this->stream->removeListener('end',   [$this, 'onStreamEnd']);
@@ -119,10 +118,9 @@ class ReadableStreamChannel implements ReadableChannelInterface
     }
 
     /**
-     * @param Exception               $exception
-     * @param ReadableStreamInterface $stream
+     * @internal
      */
-    public function onStreamError(Exception $exception, ReadableStreamInterface $stream)
+    public function onStreamError(Exception $exception)
     {
         $this->readStrand->resumeWithException($exception);
         $this->readStrand = null;

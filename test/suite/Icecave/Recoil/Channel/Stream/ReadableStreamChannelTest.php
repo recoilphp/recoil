@@ -20,18 +20,15 @@ class ReadableStreamChannelTest extends PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->eventLoop = Phake::partialMock(StreamSelectLoop::CLASS);
-        $this->kernel    = new Kernel(null, null, null, $this->eventLoop);
-
+        $this->kernel = new Kernel(null, null, null, $this->eventLoop);
         $this->handle = fopen(__FILE__, 'r+');
-
-        stream_set_read_buffer($this->handle, 0);
-
         $this->stream = new Stream(
             $this->handle,
             $this->kernel->eventLoop()
         );
 
         $this->stream->bufferSize = 128;
+        stream_set_read_buffer($this->handle, 0);
 
         $this->channel = new ReadableStreamChannel($this->stream);
     }
