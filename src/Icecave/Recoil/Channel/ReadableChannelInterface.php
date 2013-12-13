@@ -10,7 +10,7 @@ use Icecave\Recoil\Channel\Exception\ChannelLockedException;
 interface ReadableChannelInterface extends ChannelInterface
 {
     /**
-     * Read a value from this channel.
+     * [CO-ROUTINE] Read a value from this channel.
      *
      * The implementation MUST suspend execution of the current strand until a
      * value is available.
@@ -21,8 +21,6 @@ interface ReadableChannelInterface extends ChannelInterface
      * The implementation MAY require read operations to be exclusive. If
      * concurrent reads are attempted but not supported the implementation MUST
      * throw a ChannelLockedException.
-     *
-     * @coroutine
      *
      * @return mixed                  The value read from the channel.
      * @throws ChannelClosedException if the channel has been closed.

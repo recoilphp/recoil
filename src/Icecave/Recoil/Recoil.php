@@ -16,12 +16,10 @@ use Icecave\Recoil\Kernel\Api\KernelApiCall;
 abstract class Recoil
 {
     /**
-     * Invoke a kernel API function.
+     * [CO-ROUTINE] Invoke a kernel API function.
      *
      * @see Icecave\Recoil\Kernel\KernelApiInterface
      * @see Icecave\Recoil\Kernel\KernelInterface::api()
-     *
-     * @coroutine
      *
      * @param string $name      The name of the kernel API function to invoke.
      * @param array  $arguments The arguments to the kernel API function.

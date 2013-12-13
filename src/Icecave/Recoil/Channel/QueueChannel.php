@@ -19,14 +19,12 @@ class QueueChannel implements ReadableChannelInterface, WritableChannelInterface
     }
 
     /**
-     * Read a value from this channel.
+     * [CO-ROUTINE] Read a value from this channel.
      *
      * Execution of the current strand is suspended until a value is available.
      *
      * If the channel is already closed, or is closed while a read operation is
      * pending a ChannelClosedException is thrown.
-     *
-     * @coroutine
      *
      * @return mixed                  The value read from the channel.
      * @throws ChannelClosedException if the channel has been closed.
@@ -54,15 +52,13 @@ class QueueChannel implements ReadableChannelInterface, WritableChannelInterface
     // @codeCoverageIgnoreEnd
 
     /**
-     * Write a value to this channel.
+     * [CO-ROUTINE] Write a value to this channel.
      *
      * Execution of the current strand is suspended until the value has been
      * consumed.
      *
      * If the channel is already closed, or is closed while a write operation is
      * pending a ChannelClosedException is thrown.
-     *
-     * @coroutine
      *
      * @param mixed $value The value to write to the channel.
      *
@@ -85,12 +81,10 @@ class QueueChannel implements ReadableChannelInterface, WritableChannelInterface
     }
 
     /**
-     * Close this channel.
+     * [CO-ROUTINE] Close this channel.
      *
      * Closing a channel indicates that no more values will be read from or
      * written to the channel. Any future read/write operations will fail.
-     *
-     * @coroutine
      */
     public function close()
     {

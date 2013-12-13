@@ -11,7 +11,7 @@ use InvalidArgumentException;
 interface WritableChannelInterface extends ChannelInterface
 {
     /**
-     * Write a value to this channel.
+     * [CO-ROUTINE] Write a value to this channel.
      *
      * The implementation MUST throw an InvalidArgumentException if the type of
      * the given value is unsupported.
@@ -25,8 +25,6 @@ interface WritableChannelInterface extends ChannelInterface
      * The implementation MAY require write operations to be exclusive. If
      * concurrent writes are attempted but not supported the implementation MUST
      * throw a ChannelLockedException.
-     *
-     * @coroutine
      *
      * @param mixed $value The value to write to the channel.
      *

@@ -7,12 +7,10 @@ namespace Icecave\Recoil\Channel;
 interface ChannelInterface
 {
     /**
-     * Close this channel.
+     * [CO-ROUTINE] Close this channel.
      *
      * Closing a channel indicates that no more values will be read from or
      * written to the channel. Any future read/write operations will fail.
-     *
-     * @coroutine
      */
     public function close();
 
