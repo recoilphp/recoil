@@ -12,10 +12,10 @@ trait ExclusiveWritableChannelTestTrait
     {
         $writer = function () {
             $this->setExpectedException(ChannelLockedException::CLASS);
-            yield $this->channel->write(null);
+            yield $this->channel->write('foo');
         };
 
-        $this->kernel->execute($this->channel->write(null));
+        $this->kernel->execute($this->channel->write('foo'));
         $this->kernel->execute($writer());
         $this->kernel->eventLoop()->run();
     }

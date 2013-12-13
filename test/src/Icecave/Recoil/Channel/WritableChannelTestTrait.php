@@ -15,7 +15,7 @@ trait WritableChannelTestTrait
         $writer = function () use (&$output) {
             try {
                 $output[] = 'writing';
-                yield $this->channel->write(null);
+                yield $this->channel->write('foo');
             } catch (ChannelClosedException $e) {
                 $output[] = 'closed';
             }
@@ -41,7 +41,7 @@ trait WritableChannelTestTrait
         $writer = function () {
             yield $this->channel->close();
             $this->setExpectedException(ChannelClosedException::CLASS);
-            yield $this->channel->write(null);
+            yield $this->channel->write('foo');
         };
 
         $this->kernel->execute($writer());

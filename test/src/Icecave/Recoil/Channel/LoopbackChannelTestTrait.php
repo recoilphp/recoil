@@ -1,7 +1,6 @@
 <?php
 namespace Icecave\Recoil\Channel;
 
-use Exception;
 use Icecave\Recoil\Kernel\Kernel;
 use Icecave\Recoil\Recoil;
 
