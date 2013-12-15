@@ -5,6 +5,8 @@ use Exception;
 use Icecave\Recoil\Channel\Exception\ChannelClosedException;
 use Icecave\Recoil\Channel\Exception\ChannelLockedException;
 use Icecave\Recoil\Channel\ReadableChannelInterface;
+use Icecave\Recoil\Channel\Stream\Encoding\BinaryEncodingProtocol;
+use Icecave\Recoil\Channel\Stream\Encoding\EncodingProtocolInterface;
 use Icecave\Recoil\Recoil;
 use React\Stream\ReadableStreamInterface;
 
@@ -17,9 +19,16 @@ use React\Stream\ReadableStreamInterface;
  */
 class ReadableStreamChannel implements ReadableChannelInterface
 {
-    public function __construct(ReadableStreamInterface $stream)
-    {
+    public function __construct(
+        ReadableStreamInterface $stream,
+        EncodingProtocolInterface $encoding = null
+    ) {
+        if (null === $encoding) {
+            $encoding = new BinaryEncodingProtocol;
+        }
+
         $this->stream = $stream;
+        $this->encoding = $encoding;
 
         $this->stream->on('data',  [$this, 'onStreamData']);
         $this->stream->on('end',   [$this, 'onStreamEnd']);
@@ -52,12 +61,15 @@ class ReadableStreamChannel implements ReadableChannelInterface
             throw new ChannelLockedException($this);
         }
 
-        $value = (yield Recoil::suspend(
-            function ($strand) {
-                $this->readStrand = $strand;
-                $this->stream->resume();
-            }
-        ));
+        $value = null;
+        if (!$this->encoding->decode($value)) {
+            $value = (yield Recoil::suspend(
+                function ($strand) {
+                    $this->readStrand = $strand;
+                    $this->stream->resume();
+                }
+            ));
+        }
 
         yield Recoil::return_($value);
     // @codeCoverageIgnoreStart
@@ -92,10 +104,12 @@ class ReadableStreamChannel implements ReadableChannelInterface
      */
     public function onStreamData($data)
     {
-        $this->stream->pause();
+        $this->encoding->feed($data);
 
-        if ($data) {
-            $this->readStrand->resumeWithValue($data);
+        $value = null;
+        if ($this->encoding->decode($value)) {
+            $this->stream->pause();
+            $this->readStrand->resumeWithValue($value);
             $this->readStrand = null;
         }
     }
@@ -127,5 +141,6 @@ class ReadableStreamChannel implements ReadableChannelInterface
     }
 
     private $stream;
+    private $encoding;
     private $readStrand;
 }

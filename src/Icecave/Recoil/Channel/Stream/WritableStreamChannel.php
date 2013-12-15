@@ -4,6 +4,8 @@ namespace Icecave\Recoil\Channel\Stream;
 use Exception;
 use Icecave\Recoil\Channel\Exception\ChannelClosedException;
 use Icecave\Recoil\Channel\Exception\ChannelLockedException;
+use Icecave\Recoil\Channel\Stream\Encoding\BinaryEncodingProtocol;
+use Icecave\Recoil\Channel\Stream\Encoding\EncodingProtocolInterface;
 use Icecave\Recoil\Channel\WritableChannelInterface;
 use Icecave\Recoil\Recoil;
 use InvalidArgumentException;
@@ -14,9 +16,16 @@ use React\Stream\WritableStreamInterface;
  * */
 class WritableStreamChannel implements WritableChannelInterface
 {
-    public function __construct(WritableStreamInterface $stream)
-    {
+    public function __construct(
+        WritableStreamInterface $stream,
+        EncodingProtocolInterface $encoding = null
+    ) {
+        if (null === $encoding) {
+            $encoding = new BinaryEncodingProtocol;
+        }
+
         $this->stream = $stream;
+        $this->encoding = $encoding;
 
         $this->stream->on('drain', [$this, 'onStreamDrain']);
         $this->stream->on('close', [$this, 'onStreamClose']);
@@ -35,11 +44,11 @@ class WritableStreamChannel implements WritableChannelInterface
      * Write operations must be exclusive. If concurrent writes are attempted
      * a ChannelLockedException is thrown.
      *
-     * @param string $value The value to write to the channel.
+     * @param mixed $value The value to write to the channel.
      *
      * @throws ChannelClosedException   if the channel has been closed.
      * @throws ChannelLockedException   if concurrent writes are unsupported.
-     * @throws InvalidArgumentException if $value is not a string.
+     * @throws InvalidArgumentException if $value can not be encoded.
      */
     public function write($value)
     {
@@ -51,15 +60,15 @@ class WritableStreamChannel implements WritableChannelInterface
             throw new ChannelClosedException($this);
         } elseif ($this->writeStrand) {
             throw new ChannelLockedException($this);
-        } elseif (!is_string($value)) {
-            throw new InvalidArgumentException('Value must be a string.');
         }
 
+        $packet = $this->encoding->encode($value);
+
         yield Recoil::suspend(
-            function ($strand) use ($value) {
+            function ($strand) use ($packet) {
                 $this->writeStrand = $strand;
 
-                if ($this->stream->write($value)) {
+                if ($this->stream->write($packet)) {
                     $this->onStreamDrain();
                 }
             }
@@ -131,6 +140,7 @@ class WritableStreamChannel implements WritableChannelInterface
     }
 
     private $stream;
+    private $encoding;
     private $writeStrand;
     private $exception;
 }
