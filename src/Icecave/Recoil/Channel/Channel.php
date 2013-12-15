@@ -6,8 +6,8 @@ use Icecave\Recoil\Channel\Exception\ChannelLockedException;
 use Icecave\Recoil\Recoil;
 
 /**
- * An unbuffered (synchronous) data channel that requires exclusive read/write
- * operations.
+ * An unbuffered (synchronous) loop-back data channel that requires exclusive
+ * read/write operations.
  */
 class Channel implements ReadableChannelInterface, WritableChannelInterface
 {

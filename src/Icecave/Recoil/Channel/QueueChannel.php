@@ -6,8 +6,8 @@ use Icecave\Recoil\Recoil;
 use SplQueue;
 
 /**
- * An unbuffered (synchronous) data channel that allows multiple concurrent
- * read/write operations.
+ * An unbuffered (synchronous) loop-back data channel that allows multiple
+ * concurrent read/write operations.
  */
 class QueueChannel implements ReadableChannelInterface, WritableChannelInterface
 {
