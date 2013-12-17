@@ -5,6 +5,8 @@ use Exception;
 use Icecave\Recoil\Channel\Exception\ChannelClosedException;
 use Icecave\Recoil\Channel\ExclusiveReadableChannelTestTrait;
 use Icecave\Recoil\Channel\ReadableChannelTestTrait;
+use Icecave\Recoil\Channel\Stream\Encoding\BinaryEncodingProtocol;
+use Icecave\Recoil\Channel\Stream\Encoding\PhpEncodingProtocol;
 use Icecave\Recoil\Kernel\Kernel;
 use Icecave\Recoil\Recoil;
 use Phake;
@@ -30,7 +32,17 @@ class ReadableStreamChannelTest extends PHPUnit_Framework_TestCase
         $this->stream->bufferSize = 128;
         stream_set_read_buffer($this->handle, 0);
 
-        $this->channel = new ReadableStreamChannel($this->stream);
+        $this->channel = new ReadableStreamChannel(
+            $this->stream,
+            new BinaryEncodingProtocol
+        );
+    }
+
+    public function testDefaultEncoding()
+    {
+        $channel = new ReadableStreamChannel($this->stream);
+
+        $this->assertInstanceOf(PhpEncodingProtocol::CLASS, $channel->encoding());
     }
 
     public function testRead()

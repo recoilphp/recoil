@@ -17,6 +17,13 @@ interface KernelApiInterface
     public function strand(StrandInterface $strand);
 
     /**
+     * Get the ReactPHP event-loop that the co-routine kernel is executing on.
+     *
+     * @param StrandInterface $strand The currently executing strand.
+     */
+    public function eventLoop(StrandInterface $strand);
+
+    /**
      * Return a value to the calling co-routine.
      *
      * @param StrandInterface $strand The currently executing strand.

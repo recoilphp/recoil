@@ -4,8 +4,8 @@ namespace Icecave\Recoil\Channel\Stream;
 use Exception;
 use Icecave\Recoil\Channel\Exception\ChannelClosedException;
 use Icecave\Recoil\Channel\Exception\ChannelLockedException;
-use Icecave\Recoil\Channel\Stream\Encoding\BinaryEncodingProtocol;
 use Icecave\Recoil\Channel\Stream\Encoding\EncodingProtocolInterface;
+use Icecave\Recoil\Channel\Stream\Encoding\PhpEncodingProtocol;
 use Icecave\Recoil\Channel\WritableChannelInterface;
 use Icecave\Recoil\Recoil;
 use InvalidArgumentException;
@@ -16,12 +16,16 @@ use React\Stream\WritableStreamInterface;
  * */
 class WritableStreamChannel implements WritableChannelInterface
 {
+    /**
+     * @param ReadableStreamInterface        $stream   The underlying stream.
+     * @param EncodingProtocolInterface|null $encoding The protocol to use for encoding values written to the stream.
+     */
     public function __construct(
         WritableStreamInterface $stream,
         EncodingProtocolInterface $encoding = null
     ) {
         if (null === $encoding) {
-            $encoding = new BinaryEncodingProtocol;
+            $encoding = new PhpEncodingProtocol;
         }
 
         $this->stream = $stream;
@@ -96,6 +100,16 @@ class WritableStreamChannel implements WritableChannelInterface
     public function isClosed()
     {
         return !$this->stream->isWritable();
+    }
+
+    /**
+     * Fetch the channel's encoding protocol.
+     *
+     * @return EncodingProtocolInterface The protocol to use for encoding values written to the stream.
+     */
+    public function encoding()
+    {
+        return $this->encoding;
     }
 
     /**

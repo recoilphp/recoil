@@ -4,6 +4,8 @@ namespace Icecave\Recoil\Channel\Stream;
 use Exception;
 use Icecave\Recoil\Channel\Exception\ChannelClosedException;
 use Icecave\Recoil\Channel\ExclusiveWritableChannelTestTrait;
+use Icecave\Recoil\Channel\Stream\Encoding\BinaryEncodingProtocol;
+use Icecave\Recoil\Channel\Stream\Encoding\PhpEncodingProtocol;
 use Icecave\Recoil\Channel\WritableChannelTestTrait;
 use Icecave\Recoil\Kernel\Kernel;
 use Icecave\Recoil\Recoil;
@@ -31,7 +33,17 @@ class WritableStreamChannelTest extends PHPUnit_Framework_TestCase
         $this->stream->getBuffer()->softLimit = 1;
         $this->stream->pause();
 
-        $this->channel = new WritableStreamChannel($this->stream);
+        $this->channel = new WritableStreamChannel(
+            $this->stream,
+            new BinaryEncodingProtocol
+        );
+    }
+
+    public function testDefaultEncoding()
+    {
+        $channel = new WritableStreamChannel($this->stream);
+
+        $this->assertInstanceOf(PhpEncodingProtocol::CLASS, $channel->encoding());
     }
 
     public function testWrite()

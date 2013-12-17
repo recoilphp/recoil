@@ -17,6 +17,16 @@ class KernelApi implements KernelApiInterface
     }
 
     /**
+     * Get the ReactPHP event-loop that the co-routine kernel is executing on.
+     *
+     * @param StrandInterface $strand The currently executing strand.
+     */
+    public function eventLoop(StrandInterface $strand)
+    {
+        $strand->current()->sendOnNextTick($strand->kernel()->eventLoop());
+    }
+
+    /**
      * Return a value to the calling co-routine.
      *
      * @param StrandInterface $strand The currently executing strand.

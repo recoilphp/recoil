@@ -5,8 +5,8 @@ use Exception;
 use Icecave\Recoil\Channel\Exception\ChannelClosedException;
 use Icecave\Recoil\Channel\Exception\ChannelLockedException;
 use Icecave\Recoil\Channel\ReadableChannelInterface;
-use Icecave\Recoil\Channel\Stream\Encoding\BinaryEncodingProtocol;
 use Icecave\Recoil\Channel\Stream\Encoding\EncodingProtocolInterface;
+use Icecave\Recoil\Channel\Stream\Encoding\PhpEncodingProtocol;
 use Icecave\Recoil\Recoil;
 use React\Stream\ReadableStreamInterface;
 
@@ -19,12 +19,16 @@ use React\Stream\ReadableStreamInterface;
  */
 class ReadableStreamChannel implements ReadableChannelInterface
 {
+    /**
+     * @param ReadableStreamInterface        $stream   The underlying stream.
+     * @param EncodingProtocolInterface|null $encoding The protocol to use for decoding values read from the stream.
+     */
     public function __construct(
         ReadableStreamInterface $stream,
         EncodingProtocolInterface $encoding = null
     ) {
         if (null === $encoding) {
-            $encoding = new BinaryEncodingProtocol;
+            $encoding = new PhpEncodingProtocol;
         }
 
         $this->stream = $stream;
@@ -97,6 +101,16 @@ class ReadableStreamChannel implements ReadableChannelInterface
     public function isClosed()
     {
         return !$this->stream->isReadable();
+    }
+
+    /**
+     * Fetch the channel's encoding protocol.
+     *
+     * @return EncodingProtocolInterface The protocol to use for decoding values read from the stream.
+     */
+    public function encoding()
+    {
+        return $this->encoding;
     }
 
     /**
