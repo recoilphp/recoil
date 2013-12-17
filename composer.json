@@ -1,7 +1,18 @@
 {
     "name": "icecave/recoil",
-    "description": "This package needs a description!",
-    "keywords": [],
+    "description": "A generator-based cooperative multitasking kernel for ReactPHP.",
+    "keywords": [
+        "co-routine",
+        "generator",
+        "event",
+        "async",
+        "asynchronous",
+        "react",
+        "green",
+        "thread",
+        "multitasking",
+        "continuation"
+    ],
     "homepage": "https://github.com/IcecaveStudios/recoil",
     "license": "MIT",
     "authors": [
@@ -13,15 +24,13 @@
     ],
     "require": {
         "php": ">=5.5",
-        "evenement/evenement": "~1",
+        "evenement/evenement": "~2",
         "icecave/repr": "~1",
         "react/react": "dev-master"
     },
     "require-dev": {
         "eloquent/asplode": "~1",
-        "eloquent/liberator": "~1",
         "icecave/archer": "~1",
-        "monolog/monolog": "~1",
         "phake/phake": "2.0.0-alpha4 as v1.0.3"
     },
     "suggest": {
