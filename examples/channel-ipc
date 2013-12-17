@@ -2,61 +2,74 @@
 <?php
 require dirname(__DIR__) . '/vendor/autoload.php';
 
-Eloquent\Asplode\Asplode::instance()->install();
+/**
+ * This example shows how to use stream-based channels for inter-process
+ * communication.
+ *
+ * This script spawns a child process that uses a channel to send 10 objects to
+ * the parent process.
+ */
 
-use Icecave\Recoil\Channel\Stream\Encoding\PhpEncodingProtocol;
-use Icecave\Recoil\Channel\Stream\ReadableStreamChannel;
-use Icecave\Recoil\Channel\Stream\WritableStreamChannel;
-use Icecave\Recoil\Kernel\Kernel;
 use Icecave\Recoil\Recoil;
-use React\ChildProcess\Process;
-use React\Stream\Stream;
 
+/**
+ * This function is run by the parent process.
+ */
 function parentProcess()
 {
-    // Create a new sub-process ...
-    $currentStrand = (yield Recoil::strand());
-    $process = new Process($_SERVER['argv'][0] . ' child');
-    $process->start($currentStrand->kernel()->eventLoop());
+    // Create a new sub-process.
+    //
+    // The current event-loop is obtained using with the Recoil::eventLoop()
+    // system call.
+    $process = new React\ChildProcess\Process($_SERVER['argv'][0] . ' child');
+    $process->start(yield Recoil::eventLoop());
 
-    // Create a channel to read serialized values from the sub-processes' STDOUT
-    $channel = new ReadableStreamChannel($process->stdout, new PhpEncodingProtocol);
+    // Create a channel for reading serialized values from the child's STDOUT.
+    $channel = new Icecave\Recoil\Channel\Stream\ReadableStreamChannel(
+        $process->stdout
+    );
 
-    // Read objects from the child ...
+    // Read objects from the child process, until it sends NULL ...
     while ($value = (yield $channel->read())) {
-        echo getmypid() . ': Read ' . $value->id . PHP_EOL;
+        echo 'Read object ' . json_encode($value) . ' from child process.' . PHP_EOL;
     }
 }
 
+/**
+ * This function is run by the child process.
+ */
 function childProcess()
 {
-    // Create a stream for writing to STDOUT ...
-    $currentStrand = (yield Recoil::strand());
-    $channel = new WritableStreamChannel(
-        new Stream(
+    // Create a channel for writing serialized values to STDOUT ...
+    $channel = new Icecave\Recoil\Channel\Stream\WritableStreamChannel(
+        new React\Stream\Stream(
             fopen('php://stdout', 'w'),
-            $currentStrand->kernel()->eventLoop()
-        ),
-        new PhpEncodingProtocol
+            (yield Recoil::eventLoop())
+        )
     );
 
-    // Send objects to the parent ...
+    // Send 10 objects to the parent ...
     for ($i = 1; $i <= 10; ++$i) {
         $value = new stdClass;
         $value->id = $i;
         yield $channel->write($value);
     }
 
-    // Use a null to signal the end of the object stream, then close the channel ...
+    // Send NULL to indicate the end of data ...
     yield $channel->write(null);
     yield $channel->close();
 }
 
+// -----------------------------------------------------------------------------
+
+// Install a strict error handler ...
+Eloquent\Asplode\Asplode::instance()->install();
+
 // Create the co-routine kernel ...
-$kernel = new Kernel;
+$kernel = new Icecave\Recoil\Kernel\Kernel;
 
 // Run the appropriate co-routine ...
-if ($_SERVER['argc'] === 2 && $_SERVER['argv'][1] === 'child') {
+if (isset($_SERVER['argv'][1]) && $_SERVER['argv'][1] === 'child') {
     $kernel->execute(childProcess());
 } else {
     $kernel->execute(parentProcess());

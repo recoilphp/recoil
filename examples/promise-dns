@@ -2,30 +2,28 @@
 <?php
 require dirname(__DIR__) . '/vendor/autoload.php';
 
-Eloquent\Asplode\Asplode::instance()->install();
+/**
+ * This example shows how to use React promises inside a co-routine.
+ */
 
-use Icecave\Recoil\Kernel\Kernel;
 use Icecave\Recoil\Recoil;
-use React\Dns\Resolver\Factory AS ResolverFactory;
-
-// Create the co-routine kernel ...
-$kernel = new Kernel;
-
-// Create the DNS resolver ...
-$resolverFactory = new ResolverFactory;
-$resolver = $resolverFactory->create(
-    '8.8.8.8',
-    $kernel->eventLoop()
-);
 
 /**
  * Resolve a name to an IP address.
  *
- * @param string $name
+ * @param highlight_string(str)       $name     The name to resolve.
+ * @param React\Dns\Resolver\Resolver $resolver The resolver to use.
  */
-function resolve($name, $resolver)
+function resolveExample($name, React\Dns\Resolver\Resolver $resolver)
 {
     try {
+        // Resolver::resolve(...) returns a React promise.
+        //
+        // Yielding a promise in a co-routine causes the co-routine to suspend
+        // until the promise is resolved or rejected.
+        //
+        // If the promise is resolved, the value is returned from the yield
+        // statement.
 
         $ip = (yield $resolver->resolve($name));
 
@@ -33,15 +31,32 @@ function resolve($name, $resolver)
 
     } catch (Exception $e) {
 
+        // The promise was rejected.
+
         echo 'Failed to resolve "' . $name . '" - ' . $e->getMessage() . PHP_EOL;
 
     }
 }
 
+// -----------------------------------------------------------------------------
+
+// Install a strict error handler ...
+Eloquent\Asplode\Asplode::instance()->install();
+
+// Create the co-routine kernel ...
+$kernel = new Icecave\Recoil\Kernel\Kernel;
+
+// Create the DNS resolver ...
+$resolverFactory = new React\Dns\Resolver\Factory;
+$resolver = $resolverFactory->create(
+    '8.8.8.8',
+    $kernel->eventLoop()
+);
+
 // Enqueue some resolution tasks ...
-$kernel->execute(resolve('icecave.com.au', $resolver));
-$kernel->execute(resolve('igor.io', $resolver));
-$kernel->execute(resolve('probably-wont-resolve', $resolver));
+$kernel->execute(resolveExample('icecave.com.au', $resolver));
+$kernel->execute(resolveExample('igor.io', $resolver));
+$kernel->execute(resolveExample('probably-wont-resolve', $resolver));
 
 // Run the React event-loop ...
 $kernel->eventLoop()->run();
