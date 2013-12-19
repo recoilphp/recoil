@@ -95,46 +95,6 @@ class KernelApiTest extends PHPUnit_Framework_TestCase
         $this->kernel->eventLoop()->run();
     }
 
-    public function testReturnAndResume()
-    {
-        $this->expectOutputString('12');
-
-        $coroutine = function () {
-            $f = function () {
-                yield Recoil::returnAndResume(1);
-                echo 2;
-            };
-
-            echo (yield $f());
-        };
-
-        $this->kernel->execute($coroutine());
-
-        $this->kernel->eventLoop()->run();
-    }
-
-    public function testThrowAndResume()
-    {
-        $this->expectOutputString('12');
-
-        $coroutine = function () {
-            $f = function () {
-                yield Recoil::throwAndResume(new Exception(1));
-                echo 2;
-            };
-
-            try {
-                yield $f();
-            } catch (Exception $e) {
-                echo $e->getMessage();
-            }
-        };
-
-        $this->kernel->execute($coroutine());
-
-        $this->kernel->eventLoop()->run();
-    }
-
     public function testTerminate()
     {
         $this->expectOutputString('12');
