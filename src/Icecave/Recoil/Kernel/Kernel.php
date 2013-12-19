@@ -18,17 +18,21 @@ use SplObjectStorage;
 class Kernel implements KernelInterface
 {
     /**
+     * @param LoopInterface|null             $eventLoop        The ReactPHP event-loop.
      * @param KernelApiInterface|null        $api              The kernel's API implementation.
      * @param CoroutineAdaptorInterface|null $coroutineAdaptor The kernel's co-routine adaptor.
      * @param StrandFactoryInterface|null    $strandFactory    The kernel's strand factory.
-     * @param LoopInterface|null             $eventLoop        The ReactPHP event-loop.
      */
     public function __construct(
+        LoopInterface $eventLoop = null,
         KernelApiInterface $api = null,
         CoroutineAdaptorInterface $coroutineAdaptor = null,
-        StrandFactoryInterface $strandFactory = null,
-        LoopInterface $eventLoop = null
+        StrandFactoryInterface $strandFactory = null
     ) {
+        if (null === $eventLoop) {
+            $eventLoop = EventLoopFactory::create();
+        }
+
         if (null === $api) {
             $api = new KernelApi;
         }
@@ -41,14 +45,10 @@ class Kernel implements KernelInterface
             $strandFactory = new StrandFactory;
         }
 
-        if (null === $eventLoop) {
-            $eventLoop = EventLoopFactory::create();
-        }
-
+        $this->eventLoop = $eventLoop;
         $this->api = $api;
         $this->coroutineAdaptor = $coroutineAdaptor;
         $this->strandFactory = $strandFactory;
-        $this->eventLoop = $eventLoop;
         $this->strands = new SplObjectStorage;
     }
 
@@ -157,9 +157,9 @@ class Kernel implements KernelInterface
         );
     }
 
+    private $eventLoop;
     private $api;
     private $coroutineAdaptor;
     private $strandFactory;
-    private $eventLoop;
     private $strands;
 }

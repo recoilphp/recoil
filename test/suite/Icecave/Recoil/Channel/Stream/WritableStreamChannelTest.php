@@ -22,7 +22,7 @@ class WritableStreamChannelTest extends PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->eventLoop = Phake::partialMock(StreamSelectLoop::CLASS);
-        $this->kernel = new Kernel(null, null, null, $this->eventLoop);
+        $this->kernel = new Kernel($this->eventLoop);
         $this->filename = tempnam(sys_get_temp_dir(), 'recoil-');
         $this->handle = fopen($this->filename, 'r+');
         $this->stream = Phake::partialMock(
