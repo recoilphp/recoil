@@ -2,6 +2,8 @@
 namespace Icecave\Recoil;
 
 use Icecave\Recoil\Kernel\Api\KernelApiCall;
+use Icecave\Recoil\Kernel\Kernel;
+use React\EventLoop\LoopInterface;
 
 /**
  * Public facade for Kernel API calls.
@@ -27,5 +29,21 @@ abstract class Recoil
     public static function __callStatic($name, array $arguments)
     {
         return new KernelApiCall($name, $arguments);
+    }
+
+    /**
+     * Create and run a new co-routine kernel.
+     *
+     * This is convenience method used to start the co-routine engine.
+     * It should generally not be invoked from inside other co-routines.
+     *
+     * @param callable           $entryPoint    The co-routine to invoke.
+     * @param LoopInterface|null $loopInterface The ReactPHP event-loop, or null to use the default.
+     */
+    public static function run(callable $entryPoint, LoopInterface $eventLoop = null)
+    {
+        $kernel = new Kernel($eventLoop);
+        $kernel->execute($entryPoint());
+        $kernel->eventLoop()->run();
     }
 }
