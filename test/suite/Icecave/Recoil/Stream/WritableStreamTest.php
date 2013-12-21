@@ -1,75 +1,84 @@
 <?php
 namespace Icecave\Recoil\Stream;
 
+use Exception;
 use Icecave\Recoil\Recoil;
 use Icecave\Recoil\Stream\Exception\StreamClosedException;
 use Icecave\Recoil\Stream\Exception\StreamLockedException;
-use Icecave\Recoil\Stream\Exception\StreamReadException;
 use Phake;
 use PHPUnit_Framework_TestCase;
 use React\EventLoop\StreamSelectLoop;
 
-class ReadableStreamTest extends PHPUnit_Framework_TestCase
+class WritableStreamTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
-        $this->resource = fopen(__FILE__, 'r');
-        $this->stream = new ReadableStream($this->resource);
+        $this->path = tempnam(sys_get_temp_dir(), 'recoil-');
+        $this->resource = fopen($this->path, 'w');
+        $this->stream = new WritableStream($this->resource);
     }
 
-    public function testRead()
+    public function tearDown()
+    {
+        if (file_exists($this->path)) {
+            unlink($this->path);
+        }
+    }
+
+    public function testWrite()
     {
         Recoil::run(function () {
-            $buffer = '';
+            $buffer = $content = file_get_contents(__FILE__);
 
-            while (!$this->stream->isClosed()) {
-                $buffer .= (yield $this->stream->read(16));
+            while ($buffer) {
+                $bytesWritten = (yield $this->stream->write($buffer));
+                $buffer = substr($buffer, $bytesWritten);
             }
 
-            $this->assertSame(file_get_contents(__FILE__), $buffer);
+            $this->assertSame($content, file_get_contents($this->path));
         });
     }
 
-    public function testReadFailure()
+    public function testWriteFailureWithClosedStream()
     {
         $eventLoop = Phake::partialMock(StreamSelectLoop::CLASS);
 
         Phake::when($eventLoop)
-            ->removeReadStream(Phake::anyParameters())
+            ->removeWriteStream(Phake::anyParameters())
             ->thenGetReturnByLambda(
                 function () {
                     fclose($this->resource);
                 }
             );
 
-        $this->setExpectedException(StreamReadException::CLASS);
+        $this->setExpectedException(StreamClosedException::CLASS);
 
         Recoil::run(
             function () {
-                yield $this->stream->read(16);
+                yield $this->stream->write(16);
             },
             $eventLoop
         );
     }
 
-    public function testReadWhenLocked()
+    public function testWriteWhenLocked()
     {
         $this->setExpectedException(StreamLockedException::CLASS);
 
         Recoil::run(function () {
-            yield Recoil::execute($this->stream->read(1));
+            yield Recoil::execute($this->stream->write('foo'));
 
-            yield $this->stream->read(1);
+            yield $this->stream->write('foo');
         });
     }
 
-    public function testReadWhenClosed()
+    public function testWriteWhenClosed()
     {
         $this->setExpectedException(StreamClosedException::CLASS);
 
         Recoil::run(function () {
             yield $this->stream->close();
-            yield $this->stream->read(1);
+            yield $this->stream->write('foo');
         });
     }
 
@@ -93,7 +102,7 @@ class ReadableStreamTest extends PHPUnit_Framework_TestCase
         Recoil::run(function () {
             yield Recoil::execute($this->stream->close());
 
-            yield $this->stream->read(1);
+            yield $this->stream->write('foo');
         });
     }
 }

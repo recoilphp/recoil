@@ -1,16 +1,33 @@
 <?php
 namespace Icecave\Recoil\Stream;
 
+use Icecave\Recoil\Stream\Exception\StreamClosedException;
+use Icecave\Recoil\Stream\Exception\StreamLockedException;
+use Icecave\Recoil\Stream\Exception\StreamReadException;
+
+/**
+ * Interface and specification for co-routine based readable streams.
+ *
+ * The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD",
+ * "SHOULD NOT", "RECOMMENDED",  "MAY", and "OPTIONAL" in this document are to
+ * be interpreted as described in RFC 2119.
+ *
+ * @link http://www.ietf.org/rfc/rfc2119.txt
+ */
 interface ReadableStreamInterface
 {
     /**
      * [CO-ROUTINE] Read data from the stream.
      *
      * The implementation MUST suspend execution of the current strand until
-     * data is available.
+     * data is available or the end of the data stream is reached. Execution
+     * MAY be resumed before $length bytes have been read.
      *
-     * If the stream is already closed, or is closed while a read operation is
-     * pending the implementation MUST throw a StreamClosedException.
+     * If the stream is already closed a StreamClosedException MUST be thrown.
+     *
+     * If the end of the data stream is reached the implementation MUST close
+     * the stream such that future invocations throw a StreamClosedException and
+     * isClosed() returns true.
      *
      * The implementation MAY require read operations to be exclusive. If
      * concurrent reads are attempted but not supported the implementation MUST
@@ -29,12 +46,24 @@ interface ReadableStreamInterface
      * [CO-ROUTINE] Close this stream.
      *
      * Closing a stream indicates that no more data will be read from the
-     * stream. Any future read operations will fail.
+     * stream. Once a stream is closed future invocations of read() MUST throw
+     * a StreamClosedException.
+     *
+     * The implementation SHOULD NOT throw an exception if close() is called on
+     * an already-closed stream.
+     *
+     * The implementation MAY support closing while a read operation is in
+     * progress, otherwise StreamLockedException MUST be thrown.
+     *
+     * @throws StreamLockedException if the stream can not be closed due to a pending read operation.
      */
     public function close();
 
     /**
      * Check if this stream is closed.
+     *
+     * The implementation MUST return true after close() has been called or if
+     * the end of the data stream has been reached.
      *
      * @return boolean True if the stream has been closed; otherwise, false.
      */

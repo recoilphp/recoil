@@ -1,31 +1,34 @@
 <?php
 namespace Icecave\Recoil\Stream;
 
+use ErrorException;
 use Icecave\Recoil\Recoil;
+use Icecave\Recoil\Stream\Exception\StreamClosedException;
+use Icecave\Recoil\Stream\Exception\StreamLockedException;
+use Icecave\Recoil\Stream\Exception\StreamReadException;
 
 /**
- * A low-level-as-possible co-routine based readable stream abstraction.
+ * A readable stream that operates directly on a native PHP stream resource.
  */
 class ReadableStream implements ReadableStreamInterface
 {
+    /**
+     * @param resource $stream The underlying PHP stream resource.
+     */
     public function __construct($stream)
     {
         $this->stream = $stream;
         $this->locked = false;
-
-        stream_set_blocking($this->stream, 0);
     }
 
     /**
      * [CO-ROUTINE] Read data from the stream.
      *
-     * Execution of the current strand is suspended until data is available.
+     * Execution of the current strand is suspended until data is available or
+     * the end of the data stream is reached.
      *
-     * If the stream is already closed, or is closed while a read operation is
-     * pending a StreamClosedException is thrown.
-     *
-     * Read operations must be exclusive. If concurrent reads are attempted
-     * a StreamLockedException is thrown.
+     * Read operations must be exclusive. If concurrent reads are attempted a
+     * StreamLockedException is thrown.
      *
      * @param integer $length The maximum number of bytes to read.
      *
@@ -37,9 +40,9 @@ class ReadableStream implements ReadableStreamInterface
     public function read($length)
     {
         if ($this->locked) {
-            throw new Exception\StreamLockedException;
+            throw new StreamLockedException;
         } elseif ($this->isClosed()) {
-            throw new Exception\StreamClosedException;
+            throw new StreamClosedException;
         }
 
         $this->locked = true;
@@ -73,12 +76,12 @@ class ReadableStream implements ReadableStreamInterface
 
         restore_error_handler();
 
-        if (feof($this->stream)) {
+        if (is_resource($this->stream) && feof($this->stream)) {
             fclose($this->stream);
         }
 
         if (false === $buffer) {
-            throw new Exception\StreamReadException($exception);
+            throw new StreamReadException($exception);
         }
 
         yield Recoil::return_($buffer);
@@ -90,12 +93,14 @@ class ReadableStream implements ReadableStreamInterface
      * [CO-ROUTINE] Close this stream.
      *
      * Closing a stream indicates that no more data will be read from the
-     * stream. Any future read operations will fail.
+     * stream.
+     *
+     * @throws StreamLockedException if a read operation is pending.
      */
     public function close()
     {
         if ($this->locked) {
-            throw new Exception\StreamLockedException;
+            throw new StreamLockedException;
         } elseif (is_resource($this->stream)) {
             fclose($this->stream);
         }
