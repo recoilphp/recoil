@@ -33,7 +33,7 @@ class WritableReactStream implements WritableStreamInterface
      * Write operations must be exclusive. If concurrent writes are attempted a
      * StreamLockedException is thrown.
      *
-     * @param string       $buffer The data to write to the channel.
+     * @param string       $buffer The data to write to the stream.
      * @param integer|null $length The maximum number of bytes to write.
      *
      * @throws StreamClosedException if the stream is already closed.
