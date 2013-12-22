@@ -46,7 +46,7 @@ interface ReadableStreamInterface
      * [CO-ROUTINE] Close this stream.
      *
      * Closing a stream indicates that no more data will be read from the
-     * stream. Once a stream is closed future invocations of read() MUST throw
+     * stream. Once a stream is closed future, invocations of read() MUST throw
      * a StreamClosedException.
      *
      * The implementation SHOULD NOT throw an exception if close() is called on

@@ -32,7 +32,7 @@ class QueueChannel implements ReadableChannelInterface, WritableChannelInterface
     public function read()
     {
         if ($this->isClosed()) {
-            throw new ChannelClosedException($this);
+            throw new ChannelClosedException;
         }
 
         $value = (yield Recoil::suspend(
@@ -67,7 +67,7 @@ class QueueChannel implements ReadableChannelInterface, WritableChannelInterface
     public function write($value)
     {
         if ($this->isClosed()) {
-            throw new ChannelClosedException($this);
+            throw new ChannelClosedException;
         }
 
         if ($this->readStrands->isEmpty()) {
@@ -94,14 +94,14 @@ class QueueChannel implements ReadableChannelInterface, WritableChannelInterface
             $this
                 ->writeStrands
                 ->pop()
-                ->resumeWithException(new ChannelClosedException($this));
+                ->resumeWithException(new ChannelClosedException);
         }
 
         while (!$this->readStrands->isEmpty()) {
             $this
                 ->readStrands
                 ->pop()
-                ->resumeWithException(new ChannelClosedException($this));
+                ->resumeWithException(new ChannelClosedException);
         }
 
         yield Recoil::noop();

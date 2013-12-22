@@ -5,9 +5,18 @@ use Icecave\Recoil\Channel\Exception\ChannelClosedException;
 use Icecave\Recoil\Channel\Exception\ChannelLockedException;
 
 /**
- * A data channel from which values can be read (aka producer, source).
+ * Interface and specification for co-routine based readable data-channels.
+ *
+ * A readable data-channel is a stream-like object that produces PHP values
+ * rather than characters.
+ *
+ * The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD",
+ * "SHOULD NOT", "RECOMMENDED",  "MAY", and "OPTIONAL" in this document are to
+ * be interpreted as described in RFC 2119.
+ *
+ * @link http://www.ietf.org/rfc/rfc2119.txt
  */
-interface ReadableChannelInterface extends ChannelInterface
+interface ReadableChannelInterface
 {
     /**
      * [CO-ROUTINE] Read a value from this channel.
@@ -27,4 +36,31 @@ interface ReadableChannelInterface extends ChannelInterface
      * @throws ChannelLockedException if concurrent reads are unsupported.
      */
     public function read();
+
+    /**
+     * [CO-ROUTINE] Close this channel.
+     *
+     * Closing a channel indicates that no more values will be read from or
+     * written to the channel. Once a channel is closed, future invocations of
+     * read() must throw a ChannelClosedException.
+     *
+     * The implementation SHOULD NOT throw an exception if close() is called on
+     * an already-closed channel.
+     *
+     * The implementation MAY support closing while a read operation is in
+     * progress, otherwise ChannelLockedException MUST be thrown.
+     *
+     * @throws ChannelLockedException if the channel can not be closed due to a pending read operation.
+     */
+    public function close();
+
+    /**
+     * Check if this channel is closed.
+     *
+     * The implementation MUST return true after close() has been called or if
+     * the end of the value stream has been reached.
+     *
+     * @return boolean True if the channel has been closed; otherwise, false.
+     */
+    public function isClosed();
 }

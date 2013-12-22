@@ -61,9 +61,9 @@ class WritableStreamChannel implements WritableChannelInterface
 
             throw $exception;
         } elseif ($this->isClosed()) {
-            throw new ChannelClosedException($this);
+            throw new ChannelClosedException;
         } elseif ($this->writeStrand) {
-            throw new ChannelLockedException($this);
+            throw new ChannelLockedException;
         }
 
         $packet = $this->encoding->encode($value);
@@ -134,7 +134,7 @@ class WritableStreamChannel implements WritableChannelInterface
 
         if ($this->writeStrand) {
             $this->writeStrand->resumeWithException(
-                new ChannelClosedException($this)
+                new ChannelClosedException
             );
             $this->writeStrand = null;
         }

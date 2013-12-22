@@ -34,9 +34,9 @@ class Channel implements ReadableChannelInterface, WritableChannelInterface
     public function read()
     {
         if ($this->isClosed()) {
-            throw new ChannelClosedException($this);
+            throw new ChannelClosedException;
         } elseif ($this->readStrand) {
-            throw new ChannelLockedException($this);
+            throw new ChannelLockedException;
         }
 
         $value = (yield Recoil::suspend(
@@ -75,9 +75,9 @@ class Channel implements ReadableChannelInterface, WritableChannelInterface
     public function write($value)
     {
         if ($this->isClosed()) {
-            throw new ChannelClosedException($this);
+            throw new ChannelClosedException;
         } elseif ($this->writeStrand) {
-            throw new ChannelLockedException($this);
+            throw new ChannelLockedException;
         }
 
         if (!$this->readStrand) {
@@ -104,14 +104,14 @@ class Channel implements ReadableChannelInterface, WritableChannelInterface
 
         if ($this->writeStrand) {
             $this->writeStrand->resumeWithException(
-                new ChannelClosedException($this)
+                new ChannelClosedException
             );
             $this->writeStrand = null;
         }
 
         if ($this->readStrand) {
             $this->readStrand->resumeWithException(
-                new ChannelClosedException($this)
+                new ChannelClosedException
             );
             $this->readStrand = null;
         }
