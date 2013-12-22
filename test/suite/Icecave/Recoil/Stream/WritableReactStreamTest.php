@@ -1,7 +1,9 @@
 <?php
 namespace Icecave\Recoil\Stream;
 
+use Exception;
 use Icecave\Recoil\Recoil;
+use Icecave\Recoil\Stream\Exception\StreamWriteException;
 use PHPUnit_Framework_TestCase;
 use React\Stream\Stream;
 
@@ -27,6 +29,27 @@ class WritableReactStreamTest extends PHPUnit_Framework_TestCase
 
                 $this->assertSame(1, $bytesWritten);
                 $this->assertSame('X', file_get_contents($this->path));
+            },
+            $this->eventLoop
+        );
+    }
+
+    public function testWriteError()
+    {
+        $this->setExpectedException(StreamWriteException::CLASS);
+
+        Recoil::run(
+            function () {
+                $coroutine = function () {
+                    $this->stream->onStreamError(new Exception);
+
+                    yield Recoil::noop();
+                };
+
+                yield Recoil::execute($coroutine());
+
+                yield $this->stream->write('foo bar');
+                yield $this->stream->close();
             },
             $this->eventLoop
         );

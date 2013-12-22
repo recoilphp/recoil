@@ -1,6 +1,7 @@
 <?php
 namespace Icecave\Recoil\Stream;
 
+use Exception;
 use Icecave\Recoil\Recoil;
 use Icecave\Recoil\Stream\Exception\StreamClosedException;
 use Icecave\Recoil\Stream\Exception\StreamLockedException;
@@ -130,7 +131,7 @@ class WritableReactStream implements WritableStreamInterface
      */
     public function onStreamError(Exception $exception)
     {
-        $this->strand->resumeWithException($exception);
+        $this->strand->resumeWithException(new StreamWriteException($exception));
         $this->strand = null;
     }
 
