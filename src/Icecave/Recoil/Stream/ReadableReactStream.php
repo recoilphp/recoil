@@ -9,7 +9,7 @@ use Icecave\Recoil\Stream\Exception\StreamReadException;
 use React\Stream\ReadableStreamInterface as ReadableReactStreamInterface;
 
 /**
- * A readable stream that operates on a ReactPHP readable stream.
+ * Exposes a ReactPHP readable stream as a Recoil readable stream.
  */
 class ReadableReactStream implements ReadableStreamInterface
 {

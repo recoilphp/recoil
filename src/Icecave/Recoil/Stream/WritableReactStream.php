@@ -1,30 +1,34 @@
 <?php
 namespace Icecave\Recoil\Stream;
 
-use ErrorException;
 use Icecave\Recoil\Recoil;
 use Icecave\Recoil\Stream\Exception\StreamClosedException;
 use Icecave\Recoil\Stream\Exception\StreamLockedException;
 use Icecave\Recoil\Stream\Exception\StreamWriteException;
+use React\Stream\WritableStreamInterface as WritableReactStreamInterface;
 
 /**
- * A writable stream that operates directly on a native PHP stream resource.
+ * Exposes a ReactPHP writable stream as a Recoil writable stream.
  */
-class WritableStream implements WritableStreamInterface
+class WritableReactStream implements WritableStreamInterface
 {
     /**
-     * @param resource $stream The underlying PHP stream resource.
+     * @param WritableReactStreamInterface $stream The underlying ReactPHP stream.
      */
-    public function __construct($stream)
+    public function __construct(WritableReactStreamInterface $stream)
     {
         $this->stream = $stream;
         $this->locked = false;
+
+        $this->stream->on('drain', [$this, 'onStreamDrain']);
+        $this->stream->on('error', [$this, 'onStreamError']);
     }
 
     /**
      * [CO-ROUTINE] Write data to this stream.
      *
-     * Execution of the current strand is suspended until the data is sent.
+     * Execution of the current strand is suspended until the underlying stream
+     * is drained.
      *
      * Write operations must be exclusive. If concurrent writes are attempted a
      * StreamLockedException is thrown.
@@ -44,46 +48,27 @@ class WritableStream implements WritableStreamInterface
             throw new StreamClosedException;
         }
 
+        if (null === $length) {
+            $length = strlen($buffer);
+        } else {
+            $buffer = substr($buffer, 0, $length);
+        }
+
         $this->locked = true;
 
         yield Recoil::suspend(
-            function ($strand) {
-                $strand
-                    ->kernel()
-                    ->eventLoop()
-                    ->addWriteStream(
-                        $this->stream,
-                        function ($stream, $eventLoop) use ($strand) {
-                            $eventLoop->removeWriteStream($this->stream);
-                            $strand->resumeWithValue(null);
-                        }
-                    );
+            function ($strand) use ($buffer) {
+                $this->strand = $strand;
+
+                if ($this->stream->write($buffer)) {
+                    $this->onStreamDrain();
+                }
             }
         );
 
         $this->locked = false;
 
-        $exception = null;
-
-        set_error_handler(
-            function ($code, $message, $file, $line) use (&$exception) {
-                $exception = new ErrorException($message, 0, $code, $file, $line);
-            }
-        );
-
-        $bytesWritten = fwrite(
-            $this->stream,
-            $buffer,
-            $length ?: strlen($buffer)
-        );
-
-        restore_error_handler();
-
-        if (false === $bytesWritten) {
-            throw new StreamWriteException($exception);
-        }
-
-        yield Recoil::return_($bytesWritten);
+        yield Recoil::return_($length);
     // @codeCoverageIgnoreStart
     }
     // @codeCoverageIgnoreEnd
@@ -100,11 +85,23 @@ class WritableStream implements WritableStreamInterface
     {
         if ($this->locked) {
             throw new StreamLockedException;
-        } elseif (is_resource($this->stream)) {
-            fclose($this->stream);
         }
 
-        yield Recoil::noop();
+        $this->locked = true;
+
+        yield Recoil::suspend(
+            function ($strand) {
+                $this->stream->once(
+                    'close',
+                    function () use ($strand) {
+                        $strand->resumeWithValue(null);
+                    }
+                );
+                $this->stream->end();
+            }
+        );
+
+        $this->locked = false;
     }
 
     /**
@@ -114,9 +111,30 @@ class WritableStream implements WritableStreamInterface
      */
     public function isClosed()
     {
-        return !is_resource($this->stream);
+        return !$this->stream->isWritable();
+    }
+
+    /**
+     * @internal
+     */
+    public function onStreamDrain()
+    {
+        if ($this->strand) {
+            $this->strand->resumeWithValue(false);
+            $this->strand = null;
+        }
+    }
+
+    /**
+     * @internal
+     */
+    public function onStreamError(Exception $exception)
+    {
+        $this->strand->resumeWithException($exception);
+        $this->strand = null;
     }
 
     private $stream;
     private $locked;
+    private $strand;
 }
