@@ -241,12 +241,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/reactphp/react.git",
-                "reference": "74da4510fa22ef01be09bdfdee8991dcbbffb8de"
+                "reference": "581b3c944497649739449d4cf5cc4cff5598d152"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/reactphp/react/zipball/74da4510fa22ef01be09bdfdee8991dcbbffb8de",
-                "reference": "74da4510fa22ef01be09bdfdee8991dcbbffb8de",
+                "url": "https://api.github.com/repos/reactphp/react/zipball/581b3c944497649739449d4cf5cc4cff5598d152",
+                "reference": "581b3c944497649739449d4cf5cc4cff5598d152",
                 "shasum": ""
             },
             "require": {
@@ -264,6 +264,9 @@
                 "react/socket": "self.version",
                 "react/socket-client": "self.version",
                 "react/stream": "self.version"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "3.7.*"
             },
             "suggest": {
                 "ext-libev": "*",
@@ -289,7 +292,7 @@
                 "event-loop",
                 "reactor"
             ],
-            "time": "2013-12-15 15:11:56"
+            "time": "2013-12-21 19:51:45"
         },
         {
             "name": "symfony/event-dispatcher",
