@@ -1,7 +1,6 @@
 <?php
 namespace Icecave\Recoil\Stream;
 
-use Exception;
 use Icecave\Recoil\Recoil;
 use PHPUnit_Framework_TestCase;
 use React\Stream\Stream;
