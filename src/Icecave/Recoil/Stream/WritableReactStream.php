@@ -37,6 +37,7 @@ class WritableReactStream implements WritableStreamInterface
      * @param string       $buffer The data to write to the stream.
      * @param integer|null $length The maximum number of bytes to write.
      *
+     * @return integer The number of bytes written.
      * @throws StreamClosedException if the stream is already closed.
      * @throws StreamLockedException if concurrent writes are unsupported.
      * @throws StreamWriteException  if an error occurs while writing to the stream.
@@ -73,6 +74,26 @@ class WritableReactStream implements WritableStreamInterface
     // @codeCoverageIgnoreStart
     }
     // @codeCoverageIgnoreEnd
+
+    /**
+     * [CO-ROUTINE] Write all data from the given buffer to this stream.
+     *
+     * Execution of the current strand is suspended until the data is sent.
+     *
+     * Write operations must be exclusive. If concurrent writes are attempted a
+     * StreamLockedException is thrown.
+     *
+     * @param string       $buffer The data to write to the stream.
+     * @param integer|null $length The maximum number of bytes to write.
+     *
+     * @throws StreamClosedException if the stream is already closed.
+     * @throws StreamLockedException if concurrent writes are unsupported.
+     * @throws StreamWriteException  if an error occurs while writing to the stream.
+     */
+    public function writeAll($buffer)
+    {
+        return $this->write($buffer);
+    }
 
     /**
      * [CO-ROUTINE] Close this stream.

@@ -32,11 +32,34 @@ interface WritableStreamInterface
      * @param string       $buffer The data to write to the stream.
      * @param integer|null $length The maximum number of bytes to write.
      *
+     * @return integer The number of bytes written.
      * @throws StreamClosedException if the stream is already closed.
      * @throws StreamLockedException if concurrent writes are unsupported.
      * @throws StreamWriteException  if an error occurs while writing to the stream.
      */
     public function write($buffer, $length = null);
+
+    /**
+     * [CO-ROUTINE] Write all data from the given buffer to this stream.
+     *
+     * The implementation MAY suspend execution of the current strand until the
+     * data is sent.
+     *
+     * If the stream is already closed, or is closed while a write operation is
+     * pending the implementation MUST throw a StreamClosedException.
+     *
+     * The implementation MAY require write operations to be exclusive. If
+     * concurrent writes are attempted but not supported the implementation MUST
+     * throw a StreamLockedException.
+     *
+     * @param string       $buffer The data to write to the stream.
+     * @param integer|null $length The maximum number of bytes to write.
+     *
+     * @throws StreamClosedException if the stream is already closed.
+     * @throws StreamLockedException if concurrent writes are unsupported.
+     * @throws StreamWriteException  if an error occurs while writing to the stream.
+     */
+    public function writeAll($buffer);
 
     /**
      * [CO-ROUTINE] Close this stream.

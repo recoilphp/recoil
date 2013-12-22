@@ -91,6 +91,21 @@ trait WritableStreamTestTrait
         );
     }
 
+    public function testWriteAll()
+    {
+        Recoil::run(
+            function () {
+                $content = file_get_contents(__FILE__);
+
+                yield $this->stream->writeAll($content);
+                yield $this->stream->close();
+
+                $this->assertSame($content, file_get_contents($this->path));
+            },
+            $this->eventLoop
+        );
+    }
+
     public function testClose()
     {
         Recoil::run(
