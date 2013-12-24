@@ -9,6 +9,7 @@ use PHPUnit_Framework_TestCase;
 
 class QueueChannelTest extends PHPUnit_Framework_TestCase
 {
+    use ChannelTestTrait;
     use LoopbackChannelTestTrait;
     use ReadableChannelTestTrait;
     use WritableChannelTestTrait;

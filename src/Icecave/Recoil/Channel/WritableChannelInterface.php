@@ -6,9 +6,18 @@ use Icecave\Recoil\Channel\Exception\ChannelLockedException;
 use InvalidArgumentException;
 
 /**
- * A data channel to which values can be written (aka consumer, sink).
+ * Interface and specification for co-routine based writable data-channels.
+ *
+ * A writable data-channel is a stream-like object that consumes PHP values
+ * rather than characters.
+ *
+ * The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD",
+ * "SHOULD NOT", "RECOMMENDED",  "MAY", and "OPTIONAL" in this document are to
+ * be interpreted as described in RFC 2119.
+ *
+ * @link http://www.ietf.org/rfc/rfc2119.txt
  */
-interface WritableChannelInterface extends ChannelInterface
+interface WritableChannelInterface
 {
     /**
      * [CO-ROUTINE] Write a value to this channel.
@@ -33,4 +42,31 @@ interface WritableChannelInterface extends ChannelInterface
      * @throws InvalidArgumentException if the type of $value is unsupported.
      */
     public function write($value);
+
+    /**
+     * [CO-ROUTINE] Close this channel.
+     *
+     * Closing a channel indicates that no more values will be written. Once a
+     * channel is closed future invocations of write() MUST throw
+     * a ChannelClosedException.
+     *
+     * The implementation SHOULD NOT throw an exception if close() is called on
+     * an already-closed channel.
+     *
+     * The implementation SHOULD support closing while a write operation is in
+     * progress, otherwise ChannelLockedException MUST be thrown.
+     *
+     * @throws ChannelLockedException if the channel can not be closed due to a pending write operation.
+     */
+    public function close();
+
+    /**
+     * Check if this channel is closed.
+     *
+     * The implementation MUST return true after close() has been called or the
+     * channel is closed during a write operation.
+     *
+     * @return boolean True if the channel has been closed; otherwise, false.
+     */
+    public function isClosed();
 }

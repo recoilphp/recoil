@@ -91,6 +91,21 @@ trait WritableStreamTestTrait
         );
     }
 
+    public function testWriteAll()
+    {
+        Recoil::run(
+            function () {
+                $content = file_get_contents(__FILE__);
+
+                yield $this->stream->writeAll($content);
+                yield $this->stream->close();
+
+                $this->assertSame($content, file_get_contents($this->path));
+            },
+            $this->eventLoop
+        );
+    }
+
     public function testClose()
     {
         Recoil::run(
@@ -107,15 +122,19 @@ trait WritableStreamTestTrait
         );
     }
 
-    public function testCloseWhenLocked()
+    public function testCloseWithPendingWrite()
     {
-        $this->setExpectedException(StreamLockedException::CLASS);
-
         Recoil::run(
             function () {
                 yield Recoil::execute($this->stream->close());
 
-                yield $this->stream->write('foo');
+                try {
+                    yield $this->stream->write('foo');
+                    $this->fail('Expected exception was not thrown.');
+                } catch (Exception $e) {
+                    $this->setExpectedException(StreamClosedException::CLASS);
+                    throw $e;
+                }
             },
             $this->eventLoop
         );

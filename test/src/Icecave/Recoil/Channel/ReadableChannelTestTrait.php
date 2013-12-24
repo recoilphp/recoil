@@ -3,32 +3,34 @@ namespace Icecave\Recoil\Channel;
 
 use Exception;
 use Icecave\Recoil\Channel\Exception\ChannelClosedException;
-use Icecave\Recoil\Kernel\Kernel;
 use Icecave\Recoil\Recoil;
 
 trait ReadableChannelTestTrait
 {
-    public function testCloseWithPendingReader()
+    public function testCloseWithPendingRead()
     {
         $output = [];
 
-        $reader = function () use (&$output) {
-            try {
-                $output[] = 'reading';
-                yield $this->channel->read();
-            } catch (ChannelClosedException $e) {
-                $output[] = 'closed';
+        Recoil::run(
+            function () use (&$output) {
+                $reader = function () use (&$output) {
+                    try {
+                        $output[] = 'reading';
+                        yield $this->channel->read();
+                    } catch (ChannelClosedException $e) {
+                        $output[] = 'closed';
+                    }
+                };
+
+                $closer = function () use (&$output) {
+                    $output[] = 'closing';
+                    yield $this->channel->close();
+                };
+
+                yield Recoil::execute($reader());
+                yield Recoil::execute($closer());
             }
-        };
-
-        $closer = function () use (&$output) {
-            $output[] = 'closing';
-            yield $this->channel->close();
-        };
-
-        $this->kernel->execute($reader());
-        $this->kernel->execute($closer());
-        $this->kernel->eventLoop()->run();
+        );
 
         $this->assertEquals(
             ['reading', 'closing', 'closed'],
@@ -38,13 +40,12 @@ trait ReadableChannelTestTrait
 
     public function testReadWhenClosed()
     {
-        $reader = function () {
-            yield $this->channel->close();
-            $this->setExpectedException(ChannelClosedException::CLASS);
-            yield $this->channel->read();
-        };
-
-        $this->kernel->execute($reader());
-        $this->kernel->eventLoop()->run();
+        Recoil::run(
+            function () {
+                yield $this->channel->close();
+                $this->setExpectedException(ChannelClosedException::CLASS);
+                yield $this->channel->read();
+            }
+        );
     }
 }

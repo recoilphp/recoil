@@ -19,7 +19,6 @@ class ReadableReactStream implements ReadableStreamInterface
     public function __construct(ReadableReactStreamInterface $stream)
     {
         $this->stream = $stream;
-        $this->locked = false;
         $this->buffer = '';
 
         $this->stream->pause();
@@ -48,29 +47,22 @@ class ReadableReactStream implements ReadableStreamInterface
      */
     public function read($length)
     {
-        if ($this->locked) {
+        if ($this->strand) {
             throw new StreamLockedException;
         } elseif ($this->isClosed()) {
             throw new StreamClosedException;
         }
 
         if (!$this->buffer) {
-            $this->locked = true;
+            yield Recoil::suspend(
+                function ($strand) {
+                    $this->strand = $strand;
+                    $this->stream->resume();
+                }
+            );
 
-            try {
-                yield Recoil::suspend(
-                    function ($strand) {
-                        $this->stream->resume();
-                        $this->strand = $strand;
-                    }
-                );
-            } catch (Exception $e) {
-                $this->locked = false;
-                throw $e;
-            }
+            $this->strand = null;
         }
-
-        $this->locked = false;
 
         if (strlen($this->buffer) > $length) {
             $buffer = substr($this->buffer, 0, $length);
@@ -90,13 +82,12 @@ class ReadableReactStream implements ReadableStreamInterface
      *
      * Closing a stream indicates that no more data will be read from the
      * stream.
-     *
-     * @throws StreamLockedException if a read operation is pending.
      */
     public function close()
     {
-        if ($this->locked) {
-            throw new StreamLockedException;
+        if ($this->strand) {
+            $this->strand->resumeWithException(new StreamClosedException);
+            $this->strand = null;
         }
 
         $this->stream->close();
@@ -128,7 +119,6 @@ class ReadableReactStream implements ReadableStreamInterface
 
             if ($this->strand) {
                 $this->strand->resumeWithValue(null);
-                $this->strand = null;
             }
         }
     }
@@ -141,10 +131,10 @@ class ReadableReactStream implements ReadableStreamInterface
         $this->stream->removeListener('data',  [$this, 'onStreamData']);
         $this->stream->removeListener('end',   [$this, 'onStreamEnd']);
         $this->stream->removeListener('error', [$this, 'onStreamError']);
+        $this->stream->removeListener('close', [$this, 'onStreamClose']);
 
         if ($this->strand) {
             $this->strand->resumeWithValue(null);
-            $this->strand = null;
         }
     }
 
@@ -153,6 +143,9 @@ class ReadableReactStream implements ReadableStreamInterface
      */
     public function onStreamClose()
     {
+        $this->stream->removeListener('data',  [$this, 'onStreamData']);
+        $this->stream->removeListener('end',   [$this, 'onStreamEnd']);
+        $this->stream->removeListener('error', [$this, 'onStreamError']);
         $this->stream->removeListener('close', [$this, 'onStreamClose']);
 
         if ($this->strand) {
@@ -171,7 +164,6 @@ class ReadableReactStream implements ReadableStreamInterface
     }
 
     private $stream;
-    private $locked;
     private $strand;
     private $buffer;
 }

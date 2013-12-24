@@ -1,6 +1,7 @@
 <?php
 namespace Icecave\Recoil\Stream;
 
+use Exception;
 use Icecave\Recoil\Recoil;
 use Icecave\Recoil\Stream\Exception\StreamClosedException;
 use Icecave\Recoil\Stream\Exception\StreamLockedException;
@@ -97,15 +98,19 @@ trait ReadableStreamTestTrait
         );
     }
 
-    public function testCloseWithLocked()
+    public function testCloseWithPendingRead()
     {
-        $this->setExpectedException(StreamLockedException::CLASS);
-
         Recoil::run(
             function () {
                 yield Recoil::execute($this->stream->close());
 
-                yield $this->stream->read(1);
+                try {
+                    yield $this->stream->read(1);
+                    $this->fail('Expected exception was not thrown.');
+                } catch (Exception $e) {
+                    $this->setExpectedException(StreamClosedException::CLASS);
+                    throw $e;
+                }
             },
             $this->eventLoop
         );

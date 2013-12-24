@@ -34,9 +34,9 @@ class Channel implements ReadableChannelInterface, WritableChannelInterface
     public function read()
     {
         if ($this->isClosed()) {
-            throw new ChannelClosedException($this);
+            throw new ChannelClosedException;
         } elseif ($this->readStrand) {
-            throw new ChannelLockedException($this);
+            throw new ChannelLockedException;
         }
 
         $value = (yield Recoil::suspend(
@@ -70,14 +70,14 @@ class Channel implements ReadableChannelInterface, WritableChannelInterface
      * @param mixed $value The value to write to the channel.
      *
      * @throws ChannelClosedException if the channel has been closed.
-     * @throws ChannelLockedException if concurrent writes are unsupported.
+     * @throws ChannelLockedException if concurrent writes are attempted.
      */
     public function write($value)
     {
         if ($this->isClosed()) {
-            throw new ChannelClosedException($this);
+            throw new ChannelClosedException;
         } elseif ($this->writeStrand) {
-            throw new ChannelLockedException($this);
+            throw new ChannelLockedException;
         }
 
         if (!$this->readStrand) {
@@ -104,14 +104,14 @@ class Channel implements ReadableChannelInterface, WritableChannelInterface
 
         if ($this->writeStrand) {
             $this->writeStrand->resumeWithException(
-                new ChannelClosedException($this)
+                new ChannelClosedException
             );
             $this->writeStrand = null;
         }
 
         if ($this->readStrand) {
             $this->readStrand->resumeWithException(
-                new ChannelClosedException($this)
+                new ChannelClosedException
             );
             $this->readStrand = null;
         }

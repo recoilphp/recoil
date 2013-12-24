@@ -18,7 +18,6 @@ class ReadableStream implements ReadableStreamInterface
     public function __construct($stream)
     {
         $this->stream = $stream;
-        $this->locked = false;
     }
 
     /**
@@ -39,30 +38,30 @@ class ReadableStream implements ReadableStreamInterface
      */
     public function read($length)
     {
-        if ($this->locked) {
+        if ($this->strand) {
             throw new StreamLockedException;
         } elseif ($this->isClosed()) {
             throw new StreamClosedException;
         }
 
-        $this->locked = true;
-
         yield Recoil::suspend(
             function ($strand) {
+                $this->strand = $strand;
+
                 $strand
                     ->kernel()
                     ->eventLoop()
                     ->addReadStream(
                         $this->stream,
-                        function ($stream, $eventLoop) use ($strand) {
-                            $eventLoop->removeReadStream($this->stream);
-                            $strand->resumeWithValue(null);
+                        function ($stream, $eventLoop) {
+                            $eventLoop->removeReadStream($stream);
+                            $this->strand->resumeWithValue(null);
                         }
                     );
             }
         );
 
-        $this->locked = false;
+        $this->strand = null;
 
         $exception = null;
 
@@ -94,14 +93,21 @@ class ReadableStream implements ReadableStreamInterface
      *
      * Closing a stream indicates that no more data will be read from the
      * stream.
-     *
-     * @throws StreamLockedException if a read operation is pending.
      */
     public function close()
     {
-        if ($this->locked) {
-            throw new StreamLockedException;
-        } elseif (is_resource($this->stream)) {
+        if ($this->strand) {
+            $this
+                ->strand
+                ->kernel()
+                ->eventLoop()
+                ->removeReadStream($this->stream);
+
+            $this->strand->resumeWithException(new StreamClosedException);
+            $this->strand = null;
+        }
+
+        if (is_resource($this->stream)) {
             fclose($this->stream);
         }
 
@@ -119,5 +125,5 @@ class ReadableStream implements ReadableStreamInterface
     }
 
     private $stream;
-    private $locked;
+    private $strand;
 }

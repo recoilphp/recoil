@@ -18,7 +18,6 @@ class WritableStream implements WritableStreamInterface
     public function __construct($stream)
     {
         $this->stream = $stream;
-        $this->locked = false;
     }
 
     /**
@@ -32,22 +31,23 @@ class WritableStream implements WritableStreamInterface
      * @param string       $buffer The data to write to the stream.
      * @param integer|null $length The maximum number of bytes to write.
      *
+     * @return integer               The number of bytes written.
      * @throws StreamClosedException if the stream is already closed.
      * @throws StreamLockedException if concurrent writes are unsupported.
      * @throws StreamWriteException  if an error occurs while writing to the stream.
      */
     public function write($buffer, $length = null)
     {
-        if ($this->locked) {
+        if ($this->strand) {
             throw new StreamLockedException;
         } elseif ($this->isClosed()) {
             throw new StreamClosedException;
         }
 
-        $this->locked = true;
-
         yield Recoil::suspend(
             function ($strand) {
+                $this->strand = $strand;
+
                 $strand
                     ->kernel()
                     ->eventLoop()
@@ -55,13 +55,13 @@ class WritableStream implements WritableStreamInterface
                         $this->stream,
                         function ($stream, $eventLoop) use ($strand) {
                             $eventLoop->removeWriteStream($this->stream);
-                            $strand->resumeWithValue(null);
+                            $this->strand->resumeWithValue(null);
                         }
                     );
             }
         );
 
-        $this->locked = false;
+        $this->strand = null;
 
         $exception = null;
 
@@ -89,18 +89,47 @@ class WritableStream implements WritableStreamInterface
     // @codeCoverageIgnoreEnd
 
     /**
+     * [CO-ROUTINE] Write all data from the given buffer to this stream.
+     *
+     * Execution of the current strand is suspended until the data is sent.
+     *
+     * Write operations must be exclusive. If concurrent writes are attempted a
+     * StreamLockedException is thrown.
+     *
+     * @param string $buffer The data to write to the stream.
+     *
+     * @throws StreamClosedException if the stream is already closed.
+     * @throws StreamLockedException if concurrent writes are unsupported.
+     * @throws StreamWriteException  if an error occurs while writing to the stream.
+     */
+    public function writeAll($buffer)
+    {
+        while ($buffer) {
+            $bytesWritten = (yield $this->write($buffer));
+            $buffer = substr($buffer, $bytesWritten);
+        }
+    }
+
+    /**
      * [CO-ROUTINE] Close this stream.
      *
      * Closing a stream indicates that no more data will be written to the
      * stream.
-     *
-     * @throws StreamLockedException if a read operation is pending.
      */
     public function close()
     {
-        if ($this->locked) {
-            throw new StreamLockedException;
-        } elseif (is_resource($this->stream)) {
+        if ($this->strand) {
+            $this
+                ->strand
+                ->kernel()
+                ->eventLoop()
+                ->removeWriteStream($this->stream);
+
+            $this->strand->resumeWithException(new StreamClosedException);
+            $this->strand = null;
+        }
+
+        if (is_resource($this->stream)) {
             fclose($this->stream);
         }
 
@@ -118,5 +147,5 @@ class WritableStream implements WritableStreamInterface
     }
 
     private $stream;
-    private $locked;
+    private $strand;
 }
