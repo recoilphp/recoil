@@ -18,7 +18,6 @@ class WritableStream implements WritableStreamInterface
     public function __construct($stream)
     {
         $this->stream = $stream;
-        $this->locked = false;
     }
 
     /**
@@ -39,16 +38,16 @@ class WritableStream implements WritableStreamInterface
      */
     public function write($buffer, $length = null)
     {
-        if ($this->locked) {
+        if ($this->strand) {
             throw new StreamLockedException;
         } elseif ($this->isClosed()) {
             throw new StreamClosedException;
         }
 
-        $this->locked = true;
-
         yield Recoil::suspend(
             function ($strand) {
+                $this->strand = $strand;
+
                 $strand
                     ->kernel()
                     ->eventLoop()
@@ -56,13 +55,13 @@ class WritableStream implements WritableStreamInterface
                         $this->stream,
                         function ($stream, $eventLoop) use ($strand) {
                             $eventLoop->removeWriteStream($this->stream);
-                            $strand->resumeWithValue(null);
+                            $this->strand->resumeWithValue(null);
                         }
                     );
             }
         );
 
-        $this->locked = false;
+        $this->strand = null;
 
         $exception = null;
 
@@ -98,7 +97,6 @@ class WritableStream implements WritableStreamInterface
      * StreamLockedException is thrown.
      *
      * @param string       $buffer The data to write to the stream.
-     * @param integer|null $length The maximum number of bytes to write.
      *
      * @throws StreamClosedException if the stream is already closed.
      * @throws StreamLockedException if concurrent writes are unsupported.
@@ -117,14 +115,21 @@ class WritableStream implements WritableStreamInterface
      *
      * Closing a stream indicates that no more data will be written to the
      * stream.
-     *
-     * @throws StreamLockedException if a read operation is pending.
      */
     public function close()
     {
-        if ($this->locked) {
-            throw new StreamLockedException;
-        } elseif (is_resource($this->stream)) {
+        if ($this->strand) {
+            $this
+                ->strand
+                ->kernel()
+                ->eventLoop()
+                ->removeWriteStream($this->stream);
+
+            $this->strand->resumeWithException(new StreamClosedException);
+            $this->strand = null;
+        }
+
+        if (is_resource($this->stream)) {
             fclose($this->stream);
         }
 
@@ -142,5 +147,5 @@ class WritableStream implements WritableStreamInterface
     }
 
     private $stream;
-    private $locked;
+    private $strand;
 }

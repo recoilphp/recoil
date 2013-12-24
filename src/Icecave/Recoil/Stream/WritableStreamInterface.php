@@ -71,8 +71,8 @@ interface WritableStreamInterface
      * The implementation SHOULD NOT throw an exception if close() is called on
      * an already-closed stream.
      *
-     * The implementation MAY support closing while a write operation is in
-     * progress, otherwise StreamLockedException MUST be thrown.
+     * The implementation SHOULD support closing the stream while a write
+     * operation is in progress, otherwise StreamLockedException MUST be thrown.
      *
      * @throws StreamLockedException if the stream can not be closed due to a pending write operation.
      */

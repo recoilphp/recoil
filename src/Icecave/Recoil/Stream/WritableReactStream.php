@@ -19,7 +19,6 @@ class WritableReactStream implements WritableStreamInterface
     public function __construct(WritableReactStreamInterface $stream)
     {
         $this->stream = $stream;
-        $this->locked = false;
 
         $this->stream->on('drain', [$this, 'onStreamDrain']);
         $this->stream->on('error', [$this, 'onStreamError']);
@@ -44,7 +43,7 @@ class WritableReactStream implements WritableStreamInterface
      */
     public function write($buffer, $length = null)
     {
-        if ($this->locked) {
+        if ($this->strand) {
             throw new StreamLockedException;
         } elseif ($this->isClosed()) {
             throw new StreamClosedException;
@@ -56,8 +55,6 @@ class WritableReactStream implements WritableStreamInterface
             $buffer = substr($buffer, 0, $length);
         }
 
-        $this->locked = true;
-
         yield Recoil::suspend(
             function ($strand) use ($buffer) {
                 $this->strand = $strand;
@@ -68,7 +65,7 @@ class WritableReactStream implements WritableStreamInterface
             }
         );
 
-        $this->locked = false;
+        $this->strand = null;
 
         yield Recoil::return_($length);
     // @codeCoverageIgnoreStart
@@ -84,7 +81,6 @@ class WritableReactStream implements WritableStreamInterface
      * StreamLockedException is thrown.
      *
      * @param string       $buffer The data to write to the stream.
-     * @param integer|null $length The maximum number of bytes to write.
      *
      * @throws StreamClosedException if the stream is already closed.
      * @throws StreamLockedException if concurrent writes are unsupported.
@@ -92,7 +88,7 @@ class WritableReactStream implements WritableStreamInterface
      */
     public function writeAll($buffer)
     {
-        return $this->write($buffer);
+        yield $this->write($buffer);
     }
 
     /**
@@ -100,30 +96,26 @@ class WritableReactStream implements WritableStreamInterface
      *
      * Closing a stream indicates that no more data will be written to the
      * stream.
-     *
-     * @throws StreamLockedException if a read operation is pending.
      */
     public function close()
     {
-        if ($this->locked) {
-            throw new StreamLockedException;
+        if ($this->strand) {
+            $this->strand->resumeWithException(new StreamClosedException);
+            $this->strand = null;
+            $this->stream->close();
+        } else {
+            yield Recoil::suspend(
+                function ($strand) {
+                    $this->stream->once(
+                        'close',
+                        function () use ($strand) {
+                            $strand->resumeWithValue(null);
+                        }
+                    );
+                    $this->stream->end();
+                }
+            );
         }
-
-        $this->locked = true;
-
-        yield Recoil::suspend(
-            function ($strand) {
-                $this->stream->once(
-                    'close',
-                    function () use ($strand) {
-                        $strand->resumeWithValue(null);
-                    }
-                );
-                $this->stream->end();
-            }
-        );
-
-        $this->locked = false;
     }
 
     /**
@@ -143,7 +135,6 @@ class WritableReactStream implements WritableStreamInterface
     {
         if ($this->strand) {
             $this->strand->resumeWithValue(false);
-            $this->strand = null;
         }
     }
 
@@ -157,6 +148,5 @@ class WritableReactStream implements WritableStreamInterface
     }
 
     private $stream;
-    private $locked;
     private $strand;
 }
