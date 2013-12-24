@@ -31,7 +31,7 @@ class WritableStream implements WritableStreamInterface
      * @param string       $buffer The data to write to the stream.
      * @param integer|null $length The maximum number of bytes to write.
      *
-     * @return integer The number of bytes written.
+     * @return integer               The number of bytes written.
      * @throws StreamClosedException if the stream is already closed.
      * @throws StreamLockedException if concurrent writes are unsupported.
      * @throws StreamWriteException  if an error occurs while writing to the stream.
@@ -96,7 +96,7 @@ class WritableStream implements WritableStreamInterface
      * Write operations must be exclusive. If concurrent writes are attempted a
      * StreamLockedException is thrown.
      *
-     * @param string       $buffer The data to write to the stream.
+     * @param string $buffer The data to write to the stream.
      *
      * @throws StreamClosedException if the stream is already closed.
      * @throws StreamLockedException if concurrent writes are unsupported.

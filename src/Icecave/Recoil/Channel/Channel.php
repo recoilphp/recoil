@@ -70,7 +70,7 @@ class Channel implements ReadableChannelInterface, WritableChannelInterface
      * @param mixed $value The value to write to the channel.
      *
      * @throws ChannelClosedException if the channel has been closed.
-     * @throws ChannelLockedException if concurrent writes are unsupported.
+     * @throws ChannelLockedException if concurrent writes are attempted.
      */
     public function write($value)
     {

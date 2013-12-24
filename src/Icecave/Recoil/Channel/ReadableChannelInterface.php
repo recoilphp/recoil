@@ -47,7 +47,7 @@ interface ReadableChannelInterface
      * The implementation SHOULD NOT throw an exception if close() is called on
      * an already-closed channel.
      *
-     * The implementation MAY support closing while a read operation is in
+     * The implementation SHOULD support closing while a read operation is in
      * progress, otherwise ChannelLockedException MUST be thrown.
      *
      * @throws ChannelLockedException if the channel can not be closed due to a pending read operation.

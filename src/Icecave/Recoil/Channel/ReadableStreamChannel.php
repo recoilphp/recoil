@@ -7,6 +7,8 @@ use Icecave\Recoil\Channel\Exception\ChannelLockedException;
 use Icecave\Recoil\Channel\Serialization\PhpUnserializer;
 use Icecave\Recoil\Channel\Serialization\UnserializerInterface;
 use Icecave\Recoil\Recoil;
+use Icecave\Recoil\Stream\Exception\StreamClosedException;
+use Icecave\Recoil\Stream\Exception\StreamLockedException;
 use Icecave\Recoil\Stream\ReadableStreamInterface;
 
 class ReadableStreamChannel implements ReadableChannelInterface
@@ -30,14 +32,32 @@ class ReadableStreamChannel implements ReadableChannelInterface
         $this->bufferSize = $bufferSize;
     }
 
+    /**
+     * [CO-ROUTINE] Read a value from this channel.
+     *
+     * Execution of the current strand is suspended until a value is available.
+     *
+     * If the channel is already closed, or is closed while a read operation is
+     * pending a ChannelClosedException is thrown.
+     *
+     * Read operations must be exclusive only if the underlying stream requires
+     * exclusive reads.
+     *
+     * @return mixed                  The value read from the channel.
+     * @throws ChannelClosedException if the channel has been closed.
+     * @throws ChannelLockedException if concurrent reads are unsupported.
+     */
     public function read()
     {
-        if ($this->isClosed()) {
-            throw new ChannelClosedException;
-        }
-
         while (!$this->unserializer->hasValue()) {
-            $buffer = (yield $this->stream->read($this->bufferSize));
+            try {
+                $buffer = (yield $this->stream->read($this->bufferSize));
+            } catch (StreamClosedException $e) {
+                throw new ChannelClosedException($e);
+            } catch (StreamLockedException $e) {
+                throw new ChannelLockedException($e);
+            }
+
             $this->unserializer->feed($buffer);
 
             if ($this->stream->isClosed()) {
@@ -60,7 +80,11 @@ class ReadableStreamChannel implements ReadableChannelInterface
      */
     public function close()
     {
-        yield $this->stream->close();
+        try {
+            yield $this->stream->close();
+        } catch (StreamLockedException $e) {
+            throw new ChannelLockedException($e);
+        }
     }
 
     /**

@@ -26,8 +26,8 @@ interface UnserializerInterface
     /**
      * Unserialize the next value.
      *
-     * @return mixed The decoded value.
-     * @throws LogicException if there is insufficient data to unserialize a value.
+     * @return mixed            The decoded value.
+     * @throws LogicException   if there is insufficient data to unserialize a value.
      * @throws RuntimeException if the data is unable to be unserialized.
      */
     public function unserialize();

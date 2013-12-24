@@ -2,16 +2,17 @@
 namespace Icecave\Recoil\Channel;
 
 use Exception;
-use Icecave\Recoil\Channel\Exception\ChannelClosedException;
 use Icecave\Recoil\Channel\Serialization\PhpSerializer;
-use Icecave\Recoil\Kernel\Kernel;
 use Icecave\Recoil\Recoil;
 use Icecave\Recoil\Stream\ReadableStream;
-use Phake;
 use PHPUnit_Framework_TestCase;
 
 class ReadableStreamChannelTest extends PHPUnit_Framework_TestCase
 {
+    use ChannelTestTrait;
+    use ReadableChannelTestTrait;
+    use ExclusiveReadableChannelTestTrait;
+
     public function setUp()
     {
         $this->path = tempnam(sys_get_temp_dir(), 'recoil-');
@@ -51,17 +52,6 @@ class ReadableStreamChannelTest extends PHPUnit_Framework_TestCase
                 }
 
                 $this->assertSame(['foo', 'bar'], $values);
-            }
-        );
-    }
-
-    public function testReadWhenClosed()
-    {
-        Recoil::run(
-            function () {
-                yield $this->channel->close();
-                $this->setExpectedException(ChannelClosedException::CLASS);
-                yield $this->channel->read();
             }
         );
     }

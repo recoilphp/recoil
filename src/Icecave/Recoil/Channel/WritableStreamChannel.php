@@ -7,8 +7,9 @@ use Icecave\Recoil\Channel\Exception\ChannelLockedException;
 use Icecave\Recoil\Channel\Serialization\PhpSerializer;
 use Icecave\Recoil\Channel\Serialization\SerializerInterface;
 use Icecave\Recoil\Recoil;
+use Icecave\Recoil\Stream\Exception\StreamClosedException;
+use Icecave\Recoil\Stream\Exception\StreamLockedException;
 use Icecave\Recoil\Stream\WritableStreamInterface;
-use InvalidArgumentException;
 
 /**
  * A writable channel that serializes values onto a stream.
@@ -31,6 +32,23 @@ class WritableStreamChannel implements WritableChannelInterface
         $this->serializer = $serializer;
     }
 
+    /**
+     * [CO-ROUTINE] Write a value to this channel.
+     *
+     * Execution of the current strand is suspended until the value has been
+     * consumed.
+     *
+     * If the channel is already closed, or is closed while a write operation is
+     * pending a ChannelClosedException is thrown.
+     *
+     * Write operations must be exclusive only if the underlying stream requires
+     * exlusive writes.
+     *
+     * @param mixed $value The value to write to the channel.
+     *
+     * @throws ChannelClosedException if the channel has been closed.
+     * @throws ChannelLockedException if concurrent writes are unsupported.
+     */
     public function write($value)
     {
         try {
@@ -44,6 +62,12 @@ class WritableStreamChannel implements WritableChannelInterface
         }
     }
 
+    /**
+     * [CO-ROUTINE] Close this channel.
+     *
+     * Closing a channel indicates that no more values will be read from or
+     * written to the channel. Any future read/write operations will fail.
+     */
     public function close()
     {
         try {
@@ -53,14 +77,14 @@ class WritableStreamChannel implements WritableChannelInterface
         }
     }
 
+    /**
+     * Check if this channel is closed.
+     *
+     * @return boolean True if the channel has been closed; otherwise, false.
+     */
     public function isClosed()
     {
         return $this->stream->isClosed();
-    }
-
-    public function serializer()
-    {
-        return $this->serializer;
     }
 
     private $stream;

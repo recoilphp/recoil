@@ -13,7 +13,7 @@ class PhpSerializer implements SerializerInterface
      *
      * @param mixed $value The value to encode.
      *
-     * @return mixed<string> A sequence of string buffers containing the serialized value.
+     * @return mixed<string>            A sequence of string buffers containing the serialized value.
      * @throws InvalidArgumentException if the value can not be encoded.
      */
     public function serialize($value)
