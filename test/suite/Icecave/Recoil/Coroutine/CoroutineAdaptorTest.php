@@ -64,7 +64,7 @@ class CoroutineAdaptorTest extends PHPUnit_Framework_TestCase
     {
         $this->setExpectedException(
             'InvalidArgumentException',
-            'Unable to adapt 123 into a co-routine.'
+            'Unable to adapt 123 into a coroutine.'
         );
 
         $this->adaptor->adapt($this->strand, 123);

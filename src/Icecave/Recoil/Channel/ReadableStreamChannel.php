@@ -33,7 +33,7 @@ class ReadableStreamChannel implements ReadableChannelInterface
     }
 
     /**
-     * [CO-ROUTINE] Read a value from this channel.
+     * [COROUTINE] Read a value from this channel.
      *
      * Execution of the current strand is suspended until a value is available.
      *
@@ -73,7 +73,7 @@ class ReadableStreamChannel implements ReadableChannelInterface
     // @codeCoverageIgnoreEnd
 
     /**
-     * [CO-ROUTINE] Close this channel.
+     * [COROUTINE] Close this channel.
      *
      * Closing a channel indicates that no more values will be read from or
      * written to the channel. Any future read/write operations will fail.

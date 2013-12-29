@@ -17,7 +17,7 @@ class Channel implements ReadableChannelInterface, WritableChannelInterface
     }
 
     /**
-     * [CO-ROUTINE] Read a value from this channel.
+     * [COROUTINE] Read a value from this channel.
      *
      * Execution of the current strand is suspended until a value is available.
      *
@@ -56,7 +56,7 @@ class Channel implements ReadableChannelInterface, WritableChannelInterface
     // @codeCoverageIgnoreEnd
 
     /**
-     * [CO-ROUTINE] Write a value to this channel.
+     * [COROUTINE] Write a value to this channel.
      *
      * Execution of the current strand is suspended until the value has been
      * consumed.
@@ -93,7 +93,7 @@ class Channel implements ReadableChannelInterface, WritableChannelInterface
     }
 
     /**
-     * [CO-ROUTINE] Close this channel.
+     * [COROUTINE] Close this channel.
      *
      * Closing a channel indicates that no more values will be read from or
      * written to the channel. Any future read/write operations will fail.

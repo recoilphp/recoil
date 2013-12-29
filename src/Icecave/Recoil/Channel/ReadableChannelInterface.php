@@ -5,7 +5,7 @@ use Icecave\Recoil\Channel\Exception\ChannelClosedException;
 use Icecave\Recoil\Channel\Exception\ChannelLockedException;
 
 /**
- * Interface and specification for co-routine based readable data-channels.
+ * Interface and specification for coroutine based readable data-channels.
  *
  * A readable data-channel is a stream-like object that produces PHP values
  * rather than characters.
@@ -19,7 +19,7 @@ use Icecave\Recoil\Channel\Exception\ChannelLockedException;
 interface ReadableChannelInterface
 {
     /**
-     * [CO-ROUTINE] Read a value from this channel.
+     * [COROUTINE] Read a value from this channel.
      *
      * The implementation MUST suspend execution of the current strand until a
      * value is available.
@@ -38,7 +38,7 @@ interface ReadableChannelInterface
     public function read();
 
     /**
-     * [CO-ROUTINE] Close this channel.
+     * [COROUTINE] Close this channel.
      *
      * Closing a channel indicates that no more values will be read from or
      * written to the channel. Once a channel is closed, future invocations of

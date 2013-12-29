@@ -48,7 +48,7 @@ class KernelApiCall implements CoroutineInterface
     /**
      * Execute the next unit of work.
      *
-     * @param StrandInterface $strand The strand that is executing the co-routine.
+     * @param StrandInterface $strand The strand that is executing the coroutine.
      */
     public function tick(StrandInterface $strand)
     {
@@ -67,7 +67,7 @@ class KernelApiCall implements CoroutineInterface
     }
 
     /**
-     * Store a value to send to the co-routine on the next tick.
+     * Store a value to send to the coroutine on the next tick.
      *
      * @codeCoverageIgnore
      *
@@ -79,7 +79,7 @@ class KernelApiCall implements CoroutineInterface
     }
 
     /**
-     * Store an exception to send to the co-routine on the next tick.
+     * Store an exception to send to the coroutine on the next tick.
      *
      * @codeCoverageIgnore
      *
@@ -91,7 +91,7 @@ class KernelApiCall implements CoroutineInterface
     }
 
     /**
-     * Instruct the co-routine to terminate execution on the next tick.
+     * Instruct the coroutine to terminate execution on the next tick.
      *
      * @codeCoverageIgnore
      */

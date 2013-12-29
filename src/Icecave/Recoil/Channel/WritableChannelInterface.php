@@ -6,7 +6,7 @@ use Icecave\Recoil\Channel\Exception\ChannelLockedException;
 use InvalidArgumentException;
 
 /**
- * Interface and specification for co-routine based writable data-channels.
+ * Interface and specification for coroutine based writable data-channels.
  *
  * A writable data-channel is a stream-like object that consumes PHP values
  * rather than characters.
@@ -20,7 +20,7 @@ use InvalidArgumentException;
 interface WritableChannelInterface
 {
     /**
-     * [CO-ROUTINE] Write a value to this channel.
+     * [COROUTINE] Write a value to this channel.
      *
      * The implementation MUST throw an InvalidArgumentException if the type of
      * the given value is unsupported.
@@ -44,7 +44,7 @@ interface WritableChannelInterface
     public function write($value);
 
     /**
-     * [CO-ROUTINE] Close this channel.
+     * [COROUTINE] Close this channel.
      *
      * Closing a channel indicates that no more values will be written. Once a
      * channel is closed future invocations of write() MUST throw

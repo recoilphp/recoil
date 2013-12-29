@@ -20,55 +20,55 @@ interface StrandInterface extends EventEmitterInterface
     /**
      * Fetch the kernel on which this strand is executing.
      *
-     * @return KernelInterface The co-routine kernel.
+     * @return KernelInterface The coroutine kernel.
      */
     public function kernel();
 
     /**
-     * Fetch the co-routine this strand is currently executing.
+     * Fetch the coroutine this strand is currently executing.
      *
-     * @return CoroutineInterface The co-routine currently being executed.
+     * @return CoroutineInterface The coroutine currently being executed.
      */
     public function current();
 
     /**
-     * Push a co-routine onto the stack.
+     * Push a coroutine onto the stack.
      *
-     * The value must be adaptable using the kernel's co-routine adaptor.
+     * The value must be adaptable using the kernel's coroutine adaptor.
      *
-     * @param mixed $coroutine The co-routine to call.
+     * @param mixed $coroutine The coroutine to call.
      *
-     * @return CoroutineInterface The adapted co-routine.
+     * @return CoroutineInterface The adapted coroutine.
      */
     public function push($coroutine);
 
     /**
-     * Pop the current co-routine off the stack.
+     * Pop the current coroutine off the stack.
      *
      * @return CoroutineInterface
      */
     public function pop();
 
     /**
-     * Call the given co-routine.
+     * Call the given coroutine.
      *
-     * The value must be adaptable using the kernel's co-routine adaptor.
+     * The value must be adaptable using the kernel's coroutine adaptor.
      *
-     * @param mixed $coroutine The co-routine to call.
+     * @param mixed $coroutine The coroutine to call.
      *
-     * @return CoroutineInterface|null The adapted co-routine, or null if no adaptation could be made.
+     * @return CoroutineInterface|null The adapted coroutine, or null if no adaptation could be made.
      */
     public function call($coroutine);
 
     /**
-     * Return a value to the calling co-routine.
+     * Return a value to the calling coroutine.
      *
      * @param mixed $value The value to return.
      */
     public function returnValue($value = null);
 
     /**
-     * Throw an exception to the calling co-routine.
+     * Throw an exception to the calling coroutine.
      *
      * @param Exception $exception The exception to throw.
      */
@@ -87,12 +87,12 @@ interface StrandInterface extends EventEmitterInterface
     public function resume();
 
     /**
-     * Resume execution of this strand and send a value to the current co-routine.
+     * Resume execution of this strand and send a value to the current coroutine.
      */
     public function resumeWithValue($value);
 
     /**
-     * Resume execution of this strand and throw an excption to the current co-routine.
+     * Resume execution of this strand and throw an excption to the current coroutine.
      */
     public function resumeWithException(Exception $exception);
 

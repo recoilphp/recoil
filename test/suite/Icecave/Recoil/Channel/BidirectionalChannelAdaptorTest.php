@@ -23,18 +23,18 @@ class BidirectionalChannelAdaptorTest extends PHPUnit_Framework_TestCase
     {
         Phake::when($this->readChannel)
             ->read()
-            ->thenReturn('<read co-routine>');
+            ->thenReturn('<read coroutine>');
 
-        $this->assertSame('<read co-routine>', $this->adaptor->read());
+        $this->assertSame('<read coroutine>', $this->adaptor->read());
     }
 
     public function testWrite()
     {
         Phake::when($this->writeChannel)
             ->write(123)
-            ->thenReturn('<write co-routine>');
+            ->thenReturn('<write coroutine>');
 
-        $this->assertSame('<write co-routine>', $this->adaptor->write(123));
+        $this->assertSame('<write coroutine>', $this->adaptor->write(123));
     }
 
     public function testClose()

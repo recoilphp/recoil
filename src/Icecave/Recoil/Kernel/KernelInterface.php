@@ -7,19 +7,19 @@ use Icecave\Recoil\Kernel\Strand\StrandInterface;
 use React\EventLoop\LoopInterface;
 
 /**
- * A co-routine kernel.
+ * A coroutine kernel.
  */
 interface KernelInterface
 {
     /**
-     * Execute a co-routine in a new strand of execution.
+     * Execute a coroutine in a new strand of execution.
      *
-     * The parameter may be any value that can be adapted into a co-routine by
-     * the kernel's co-routine adaptor.
+     * The parameter may be any value that can be adapted into a coroutine by
+     * the kernel's coroutine adaptor.
      *
-     * @param mixed $coroutine The co-routine to execute.
+     * @param mixed $coroutine The coroutine to execute.
      *
-     * @return StrandInterface The strand on which the co-routine will execute.
+     * @return StrandInterface The strand on which the coroutine will execute.
      */
     public function execute($coroutine);
 
@@ -45,9 +45,9 @@ interface KernelInterface
     public function api();
 
     /**
-     * Fetch the object used to adapt values into co-routines.
+     * Fetch the object used to adapt values into coroutines.
      *
-     * @return CoroutineAdaptorInterface The kernel's co-routine adaptor.
+     * @return CoroutineAdaptorInterface The kernel's coroutine adaptor.
      */
     public function coroutineAdaptor();
 

@@ -1,7 +1,6 @@
 <?php
 namespace Icecave\Recoil\Channel;
 
-use Exception;
 use Icecave\Recoil\Recoil;
 
 trait ChannelTestTrait

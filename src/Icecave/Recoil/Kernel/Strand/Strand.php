@@ -20,7 +20,7 @@ use SplStack;
 class Strand extends EventEmitter implements StrandInterface
 {
     /**
-     * @param KernelInterface The co-routine kernel.
+     * @param KernelInterface The coroutine kernel.
      */
     public function __construct(KernelInterface $kernel)
     {
@@ -36,7 +36,7 @@ class Strand extends EventEmitter implements StrandInterface
     /**
      * Fetch the kernel on which this strand is executing.
      *
-     * @return KernelInterface The co-routine kernel.
+     * @return KernelInterface The coroutine kernel.
      */
     public function kernel()
     {
@@ -44,9 +44,9 @@ class Strand extends EventEmitter implements StrandInterface
     }
 
     /**
-     * Fetch the co-routine currently being executed.
+     * Fetch the coroutine currently being executed.
      *
-     * @return CoroutineInterface The co-routine currently being executed.
+     * @return CoroutineInterface The coroutine currently being executed.
      */
     public function current()
     {
@@ -54,13 +54,13 @@ class Strand extends EventEmitter implements StrandInterface
     }
 
     /**
-     * Push a co-routine onto the stack.
+     * Push a coroutine onto the stack.
      *
-     * The value must be adaptable using the kernel's co-routine adaptor.
+     * The value must be adaptable using the kernel's coroutine adaptor.
      *
-     * @param mixed $coroutine The co-routine to call.
+     * @param mixed $coroutine The coroutine to call.
      *
-     * @return CoroutineInterface The adapted co-routine.
+     * @return CoroutineInterface The adapted coroutine.
      */
     public function push($coroutine)
     {
@@ -75,7 +75,7 @@ class Strand extends EventEmitter implements StrandInterface
     }
 
     /**
-     * Pop the current co-routine off the stack.
+     * Pop the current coroutine off the stack.
      *
      * @return CoroutineInterface
      */
@@ -85,13 +85,13 @@ class Strand extends EventEmitter implements StrandInterface
     }
 
     /**
-     * Call the given co-routine immediately.
+     * Call the given coroutine immediately.
      *
-     * The value must be adaptable using the kernel's co-routine adaptor.
+     * The value must be adaptable using the kernel's coroutine adaptor.
      *
-     * @param mixed $coroutine The co-routine to call.
+     * @param mixed $coroutine The coroutine to call.
      *
-     * @return CoroutineInterface|null The adapted co-routine, or null if no adaptation could be made.
+     * @return CoroutineInterface|null The adapted coroutine, or null if no adaptation could be made.
      */
     public function call($coroutine)
     {
@@ -105,7 +105,7 @@ class Strand extends EventEmitter implements StrandInterface
     }
 
     /**
-     * Return a value to calling co-routine.
+     * Return a value to calling coroutine.
      *
      * @param mixed $value The value to return.
      */
@@ -116,7 +116,7 @@ class Strand extends EventEmitter implements StrandInterface
     }
 
     /**
-     * Throw an exception to the calling co-routine.
+     * Throw an exception to the calling coroutine.
      *
      * @param Exception $exception The exception to throw.
      */
@@ -159,7 +159,7 @@ class Strand extends EventEmitter implements StrandInterface
     }
 
     /**
-     * Resume execution of this strand and send a value to the current co-routine.
+     * Resume execution of this strand and send a value to the current coroutine.
      */
     public function resumeWithValue($value)
     {
@@ -168,7 +168,7 @@ class Strand extends EventEmitter implements StrandInterface
     }
 
     /**
-     * Resume execution of this strand and throw an excption to the current co-routine.
+     * Resume execution of this strand and throw an excption to the current coroutine.
      */
     public function resumeWithException(Exception $exception)
     {

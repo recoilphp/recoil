@@ -6,7 +6,7 @@ use Icecave\Recoil\Stream\Exception\StreamLockedException;
 use Icecave\Recoil\Stream\Exception\StreamWriteException;
 
 /**
- * Interface and specification for co-routine based writable streams.
+ * Interface and specification for coroutine based writable streams.
  *
  * The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD",
  * "SHOULD NOT", "RECOMMENDED",  "MAY", and "OPTIONAL" in this document are to
@@ -17,7 +17,7 @@ use Icecave\Recoil\Stream\Exception\StreamWriteException;
 interface WritableStreamInterface
 {
     /**
-     * [CO-ROUTINE] Write data to this stream.
+     * [COROUTINE] Write data to this stream.
      *
      * The implementation MAY suspend execution of the current strand until the
      * data is sent.
@@ -40,7 +40,7 @@ interface WritableStreamInterface
     public function write($buffer, $length = null);
 
     /**
-     * [CO-ROUTINE] Write all data from the given buffer to this stream.
+     * [COROUTINE] Write all data from the given buffer to this stream.
      *
      * The implementation MAY suspend execution of the current strand until the
      * data is sent.
@@ -62,7 +62,7 @@ interface WritableStreamInterface
     public function writeAll($buffer);
 
     /**
-     * [CO-ROUTINE] Close this stream.
+     * [COROUTINE] Close this stream.
      *
      * Closing a stream indicates that no more data will be written. Once a
      * stream is closed future invocations of write() MUST throw

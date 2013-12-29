@@ -3,7 +3,7 @@
 require dirname(__DIR__) . '/vendor/autoload.php';
 
 /**
- * This example shows how to use React promises inside a co-routine.
+ * This example shows how to use React promises inside a coroutine.
  */
 
 use Icecave\Recoil\Recoil;
@@ -19,7 +19,7 @@ function resolveExample($name, React\Dns\Resolver\Resolver $resolver)
     try {
         // Resolver::resolve(...) returns a React promise.
         //
-        // Yielding a promise in a co-routine causes the co-routine to suspend
+        // Yielding a promise in a coroutine causes the coroutine to suspend
         // until the promise is resolved or rejected.
         //
         // If the promise is resolved, the value is returned from the yield
@@ -40,10 +40,7 @@ function resolveExample($name, React\Dns\Resolver\Resolver $resolver)
 
 // -----------------------------------------------------------------------------
 
-// Install a strict error handler ...
-Eloquent\Asplode\Asplode::instance()->install();
-
-// Create the co-routine kernel ...
+// Create the coroutine kernel ...
 $kernel = new Icecave\Recoil\Kernel\Kernel;
 
 // Create the DNS resolver ...

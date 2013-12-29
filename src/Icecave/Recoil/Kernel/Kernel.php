@@ -20,7 +20,7 @@ class Kernel implements KernelInterface
     /**
      * @param LoopInterface|null             $eventLoop        The ReactPHP event-loop.
      * @param KernelApiInterface|null        $api              The kernel's API implementation.
-     * @param CoroutineAdaptorInterface|null $coroutineAdaptor The kernel's co-routine adaptor.
+     * @param CoroutineAdaptorInterface|null $coroutineAdaptor The kernel's coroutine adaptor.
      * @param StrandFactoryInterface|null    $strandFactory    The kernel's strand factory.
      */
     public function __construct(
@@ -53,14 +53,14 @@ class Kernel implements KernelInterface
     }
 
     /**
-     * Execute a co-routine in a new strand of execution.
+     * Execute a coroutine in a new strand of execution.
      *
-     * The parameter may be any value that can be adapted into a co-routine by
-     * the kernel's co-routine adaptor.
+     * The parameter may be any value that can be adapted into a coroutine by
+     * the kernel's coroutine adaptor.
      *
-     * @param mixed $coroutine The co-routine to execute.
+     * @param mixed $coroutine The coroutine to execute.
      *
-     * @return StrandInterface The strand on which the co-routine will execute.
+     * @return StrandInterface The strand on which the coroutine will execute.
      */
     public function execute($coroutine)
     {
@@ -105,9 +105,9 @@ class Kernel implements KernelInterface
     }
 
     /**
-     * Fetch the object used to adapt values into co-routines.
+     * Fetch the object used to adapt values into coroutines.
      *
-     * @return CoroutineAdaptorInterface The kernel's co-routine adaptor.
+     * @return CoroutineAdaptorInterface The kernel's coroutine adaptor.
      */
     public function coroutineAdaptor()
     {

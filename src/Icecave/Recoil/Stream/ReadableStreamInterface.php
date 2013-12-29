@@ -6,7 +6,7 @@ use Icecave\Recoil\Stream\Exception\StreamLockedException;
 use Icecave\Recoil\Stream\Exception\StreamReadException;
 
 /**
- * Interface and specification for co-routine based readable streams.
+ * Interface and specification for coroutine based readable streams.
  *
  * The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD",
  * "SHOULD NOT", "RECOMMENDED",  "MAY", and "OPTIONAL" in this document are to
@@ -17,7 +17,7 @@ use Icecave\Recoil\Stream\Exception\StreamReadException;
 interface ReadableStreamInterface
 {
     /**
-     * [CO-ROUTINE] Read data from the stream.
+     * [COROUTINE] Read data from the stream.
      *
      * The implementation MUST suspend execution of the current strand until
      * data is available or the end of the data stream is reached. Execution
@@ -43,7 +43,7 @@ interface ReadableStreamInterface
     public function read($length);
 
     /**
-     * [CO-ROUTINE] Close this stream.
+     * [COROUTINE] Close this stream.
      *
      * Closing a stream indicates that no more data will be read from the
      * stream. Once a stream is closed future, invocations of read() MUST throw

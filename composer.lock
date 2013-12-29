@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "e3d37faa6f239cf139a0546ddcfc3adc",
+    "hash": "4d3e91b27221ae5676521b290fc15ea4",
     "packages": [
         {
             "name": "evenement/evenement",
@@ -410,57 +410,6 @@
             "time": "2013-09-23 12:00:18"
         },
         {
-            "name": "eloquent/asplode",
-            "version": "1.1.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/eloquent/asplode.git",
-                "reference": "34591a5919625bc49f86ac4b7a473593c2b8e95e"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/eloquent/asplode/zipball/34591a5919625bc49f86ac4b7a473593c2b8e95e",
-                "reference": "34591a5919625bc49f86ac4b7a473593c2b8e95e",
-                "shasum": ""
-            },
-            "require": {
-                "icecave/isolator": "~2",
-                "php": ">=5.3.0"
-            },
-            "require-dev": {
-                "icecave/archer": "1.0.0-alpha.2"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "Eloquent\\Asplode": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Erin Millard",
-                    "email": "ezzatron@gmail.com",
-                    "homepage": "http://ezzatron.com/"
-                }
-            ],
-            "description": "Drop-in exception-based error handling for PHP.",
-            "homepage": "https://github.com/eloquent/asplode",
-            "keywords": [
-                "error",
-                "errorexception",
-                "exception",
-                "failure",
-                "fault",
-                "handler",
-                "handling"
-            ],
-            "time": "2013-08-01 10:46:05"
-        },
-        {
             "name": "icecave/archer",
             "version": "1.1.0",
             "source": {
@@ -531,55 +480,6 @@
                 "unit"
             ],
             "time": "2013-10-13 23:54:24"
-        },
-        {
-            "name": "icecave/isolator",
-            "version": "2.2.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/IcecaveStudios/isolator.git",
-                "reference": "2f3fbfcee90790fb3ddde9d4288a2a927cdf6dd6"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/IcecaveStudios/isolator/zipball/2f3fbfcee90790fb3ddde9d4288a2a927cdf6dd6",
-                "reference": "2f3fbfcee90790fb3ddde9d4288a2a927cdf6dd6",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3"
-            },
-            "require-dev": {
-                "icecave/archer": "~0.4"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "Icecave\\Isolator": "lib"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "James Harris",
-                    "email": "james.harris@icecave.com.au",
-                    "homepage": "https://github.com/jmalloc"
-                }
-            ],
-            "description": "Isolate PHP tests from the global environment.",
-            "homepage": "https://github.com/IcecaveStudios/isolator",
-            "keywords": [
-                "fake",
-                "mock",
-                "phake",
-                "phpunit",
-                "test",
-                "unit"
-            ],
-            "time": "2013-06-04 05:00:29"
         },
         {
             "name": "nikic/php-parser",

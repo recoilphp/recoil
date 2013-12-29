@@ -5,7 +5,7 @@ use Exception;
 use Icecave\Recoil\Kernel\Strand\StrandInterface;
 
 /**
- * A base class for co-routines that keeps track of next tick state behaviour.
+ * A base class for coroutines that keeps track of next tick state behaviour.
  */
 abstract class AbstractCoroutine implements CoroutineInterface
 {
@@ -19,14 +19,14 @@ abstract class AbstractCoroutine implements CoroutineInterface
     /**
      * Invoked when tick() is called for the first time.
      *
-     * @param StrandInterface $strand The strand that is executing the co-routine.
+     * @param StrandInterface $strand The strand that is executing the coroutine.
      */
     abstract public function call(StrandInterface $strand);
 
     /**
      * Invoked when tick() is called after sendOnNextTick().
      *
-     * @param StrandInterface $strand The strand that is executing the co-routine.
+     * @param StrandInterface $strand The strand that is executing the coroutine.
      * @param mixed           $value  The value passed to sendOnNextTick().
      */
     abstract public function resumeWithValue(StrandInterface $strand, $value);
@@ -34,7 +34,7 @@ abstract class AbstractCoroutine implements CoroutineInterface
     /**
      * Invoked when tick() is called after throwOnNextTick().
      *
-     * @param StrandInterface $strand    The strand that is executing the co-routine.
+     * @param StrandInterface $strand    The strand that is executing the coroutine.
      * @param Exception       $exception The exception passed to throwOnNextTick().
      */
     abstract public function resumeWithException(StrandInterface $strand, Exception $exception);
@@ -42,14 +42,14 @@ abstract class AbstractCoroutine implements CoroutineInterface
     /**
      * Invoked when tick() is called after terminateOnNextTick().
      *
-     * @param StrandInterface $strand The strand that is executing the co-routine.
+     * @param StrandInterface $strand The strand that is executing the coroutine.
      */
     abstract public function terminate(StrandInterface $strand);
 
     /**
      * Execute the next unit of work.
      *
-     * @param StrandInterface $strand The strand that is executing the co-routine.
+     * @param StrandInterface $strand The strand that is executing the coroutine.
      */
     public function tick(StrandInterface $strand)
     {
@@ -63,7 +63,7 @@ abstract class AbstractCoroutine implements CoroutineInterface
     }
 
     /**
-     * Store a value to send to the co-routine on the next tick.
+     * Store a value to send to the coroutine on the next tick.
      *
      * @param mixed $value The value to send.
      */
@@ -75,7 +75,7 @@ abstract class AbstractCoroutine implements CoroutineInterface
     }
 
     /**
-     * Store an exception to send to the co-routine on the next tick.
+     * Store an exception to send to the coroutine on the next tick.
      *
      * @param Exception $exception The exception to send.
      */
@@ -87,7 +87,7 @@ abstract class AbstractCoroutine implements CoroutineInterface
     }
 
     /**
-     * Instruct the co-routine to terminate execution on the next tick.
+     * Instruct the coroutine to terminate execution on the next tick.
      */
     public function terminateOnNextTick()
     {

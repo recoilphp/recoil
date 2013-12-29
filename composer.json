@@ -2,7 +2,8 @@
     "name": "icecave/recoil",
     "description": "A generator-based cooperative multitasking kernel for ReactPHP.",
     "keywords": [
-        "co-routine",
+        "coroutine",
+        "coroutine",
         "generator",
         "event",
         "async",
@@ -29,7 +30,6 @@
         "react/react": "dev-master"
     },
     "require-dev": {
-        "eloquent/asplode": "~1",
         "icecave/archer": "~1",
         "phake/phake": "2.0.0-alpha4 as v1.0.3"
     },

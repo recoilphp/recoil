@@ -5,12 +5,12 @@ use Icecave\Recoil\Kernel\Strand\StrandInterface;
 use InvalidArgumentException;
 
 /**
- * Adapts arbitrary values into co-routine objects.
+ * Adapts arbitrary values into coroutine objects.
  */
 interface CoroutineAdaptorInterface
 {
     /**
-     * Adapt a value into a co-routine.
+     * Adapt a value into a coroutine.
      *
      * @param StrandInterface $strand The currently executing strand.
      * @param mixed           $value  The value to adapt.

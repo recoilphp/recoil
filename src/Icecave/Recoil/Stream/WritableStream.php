@@ -21,7 +21,7 @@ class WritableStream implements WritableStreamInterface
     }
 
     /**
-     * [CO-ROUTINE] Write data to this stream.
+     * [COROUTINE] Write data to this stream.
      *
      * Execution of the current strand is suspended until the data is sent.
      *
@@ -89,7 +89,7 @@ class WritableStream implements WritableStreamInterface
     // @codeCoverageIgnoreEnd
 
     /**
-     * [CO-ROUTINE] Write all data from the given buffer to this stream.
+     * [COROUTINE] Write all data from the given buffer to this stream.
      *
      * Execution of the current strand is suspended until the data is sent.
      *
@@ -111,7 +111,7 @@ class WritableStream implements WritableStreamInterface
     }
 
     /**
-     * [CO-ROUTINE] Close this stream.
+     * [COROUTINE] Close this stream.
      *
      * Closing a stream indicates that no more data will be written to the
      * stream.

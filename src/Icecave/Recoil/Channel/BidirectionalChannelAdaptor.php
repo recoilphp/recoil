@@ -19,7 +19,7 @@ class BidirectionalChannelAdaptor implements BidirectionalChannelInterface
     }
 
     /**
-     * [CO-ROUTINE] Read a value from this channel.
+     * [COROUTINE] Read a value from this channel.
      *
      * The implementation MUST suspend execution of the current strand until a
      * value is available.
@@ -41,7 +41,7 @@ class BidirectionalChannelAdaptor implements BidirectionalChannelInterface
     }
 
     /**
-     * [CO-ROUTINE] Write a value to this channel.
+     * [COROUTINE] Write a value to this channel.
      *
      * The implementation MUST throw an InvalidArgumentException if the type of
      * the given value is unsupported.
@@ -68,7 +68,7 @@ class BidirectionalChannelAdaptor implements BidirectionalChannelInterface
     }
 
     /**
-     * [CO-ROUTINE] Close this channel.
+     * [COROUTINE] Close this channel.
      *
      * Closing a channel indicates that no more values will be read from or
      * written to the channel. Any future read/write operations will fail.

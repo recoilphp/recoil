@@ -7,7 +7,7 @@ use React\Promise\PromiseInterface;
 use RuntimeException;
 
 /**
- * A co-routine that resumes when a promise is fulfilled or rejected.
+ * A coroutine that resumes when a promise is fulfilled or rejected.
  */
 class PromiseCoroutine extends AbstractCoroutine
 {
@@ -34,7 +34,7 @@ class PromiseCoroutine extends AbstractCoroutine
     /**
      * Invoked when tick() is called for the first time.
      *
-     * @param StrandInterface $strand The strand that is executing the co-routine.
+     * @param StrandInterface $strand The strand that is executing the coroutine.
      */
     public function call(StrandInterface $strand)
     {
@@ -59,7 +59,7 @@ class PromiseCoroutine extends AbstractCoroutine
     /**
      * Invoked when tick() is called after sendOnNextTick().
      *
-     * @param StrandInterface $strand The strand that is executing the co-routine.
+     * @param StrandInterface $strand The strand that is executing the coroutine.
      * @param mixed           $value  The value passed to sendOnNextTick().
      */
     public function resumeWithValue(StrandInterface $strand, $value)
@@ -70,7 +70,7 @@ class PromiseCoroutine extends AbstractCoroutine
     /**
      * Invoked when tick() is called after throwOnNextTick().
      *
-     * @param StrandInterface $strand    The strand that is executing the co-routine.
+     * @param StrandInterface $strand    The strand that is executing the coroutine.
      * @param Exception       $exception The exception passed to throwOnNextTick().
      */
     public function resumeWithException(StrandInterface $strand, Exception $exception)
@@ -81,7 +81,7 @@ class PromiseCoroutine extends AbstractCoroutine
     /**
      * Invoked when tick() is called after terminateOnNextTick().
      *
-     * @param StrandInterface $strand The strand that is executing the co-routine.
+     * @param StrandInterface $strand The strand that is executing the coroutine.
      */
     public function terminate(StrandInterface $strand)
     {

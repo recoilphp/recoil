@@ -25,8 +25,8 @@ function parentProcess()
     $process->start(yield Recoil::eventLoop());
 
     // Create a channel for reading serialized values from the child's STDOUT.
-    $channel = new Icecave\Recoil\Channel\Stream\ReadableStreamChannel(
-        $process->stdout
+    $channel = new Icecave\Recoil\Channel\ReadableStreamChannel(
+        new Icecave\Recoil\Stream\ReadableReactStream($process->stdout)
     );
 
     // Read objects from the child process, until it sends NULL ...
@@ -41,10 +41,9 @@ function parentProcess()
 function childProcess()
 {
     // Create a channel for writing serialized values to STDOUT ...
-    $channel = new Icecave\Recoil\Channel\Stream\WritableStreamChannel(
-        new React\Stream\Stream(
-            fopen('php://stdout', 'w'),
-            (yield Recoil::eventLoop())
+    $channel = new Icecave\Recoil\Channel\WritableStreamChannel(
+        new Icecave\Recoil\Stream\WritableStream(
+            fopen('php://stdout', 'w')
         )
     );
 
@@ -62,18 +61,9 @@ function childProcess()
 
 // -----------------------------------------------------------------------------
 
-// Install a strict error handler ...
-Eloquent\Asplode\Asplode::instance()->install();
-
-// Create the co-routine kernel ...
-$kernel = new Icecave\Recoil\Kernel\Kernel;
-
-// Run the appropriate co-routine ...
+// Run the appropriate coroutine ...
 if (isset($_SERVER['argv'][1]) && $_SERVER['argv'][1] === 'child') {
-    $kernel->execute(childProcess());
+    Recoil::run('childProcess');
 } else {
-    $kernel->execute(parentProcess());
+    Recoil::run('parentProcess');
 }
-
-// Run the React event-loop ...
-$kernel->eventLoop()->run();

@@ -18,7 +18,7 @@ class KernelFunctionalTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test that a simple (single-tick) co-routine can be executed by the kernel.
+     * Test that a simple (single-tick) coroutine can be executed by the kernel.
      */
     public function testExecute()
     {
@@ -36,7 +36,7 @@ class KernelFunctionalTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test that one co-routine can call another by yielding it.
+     * Test that one coroutine can call another by yielding it.
      */
     public function testYieldGenerator()
     {
@@ -97,8 +97,8 @@ class KernelFunctionalTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test that co-routines are resumed with an appropriate exception when
-     * they yield a value that can not be adapted into a co-routine.
+     * Test that coroutines are resumed with an appropriate exception when
+     * they yield a value that can not be adapted into a coroutine.
      */
     public function testAdaptationFailure()
     {
@@ -108,7 +108,7 @@ class KernelFunctionalTest extends PHPUnit_Framework_TestCase
                 $this->fail('Expected exception was not thrown.');
             } catch (InvalidArgumentException $e) {
                 $this->assertSame(
-                    'Unable to adapt 123 into a co-routine.',
+                    'Unable to adapt 123 into a coroutine.',
                     $e->getMessage()
                 );
             }
@@ -137,8 +137,8 @@ class KernelFunctionalTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test that exceptions thrown inside a nested co-routine are propagated to
-     * the calling co-routine.
+     * Test that exceptions thrown inside a nested coroutine are propagated to
+     * the calling coroutine.
      */
     public function testExceptionsPropagateToCaller()
     {

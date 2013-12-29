@@ -4,7 +4,7 @@ namespace Icecave\Recoil\Kernel\Exception;
 use RuntimeException;
 
 /**
- * Indicates that a co-routine has timed out.
+ * Indicates that a coroutine has timed out.
  */
 class TimeoutException extends RuntimeException
 {

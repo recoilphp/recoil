@@ -21,7 +21,7 @@ class ReadableStream implements ReadableStreamInterface
     }
 
     /**
-     * [CO-ROUTINE] Read data from the stream.
+     * [COROUTINE] Read data from the stream.
      *
      * Execution of the current strand is suspended until data is available or
      * the end of the data stream is reached.
@@ -89,7 +89,7 @@ class ReadableStream implements ReadableStreamInterface
     // @codeCoverageIgnoreEnd
 
     /**
-     * [CO-ROUTINE] Close this stream.
+     * [COROUTINE] Close this stream.
      *
      * Closing a stream indicates that no more data will be read from the
      * stream.

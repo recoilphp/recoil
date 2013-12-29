@@ -1,7 +1,6 @@
 <?php
 namespace Icecave\Recoil\Channel;
 
-use Exception;
 use Icecave\Recoil\Channel\Serialization\PhpSerializer;
 use Icecave\Recoil\Recoil;
 use Icecave\Recoil\Stream\ReadableStream;

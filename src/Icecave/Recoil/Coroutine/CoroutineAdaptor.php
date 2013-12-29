@@ -9,12 +9,12 @@ use InvalidArgumentException;
 use React\Promise\PromiseInterface;
 
 /**
- * The default co-routine adaptor implementation.
+ * The default coroutine adaptor implementation.
  */
 class CoroutineAdaptor implements CoroutineAdaptorInterface
 {
     /**
-     * Adapt a value into a co-routine.
+     * Adapt a value into a coroutine.
      *
      * @param StrandInterface $strand The currently executing strand.
      * @param mixed           $value  The value to adapt.
@@ -39,7 +39,7 @@ class CoroutineAdaptor implements CoroutineAdaptorInterface
         }
 
         throw new InvalidArgumentException(
-            'Unable to adapt ' . Repr::repr($value) . ' into a co-routine.'
+            'Unable to adapt ' . Repr::repr($value) . ' into a coroutine.'
         );
     }
 }

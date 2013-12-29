@@ -9,7 +9,7 @@ use React\EventLoop\LoopInterface;
  * Public facade for Kernel API calls.
  *
  * This class contains no implementation; it is a proxy for the kernel API
- * implementation provided by whichever co-routine kernel is currently being
+ * implementation provided by whichever coroutine kernel is currently being
  * used for execution.
  *
  * The interface {@see Icecave\Recoil\Kernel\KernelApiInterface} defines the
@@ -18,7 +18,7 @@ use React\EventLoop\LoopInterface;
 abstract class Recoil
 {
     /**
-     * [CO-ROUTINE] Invoke a kernel API function.
+     * [COROUTINE] Invoke a kernel API function.
      *
      * @see Icecave\Recoil\Kernel\KernelApiInterface
      * @see Icecave\Recoil\Kernel\KernelInterface::api()
@@ -32,12 +32,12 @@ abstract class Recoil
     }
 
     /**
-     * Create and run a new co-routine kernel.
+     * Create and run a new coroutine kernel.
      *
-     * This is convenience method used to start the co-routine engine.
-     * It should generally not be invoked from inside other co-routines.
+     * This is convenience method used to start the coroutine engine.
+     * It should generally not be invoked from inside other coroutines.
      *
-     * @param callable           $entryPoint    The co-routine to invoke.
+     * @param callable           $entryPoint    The coroutine to invoke.
      * @param LoopInterface|null $loopInterface The ReactPHP event-loop, or null to use the default.
      */
     public static function run(callable $entryPoint, LoopInterface $eventLoop = null)
