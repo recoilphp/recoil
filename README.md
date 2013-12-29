@@ -1,13 +1,13 @@
 # Recoil
 
-[![Build Status]](https://travis-ci.org/IcecaveLabs/recoil)
-[![Test Coverage]](https://coveralls.io/r/IcecaveLabs/recoil?branch=develop)
+[![Build Status]](https://travis-ci.org/IcecaveStudios/recoil)
+[![Test Coverage]](https://coveralls.io/r/IcecaveStudios/recoil?branch=develop)
 [![SemVer]](http://semver.org)
 
 **Recoil** is a generator-based cooperative multitasking kernel for [ReactPHP](https://github.com/reactphp/react).
 
 * Install via [Composer](http://getcomposer.org) package [icecave/recoil](https://packagist.org/packages/icecave/recoil)
-* Read the [API documentation](http://IcecaveLabs.github.io/recoil/artifacts/documentation/api/)
+* Read the [API documentation](http://IcecaveStudios.github.io/recoil/artifacts/documentation/api/)
 
 ## Overview
 
@@ -244,6 +244,6 @@ $kernel->execute($coroutine());
 $eventLoop->run();
 ```
 <!-- references -->
-[Build Status]: https://travis-ci.org/IcecaveLabs/recoil.png?branch=develop
-[Test Coverage]: https://coveralls.io/repos/IcecaveLabs/recoil/badge.png?branch=develop
+[Build Status]: https://travis-ci.org/IcecaveStudios/recoil.png?branch=develop
+[Test Coverage]: https://coveralls.io/repos/IcecaveStudios/recoil/badge.png?branch=develop
 [SemVer]: http://calm-shore-6115.herokuapp.com/?label=semver&value=0.0.0&color=red
