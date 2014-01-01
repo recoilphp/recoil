@@ -38,7 +38,7 @@ abstract class Recoil
      * It should generally not be invoked from inside other coroutines.
      *
      * @param callable           $entryPoint    The coroutine to invoke.
-     * @param LoopInterface|null $loopInterface The ReactPHP event-loop, or null to use the default.
+     * @param LoopInterface|null $loopInterface The React event-loop, or null to use the default.
      */
     public static function run(callable $entryPoint, LoopInterface $eventLoop = null)
     {

@@ -80,7 +80,7 @@ class KernelFunctionalTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test that a ReactPHP promise can be yielded directly.
+     * Test that a React promise can be yielded directly.
      */
     public function testYieldPromise()
     {

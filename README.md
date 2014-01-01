@@ -4,7 +4,7 @@
 [![Test Coverage]](https://coveralls.io/r/IcecaveStudios/recoil?branch=develop)
 [![SemVer]](http://semver.org)
 
-**Recoil** is a generator-based cooperative multitasking kernel for [ReactPHP](https://github.com/reactphp/react).
+**Recoil** is a generator-based cooperative multitasking kernel for [React](https://github.com/reactphp/react).
 
 * Install via [Composer](http://getcomposer.org) package [icecave/recoil](https://packagist.org/packages/icecave/recoil)
 * Read the [API documentation](http://IcecaveStudios.github.io/recoil/artifacts/documentation/api/)
@@ -45,8 +45,8 @@ Strands are sometimes known as [green threads](http://en.wikipedia.org/wiki/Gree
 ### The Kernel and Kernel API
 
 The *kernel* is responsible for creating and scheduling strands, much like the operating system kernel does for threads.
-Internally, the kernel uses a [ReactPHP event-loop](https://github.com/reactphp/event-loop) for scheduling. This allows
-applications to execute coroutine based code alongside "conventional" ReactPHP code by sharing an event-loop instance.
+Internally, the kernel uses a [React event-loop](https://github.com/reactphp/event-loop) for scheduling. This allows
+applications to execute coroutine based code alongside "conventional" React code by sharing an event-loop instance.
 
 Coroutine control flow, the current strand, and the kernel itself can be manipulated using the *kernel API*. The
 supported operations are defined in [KernelApiInterface](src/Icecave/Recoil/Kernel/Api/KernelApiInterface.php) (though
@@ -180,18 +180,18 @@ function onlyThrow()
 }
 ```
 
-## Cooperating with ReactPHP
+## Cooperating with React
 
-**Recoil** includes several features to allow interoperability with ReactPHP.
+**Recoil** includes several features to allow interoperability with React and conventional React applications.
 
 ### Streams
 
-[ReactPHP streams](https://github.com/reactphp/stream) can be adapted into **Recoil** streams using [ReadableReactStream](src/Icecave/Recoil/Stream/ReadableReactStream.php)
+[React streams](https://github.com/reactphp/stream) can be adapted into **Recoil** streams using [ReadableReactStream](src/Icecave/Recoil/Stream/ReadableReactStream.php)
 and [WritableReactStream](src/Icecave/Recoil/Stream/WritableReactStream.php).
 
 ### Promises
 
-[ReactPHP promises](https://github.com/reactphp/promise) can be yielded directly from a coroutine. The promise is
+[React promises](https://github.com/reactphp/promise) can be yielded directly from a coroutine. The promise is
 adapted into a [PromiseCoroutine](src/Icecave/Recoil/Coroutine/PromiseCoroutine.php) instance and the calling coroutine
 is resumed once the promise has been fulfilled.
 

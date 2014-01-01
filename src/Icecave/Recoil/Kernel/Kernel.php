@@ -18,7 +18,7 @@ use SplObjectStorage;
 class Kernel implements KernelInterface
 {
     /**
-     * @param LoopInterface|null             $eventLoop        The ReactPHP event-loop.
+     * @param LoopInterface|null             $eventLoop        The React event-loop.
      * @param KernelApiInterface|null        $api              The kernel's API implementation.
      * @param CoroutineAdaptorInterface|null $coroutineAdaptor The kernel's coroutine adaptor.
      * @param StrandFactoryInterface|null    $strandFactory    The kernel's strand factory.
@@ -125,9 +125,9 @@ class Kernel implements KernelInterface
     }
 
     /**
-     * Fetch the ReactPHP event-loop.
+     * Fetch the React event-loop.
      *
-     * @return LoopInterface The ReactPHP event-loop.
+     * @return LoopInterface The React event-loop.
      */
     public function eventLoop()
     {

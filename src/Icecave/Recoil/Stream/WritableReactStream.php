@@ -9,12 +9,12 @@ use Icecave\Recoil\Stream\Exception\StreamWriteException;
 use React\Stream\WritableStreamInterface as WritableReactStreamInterface;
 
 /**
- * Exposes a ReactPHP writable stream as a Recoil writable stream.
+ * Exposes a React writable stream as a Recoil writable stream.
  */
 class WritableReactStream implements WritableStreamInterface
 {
     /**
-     * @param WritableReactStreamInterface $stream The underlying ReactPHP stream.
+     * @param WritableReactStreamInterface $stream The underlying React stream.
      */
     public function __construct(WritableReactStreamInterface $stream)
     {

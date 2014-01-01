@@ -1,6 +1,6 @@
 {
     "name": "icecave/recoil",
-    "description": "A generator-based cooperative multitasking kernel for ReactPHP.",
+    "description": "A generator-based cooperative multitasking kernel for React.",
     "keywords": [
         "coroutine",
         "generator",

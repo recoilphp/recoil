@@ -59,9 +59,9 @@ interface KernelInterface
     public function strandFactory();
 
     /**
-     * Fetch the ReactPHP event-loop.
+     * Fetch the React event-loop.
      *
-     * @return LoopInterface The ReactPHP event-loop.
+     * @return LoopInterface The React event-loop.
      */
     public function eventLoop();
 }

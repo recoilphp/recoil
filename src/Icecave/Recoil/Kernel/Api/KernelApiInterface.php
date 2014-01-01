@@ -24,7 +24,7 @@ interface KernelApiInterface
     public function kernel(StrandInterface $strand);
 
     /**
-     * Get the ReactPHP event-loop that the coroutine kernel is executing on.
+     * Get the React event-loop that the coroutine kernel is executing on.
      *
      * @param StrandInterface $strand The currently executing strand.
      */
