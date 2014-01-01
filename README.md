@@ -93,8 +93,8 @@ Recoil::run(
 ```
 
 `Recoil::run()` is a convenience method that instantiates a kernel and executes the given function in a new strand.
-The `yield` keyword must be present in order for PHP to parse the function as a generator. Yielding `Recoil::noop()`
-(no-operation) instructs the kernel to continue executing the current coroutine without suspending.
+Yielding `Recoil::noop()` (no-operation) effectively does nothing at all, but the presence of the `yield` keyword
+forces PHP to parse the function as a generator.
 
 ### Calling one coroutine from another
 
