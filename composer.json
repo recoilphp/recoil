@@ -3,7 +3,6 @@
     "description": "A generator-based cooperative multitasking kernel for ReactPHP.",
     "keywords": [
         "coroutine",
-        "coroutine",
         "generator",
         "event",
         "async",
