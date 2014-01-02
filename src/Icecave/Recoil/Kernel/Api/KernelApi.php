@@ -4,6 +4,9 @@ namespace Icecave\Recoil\Kernel\Api;
 use Exception;
 use Icecave\Recoil\Kernel\Strand\StrandInterface;
 
+/**
+ * The default kernel API implementation.
+ */
 class KernelApi implements KernelApiInterface
 {
     /**

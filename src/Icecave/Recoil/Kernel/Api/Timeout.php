@@ -6,6 +6,11 @@ use Icecave\Recoil\Coroutine\AbstractCoroutine;
 use Icecave\Recoil\Kernel\Exception\TimeoutException;
 use Icecave\Recoil\Kernel\Strand\StrandInterface;
 
+/**
+ * Internal implementation of KernelApiInterface::timeout().
+ *
+ * @internal
+ */
 class Timeout extends AbstractCoroutine
 {
     public function __construct($timeout, $coroutine)

@@ -4,6 +4,9 @@ namespace Icecave\Recoil\Stream\Exception;
 use Exception;
 use RuntimeException;
 
+/**
+ * Indicates that an error occured while attempting to read from a stream.
+ */
 class StreamReadException extends RuntimeException
 {
     public function __construct(Exception $previous = null)

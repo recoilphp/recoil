@@ -5,6 +5,11 @@ use Exception;
 use Icecave\Recoil\Coroutine\AbstractCoroutine;
 use Icecave\Recoil\Kernel\Strand\StrandInterface;
 
+/**
+ * Internal implementation of KernelApiInterface::select().
+ *
+ * @internal
+ */
 class Select extends AbstractCoroutine
 {
     public function __construct(array $strands)
