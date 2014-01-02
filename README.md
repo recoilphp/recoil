@@ -92,9 +92,9 @@ Recoil::run(
 );
 ```
 
-`Recoil::run()` is a convenience method that instantiates a kernel and executes the given function in a new strand.
-Yielding `Recoil::noop()` (no-operation) effectively does nothing at all, but the presence of the `yield` keyword
-forces PHP to parse the function as a generator.
+`Recoil::run()` is a convenience method that instantiates a kernel and executes the given coroutine in a new strand.
+Yielding `Recoil::noop()` (no-operation) allows for the use of the `yield` keyword - which forces PHP to parse the
+function as a generator - without changing the behaviour.
 
 ### Calling one coroutine from another
 
