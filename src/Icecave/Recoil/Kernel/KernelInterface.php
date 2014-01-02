@@ -64,4 +64,14 @@ interface KernelInterface
      * @return LoopInterface The React event-loop.
      */
     public function eventLoop();
+
+    /**
+     * Terminate all strands and stop execution.
+     *
+     * The React event-loop can optionally be stopped when all strands have been
+     * terminated.
+     *
+     * @param boolean $stopEventLoop Indicates whether or not the React event-loop should also be stopped.
+     */
+    public function stop($stopEventLoop = true);
 }

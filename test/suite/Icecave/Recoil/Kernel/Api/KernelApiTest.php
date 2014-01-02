@@ -249,6 +249,64 @@ class KernelApiTest extends PHPUnit_Framework_TestCase
         $this->assertInstanceOf(StrandInterface::CLASS, $strand);
     }
 
+    public function testStop()
+    {
+        $this->expectOutputString('1');
+
+        $coroutine1 = function () {
+            echo 1;
+            yield Recoil::stop();
+            echo 'X';
+        };
+
+        $coroutine2 = function () {
+            yield Recoil::noop();
+            echo 'X';
+        };
+
+        $this->kernel->execute($coroutine1());
+        $this->kernel->execute($coroutine2());
+
+        // Add a timer to ensure that stop also stops the event-loop ...
+        $this->kernel->eventLoop()->addTimer(
+            0.1,
+            function () {
+                echo 'X';
+            }
+        );
+
+        $this->kernel->eventLoop()->run();
+    }
+
+    public function testStopKernelOnly()
+    {
+        $this->expectOutputString('12');
+
+        $coroutine1 = function () {
+            echo 1;
+            yield Recoil::stop(false);
+            echo 'X';
+        };
+
+        $coroutine2 = function () {
+            yield Recoil::noop();
+            echo 'X';
+        };
+
+        $this->kernel->execute($coroutine1());
+        $this->kernel->execute($coroutine2());
+
+        // Add a timer to ensure that stop also stops the event-loop ...
+        $this->kernel->eventLoop()->addTimer(
+            0.1,
+            function () {
+                echo '2';
+            }
+        );
+
+        $this->kernel->eventLoop()->run();
+    }
+
     public function testSelect()
     {
         $this->expectOutputString('123');

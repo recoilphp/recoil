@@ -50,6 +50,7 @@ class Kernel implements KernelInterface
         $this->coroutineAdaptor = $coroutineAdaptor;
         $this->strandFactory = $strandFactory;
         $this->strands = new SplObjectStorage;
+        $this->terminating = false;
     }
 
     /**
@@ -140,14 +141,26 @@ class Kernel implements KernelInterface
     protected function tick()
     {
         foreach (clone $this->strands as $strand) {
+            if ($this->terminateStrands) {
+                $strand->terminate();
+            }
+
             $strand->tick();
         }
 
         if (0 !== $this->strands->count()) {
             $this->registerTick();
+        } elseif ($this->stopEventLoop) {
+            $this->eventLoop()->stop();
         }
+
+        $this->terminateStrands = false;
+        $this->stopEventLoop = false;
     }
 
+    /**
+     * Register the tick handler on the next event-loop tick.
+     */
     protected function registerTick()
     {
         $this->eventLoop()->nextTick(
@@ -157,9 +170,25 @@ class Kernel implements KernelInterface
         );
     }
 
+    /**
+     * Terminate all strands and stop execution.
+     *
+     * The React event-loop can optionally be stopped when all strands have been
+     * terminated.
+     *
+     * @param boolean $stopEventLoop Indicates whether or not the React event-loop should also be stopped.
+     */
+    public function stop($stopEventLoop = true)
+    {
+        $this->terminateStrands = true;
+        $this->stopEventLoop = $stopEventLoop;
+    }
+
     private $eventLoop;
     private $api;
     private $coroutineAdaptor;
     private $strandFactory;
     private $strands;
+    private $terminateStrands;
+    private $stopEventLoop;
 }
