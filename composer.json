@@ -36,7 +36,7 @@
         "eloquent/asplode": "Drop-in exception-based error handling."
     },
     "autoload": {
-        "psr-4": {
+        "psr-0": {
             "Recoil\\": "src"
         }
     },
