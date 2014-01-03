@@ -1,5 +1,5 @@
 {
-    "name": "icecave/recoil",
+    "name": "recoil/recoil",
     "description": "A generator-based cooperative multitasking kernel for React.",
     "keywords": [
         "coroutine",
@@ -13,7 +13,7 @@
         "multitasking",
         "continuation"
     ],
-    "homepage": "https://github.com/IcecaveStudios/recoil",
+    "homepage": "https://github.com/recoilphp/recoil",
     "license": "MIT",
     "authors": [
         {
@@ -36,8 +36,8 @@
         "eloquent/asplode": "Drop-in exception-based error handling."
     },
     "autoload": {
-        "psr-0": {
-            "Icecave\\Recoil": "src"
+        "psr-4": {
+            "Recoil\\": "src"
         }
     },
     "minimum-stability": "dev",

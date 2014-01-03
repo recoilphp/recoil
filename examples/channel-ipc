@@ -10,7 +10,7 @@ require dirname(__DIR__) . '/vendor/autoload.php';
  * the parent process.
  */
 
-use Icecave\Recoil\Recoil;
+use Recoil\Recoil;
 
 /**
  * This function is run by the parent process.
@@ -25,8 +25,8 @@ function parentProcess()
     $process->start(yield Recoil::eventLoop());
 
     // Create a channel for reading serialized values from the child's STDOUT.
-    $channel = new Icecave\Recoil\Channel\ReadableStreamChannel(
-        new Icecave\Recoil\Stream\ReadableReactStream($process->stdout)
+    $channel = new \Recoil\Channel\ReadableStreamChannel(
+        new \Recoil\Stream\ReadableReactStream($process->stdout)
     );
 
     // Read objects from the child process, until it sends NULL ...
@@ -41,8 +41,8 @@ function parentProcess()
 function childProcess()
 {
     // Create a channel for writing serialized values to STDOUT ...
-    $channel = new Icecave\Recoil\Channel\WritableStreamChannel(
-        new Icecave\Recoil\Stream\WritableStream(
+    $channel = new \Recoil\Channel\WritableStreamChannel(
+        new \Recoil\Stream\WritableStream(
             fopen('php://stdout', 'w')
         )
     );

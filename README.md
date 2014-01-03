@@ -1,13 +1,13 @@
 # Recoil
 
-[![Build Status]](https://travis-ci.org/IcecaveStudios/recoil)
-[![Test Coverage]](https://coveralls.io/r/IcecaveStudios/recoil?branch=develop)
+[![Build Status]](https://travis-ci.org/recoilphp/recoil)
+[![Test Coverage]](https://coveralls.io/r/recoilphp/recoil?branch=develop)
 [![SemVer]](http://semver.org)
 
 **Recoil** is a generator-based cooperative multitasking kernel for [React](https://github.com/reactphp/react).
 
-* Install via [Composer](http://getcomposer.org) package [icecave/recoil](https://packagist.org/packages/icecave/recoil)
-* Read the [API documentation](http://IcecaveStudios.github.io/recoil/artifacts/documentation/api/)
+* Install via [Composer](http://getcomposer.org) package [recoilphp/recoil](https://packagist.org/packages/recoilphp/recoil)
+* Read the [API documentation](http://recoilphp.github.io/recoil/artifacts/documentation/api/)
 
 ## Overview
 
@@ -16,7 +16,7 @@ techniques. The example below uses **Recoil** and the [React DNS component](http
 several domain names concurrently.
 
 ```php
-use Icecave\Recoil\Recoil;
+use Recoil\Recoil;
 use React\Dns\Resolver\Resolver;
 use React\Dns\Resolver\Factory;
 
@@ -37,7 +37,7 @@ Recoil::run(
             (yield Recoil::eventLoop())
         );
 
-        yield Recoil::execute(resolveDomainName('icecave.com.au', $resolver));
+        yield Recoil::execute(resolveDomainName('recoil.io', $resolver));
         yield Recoil::execute(resolveDomainName('reactphp.org', $resolver));
         yield Recoil::execute(resolveDomainName('probably-wont-resolve', $resolver));
     }
@@ -81,15 +81,14 @@ Internally, the kernel uses a [React event-loop](https://github.com/reactphp/eve
 applications to execute coroutine based code alongside "conventional" React code by sharing an event-loop instance.
 
 Coroutine control flow, the current strand, and the kernel itself can be manipulated using the *kernel API*. The
-supported operations are defined in [KernelApiInterface](src/Icecave/Recoil/Kernel/Api/KernelApiInterface.php) (though
-custom kernel implementations may provide additional operations). Inside an executing coroutine, the kernel API for
-the current kernel is accessed via the [Recoil facade](src/Icecave/Recoil/Recoil.php).
+supported operations are defined in [KernelApiInterface](src/Kernel/Api/KernelApiInterface.php) (though custom kernel
+implementations may provide additional operations). Inside an executing coroutine, the kernel API for the current kernel
+is accessed via the [Recoil facade](src/Recoil.php).
 
 ### Streams
 
-*Streams* provide a coroutine based abstraction for [readable](src/Icecave/Recoil/Stream/ReadableStreamInterface.php)
-and [writable](src/Icecave/Recoil/Stream/WritableStreamInterface.php) data streams. The interfaces are somewhat similar
-to the built-in PHP stream API.
+*Streams* provide a coroutine based abstraction for [readable](src/Stream/ReadableStreamInterface.php) and [writable](src/Stream/WritableStreamInterface.php)
+data streams. The interfaces are somewhat similar to the built-in PHP stream API.
 
 Stream operations are cooperative, that is, when reading or writing to a stream, execution of the coroutine is suspended
 until the stream is ready, allowing the kernel to schedule other strands for execution while waiting.
@@ -99,7 +98,7 @@ until the stream is ready, allowing the kernel to schedule other strands for exe
 *Channels* are stream-like objects that produce and consume PHP values rather than byte streams. Channels are intended
 as the primary method for communication between strands.
 
-Like streams there are [readable](src/Icecave/Recoil/Channel/ReadableChannelInterface.php) and [writable](src/Icecave/Recoil/Channel/WritableChannelInterface.php)
+Like streams there are [readable](src/Channel/ReadableChannelInterface.php) and [writable](src/Channel/WritableChannelInterface.php)
 variants. Some channel implementations allow for multiple concurrent read and write operations.
 
 Both in-memory and stream-based channels are provided. Stream-based channels use a serialization protocol to encode and
@@ -108,7 +107,7 @@ decode PHP values for transmission over a stream and as such can be useful for I
 ## Examples
 
 The following examples illustrate the basic usage of coroutines and the kernel API. Additional examples are available in
-the [examples folder](examples/). References to the class `Recoil` refer to the [Recoil facade](src/Icecave/Recoil/Recoil.php).
+the [examples folder](examples/). References to the class `Recoil` refer to the [Recoil facade](src/Recoil.php).
 
 ### Basic execution
 
@@ -129,7 +128,7 @@ function as a generator - without changing the behaviour.
 
 ### Calling one coroutine from another
 
-Coroutines can be called simply by yielding. Yielded generators are adapted into [GeneratorCoroutine](src/Icecave/Recoil/Coroutine/GeneratorCoroutine.php)
+Coroutines can be called simply by yielding. Yielded generators are adapted into [GeneratorCoroutine](src/Coroutine/GeneratorCoroutine.php)
 instances so that they may be executed by the kernel. Coroutines are executed on the current strand, and as such
 execution of the caller is only resumed once the yielded coroutine has completed.
 
@@ -217,14 +216,14 @@ function onlyThrow()
 
 ### Streams
 
-[React streams](https://github.com/reactphp/stream) can be adapted into **Recoil** streams using [ReadableReactStream](src/Icecave/Recoil/Stream/ReadableReactStream.php)
-and [WritableReactStream](src/Icecave/Recoil/Stream/WritableReactStream.php).
+[React streams](https://github.com/reactphp/stream) can be adapted into **Recoil** streams using [ReadableReactStream](src/Stream/ReadableReactStream.php)
+and [WritableReactStream](src/Stream/WritableReactStream.php).
 
 ### Promises
 
 [React promises](https://github.com/reactphp/promise) can be yielded directly from a coroutine. The promise is
-adapted into a [PromiseCoroutine](src/Icecave/Recoil/Coroutine/PromiseCoroutine.php) instance and the calling coroutine
-is resumed once the promise has been fulfilled.
+adapted into a [PromiseCoroutine](src/Coroutine/PromiseCoroutine.php) instance and the calling coroutine is resumed once
+the promise has been fulfilled.
 
 If the promise is resolved, the resulting value is returned from the yield statement. If it is rejected, the yield
 statement throws an exception describing the error. Promise progress events are not currently supported.
@@ -241,7 +240,7 @@ execution and runs the event-loop.
 An existing event-loop can be used by passing it as the second parameter.
 
 ```php
-$eventLoop = new \React\EventLoop\StreamSelectLoop;
+$eventLoop = new React\EventLoop\StreamSelectLoop;
 
 Recoil::run(
     function () {
@@ -261,9 +260,9 @@ To attach a coroutine kernel to an existing event-loop without assuming ownershi
 manually.
 
 ```php
-$eventLoop = new \React\EventLoop\StreamSelectLoop;
+$eventLoop = new React\EventLoop\StreamSelectLoop;
 
-$kernel = new \Icecave\Recoil\Kernel\Kernel($eventLoop);
+$kernel = new Recoil\Kernel\Kernel($eventLoop);
 
 $coroutine = function () {
     echo 'Hello, world!' . PHP_EOL;
@@ -275,6 +274,6 @@ $kernel->execute($coroutine());
 $eventLoop->run();
 ```
 <!-- references -->
-[Build Status]: https://travis-ci.org/IcecaveStudios/recoil.png?branch=develop
-[Test Coverage]: https://coveralls.io/repos/IcecaveStudios/recoil/badge.png?branch=develop
+[Build Status]: https://travis-ci.org/recoilphp/recoil.png?branch=develop
+[Test Coverage]: https://coveralls.io/repos/recoilphp/recoil/badge.png?branch=develop
 [SemVer]: http://calm-shore-6115.herokuapp.com/?label=semver&value=0.0.0&color=red
