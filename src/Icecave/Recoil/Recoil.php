@@ -12,7 +12,7 @@ use React\EventLoop\LoopInterface;
  * implementation provided by whichever coroutine kernel is currently being
  * used for execution.
  *
- * The interface {@see Icecave\Recoil\Kernel\KernelApiInterface} defines the
+ * The interface {@link Icecave\Recoil\Kernel\KernelApiInterface} defines the
  * operations that are available; some kernels may provide additional features.
  */
 abstract class Recoil
