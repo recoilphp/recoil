@@ -34,6 +34,8 @@ class CoroutineAdaptor implements CoroutineAdaptorInterface
             return new GeneratorCoroutine($value);
         } elseif ($value instanceof PromiseInterface) {
             return new PromiseCoroutine($value);
+        } elseif (is_array($value)) {
+            return Recoil::all($value);
         } elseif (null === $value) {
             return Recoil::cooperate();
         }

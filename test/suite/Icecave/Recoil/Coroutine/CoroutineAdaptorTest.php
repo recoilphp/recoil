@@ -52,6 +52,15 @@ class CoroutineAdaptorTest extends PHPUnit_Framework_TestCase
         $this->assertSame($promise, $coroutine->promise());
     }
 
+    public function testAdaptWithArray()
+    {
+        $coroutine = $this->adaptor->adapt($this->strand, ['a', 'b', 'c']);
+
+        $this->assertInstanceOf(KernelApiCall::CLASS, $coroutine);
+        $this->assertSame('all', $coroutine->name());
+        $this->assertSame([['a', 'b', 'c']], $coroutine->arguments());
+    }
+
     public function testAdaptWithNull()
     {
         $coroutine = $this->adaptor->adapt($this->strand, null);
