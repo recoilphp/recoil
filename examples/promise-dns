@@ -14,7 +14,7 @@ use Icecave\Recoil\Recoil;
  * @param string                      $name     The name to resolve.
  * @param React\Dns\Resolver\Resolver $resolver The resolver to use.
  */
-function resolveExample($name, React\Dns\Resolver\Resolver $resolver)
+function resolveDomainName($name, React\Dns\Resolver\Resolver $resolver)
 {
     try {
         // Resolver::resolve(...) returns a React promise.
@@ -47,8 +47,8 @@ Recoil::run(
             (yield Recoil::eventLoop())
         );
 
-        yield Recoil::execute(resolveExample('icecave.com.au', $resolver));
-        yield Recoil::execute(resolveExample('igor.io', $resolver));
-        yield Recoil::execute(resolveExample('probably-wont-resolve', $resolver));
+        yield Recoil::execute(resolveDomainName('icecave.com.au', $resolver));
+        yield Recoil::execute(resolveDomainName('reactphp.org', $resolver));
+        yield Recoil::execute(resolveDomainName('probably-wont-resolve', $resolver));
     }
 );
