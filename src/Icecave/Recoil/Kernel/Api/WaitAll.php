@@ -45,8 +45,10 @@ class WaitAll extends AbstractCoroutine
             $s->on(
                 'error',
                 function ($s, $exception, $preventDefault) use ($index) {
+                    if (!$this->exception) {
+                        $this->exception = $exception;
+                    }
                     $preventDefault();
-                    $this->exception = $exception;
                     unset($this->waitStrands[$index]);
                 }
             );
@@ -54,7 +56,9 @@ class WaitAll extends AbstractCoroutine
             $s->on(
                 'terminate',
                 function ($s) use ($index) {
-                    $this->exception = new StrandTerminatedException;
+                    if (!$this->exception) {
+                        $this->exception = new StrandTerminatedException;
+                    }
                     unset($this->waitStrands[$index]);
                 }
             );
@@ -77,10 +81,9 @@ class WaitAll extends AbstractCoroutine
             foreach ($this->waitStrands as $s) {
                 $s->terminate();
             }
-
             $strand->throwException($this->exception);
         } elseif ($this->waitStrands) {
-            $this->call(
+            $strand->call(
                 new Select($this->waitStrands)
             );
         } else {
@@ -108,6 +111,10 @@ class WaitAll extends AbstractCoroutine
      */
     public function terminate(StrandInterface $strand)
     {
+        foreach ($this->waitStrands as $s) {
+            $s->terminate();
+        }
+
         $strand->pop();
         $strand->terminate();
     }
