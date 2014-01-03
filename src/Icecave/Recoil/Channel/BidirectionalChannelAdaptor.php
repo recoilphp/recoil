@@ -3,7 +3,6 @@ namespace Icecave\Recoil\Channel;
 
 use Icecave\Recoil\Channel\Exception\ChannelClosedException;
 use Icecave\Recoil\Channel\Exception\ChannelLockedException;
-use Icecave\Recoil\Recoil;
 
 /**
  * Adapts separate read/write channels into a bidirectional channel.

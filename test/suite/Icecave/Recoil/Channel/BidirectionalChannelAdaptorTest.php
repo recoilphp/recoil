@@ -1,7 +1,6 @@
 <?php
 namespace Icecave\Recoil\Channel;
 
-use Icecave\Recoil\Kernel\Kernel;
 use Icecave\Recoil\Recoil;
 use PHPUnit_Framework_TestCase;
 use Phake;
@@ -10,7 +9,6 @@ class BidirectionalChannelAdaptorTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
-        $this->kernel  = new Kernel;
         $this->readChannel = Phake::mock(ReadableChannelInterface::CLASS);
         $this->writeChannel = Phake::mock(WritableChannelInterface::CLASS);
         $this->adaptor = new BidirectionalChannelAdaptor(
@@ -39,9 +37,11 @@ class BidirectionalChannelAdaptorTest extends PHPUnit_Framework_TestCase
 
     public function testClose()
     {
-        $this->kernel->execute($this->adaptor->close());
-
-        $this->kernel->eventLoop()->run();
+        Recoil::run(
+            function () {
+                yield $this->adaptor->close();
+            }
+        );
 
         Phake::verify($this->readChannel)->close();
         Phake::verify($this->writeChannel)->close();
