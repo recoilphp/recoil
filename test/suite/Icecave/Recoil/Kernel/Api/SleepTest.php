@@ -11,6 +11,7 @@ class SleepTest extends PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->kernel = new Kernel;
+        $this->tolerance = 0.02;
     }
 
     public function testSleep()
@@ -28,7 +29,7 @@ class SleepTest extends PHPUnit_Framework_TestCase
 
         $this->kernel->eventLoop()->run();
 
-        $this->assertEquals(0.15, $end - $start, '', 0.01);
+        $this->assertEquals(0.15, $end - $start, '', $this->tolerance);
     }
 
     public function testResumeWithValueBeforeTimeout()
@@ -54,7 +55,7 @@ class SleepTest extends PHPUnit_Framework_TestCase
 
         $this->kernel->eventLoop()->run();
 
-        $this->assertEquals(0, $end - $start, '', 0.01);
+        $this->assertEquals(0, $end - $start, '', $this->tolerance);
     }
 
     public function testResumeWithExceptionBeforeTimeout()
@@ -86,7 +87,7 @@ class SleepTest extends PHPUnit_Framework_TestCase
 
         $this->kernel->eventLoop()->run();
 
-        $this->assertEquals(0, $end - $start, '', 0.01);
+        $this->assertEquals(0, $end - $start, '', $this->tolerance);
     }
 
     public function testTerminateBeforeTimeout()
