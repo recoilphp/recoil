@@ -12,16 +12,48 @@
 ## Overview
 
 The goal of **Recoil** is to enable development of asynchronous applications using familiar imperative programming
-techniques. This goal is made possible by the addition of [generators](http://de2.php.net/manual/en/language.generators.overview.php)
-in PHP 5.5.
+techniques. The example below uses **Recoil** and the [React DNS component](https://github.com/reactphp/dns) to resolve
+several domain names concurrently.
 
-**Recoil** uses PHP generators to implement coroutines. Coroutines are functions that can be suspended and resumed while
-persisting contextual information such as local variables. By choosing to suspend execution of a coroutine at key points
-such as while waiting for I/O, asynchronous applications can be built to resemble traditional synchronous applications.
+```php
+use Icecave\Recoil\Recoil;
+use React\Dns\Resolver\Resolver;
+use React\Dns\Resolver\Factory;
+
+function resolveDomainName($name, Resolver $resolver)
+{
+    try {
+        $ip = (yield $resolver->resolve($name));
+        echo 'Resolved "' . $name . '" to ' . $ip . PHP_EOL;
+    } catch (Exception $e) {
+        echo 'Failed to resolve "' . $name . '" - ' . $e->getMessage() . PHP_EOL;
+    }
+}
+
+Recoil::run(
+    function () {
+        $resolver = (new Factory)->create(
+            '8.8.8.8',
+            (yield Recoil::eventLoop())
+        );
+
+        yield Recoil::execute(resolveDomainName('icecave.com.au', $resolver));
+        yield Recoil::execute(resolveDomainName('reactphp.org', $resolver));
+        yield Recoil::execute(resolveDomainName('probably-wont-resolve', $resolver));
+    }
+);
+```
+
+Note that there is **no callback-passing**, and that regular PHP **exceptions are used for reporting errors**.
+
+**Recoil** uses [PHP generators](http://de2.php.net/manual/en/language.generators.overview.php) to implement coroutines.
+Coroutines are functions that can be suspended and resumed while persisting contextual information such as local
+variables. By choosing to suspend execution of a coroutine at key points such as while waiting for I/O, asynchronous
+applications can be built to resemble traditional synchronous applications.
 
 [Nikita Popov](https://github.com/nikic) has published an [excellent article](http://nikic.github.io/2012/12/22/Cooperative-multitasking-using-coroutines-in-PHP.html)
-explaining the function and benefits of generator-based coroutines. The article even includes an example implementation
-of a coroutine scheduler, though it takes a somewhat different approach to **Recoil**.
+explaining the usage and benefits of generator-based coroutines. The article even includes an example implementation of
+a coroutine scheduler, though it takes a somewhat different approach.
 
 ## Concepts
 
@@ -40,7 +72,7 @@ without affecting other strands.
 Unlike threads, execution of a strand can only suspend or resume when a coroutine specifically requests to do so, hence
 the term *cooperative multitasking*.
 
-Strands are sometimes known as [green threads](http://en.wikipedia.org/wiki/Green_threads).
+Strands are very light-weight are sometimes known as [green threads](http://en.wikipedia.org/wiki/Green_threads).
 
 ### The Kernel and Kernel API
 
@@ -75,9 +107,8 @@ decode PHP values for transmission over a stream and as such can be useful for I
 
 ## Examples
 
-The following examples illustrate basic usage of **Recoil**. Additional examples are available in the [examples folder](examples/).
-
-References to the class `Recoil` refer to the [Recoil facade](src/Icecave/Recoil/Recoil.php).
+The following examples illustrate the basic usage of coroutines and the kernel API. Additional examples are available in
+the [examples folder](examples/). References to the class `Recoil` refer to the [Recoil facade](src/Icecave/Recoil/Recoil.php).
 
 ### Basic execution
 
@@ -99,7 +130,7 @@ function as a generator - without changing the behaviour.
 ### Calling one coroutine from another
 
 Coroutines can be called simply by yielding. Yielded generators are adapted into [GeneratorCoroutine](src/Icecave/Recoil/Coroutine/GeneratorCoroutine.php)
-instances so that they may be executed by **Recoil**. Coroutines are executed on the current strand and as such
+instances so that they may be executed by the kernel. Coroutines are executed on the current strand, and as such
 execution of the caller is only resumed once the yielded coroutine has completed.
 
 ```php
