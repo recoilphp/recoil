@@ -2,9 +2,9 @@
 namespace Icecave\Recoil\Coroutine;
 
 use Exception;
+use Icecave\Recoil\Coroutine\Exception\PromiseRejectedException;
 use Icecave\Recoil\Kernel\Strand\StrandInterface;
 use React\Promise\PromiseInterface;
-use RuntimeException;
 
 /**
  * A coroutine that resumes when a promise is fulfilled or rejected.
@@ -104,7 +104,7 @@ class PromiseCoroutine extends AbstractCoroutine
             return $reason;
         }
 
-        return new RuntimeException($reason);
+        return new PromiseRejectedException($reason);
     }
 
     private $promise;

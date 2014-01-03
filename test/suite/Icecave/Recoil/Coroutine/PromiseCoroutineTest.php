@@ -2,13 +2,13 @@
 namespace Icecave\Recoil\Coroutine;
 
 use Exception;
+use Icecave\Recoil\Coroutine\Exception\PromiseRejectedException;
 use Icecave\Recoil\Kernel\Kernel;
 use Icecave\Recoil\Recoil;
 use PHPUnit_Framework_TestCase;
 use React\Promise\Deferred;
 use React\Promise\FulfilledPromise;
 use React\Promise\RejectedPromise;
-use RuntimeException;
 
 /**
  * @covers Icecave\Recoil\Coroutine\PromiseCoroutine
@@ -74,7 +74,7 @@ class PromiseCoroutineTest extends PHPUnit_Framework_TestCase
                 yield new PromiseCoroutine(
                     new RejectedPromise('This is the exception.')
                 );
-            } catch (RuntimeException $e) {
+            } catch (PromiseRejectedException $e) {
                 $exception = $e;
             }
         };
@@ -83,8 +83,8 @@ class PromiseCoroutineTest extends PHPUnit_Framework_TestCase
 
         $this->kernel->eventLoop()->run();
 
-        $this->assertInstanceOf('RuntimeException', $exception);
-        $this->assertSame('This is the exception.', $exception->getMessage());
+        $this->assertInstanceOf(PromiseRejectedException::CLASS, $exception);
+        $this->assertSame('This is the exception.', $exception->reason());
     }
 
     public function testTerminateThenFulfill()
