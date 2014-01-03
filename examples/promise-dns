@@ -11,7 +11,7 @@ use Icecave\Recoil\Recoil;
 /**
  * Resolve a name to an IP address.
  *
- * @param highlight_string(str)       $name     The name to resolve.
+ * @param string                      $name     The name to resolve.
  * @param React\Dns\Resolver\Resolver $resolver The resolver to use.
  */
 function resolveExample($name, React\Dns\Resolver\Resolver $resolver)
@@ -40,20 +40,15 @@ function resolveExample($name, React\Dns\Resolver\Resolver $resolver)
 
 // -----------------------------------------------------------------------------
 
-// Create the coroutine kernel ...
-$kernel = new Icecave\Recoil\Kernel\Kernel;
+Recoil::run(
+    function () {
+        $resolver = (new React\Dns\Resolver\Factory)->create(
+            '8.8.8.8',
+            (yield Recoil::eventLoop())
+        );
 
-// Create the DNS resolver ...
-$resolverFactory = new React\Dns\Resolver\Factory;
-$resolver = $resolverFactory->create(
-    '8.8.8.8',
-    $kernel->eventLoop()
+        yield Recoil::execute(resolveExample('icecave.com.au', $resolver));
+        yield Recoil::execute(resolveExample('igor.io', $resolver));
+        yield Recoil::execute(resolveExample('probably-wont-resolve', $resolver));
+    }
 );
-
-// Enqueue some resolution tasks ...
-$kernel->execute(resolveExample('icecave.com.au', $resolver));
-$kernel->execute(resolveExample('igor.io', $resolver));
-$kernel->execute(resolveExample('probably-wont-resolve', $resolver));
-
-// Run the React event-loop ...
-$kernel->eventLoop()->run();
