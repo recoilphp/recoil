@@ -114,6 +114,23 @@ class KernelApi implements KernelApiInterface
     }
 
     /**
+     * Execute the given coroutines concurrently.
+     *
+     * Execution of the current strand is suspended until all of the coroutines
+     * are completed. If any of the coroutines fails, the remaining coroutines
+     * are terminated.
+     *
+     * @param StrandInterface $strand     The currently executing strand.
+     * @param array           $coroutines The coroutines to execute.
+     */
+    public function all(StrandInterface $strand, array $coroutines)
+    {
+        $strand->call(
+            new WaitAll($coroutines)
+        );
+    }
+
+    /**
      * Suspend the strand until the next tick.
      *
      * @param StrandInterface $strand The currently executing strand.

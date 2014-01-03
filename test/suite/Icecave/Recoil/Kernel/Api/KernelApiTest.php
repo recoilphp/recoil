@@ -174,6 +174,35 @@ class KernelApiTest extends PHPUnit_Framework_TestCase
         $this->kernel->eventLoop()->run();
     }
 
+    public function testAll()
+    {
+        $this->expectOutputString('12345');
+
+        $result = null;
+        $coroutine = function () use (&$result) {
+            $f = function ($value) {
+                echo $value;
+                yield Recoil::return_($value * 2);
+            };
+
+            echo 1;
+
+            $result = (yield Recoil::all([
+                $f(2),
+                $f(3),
+                $f(4),
+            ]));
+
+            echo 5;
+        };
+
+        $this->kernel->execute($coroutine());
+
+        $this->kernel->eventLoop()->run();
+
+        $this->assertSame([4, 6, 8], $result);
+    }
+
     public function testTimeoutExceeded()
     {
         $this->expectOutputString('1');

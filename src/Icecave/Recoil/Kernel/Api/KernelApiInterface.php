@@ -82,6 +82,18 @@ interface KernelApiInterface
     public function timeout(StrandInterface $strand, $timeout, $coroutine);
 
     /**
+     * Execute the given coroutines concurrently.
+     *
+     * Execution of the current strand is suspended until all of the coroutines
+     * are completed. If any of the coroutines fails, the remaining coroutines
+     * are terminated.
+     *
+     * @param StrandInterface $strand     The currently executing strand.
+     * @param array           $coroutines The coroutines to execute.
+     */
+    public function all(StrandInterface $strand, array $coroutines);
+
+    /**
      * Resume the strand immediately.
      *
      * @param StrandInterface $strand The currently executing strand.
