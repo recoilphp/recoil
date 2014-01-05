@@ -2,7 +2,8 @@
 namespace Recoil\Kernel\Api;
 
 use Exception;
-use Recoil\Coroutine\AbstractCoroutine;
+use Recoil\Coroutine\CoroutineInterface;
+use Recoil\Coroutine\CoroutineTrait;
 use Recoil\Kernel\Exception\StrandTerminatedException;
 use Recoil\Kernel\Strand\StrandInterface;
 
@@ -11,8 +12,10 @@ use Recoil\Kernel\Strand\StrandInterface;
  *
  * @internal
  */
-class WaitAll extends AbstractCoroutine
+class WaitAll implements CoroutineInterface
 {
+    use CoroutineTrait;
+
     public function __construct(array $coroutines)
     {
         $this->coroutines = $coroutines;

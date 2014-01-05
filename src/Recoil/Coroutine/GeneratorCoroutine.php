@@ -8,8 +8,10 @@ use Recoil\Kernel\Strand\StrandInterface;
 /**
  * A coroutine wrapper for PHP generators.
  */
-class GeneratorCoroutine extends AbstractCoroutine
+class GeneratorCoroutine implements CoroutineInterface
 {
+    use CoroutineTrait;
+
     /**
      * @param Generator $generator The PHP generator that implements the coroutine logic.
      */

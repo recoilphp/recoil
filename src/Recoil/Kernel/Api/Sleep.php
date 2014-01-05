@@ -1,7 +1,8 @@
 <?php
 namespace Recoil\Kernel\Api;
 
-use Recoil\Coroutine\AbstractCoroutine;
+use Recoil\Coroutine\CoroutineInterface;
+use Recoil\Coroutine\CoroutineTrait;
 use Recoil\Kernel\Strand\StrandInterface;
 
 /**
@@ -9,8 +10,10 @@ use Recoil\Kernel\Strand\StrandInterface;
  *
  * @internal
  */
-class Sleep extends AbstractCoroutine
+class Sleep implements CoroutineInterface
 {
+    use CoroutineTrait;
+
     public function __construct($timeout)
     {
         $this->timeout = $timeout;

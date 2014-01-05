@@ -5,9 +5,9 @@ use Exception;
 use Recoil\Kernel\Strand\StrandInterface;
 
 /**
- * A base class for coroutines that keeps track of next tick state behaviour.
+ * A trait for coroutines that provides basic default implementations.
  */
-abstract class AbstractCoroutine implements CoroutineInterface
+trait CoroutineTrait
 {
     /**
      * Initialize the coroutine.

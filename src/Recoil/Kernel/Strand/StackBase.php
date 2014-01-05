@@ -3,15 +3,18 @@ namespace Recoil\Kernel\Strand;
 
 use Exception;
 use LogicException;
-use Recoil\Coroutine\AbstractCoroutine;
+use Recoil\Coroutine\CoroutineInterface;
+use Recoil\Coroutine\CoroutineTrait;
 
 /**
  * The base coroutine in a strand's call-stack.
  *
  * @internal
  */
-class StackBase extends AbstractCoroutine
+class StackBase implements CoroutineInterface
 {
+    use CoroutineTrait;
+
     /**
      * Start the coroutine.
      *

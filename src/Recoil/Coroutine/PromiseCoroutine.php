@@ -9,8 +9,10 @@ use React\Promise\PromiseInterface;
 /**
  * A coroutine that resumes when a promise is fulfilled or rejected.
  */
-class PromiseCoroutine extends AbstractCoroutine
+class PromiseCoroutine implements CoroutineInterface
 {
+    use CoroutineTrait;
+
     /**
      * @param PromiseInterface $promise The wrapped promise object.
      */

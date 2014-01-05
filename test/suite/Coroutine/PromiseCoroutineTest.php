@@ -12,7 +12,7 @@ use React\Promise\RejectedPromise;
 
 /**
  * @covers Recoil\Coroutine\PromiseCoroutine
- * @covers Recoil\Coroutine\AbstractCoroutine
+ * @covers Recoil\Coroutine\CoroutineTrait
  */
 class PromiseCoroutineTest extends PHPUnit_Framework_TestCase
 {

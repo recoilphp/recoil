@@ -2,7 +2,8 @@
 namespace Recoil\Kernel\Api;
 
 use BadMethodCallException;
-use Recoil\Coroutine\AbstractCoroutine;
+use Recoil\Coroutine\CoroutineInterface;
+use Recoil\Coroutine\CoroutineTrait;
 use Recoil\Kernel\Strand\StrandInterface;
 
 /**
@@ -11,8 +12,10 @@ use Recoil\Kernel\Strand\StrandInterface;
  * @see Recoil\Kernel\KernelApiInterface
  * @see Recoil\Kernel\KernelInterface::api()
  */
-class KernelApiCall extends AbstractCoroutine
+class KernelApiCall implements CoroutineInterface
 {
+    use CoroutineTrait;
+
     /**
      * @param string $name      The name of the kernel API function to invoke.
      * @param array  $arguments The arguments to the kernel API function.

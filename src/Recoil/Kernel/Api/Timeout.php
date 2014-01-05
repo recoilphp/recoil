@@ -2,7 +2,8 @@
 namespace Recoil\Kernel\Api;
 
 use Exception;
-use Recoil\Coroutine\AbstractCoroutine;
+use Recoil\Coroutine\CoroutineInterface;
+use Recoil\Coroutine\CoroutineTrait;
 use Recoil\Kernel\Exception\TimeoutException;
 use Recoil\Kernel\Strand\StrandInterface;
 
@@ -11,8 +12,10 @@ use Recoil\Kernel\Strand\StrandInterface;
  *
  * @internal
  */
-class Timeout extends AbstractCoroutine
+class Timeout implements CoroutineInterface
 {
+    use CoroutineTrait;
+
     public function __construct($timeout, $coroutine)
     {
         $this->timeout = $timeout;

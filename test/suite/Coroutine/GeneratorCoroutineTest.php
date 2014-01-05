@@ -8,7 +8,7 @@ use PHPUnit_Framework_TestCase;
 
 /**
  * @covers Recoil\Coroutine\GeneratorCoroutine
- * @covers Recoil\Coroutine\AbstractCoroutine
+ * @covers Recoil\Coroutine\CoroutineTrait
  */
 class GeneratorCoroutineTest extends PHPUnit_Framework_TestCase
 {
