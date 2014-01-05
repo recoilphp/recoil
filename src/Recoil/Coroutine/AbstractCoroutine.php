@@ -9,92 +9,63 @@ use Recoil\Kernel\Strand\StrandInterface;
  */
 abstract class AbstractCoroutine implements CoroutineInterface
 {
-    public function __construct()
+    /**
+     * Initialize the coroutine.
+     *
+     * This method is invoked before the coroutine is pushed onto the call stack.
+     *
+     * @param StrandInterface $strand The strand that is executing the coroutine.
+     */
+    public function initialize(StrandInterface $strand)
     {
-        $this->tickLogic = function ($strand) {
-            $this->call($strand);
-        };
     }
 
     /**
-     * Invoked when tick() is called for the first time.
+     * Start the coroutine.
      *
      * @param StrandInterface $strand The strand that is executing the coroutine.
      */
     abstract public function call(StrandInterface $strand);
 
     /**
-     * Invoked when tick() is called after sendOnNextTick().
+     * Resume execution of a suspended coroutine by passing it a value.
      *
      * @param StrandInterface $strand The strand that is executing the coroutine.
-     * @param mixed           $value  The value passed to sendOnNextTick().
+     * @param mixed           $value  The value to send to the coroutine.
      */
-    abstract public function resumeWithValue(StrandInterface $strand, $value);
+    public function resumeWithValue(StrandInterface $strand, $value)
+    {
+        $strand->returnValue($value);
+    }
 
     /**
-     * Invoked when tick() is called after throwOnNextTick().
+     * Resume execution of a suspended coroutine by passing it an exception.
      *
      * @param StrandInterface $strand    The strand that is executing the coroutine.
-     * @param Exception       $exception The exception passed to throwOnNextTick().
+     * @param Exception       $exception The exception to send to the coroutine.
      */
-    abstract public function resumeWithException(StrandInterface $strand, Exception $exception);
+    public function resumeWithException(StrandInterface $strand, Exception $exception)
+    {
+        $strand->throwException($exception);
+    }
 
     /**
-     * Invoked when tick() is called after terminateOnNextTick().
+     * Inform the coroutine that the executing strand is being terminated.
      *
      * @param StrandInterface $strand The strand that is executing the coroutine.
      */
-    abstract public function terminate(StrandInterface $strand);
+    public function terminate(StrandInterface $strand)
+    {
+    }
 
     /**
-     * Execute the next unit of work.
+     * Finalize the coroutine.
+     *
+     * This method is invoked after the coroutine is popped from the call stack.
      *
      * @param StrandInterface $strand The strand that is executing the coroutine.
      */
-    public function tick(StrandInterface $strand)
+    public function finalize(StrandInterface $strand)
     {
-        $tickLogic = $this->tickLogic;
-
-        // Clear tickLogic so that an action must be explicitly enqueued before
-        // tick() is called again.
-        $this->tickLogic = null;
-
-        $tickLogic($strand);
     }
-
-    /**
-     * Store a value to send to the coroutine on the next tick.
-     *
-     * @param mixed $value The value to send.
-     */
-    public function sendOnNextTick($value)
-    {
-        $this->tickLogic = function ($strand) use ($value) {
-            $this->resumeWithValue($strand, $value);
-        };
-    }
-
-    /**
-     * Store an exception to send to the coroutine on the next tick.
-     *
-     * @param Exception $exception The exception to send.
-     */
-    public function throwOnNextTick(Exception $exception)
-    {
-        $this->tickLogic = function ($strand) use ($exception) {
-            $this->resumeWithException($strand, $exception);
-        };
-    }
-
-    /**
-     * Instruct the coroutine to terminate execution on the next tick.
-     */
-    public function terminateOnNextTick()
-    {
-        $this->tickLogic = function ($strand) {
-            $this->terminate($strand);
-        };
-    }
-
-    private $tickLogic;
 }

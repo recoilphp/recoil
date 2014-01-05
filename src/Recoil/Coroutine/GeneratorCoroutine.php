@@ -16,8 +16,6 @@ class GeneratorCoroutine extends AbstractCoroutine
     public function __construct(Generator $generator)
     {
         $this->generator = $generator;
-
-        parent::__construct();
     }
 
     /**
@@ -57,10 +55,10 @@ class GeneratorCoroutine extends AbstractCoroutine
     }
 
     /**
-     * Invoked when tick() is called after throwOnNextTick().
+     * Resume execution of a suspended coroutine by passing it an exception.
      *
      * @param StrandInterface $strand    The strand that is executing the coroutine.
-     * @param Exception       $exception The exception passed to throwOnNextTick().
+     * @param Exception       $exception The exception to send to the coroutine.
      */
     public function resumeWithException(StrandInterface $strand, Exception $exception)
     {
@@ -73,19 +71,6 @@ class GeneratorCoroutine extends AbstractCoroutine
         }
 
         $this->dispatch($strand, $valid, $e);
-    }
-
-    /**
-     * Invoked when tick() is called after terminateOnNextTick().
-     *
-     * @param StrandInterface $strand The strand that is executing the coroutine.
-     */
-    public function terminate(StrandInterface $strand)
-    {
-        $this->generator = null;
-
-        $strand->pop();
-        $strand->terminate();
     }
 
     /**
@@ -107,6 +92,18 @@ class GeneratorCoroutine extends AbstractCoroutine
         } else {
             $strand->returnValue(null);
         }
+    }
+
+    /**
+     * Finalize the coroutine.
+     *
+     * This method is invoked after the coroutine is popped from the call stack.
+     *
+     * @param StrandInterface $strand The strand that is executing the coroutine.
+     */
+    public function finalize(StrandInterface $strand)
+    {
+        $this->generator = null;
     }
 
     private $generator;

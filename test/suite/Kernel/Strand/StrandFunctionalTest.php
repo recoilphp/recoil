@@ -1,9 +1,10 @@
 <?php
-namespace Recoil\Kernel;
+namespace Recoil\Kernel\Strand;
 
 use Exception;
-use Recoil\Recoil;
 use PHPUnit_Framework_TestCase;
+use Recoil\Kernel\Kernel;
+use Recoil\Recoil;
 
 /**
  * @group functional
@@ -399,5 +400,17 @@ class StrandFunctionalTest extends PHPUnit_Framework_TestCase
         });
 
         $this->kernel->eventLoop()->run();
+    }
+
+    public function testTickWithoutAction()
+    {
+        $strand = new Strand($this->kernel);
+
+        $this->setExpectedException(
+            'LogicException',
+            'No action has been requested.'
+        );
+
+        $strand->tick();
     }
 }

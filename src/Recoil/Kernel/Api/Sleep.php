@@ -1,7 +1,6 @@
 <?php
 namespace Recoil\Kernel\Api;
 
-use Exception;
 use Recoil\Coroutine\AbstractCoroutine;
 use Recoil\Kernel\Strand\StrandInterface;
 
@@ -15,8 +14,6 @@ class Sleep extends AbstractCoroutine
     public function __construct($timeout)
     {
         $this->timeout = $timeout;
-
-        parent::__construct();
     }
 
     /**
@@ -40,45 +37,18 @@ class Sleep extends AbstractCoroutine
     }
 
     /**
-     * Invoked when tick() is called after sendOnNextTick().
+     * Finalize the coroutine.
      *
-     * @param StrandInterface $strand The strand that is executing the coroutine.
-     * @param mixed           $value  The value passed to sendOnNextTick().
-     */
-    public function resumeWithValue(StrandInterface $strand, $value)
-    {
-        $this->timer->cancel();
-
-        $strand->returnValue($value);
-    }
-
-    /**
-     * Invoked when tick() is called after throwOnNextTick().
-     *
-     * @param StrandInterface $strand    The strand that is executing the coroutine.
-     * @param Exception       $exception The exception passed to throwOnNextTick().
-     */
-    public function resumeWithException(StrandInterface $strand, Exception $exception)
-    {
-        $this->timer->cancel();
-
-        $strand->throwException($exception);
-    }
-
-    /**
-     * Invoked when tick() is called after terminateOnNextTick().
+     * This method is invoked after the coroutine is popped from the call stack.
      *
      * @param StrandInterface $strand The strand that is executing the coroutine.
      */
-    public function terminate(StrandInterface $strand)
+    public function finalize(StrandInterface $strand)
     {
         if ($this->timer) {
             $this->timer->cancel();
             $this->timer = null;
         }
-
-        $strand->pop();
-        $strand->terminate();
     }
 
     private $timeout;

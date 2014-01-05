@@ -17,22 +17,10 @@ class PromiseCoroutine extends AbstractCoroutine
     public function __construct(PromiseInterface $promise)
     {
         $this->promise = $promise;
-
-        parent::__construct();
     }
 
     /**
-     * Fetch the wrapped promise object.
-     *
-     * @return PromiseInterface The wrapped promise object.
-     */
-    public function promise()
-    {
-        return $this->promise;
-    }
-
-    /**
-     * Invoked when tick() is called for the first time.
+     * Start the coroutine.
      *
      * @param StrandInterface $strand The strand that is executing the coroutine.
      */
@@ -57,41 +45,6 @@ class PromiseCoroutine extends AbstractCoroutine
     }
 
     /**
-     * Invoked when tick() is called after sendOnNextTick().
-     *
-     * @param StrandInterface $strand The strand that is executing the coroutine.
-     * @param mixed           $value  The value passed to sendOnNextTick().
-     */
-    public function resumeWithValue(StrandInterface $strand, $value)
-    {
-        $strand->returnValue($value);
-    }
-
-    /**
-     * Invoked when tick() is called after throwOnNextTick().
-     *
-     * @param StrandInterface $strand    The strand that is executing the coroutine.
-     * @param Exception       $exception The exception passed to throwOnNextTick().
-     */
-    public function resumeWithException(StrandInterface $strand, Exception $exception)
-    {
-        $strand->throwException($exception);
-    }
-
-    /**
-     * Invoked when tick() is called after terminateOnNextTick().
-     *
-     * @param StrandInterface $strand The strand that is executing the coroutine.
-     */
-    public function terminate(StrandInterface $strand)
-    {
-        $this->promise = null;
-
-        $strand->pop();
-        $strand->terminate();
-    }
-
-    /**
      * Adapt a promise rejection reason into an exception.
      *
      * @param mixed $reason
@@ -105,6 +58,18 @@ class PromiseCoroutine extends AbstractCoroutine
         }
 
         return new PromiseRejectedException($reason);
+    }
+
+    /**
+     * Finalize the coroutine.
+     *
+     * This method is invoked after the coroutine is popped from the call stack.
+     *
+     * @param StrandInterface $strand The strand that is executing the coroutine.
+     */
+    public function finalize(StrandInterface $strand)
+    {
+        $this->promise = null;
     }
 
     private $promise;

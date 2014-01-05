@@ -3,6 +3,7 @@ namespace Recoil\Kernel\Strand;
 
 use Evenement\EventEmitter;
 use Exception;
+use LogicException;
 use Recoil\Coroutine\CoroutineInterface;
 use Recoil\Kernel\KernelInterface;
 use SplStack;
@@ -69,6 +70,8 @@ class Strand extends EventEmitter implements StrandInterface
             ->coroutineAdaptor()
             ->adapt($this, $coroutine);
 
+        $coroutine->initialize($this);
+
         $this->stack->push($coroutine);
 
         return $coroutine;
@@ -81,7 +84,11 @@ class Strand extends EventEmitter implements StrandInterface
      */
     public function pop()
     {
-        return $this->stack->pop();
+        $coroutine = $this->stack->pop();
+
+        $coroutine->finalize($this);
+
+        return $coroutine;
     }
 
     /**
@@ -96,12 +103,19 @@ class Strand extends EventEmitter implements StrandInterface
     public function call($coroutine)
     {
         try {
-            return $this->push($coroutine);
+            $coroutine = $this->push($coroutine);
         } catch (Exception $e) {
-            $this->current()->throwOnNextTick($e);
+            $this->resumeWithException($e);
+
+            return null;
         }
 
-        return null;
+        $this->tickLogic = function () {
+            $this->tickLogic = null;
+            $this->current()->call($this);
+        };
+
+        return $coroutine;
     }
 
     /**
@@ -112,7 +126,7 @@ class Strand extends EventEmitter implements StrandInterface
     public function returnValue($value = null)
     {
         $this->pop();
-        $this->current()->sendOnNextTick($value);
+        $this->resumeWithValue($value);
     }
 
     /**
@@ -123,7 +137,7 @@ class Strand extends EventEmitter implements StrandInterface
     public function throwException(Exception $exception)
     {
         $this->pop();
-        $this->current()->throwOnNextTick($exception);
+        $this->resumeWithException($exception);
     }
 
     /**
@@ -160,20 +174,32 @@ class Strand extends EventEmitter implements StrandInterface
 
     /**
      * Resume execution of this strand and send a value to the current coroutine.
+     *
+     * @param mixed $value The value to send to the coroutine.
      */
     public function resumeWithValue($value)
     {
-        $this->current()->sendOnNextTick($value);
         $this->resume();
+
+        $this->tickLogic = function () use ($value) {
+            $this->tickLogic = null;
+            $this->current()->resumeWithValue($this, $value);
+        };
     }
 
     /**
-     * Resume execution of this strand and throw an excption to the current coroutine.
+     * Resume execution of this strand and throw an exception to the current coroutine.
+     *
+     * @param Exception $exception The exception to send to the coroutine.
      */
     public function resumeWithException(Exception $exception)
     {
-        $this->current()->throwOnNextTick($exception);
         $this->resume();
+
+        $this->tickLogic = function () use ($exception) {
+            $this->tickLogic = null;
+            $this->current()->resumeWithException($this, $exception);
+        };
     }
 
     /**
@@ -181,8 +207,21 @@ class Strand extends EventEmitter implements StrandInterface
      */
     public function terminate()
     {
-        $this->current()->terminateOnNextTick();
         $this->resume();
+
+        $tickLogic = null;
+        $tickLogic = function () use (&$tickLogic) {
+            $this->current()->terminate($this);
+
+            // Check if the tick logic has been changed, if not continue with
+            // termination of the strand.
+            if ($this->tickLogic === $tickLogic) {
+                $this->pop();
+                // Note that tickLogic is not reset to null.
+            }
+        };
+
+        $this->tickLogic = $tickLogic;
     }
 
     /**
@@ -201,11 +240,18 @@ class Strand extends EventEmitter implements StrandInterface
     public function tick()
     {
         while (!$this->suspended) {
-            $this->current()->tick($this);
+            $tickLogic = $this->tickLogic;
+
+            if (!$tickLogic) {
+                throw new LogicException('No action has been requested.');
+            }
+
+            $tickLogic();
         }
     }
 
     private $kernel;
     private $suspended;
     private $stack;
+    private $tickLogic;
 }

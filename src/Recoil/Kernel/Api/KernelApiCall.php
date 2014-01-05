@@ -2,10 +2,8 @@
 namespace Recoil\Kernel\Api;
 
 use BadMethodCallException;
-use Exception;
-use Recoil\Coroutine\CoroutineInterface;
+use Recoil\Coroutine\AbstractCoroutine;
 use Recoil\Kernel\Strand\StrandInterface;
-use LogicException;
 
 /**
  * Represents a call to a feature provided by the Kernel API.
@@ -13,7 +11,7 @@ use LogicException;
  * @see Recoil\Kernel\KernelApiInterface
  * @see Recoil\Kernel\KernelInterface::api()
  */
-class KernelApiCall implements CoroutineInterface
+class KernelApiCall extends AbstractCoroutine
 {
     /**
      * @param string $name      The name of the kernel API function to invoke.
@@ -46,11 +44,11 @@ class KernelApiCall implements CoroutineInterface
     }
 
     /**
-     * Execute the next unit of work.
+     * Start the coroutine.
      *
      * @param StrandInterface $strand The strand that is executing the coroutine.
      */
-    public function tick(StrandInterface $strand)
+    public function call(StrandInterface $strand)
     {
         $method = [$strand->kernel()->api(), $this->name()];
 
@@ -64,40 +62,6 @@ class KernelApiCall implements CoroutineInterface
                 new BadMethodCallException('The kernel API does not have an operation named "' . $this->name . '".')
             );
         }
-    }
-
-    /**
-     * Store a value to send to the coroutine on the next tick.
-     *
-     * @codeCoverageIgnore
-     *
-     * @param mixed $value The value to send.
-     */
-    public function sendOnNextTick($value)
-    {
-        throw new LogicException('Not supported.');
-    }
-
-    /**
-     * Store an exception to send to the coroutine on the next tick.
-     *
-     * @codeCoverageIgnore
-     *
-     * @param Exception $exception The exception to send.
-     */
-    public function throwOnNextTick(Exception $exception)
-    {
-        throw new LogicException('Not supported.');
-    }
-
-    /**
-     * Instruct the coroutine to terminate execution on the next tick.
-     *
-     * @codeCoverageIgnore
-     */
-    public function terminateOnNextTick()
-    {
-        throw new LogicException('Not supported.');
     }
 
     private $name;

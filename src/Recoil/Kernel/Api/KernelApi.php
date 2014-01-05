@@ -16,7 +16,7 @@ class KernelApi implements KernelApiInterface
      */
     public function strand(StrandInterface $strand)
     {
-        $strand->current()->sendOnNextTick($strand);
+        $strand->resumeWithValue($strand);
     }
 
     /**
@@ -26,7 +26,7 @@ class KernelApi implements KernelApiInterface
      */
     public function kernel(StrandInterface $strand)
     {
-        $strand->current()->sendOnNextTick($strand->kernel());
+        $strand->resumeWithValue($strand->kernel());
     }
 
     /**
@@ -36,7 +36,7 @@ class KernelApi implements KernelApiInterface
      */
     public function eventLoop(StrandInterface $strand)
     {
-        $strand->current()->sendOnNextTick($strand->kernel()->eventLoop());
+        $strand->resumeWithValue($strand->kernel()->eventLoop());
     }
 
     /**
@@ -156,7 +156,7 @@ class KernelApi implements KernelApiInterface
      */
     public function noop(StrandInterface $strand)
     {
-        $strand->current()->sendOnNextTick(null);
+        $strand->resumeWithValue(null);
     }
 
     /**
@@ -171,7 +171,7 @@ class KernelApi implements KernelApiInterface
             ->kernel()
             ->execute($coroutine);
 
-        $strand->current()->sendOnNextTick($substrand);
+        $strand->resumeWithValue($substrand);
     }
 
     /**

@@ -1,7 +1,6 @@
 <?php
 namespace Recoil\Kernel\Api;
 
-use Exception;
 use Recoil\Coroutine\AbstractCoroutine;
 use Recoil\Kernel\Strand\StrandInterface;
 
@@ -16,12 +15,10 @@ class Select extends AbstractCoroutine
     {
         $this->waitStrands = $strands;
         $this->isResuming = false;
-
-        parent::__construct();
     }
 
     /**
-     * Invoked when tick() is called for the first time.
+     * Start the coroutine.
      *
      * @param StrandInterface $strand The strand that is executing the coroutine.
      */
@@ -43,15 +40,13 @@ class Select extends AbstractCoroutine
     }
 
     /**
-     * Invoked when tick() is called after sendOnNextTick().
+     * Resume execution of a suspended coroutine by passing it a value.
      *
      * @param StrandInterface $strand The strand that is executing the coroutine.
-     * @param mixed           $value  The value passed to sendOnNextTick().
+     * @param mixed           $value  The value to send to the coroutine.
      */
     public function resumeWithValue(StrandInterface $strand, $value)
     {
-        $this->removeListeners();
-
         $exitedStrands = array_filter(
             $this->waitStrands,
             function ($strand) {
@@ -63,29 +58,15 @@ class Select extends AbstractCoroutine
     }
 
     /**
-     * Invoked when tick() is called after throwOnNextTick().
+     * Finalize the coroutine.
      *
-     * @codeCoverageIgnore
-     *
-     * @param StrandInterface $strand    The strand that is executing the coroutine.
-     * @param Exception       $exception The exception passed to throwOnNextTick().
-     */
-    public function resumeWithException(StrandInterface $strand, Exception $exception)
-    {
-        throw new Exception('Not supported.');
-    }
-
-    /**
-     * Invoked when tick() is called after terminateOnNextTick().
+     * This method is invoked after the coroutine is popped from the call stack.
      *
      * @param StrandInterface $strand The strand that is executing the coroutine.
      */
-    public function terminate(StrandInterface $strand)
+    public function finalize(StrandInterface $strand)
     {
         $this->removeListeners();
-
-        $strand->pop();
-        $strand->terminate();
     }
 
     public function scheduleResume()

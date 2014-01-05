@@ -2,15 +2,18 @@
 namespace Recoil\Kernel\Strand;
 
 use Exception;
+use LogicException;
 use Recoil\Coroutine\AbstractCoroutine;
 
 /**
  * The base coroutine in a strand's call-stack.
+ *
+ * @internal
  */
 class StackBase extends AbstractCoroutine
 {
     /**
-     * Invoked when tick() is called for the first time.
+     * Start the coroutine.
      *
      * @codeCoverageIgnore
      *
@@ -18,14 +21,14 @@ class StackBase extends AbstractCoroutine
      */
     public function call(StrandInterface $strand)
     {
-        throw new Exception('Not supported.');
+        throw new LogicException('Not supported.');
     }
 
     /**
-     * Invoked when tick() is called after sendOnNextTick().
+     * Resume execution of a suspended coroutine by passing it a value.
      *
      * @param StrandInterface $strand The strand that is executing the coroutine.
-     * @param mixed           $value  The value passed to sendOnNextTick().
+     * @param mixed           $value  The value to send to the coroutine.
      */
     public function resumeWithValue(StrandInterface $strand, $value)
     {
@@ -38,10 +41,10 @@ class StackBase extends AbstractCoroutine
     }
 
     /**
-     * Invoked when tick() is called after throwOnNextTick().
+     * Resume execution of a suspended coroutine by passing it an exception.
      *
      * @param StrandInterface $strand    The strand that is executing the coroutine.
-     * @param Exception       $exception The exception passed to throwOnNextTick().
+     * @param Exception       $exception The exception to send to the coroutine.
      */
     public function resumeWithException(StrandInterface $strand, Exception $exception)
     {
@@ -64,7 +67,7 @@ class StackBase extends AbstractCoroutine
     }
 
     /**
-     * Invoked when tick() is called after terminateOnNextTick().
+     * Inform the coroutine that the executing strand is being terminated.
      *
      * @param StrandInterface $strand The strand that is executing the coroutine.
      */
@@ -74,7 +77,6 @@ class StackBase extends AbstractCoroutine
         $strand->emit('exit', [$strand]);
         $strand->removeAllListeners();
 
-        $strand->pop();
         $strand->suspend();
     }
 }

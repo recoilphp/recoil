@@ -88,11 +88,15 @@ interface StrandInterface extends EventEmitterInterface
 
     /**
      * Resume execution of this strand and send a value to the current coroutine.
+     *
+     * @param mixed $value The value to send to the coroutine.
      */
     public function resumeWithValue($value);
 
     /**
-     * Resume execution of this strand and throw an excption to the current coroutine.
+     * Resume execution of this strand and throw an exception to the current coroutine.
+     *
+     * @param Exception $exception The exception to send to the coroutine.
      */
     public function resumeWithException(Exception $exception);
 

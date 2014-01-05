@@ -21,14 +21,6 @@ class PromiseCoroutineTest extends PHPUnit_Framework_TestCase
         $this->kernel = new Kernel;
     }
 
-    public function testPromise()
-    {
-        $promise = new FulfilledPromise(123);
-        $coroutine = new PromiseCoroutine($promise);
-
-        $this->assertSame($promise, $coroutine->promise());
-    }
-
     public function testFulfilledPromise()
     {
         $value = null;

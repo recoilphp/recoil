@@ -17,12 +17,10 @@ class WaitAll extends AbstractCoroutine
     {
         $this->coroutines = $coroutines;
         $this->returnValues = [];
-
-        parent::__construct();
     }
 
     /**
-     * Invoked when tick() is called for the first time.
+     * Start the coroutine.
      *
      * @param StrandInterface $strand The strand that is executing the coroutine.
      */
@@ -70,17 +68,14 @@ class WaitAll extends AbstractCoroutine
     }
 
     /**
-     * Invoked when tick() is called after sendOnNextTick().
+     * Resume execution of a suspended coroutine by passing it a value.
      *
      * @param StrandInterface $strand The strand that is executing the coroutine.
-     * @param mixed           $value  The value passed to sendOnNextTick().
+     * @param mixed           $value  The value to send to the coroutine.
      */
     public function resumeWithValue(StrandInterface $strand, $value)
     {
         if ($this->exception) {
-            foreach ($this->waitStrands as $s) {
-                $s->terminate();
-            }
             $strand->throwException($this->exception);
         } elseif ($this->waitStrands) {
             $strand->call(
@@ -92,31 +87,17 @@ class WaitAll extends AbstractCoroutine
     }
 
     /**
-     * Invoked when tick() is called after throwOnNextTick().
+     * Finalize the coroutine.
      *
-     * @codeCoverageIgnore
-     *
-     * @param StrandInterface $strand    The strand that is executing the coroutine.
-     * @param Exception       $exception The exception passed to throwOnNextTick().
-     */
-    public function resumeWithException(StrandInterface $strand, Exception $exception)
-    {
-        throw new Exception('Not supported.');
-    }
-
-    /**
-     * Invoked when tick() is called after terminateOnNextTick().
+     * This method is invoked after the coroutine is popped from the call stack.
      *
      * @param StrandInterface $strand The strand that is executing the coroutine.
      */
-    public function terminate(StrandInterface $strand)
+    public function finalize(StrandInterface $strand)
     {
         foreach ($this->waitStrands as $s) {
             $s->terminate();
         }
-
-        $strand->pop();
-        $strand->terminate();
     }
 
     private $coroutines;
