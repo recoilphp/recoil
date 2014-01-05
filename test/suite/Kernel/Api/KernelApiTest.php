@@ -96,6 +96,74 @@ class KernelApiTest extends PHPUnit_Framework_TestCase
         $this->kernel->eventLoop()->run();
     }
 
+    public function testFinally()
+    {
+        $this->expectOutputString('12');
+
+        $coroutine = function () {
+            $strand = (yield Recoil::strand());
+            $coroutine = $strand->current();
+
+            yield Recoil::finally_(
+                function ($s, $c) use ($strand, $coroutine) {
+                    $this->assertSame($strand, $s);
+                    $this->assertSame($coroutine, $c);
+                    echo 2;
+                }
+            );
+
+            echo 1;
+        };
+
+        $this->kernel->execute($coroutine());
+
+        $this->kernel->eventLoop()->run();
+    }
+
+    public function testFinallyWithException()
+    {
+        $this->expectOutputString('12');
+
+        $coroutine = function () {
+            yield Recoil::finally_(
+                function () {
+                    echo 2;
+                }
+            );
+
+            echo 1;
+
+            throw new Exception('This is the exception.');
+        };
+
+        $this->kernel->execute($coroutine());
+
+        $this->setExpectedException('Exception', 'This is the exception.');
+
+        $this->kernel->eventLoop()->run();
+    }
+
+    public function testFinallyWithTermination()
+    {
+        $this->expectOutputString('12');
+
+        $coroutine = function () {
+            yield Recoil::finally_(
+                function () {
+                    echo 2;
+                }
+            );
+
+            echo 1;
+
+            yield Recoil::terminate();
+        };
+
+        $this->kernel->execute($coroutine());
+
+        $this->kernel->eventLoop()->run();
+    }
+
     public function testTerminate()
     {
         $this->expectOutputString('12');

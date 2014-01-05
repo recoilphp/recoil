@@ -1,13 +1,17 @@
 <?php
 namespace Recoil\Coroutine;
 
+use Evenement\EventEmitterInterface;
 use Exception;
 use Recoil\Kernel\Strand\StrandInterface;
 
 /**
  * A coroutine represents a unit of work that can be suspended and resumed.
+ *
+ * @event initialize The coroutine has been initialized and pushed onto the call stack.
+ * @event finalize   The coroutine has been finalized and popped from the call stack.
  */
-interface CoroutineInterface
+interface CoroutineInterface extends EventEmitterInterface
 {
     /**
      * Initialize the coroutine.

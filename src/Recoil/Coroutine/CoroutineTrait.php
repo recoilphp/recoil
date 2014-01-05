@@ -1,6 +1,7 @@
 <?php
 namespace Recoil\Coroutine;
 
+use Evenement\EventEmitterTrait;
 use Exception;
 use Recoil\Kernel\Strand\StrandInterface;
 
@@ -9,6 +10,8 @@ use Recoil\Kernel\Strand\StrandInterface;
  */
 trait CoroutineTrait
 {
+    use EventEmitterTrait;
+
     /**
      * Initialize the coroutine.
      *

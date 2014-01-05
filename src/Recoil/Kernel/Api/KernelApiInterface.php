@@ -47,6 +47,18 @@ interface KernelApiInterface
     public function throw_(StrandInterface $strand, Exception $exception);
 
     /**
+     * Register a callback to be invoked when the current coroutine is popped
+     * from the call stack.
+     *
+     * The callback is guaranteed to be called even if a reference to the
+     * coroutine is held elsewhere (unlike a PHP finally block in a generator).
+     *
+     * @param StrandInterface $strand   The currently executing strand.
+     * @param callable        $callback The callback to invoke.
+     */
+    public function finally_(StrandInterface $strand, callable $callback);
+
+    /**
      * Terminate execution of the strand.
      *
      * @param StrandInterface $strand The currently executing strand.

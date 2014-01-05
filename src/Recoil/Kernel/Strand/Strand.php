@@ -71,6 +71,7 @@ class Strand extends EventEmitter implements StrandInterface
             ->adapt($this, $coroutine);
 
         $coroutine->initialize($this);
+        $coroutine->emit('initialize', [$this, $coroutine]);
 
         $this->stack->push($coroutine);
 
@@ -87,6 +88,8 @@ class Strand extends EventEmitter implements StrandInterface
         $coroutine = $this->stack->pop();
 
         $coroutine->finalize($this);
+        $coroutine->emit('finalize', [$this, $coroutine]);
+        $coroutine->removeAllListeners();
 
         return $coroutine;
     }
