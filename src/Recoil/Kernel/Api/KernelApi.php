@@ -186,6 +186,17 @@ class KernelApi implements KernelApiInterface
     }
 
     /**
+     * Wait for one or more of the given strands to exit.
+     *
+     * @param StrandInterface        $strand  The currently executing strand.
+     * @param array<StrandInterface> $strands The strands to wait for.
+     */
+    public function select(StrandInterface $strand, array $strands)
+    {
+        return new Select($strands);
+    }
+
+    /**
      * Stop the coroutine kernel / event-loop.
      *
      * The React event-loop can optionally be stopped when all strands have been
@@ -201,16 +212,5 @@ class KernelApi implements KernelApiInterface
         $strand
             ->kernel()
             ->stop($stopEventLoop);
-    }
-
-    /**
-     * Wait for one or more of the given strands to exit.
-     *
-     * @param StrandInterface        $strand  The currently executing strand.
-     * @param array<StrandInterface> $strands The strands to wait for.
-     */
-    public function select(StrandInterface $strand, array $strands)
-    {
-        return new Select($strands);
     }
 }

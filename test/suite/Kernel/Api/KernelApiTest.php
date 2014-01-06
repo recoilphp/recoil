@@ -8,6 +8,10 @@ use Recoil\Kernel\Strand\StrandInterface;
 use Recoil\Recoil;
 use PHPUnit_Framework_TestCase;
 
+/**
+ * @covers Recoil\Kernel\Api\KernelApi
+ * @covers Recoil\Kernel\Api\KernelApiCall
+ */
 class KernelApiTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()

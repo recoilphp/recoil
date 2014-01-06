@@ -4,6 +4,7 @@ namespace Recoil\Kernel\Api;
 use Recoil\Coroutine\CoroutineInterface;
 use Recoil\Coroutine\CoroutineTrait;
 use Recoil\Kernel\Strand\StrandInterface;
+use SplObjectStorage;
 
 /**
  * Internal implementation of KernelApiInterface::select().
@@ -16,8 +17,16 @@ class Select implements CoroutineInterface
 
     public function __construct(array $strands)
     {
-        $this->waitStrands = $strands;
-        $this->isResuming = false;
+        $this->pendingStrands = [];
+        $this->exitedStrands = [];
+
+        foreach ($strands as $strand) {
+            if ($strand->hasExited()) {
+                $this->exitedStrands[] = $strand;
+            } else {
+                $this->pendingStrands[] = $strand;
+            }
+        }
     }
 
     /**
@@ -27,37 +36,23 @@ class Select implements CoroutineInterface
      */
     public function call(StrandInterface $strand)
     {
-        $this->suspendedStrand = $strand;
-        $this->suspendedStrand->suspend();
+        // If some of the strands have exited already, resume immediately ...
+        if ($this->exitedStrands) {
+            $strand->resumeWithValue($this->exitedStrands);
 
-        foreach ($this->waitStrands as $strand) {
-            if ($strand->hasExited()) {
-                $this->scheduleResume();
-            } else {
-                $strand->on(
-                    'exit',
-                    [$this, 'scheduleResume']
-                );
-            }
+            return;
         }
-    }
 
-    /**
-     * Resume execution of a suspended coroutine by passing it a value.
-     *
-     * @param StrandInterface $strand The strand that is executing the coroutine.
-     * @param mixed           $value  The value to send to the coroutine.
-     */
-    public function resumeWithValue(StrandInterface $strand, $value)
-    {
-        $exitedStrands = array_filter(
-            $this->waitStrands,
-            function ($strand) {
-                return $strand->hasExited();
-            }
-        );
+        // Otherwise, suspend the current strand until at least one strand exits ...
+        $this->callingStrand = $strand;
+        $this->callingStrand->suspend();
 
-        $strand->returnValue($exitedStrands);
+        foreach ($this->pendingStrands as $strand) {
+            $strand->on(
+                'exit',
+                [$this, 'onStrandExit']
+            );
+        }
     }
 
     /**
@@ -69,40 +64,22 @@ class Select implements CoroutineInterface
      */
     public function finalize(StrandInterface $strand)
     {
-        $this->removeListeners();
-    }
-
-    public function scheduleResume()
-    {
-        if ($this->isResuming) {
-            return;
-        }
-
-        $this
-            ->suspendedStrand
-            ->kernel()
-            ->eventLoop()
-            ->nextTick(
-                function () {
-                    $this->suspendedStrand->resumeWithValue(null);
-                }
-            );
-
-        $this->isResuming = true;
-    }
-
-    protected function removeListeners()
-    {
-        foreach ($this->waitStrands as $strand) {
+        foreach ($this->pendingStrands as $strand) {
             $strand->removeListener(
                 'exit',
-                [$this, 'scheduleResume']
+                [$this, 'onStrandExit']
             );
         }
     }
 
-    private $waitStrands;
-    private $suspendedStrand;
-    private $isResuming;
-    private $resumer;
+    public function onStrandExit(StrandInterface $strand)
+    {
+        $this->exitedStrands[] = $strand;
+
+        $this->callingStrand->resumeWithValue($this->exitedStrands);
+    }
+
+    private $callingStrand;
+    private $pendingStrands;
+    private $exitedStrands;
 }

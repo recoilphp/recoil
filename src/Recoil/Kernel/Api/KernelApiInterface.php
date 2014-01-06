@@ -128,6 +128,14 @@ interface KernelApiInterface
     public function execute(StrandInterface $strand, $coroutine);
 
     /**
+     * Wait for one or more of the given strands to exit.
+     *
+     * @param StrandInterface        $strand  The currently executing strand.
+     * @param array<StrandInterface> $strands The strands to wait for.
+     */
+    public function select(StrandInterface $strand, array $strands);
+
+    /**
      * Stop the coroutine kernel / event-loop.
      *
      * The React event-loop can optionally be stopped when all strands have been
@@ -137,12 +145,4 @@ interface KernelApiInterface
      * @param boolean         $stopEventLoop Indicates whether or not the React event-loop should also be stopped.
      */
     public function stop(StrandInterface $strand, $stopEventLoop = true);
-
-    /**
-     * Wait for one or more of the given strands to exit.
-     *
-     * @param StrandInterface        $strand  The currently executing strand.
-     * @param array<StrandInterface> $strands The strands to wait for.
-     */
-    public function select(StrandInterface $strand, array $strands);
 }
