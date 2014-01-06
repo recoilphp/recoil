@@ -96,9 +96,7 @@ class KernelApi implements KernelApiInterface
      */
     public function sleep(StrandInterface $strand, $timeout)
     {
-        $strand->call(
-            new Sleep($timeout)
-        );
+        return new Sleep($timeout);
     }
 
     /**
@@ -125,9 +123,7 @@ class KernelApi implements KernelApiInterface
      */
     public function timeout(StrandInterface $strand, $timeout, $coroutine)
     {
-        $strand->call(
-            new Timeout($timeout, $coroutine)
-        );
+        return new Timeout($timeout, $coroutine);
     }
 
     /**
@@ -142,9 +138,7 @@ class KernelApi implements KernelApiInterface
      */
     public function all(StrandInterface $strand, array $coroutines)
     {
-        $strand->call(
-            new WaitAll($coroutines)
-        );
+        return new WaitAll($coroutines);
     }
 
     /**
@@ -217,8 +211,6 @@ class KernelApi implements KernelApiInterface
      */
     public function select(StrandInterface $strand, array $strands)
     {
-        $strand->call(
-            new Select($strands)
-        );
+        return new Select($strands);
     }
 }

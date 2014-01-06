@@ -55,15 +55,29 @@ class KernelApiCall implements CoroutineInterface
     {
         $method = [$strand->kernel()->api(), $this->name()];
 
-        if (is_callable($method)) {
-            $strand->pop();
-            $arguments = $this->arguments();
-            array_unshift($arguments, $strand);
-            call_user_func_array($method, $arguments);
-        } else {
+        if (!is_callable($method)) {
             $strand->throwException(
-                new BadMethodCallException('The kernel API does not have an operation named "' . $this->name . '".')
+                new BadMethodCallException(
+                    'The kernel API does not have an operation named "' . $this->name . '".'
+                )
             );
+
+            return;
+        }
+
+        $strand->pop();
+
+        $arguments = $this->arguments();
+
+        array_unshift($arguments, $strand);
+
+        // If the kernel API implementation returns a non-null value it is
+        // treated as a coroutine to be executed. This allows implementation of
+        // kernel API operations to be implemented as generators.
+        $coroutine = call_user_func_array($method, $arguments);
+
+        if (null !== $coroutine) {
+            $strand->call($coroutine);
         }
     }
 
