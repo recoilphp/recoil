@@ -17,14 +17,14 @@ class Select implements CoroutineInterface
 
     public function __construct(array $strands)
     {
-        $this->pendingStrands = [];
-        $this->exitedStrands = [];
+        $this->substrands = new SplObjectStorage;
+        $this->exited = [];
 
-        foreach ($strands as $strand) {
+        foreach ($strands as $index => $strand) {
             if ($strand->hasExited()) {
-                $this->exitedStrands[] = $strand;
+                $this->exited[$index] = $strand;
             } else {
-                $this->pendingStrands[] = $strand;
+                $this->substrands->attach($strand, $index);
             }
         }
     }
@@ -37,17 +37,17 @@ class Select implements CoroutineInterface
     public function call(StrandInterface $strand)
     {
         // If some of the strands have exited already, resume immediately ...
-        if ($this->exitedStrands) {
-            $strand->resumeWithValue($this->exitedStrands);
+        if ($this->exited) {
+            $strand->resumeWithValue($this->exited);
 
             return;
         }
 
         // Otherwise, suspend the current strand until at least one strand exits ...
-        $this->callingStrand = $strand;
-        $this->callingStrand->suspend();
+        $this->strand = $strand;
+        $this->strand->suspend();
 
-        foreach ($this->pendingStrands as $strand) {
+        foreach ($this->substrands as $strand) {
             $strand->on(
                 'exit',
                 [$this, 'onStrandExit']
@@ -64,7 +64,7 @@ class Select implements CoroutineInterface
      */
     public function finalize(StrandInterface $strand)
     {
-        foreach ($this->pendingStrands as $strand) {
+        foreach ($this->substrands as $strand) {
             $strand->removeListener(
                 'exit',
                 [$this, 'onStrandExit']
@@ -74,12 +74,16 @@ class Select implements CoroutineInterface
 
     public function onStrandExit(StrandInterface $strand)
     {
-        $this->exitedStrands[] = $strand;
+        $index = $this->substrands[$strand];
 
-        $this->callingStrand->resumeWithValue($this->exitedStrands);
+        $this->substrands->detach($strand);
+
+        $this->exited[$index] = $strand;
+
+        $this->strand->resumeWithValue($this->exited);
     }
 
-    private $callingStrand;
-    private $pendingStrands;
-    private $exitedStrands;
+    private $strand;
+    private $substrands;
+    private $exited;
 }

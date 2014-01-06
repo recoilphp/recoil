@@ -19,7 +19,8 @@ class WaitAll implements CoroutineInterface
     public function __construct(array $coroutines)
     {
         $this->coroutines = $coroutines;
-        $this->returnValues = [];
+        $this->substrands = [];
+        $this->values = [];
     }
 
     /**
@@ -29,63 +30,54 @@ class WaitAll implements CoroutineInterface
      */
     public function call(StrandInterface $strand)
     {
+        $this->strand = $strand;
+        $this->strand->suspend();
+
         foreach ($this->coroutines as $index => $coroutine) {
-            $this->returnValues[$index] = null;
-            $this->waitStrands[$index] = $s = $strand
+            $this->values[$index] = null;
+
+            $this->substrands[$index] = $substrand = $strand
                 ->kernel()
                 ->execute($coroutine);
 
-            $s->on(
+            $substrand->on(
                 'success',
-                function ($s, $value) use ($index) {
-                    $this->returnValues[$index] = $value;
-                    unset($this->waitStrands[$index]);
+                function ($strand, $value) use ($index) {
+                    $this->values[$index] = $value;
                 }
             );
 
-            $s->on(
+            $substrand->on(
                 'error',
-                function ($s, $exception, $preventDefault) use ($index) {
-                    if (!$this->exception) {
-                        $this->exception = $exception;
-                    }
+                function ($strand, $exception, $preventDefault) {
+                    $this->exception = $exception;
                     $preventDefault();
-                    unset($this->waitStrands[$index]);
                 }
             );
 
-            $s->on(
+            $substrand->on(
                 'terminate',
-                function ($s) use ($index) {
-                    if (!$this->exception) {
-                        $this->exception = new StrandTerminatedException;
-                    }
-                    unset($this->waitStrands[$index]);
+                function () {
+                    $this->exception = new StrandTerminatedException;
                 }
             );
-        }
 
-        $strand->call(
-            new Select($this->waitStrands)
-        );
-    }
+            $substrand->on(
+                'exit',
+                function () use ($index) {
+                    unset($this->substrands[$index]);
 
-    /**
-     * Resume execution of a suspended coroutine by passing it a value.
-     *
-     * @param StrandInterface $strand The strand that is executing the coroutine.
-     * @param mixed           $value  The value to send to the coroutine.
-     */
-    public function resumeWithValue(StrandInterface $strand, $value)
-    {
-        if ($this->exception) {
-            $strand->throwException($this->exception);
-        } elseif ($this->waitStrands) {
-            $strand->call(
-                new Select($this->waitStrands)
+                    if (!$this->strand) {
+                        return;
+                    } elseif ($this->exception) {
+                        $this->strand->resumeWithException($this->exception);
+                        $this->strand = null;
+                    } elseif (!$this->substrands) {
+                        $this->strand->resumeWithValue($this->values);
+                        $this->strand = null;
+                    }
+                }
             );
-        } else {
-            $strand->returnValue($this->returnValues);
         }
     }
 
@@ -98,13 +90,16 @@ class WaitAll implements CoroutineInterface
      */
     public function finalize(StrandInterface $strand)
     {
-        foreach ($this->waitStrands as $s) {
-            $s->terminate();
+        $this->strand = null;
+
+        foreach ($this->substrands as $substrand) {
+            $substrand->terminate();
         }
     }
 
     private $coroutines;
-    private $waitStrands;
-    private $returnValues;
+    private $strand;
+    private $substrands;
+    private $values;
     private $exception;
 }

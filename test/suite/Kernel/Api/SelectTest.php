@@ -23,8 +23,8 @@ class SelectTest extends PHPUnit_Framework_TestCase
             };
 
             $strands = [
-                (yield Recoil::execute($f(1))),
-                (yield Recoil::execute($f(2))),
+                'foo' => (yield Recoil::execute($f(1))),
+                'bar' => (yield Recoil::execute($f(2))),
             ];
 
             $readyStrands = (yield Recoil::select($strands));
