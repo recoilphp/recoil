@@ -241,12 +241,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/reactphp/react.git",
-                "reference": "581b3c944497649739449d4cf5cc4cff5598d152"
+                "reference": "5e5cc70f2bbe6d3804187edcc4924714da8ee432"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/reactphp/react/zipball/581b3c944497649739449d4cf5cc4cff5598d152",
-                "reference": "581b3c944497649739449d4cf5cc4cff5598d152",
+                "url": "https://api.github.com/repos/reactphp/react/zipball/5e5cc70f2bbe6d3804187edcc4924714da8ee432",
+                "reference": "5e5cc70f2bbe6d3804187edcc4924714da8ee432",
                 "shasum": ""
             },
             "require": {
@@ -292,7 +292,7 @@
                 "event-loop",
                 "reactor"
             ],
-            "time": "2013-12-21 19:51:45"
+            "time": "2014-01-07 04:43:03"
         },
         {
             "name": "symfony/event-dispatcher",
@@ -411,16 +411,16 @@
         },
         {
             "name": "icecave/archer",
-            "version": "1.1.0",
+            "version": "1.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/IcecaveStudios/archer.git",
-                "reference": "5ab6803e2fbcb27cbad8624f7f137477a5ca0fb3"
+                "reference": "d1a4d745bf1616be1e8e81ce844521eeaed76428"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/IcecaveStudios/archer/zipball/5ab6803e2fbcb27cbad8624f7f137477a5ca0fb3",
-                "reference": "5ab6803e2fbcb27cbad8624f7f137477a5ca0fb3",
+                "url": "https://api.github.com/repos/IcecaveStudios/archer/zipball/d1a4d745bf1616be1e8e81ce844521eeaed76428",
+                "reference": "d1a4d745bf1616be1e8e81ce844521eeaed76428",
                 "shasum": ""
             },
             "require": {
@@ -479,7 +479,7 @@
                 "testing",
                 "unit"
             ],
-            "time": "2013-10-13 23:54:24"
+            "time": "2014-01-08 03:00:20"
         },
         {
             "name": "nikic/php-parser",
