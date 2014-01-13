@@ -72,7 +72,7 @@ without affecting other strands.
 Unlike threads, execution of a strand can only suspend or resume when a coroutine specifically requests to do so, hence
 the term *cooperative multitasking*.
 
-Strands are very light-weight are sometimes known as [green threads](http://en.wikipedia.org/wiki/Green_threads).
+Strands are very light-weight and are sometimes known as [green threads](http://en.wikipedia.org/wiki/Green_threads).
 
 ### The Kernel and Kernel API
 
