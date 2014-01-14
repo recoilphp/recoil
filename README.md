@@ -200,8 +200,8 @@ Recoil::run(
 );
 ```
 
-`Recoil::throw_()` is equivalent to a `throw` statement, and is useful when a function would otherwise not be parsed as
-a generator.
+`Recoil::throw_()` is equivalent to a `throw` statement, except that the presence of `yield` forces PHP to parse the
+function as a generator.
 
 ```php
 function onlyThrow()
@@ -226,10 +226,11 @@ adapted into a [PromiseCoroutine](src/Coroutine/PromiseCoroutine.php) instance a
 the promise has been fulfilled.
 
 If the promise is resolved, the resulting value is returned from the yield statement. If it is rejected, the yield
-statement throws an exception describing the error. Promise progress events are not currently supported.
+statement throws an exception describing the error. **Recoil** does not yet support progress events.
 
-As promises do not (yet?) support cancellation, terminating a coroutine that is waiting on a promise simply causes the
-promise resolution to be ignored.
+React promises are based on the [Promise/A+](https://github.com/promises-aplus/promises-spec) specification, which does
+not yet define a mechanism for cancellation of pending promises. As such, terminating a coroutine that is waiting on a
+promise simply causes the promise resolution to be ignored.
 
 ### Using an existing event-loop
 
