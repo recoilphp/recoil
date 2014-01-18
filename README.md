@@ -275,6 +275,6 @@ $kernel->execute($coroutine());
 $eventLoop->run();
 ```
 <!-- references -->
-[Build Status]: https://travis-ci.org/recoilphp/recoil.png?branch=develop
-[Test Coverage]: https://coveralls.io/repos/recoilphp/recoil/badge.png?branch=develop
-[SemVer]: http://calm-shore-6115.herokuapp.com/?label=semver&value=0.0.0&color=red
+[Build Status]: http://b.adge.me/travis/recoilphp/recoil/develop.svg
+[Test Coverage]: http://b.adge.me/coveralls/recoilphp/recoil/develop.svg
+[SemVer]: http://b.adge.me/:semver-0.0.0-red.svg
