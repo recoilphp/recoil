@@ -411,16 +411,16 @@
         },
         {
             "name": "icecave/archer",
-            "version": "1.1.1",
+            "version": "1.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/IcecaveStudios/archer.git",
-                "reference": "d1a4d745bf1616be1e8e81ce844521eeaed76428"
+                "reference": "c8f777640f216f75d10905619135d4f92bb0223f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/IcecaveStudios/archer/zipball/d1a4d745bf1616be1e8e81ce844521eeaed76428",
-                "reference": "d1a4d745bf1616be1e8e81ce844521eeaed76428",
+                "url": "https://api.github.com/repos/IcecaveStudios/archer/zipball/c8f777640f216f75d10905619135d4f92bb0223f",
+                "reference": "c8f777640f216f75d10905619135d4f92bb0223f",
                 "shasum": ""
             },
             "require": {
@@ -479,7 +479,7 @@
                 "testing",
                 "unit"
             ],
-            "time": "2014-01-08 03:00:20"
+            "time": "2014-01-21 01:56:19"
         },
         {
             "name": "nikic/php-parser",
