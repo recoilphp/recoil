@@ -353,6 +353,10 @@ class KernelApiTest extends PHPUnit_Framework_TestCase
 
     public function testStop()
     {
+        if (!$this->kernel->eventLoop() instanceof \React\EventLoop\StreamSelectLoop) {
+            $this->markTestSkipped('See https://github.com/reactphp/react/pull/249#issuecomment-33448517');
+        }
+
         $this->expectOutputString('1');
 
         $coroutine1 = function () {

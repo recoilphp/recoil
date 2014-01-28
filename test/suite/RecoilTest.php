@@ -1,7 +1,6 @@
 <?php
 namespace Recoil;
 
-use Recoil\Recoil;
 use PHPUnit_Framework_TestCase;
 use React\EventLoop\StreamSelectLoop;
 
