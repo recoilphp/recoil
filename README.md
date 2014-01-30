@@ -275,6 +275,6 @@ $kernel->execute($coroutine());
 $eventLoop->run();
 ```
 <!-- references -->
-[Build Status]: https://b.adge.me/travis/recoilphp/recoil/develop.svg
-[Test Coverage]: https://b.adge.me/coveralls/recoilphp/recoil/develop.svg
-[SemVer]: https://b.adge.me/:semver-0.0.0-red.svg
+[Build Status]: http://img.shields.io/travis/recoilphp/recoil/develop.svg
+[Test Coverage]: http://img.shields.io/coveralls/recoilphp/recoil/develop.svg
+[SemVer]: http://img.shields.io/:semver-0.0.0-red.svg
