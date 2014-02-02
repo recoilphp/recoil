@@ -163,7 +163,7 @@ class Kernel implements KernelInterface
      */
     protected function registerTick()
     {
-        $this->eventLoop()->nextTick(
+        $this->eventLoop()->futureTick(
             function () {
                 $this->tick();
             }

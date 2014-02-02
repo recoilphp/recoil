@@ -17,7 +17,7 @@ class ReadableReactStreamTest extends PHPUnit_Framework_TestCase
     {
         $this->reactStream = new Stream($this->resource, $this->eventLoop);
 
-        return new ReadableReactStream($this->reactStream);
+        return Phake::partialMock(ReadableReactStream::CLASS, $this->reactStream);
     }
 
     public function testReadFailure()
@@ -45,6 +45,10 @@ class ReadableReactStreamTest extends PHPUnit_Framework_TestCase
 
     public function testCloseBeforeEnd()
     {
+        Phake::when($this->stream)
+            ->onStreamEnd(Phake::anyParameters())
+            ->thenReturn(null);
+
         $this->setExpectedException(StreamClosedException::CLASS);
 
         Recoil::run(
@@ -63,6 +67,10 @@ class ReadableReactStreamTest extends PHPUnit_Framework_TestCase
 
     public function testEndBeforeData()
     {
+        Phake::when($this->stream)
+            ->onStreamData(Phake::anyParameters())
+            ->thenReturn(null);
+
         Recoil::run(
             function () {
                 $coroutine = function () {
