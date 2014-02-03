@@ -26,7 +26,7 @@
         "php": ">=5.5",
         "evenement/evenement": "~2",
         "icecave/repr": "~1",
-        "react/react": "dev-master"
+        "react/react": "~0.4.0"
     },
     "require-dev": {
         "icecave/archer": "~1",
@@ -39,7 +39,5 @@
         "psr-4": {
             "Recoil\\": "src"
         }
-    },
-    "minimum-stability": "dev",
-    "prefer-stable": true
+    }
 }

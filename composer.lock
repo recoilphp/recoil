@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "5a0bd4468ae929f32d6c46a740a36bc1",
+    "hash": "553dbe48203cdc3f933177c33b168301",
     "packages": [
         {
             "name": "evenement/evenement",
@@ -237,16 +237,16 @@
         },
         {
             "name": "react/react",
-            "version": "dev-master",
+            "version": "v0.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/reactphp/react.git",
-                "reference": "37481ec05885f8c45f3afd111f68fd3112f18d50"
+                "reference": "3a5d12166b38d059a96c232d809332e7f3e60d9d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/reactphp/react/zipball/37481ec05885f8c45f3afd111f68fd3112f18d50",
-                "reference": "37481ec05885f8c45f3afd111f68fd3112f18d50",
+                "url": "https://api.github.com/repos/reactphp/react/zipball/3a5d12166b38d059a96c232d809332e7f3e60d9d",
+                "reference": "3a5d12166b38d059a96c232d809332e7f3e60d9d",
                 "shasum": ""
             },
             "require": {
@@ -269,8 +269,9 @@
                 "phpunit/phpunit": "3.7.*"
             },
             "suggest": {
-                "ext-libev": "*",
-                "ext-libevent": "*"
+                "ext-event": "Allows for use of a more performant event-loop implementation.",
+                "ext-libev": "Allows for use of a more performant event-loop implementation.",
+                "ext-libevent": "Allows for use of a more performant event-loop implementation."
             },
             "type": "library",
             "extra": {
@@ -279,8 +280,8 @@
                 }
             },
             "autoload": {
-                "psr-0": {
-                    "React": "src"
+                "psr-4": {
+                    "React\\": "src"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -292,7 +293,7 @@
                 "event-loop",
                 "reactor"
             ],
-            "time": "2014-02-02 01:09:53"
+            "time": "2014-02-03 02:33:04"
         },
         {
             "name": "symfony/event-dispatcher",
@@ -1184,9 +1185,9 @@
             "package": "phake/phake"
         }
     ],
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "stability-flags": {
-        "react/react": 20
+        "phake/phake": 15
     },
     "platform": {
         "php": ">=5.5"
