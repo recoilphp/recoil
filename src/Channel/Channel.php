@@ -2,18 +2,20 @@
 namespace Recoil\Channel;
 
 use Recoil\Channel\Exception\ChannelClosedException;
-use Recoil\Channel\Exception\ChannelLockedException;
 use Recoil\Recoil;
+use SplQueue;
 
 /**
- * An unbuffered (synchronous) loop-back data channel that requires exclusive
- * read/write operations.
+ * An unbuffered (synchronous) loop-back data channel that allows multiple
+ * concurrent read/write operations.
  */
 class Channel implements ReadableChannelInterface, WritableChannelInterface
 {
     public function __construct()
     {
         $this->closed = false;
+        $this->readStrands = new SplQueue;
+        $this->writeStrands = new SplQueue;
     }
 
     /**
@@ -24,28 +26,22 @@ class Channel implements ReadableChannelInterface, WritableChannelInterface
      * If the channel is already closed, or is closed while a read operation is
      * pending a ChannelClosedException is thrown.
      *
-     * Read operations must be exclusive. If concurrent reads are attempted
-     * a ChannelLockedException is thrown.
-     *
      * @return mixed                  The value read from the channel.
      * @throws ChannelClosedException if the channel has been closed.
-     * @throws ChannelLockedException if concurrent reads are attempted.
      */
     public function read()
     {
         if ($this->isClosed()) {
             throw new ChannelClosedException;
-        } elseif ($this->readStrand) {
-            throw new ChannelLockedException;
         }
 
         $value = (yield Recoil::suspend(
             function ($strand) {
-                $this->readStrand = $strand;
+                $this->readStrands->push($strand);
 
-                if ($this->writeStrand) {
-                    $this->writeStrand->resumeWithValue(null);
-                    $this->writeStrand = null;
+                if (!$this->writeStrands->isEmpty()) {
+                    $writeStrand = $this->writeStrands->dequeue();
+                    $writeStrand->resumeWithValue(null);
                 }
             }
         ));
@@ -64,32 +60,24 @@ class Channel implements ReadableChannelInterface, WritableChannelInterface
      * If the channel is already closed, or is closed while a write operation is
      * pending a ChannelClosedException is thrown.
      *
-     * Write operations must be exclusive. If concurrent writes are attempted
-     * a ChannelLockedException is thrown.
-     *
      * @param mixed $value The value to write to the channel.
      *
      * @throws ChannelClosedException if the channel has been closed.
-     * @throws ChannelLockedException if concurrent writes are attempted.
      */
     public function write($value)
     {
         if ($this->isClosed()) {
             throw new ChannelClosedException;
-        } elseif ($this->writeStrand) {
-            throw new ChannelLockedException;
         }
 
-        if (!$this->readStrand) {
+        if ($this->readStrands->isEmpty()) {
             yield Recoil::suspend(
-                function ($strand) {
-                    $this->writeStrand = $strand;
-                }
+                [$this->writeStrands, 'push']
             );
         }
 
-        $this->readStrand->resumeWithValue($value);
-        $this->readStrand = null;
+        $readStrand = $this->readStrands->dequeue();
+        $readStrand->resumeWithValue($value);
     }
 
     /**
@@ -102,18 +90,18 @@ class Channel implements ReadableChannelInterface, WritableChannelInterface
     {
         $this->closed = true;
 
-        if ($this->writeStrand) {
-            $this->writeStrand->resumeWithException(
-                new ChannelClosedException
-            );
-            $this->writeStrand = null;
+        while (!$this->writeStrands->isEmpty()) {
+            $this
+                ->writeStrands
+                ->pop()
+                ->resumeWithException(new ChannelClosedException);
         }
 
-        if ($this->readStrand) {
-            $this->readStrand->resumeWithException(
-                new ChannelClosedException
-            );
-            $this->readStrand = null;
+        while (!$this->readStrands->isEmpty()) {
+            $this
+                ->readStrands
+                ->pop()
+                ->resumeWithException(new ChannelClosedException);
         }
 
         yield Recoil::noop();
@@ -130,6 +118,6 @@ class Channel implements ReadableChannelInterface, WritableChannelInterface
     }
 
     private $closed;
-    private $readStrand;
-    private $writeStrand;
+    private $readStrands;
+    private $writeStrands;
 }
