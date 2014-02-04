@@ -93,6 +93,8 @@ data streams. The interfaces are somewhat similar to the built-in PHP stream API
 Stream operations are cooperative, that is, when reading or writing to a stream, execution of the coroutine is suspended
 until the stream is ready, allowing the kernel to schedule other strands for execution while waiting.
 
+The [stream-file example](examples/stream-file) demonstrates using a readable stream to read a file.
+
 ### Channels
 
 *Channels* are stream-like objects that produce and consume PHP values rather than byte streams. Channels are intended
@@ -103,6 +105,9 @@ variants. Some channel implementations allow for multiple concurrent read and wr
 
 Both in-memory and stream-based channels are provided. Stream-based channels use a serialization protocol to encode and
 decode PHP values for transmission over a stream and as such can be useful for IPC or network communication.
+
+The [channel-ipc example](examples/channel-ipc) demonstrates using stream-based channels to communicate with a
+sub-process.
 
 ## Examples
 
@@ -231,6 +236,9 @@ statement throws an exception describing the error. **Recoil** does not yet supp
 React promises are based on the [Promise/A+](https://github.com/promises-aplus/promises-spec) specification, which does
 not yet define a mechanism for cancellation of pending promises. As such, terminating a coroutine that is waiting on a
 promise simply causes the promise resolution to be ignored.
+
+The [promise-dns example](examples/stream-file) demonstrates using the [React DNS component](https://github.com/reactphp/dns),
+a promised-based API, to resolve several domain names concurrently.
 
 ### Using an existing event-loop
 
