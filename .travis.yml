@@ -1,0 +1,14 @@
+language: php
+
+php: ["5.5"]
+
+env:
+  global:
+    - ARCHER_PUBLISH_VERSION=5.5
+    - secure: "eNkdkCDTTQDrKETgHn9u2Kbx1vvZFDkMxFgmwl6keoe9X4XtEsw/LSgHlE4dEscGVwEidzMJuH2ZapgB9KbqSJImKmtvJYjF1700zrWdXSqy5NeLiexwBwoQbkrnO27AwqpRnEFwJrBlEggsBcUYj8s9hRYlDKb3juEEKgdafxc="
+
+install:
+  - ./.travis.install
+
+script:
+  - ./vendor/bin/archer travis:build
