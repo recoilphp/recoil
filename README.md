@@ -285,4 +285,4 @@ $eventLoop->run();
 <!-- references -->
 [Build Status]: http://img.shields.io/travis/recoilphp/recoil/develop.svg
 [Test Coverage]: http://img.shields.io/coveralls/recoilphp/recoil/develop.svg
-[SemVer]: http://img.shields.io/:semver-0.0.0-red.svg
+[SemVer]: http://img.shields.io/:semver-0.1.0-yellow.svg
