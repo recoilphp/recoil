@@ -18,6 +18,7 @@ class GeneratorCoroutine implements CoroutineInterface
     public function __construct(Generator $generator)
     {
         $this->generator = $generator;
+        $this->finalizeCallbacks = [];
     }
 
     /**
@@ -106,7 +107,25 @@ class GeneratorCoroutine implements CoroutineInterface
     public function finalize(StrandInterface $strand)
     {
         $this->generator = null;
+
+        foreach ($this->finalizeCallbacks as $callback) {
+            $callback($strand, $this);
+        }
+
+        $this->finalizeCallbacks = [];
+    }
+
+    /**
+     * Register a callback to be invoked when the co-routine is finalized.
+     *
+     * @internal
+     *
+     * @param callable $callback The callback to invoke.
+     */
+    public function registerFinalizeCallback(callable $callback) {
+        $this->finalizeCallbacks[] = $callback;
     }
 
     private $generator;
+    private $finalizeCallbacks;
 }
