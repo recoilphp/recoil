@@ -28,7 +28,7 @@ class Strand extends EventEmitter implements StrandInterface
         $this->suspended = false;
         $this->stack     = [];
 
-        $this->stack[] = new StackBase;
+        $this->stack[] = $this->current = new StackBase;
 
         $kernel->attachStrand($this);
     }
@@ -50,7 +50,7 @@ class Strand extends EventEmitter implements StrandInterface
      */
     public function current()
     {
-        return end($this->stack);
+        return $this->current;
     }
 
     /**
@@ -70,6 +70,7 @@ class Strand extends EventEmitter implements StrandInterface
             ->adapt($this, $coroutine);
 
         $this->stack[] = $coroutine;
+        $this->current = $coroutine;
 
         return $coroutine;
     }
@@ -82,6 +83,7 @@ class Strand extends EventEmitter implements StrandInterface
     public function pop()
     {
         $coroutine = array_pop($this->stack);
+        $this->current = end($this->stack);
 
         $coroutine->finalize($this);
         $coroutine->emit('finalize', [$this, $coroutine]);
@@ -111,7 +113,7 @@ class Strand extends EventEmitter implements StrandInterface
 
         $this->tickLogic = function () {
             $this->tickLogic = null;
-            $this->current()->call($this);
+            $this->current->call($this);
         };
 
         return $coroutine;
@@ -182,7 +184,7 @@ class Strand extends EventEmitter implements StrandInterface
 
         $this->tickLogic = function () use ($value) {
             $this->tickLogic = null;
-            $this->current()->resumeWithValue($this, $value);
+            $this->current->resumeWithValue($this, $value);
         };
     }
 
@@ -197,7 +199,7 @@ class Strand extends EventEmitter implements StrandInterface
 
         $this->tickLogic = function () use ($exception) {
             $this->tickLogic = null;
-            $this->current()->resumeWithException($this, $exception);
+            $this->current->resumeWithException($this, $exception);
         };
     }
 
@@ -210,7 +212,7 @@ class Strand extends EventEmitter implements StrandInterface
 
         $tickLogic = null;
         $tickLogic = function () use (&$tickLogic) {
-            $this->current()->terminate($this);
+            $this->current->terminate($this);
 
             // Check if the tick logic has been changed, if not continue with
             // termination of the strand.
@@ -252,5 +254,6 @@ class Strand extends EventEmitter implements StrandInterface
     private $kernel;
     private $suspended;
     private $stack;
+    private $current;
     private $tickLogic;
 }
