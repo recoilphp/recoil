@@ -109,10 +109,8 @@ class Strand extends EventEmitter implements StrandInterface
             return null;
         }
 
-        $this->tickLogic = function () {
-            $this->tickLogic = null;
-            $this->current->call($this);
-        };
+        $this->state = self::STATE_CALL;
+        $this->resumeData = null;
 
         return $coroutine;
     }
@@ -180,10 +178,8 @@ class Strand extends EventEmitter implements StrandInterface
     {
         $this->resume();
 
-        $this->tickLogic = function () use ($value) {
-            $this->tickLogic = null;
-            $this->current->resumeWithValue($this, $value);
-        };
+        $this->state = self::STATE_RESUME;
+        $this->resumeData = $value;
     }
 
     /**
@@ -195,10 +191,8 @@ class Strand extends EventEmitter implements StrandInterface
     {
         $this->resume();
 
-        $this->tickLogic = function () use ($exception) {
-            $this->tickLogic = null;
-            $this->current->resumeWithException($this, $exception);
-        };
+        $this->state = self::STATE_EXCEPTION;
+        $this->resumeData = $exception;
     }
 
     /**
@@ -208,19 +202,8 @@ class Strand extends EventEmitter implements StrandInterface
     {
         $this->resume();
 
-        $tickLogic = null;
-        $tickLogic = function () use (&$tickLogic) {
-            $this->current->terminate($this);
-
-            // Check if the tick logic has been changed, if not continue with
-            // termination of the strand.
-            if ($this->tickLogic === $tickLogic) {
-                $this->pop();
-                // Note that tickLogic is not reset to null.
-            }
-        };
-
-        $this->tickLogic = $tickLogic;
+        $this->state = self::STATE_TERMINATE;
+        $this->resumeData = null;
     }
 
     /**
@@ -239,19 +222,39 @@ class Strand extends EventEmitter implements StrandInterface
     public function tick()
     {
         while (!$this->suspended) {
-            $tickLogic = $this->tickLogic;
+            if ($this->state === self::STATE_CALL) {
+                $this->state = null;
+                $this->current->call($this);
+            } elseif ($this->state === self::STATE_RESUME) {
+                $this->state = null;
+                $this->current->resumeWithValue($this, $this->resumeData);
+            } elseif ($this->state === self::STATE_EXCEPTION) {
+                $this->state = null;
+                $this->current->resumeWithException($this, $this->resumeData);
+            } elseif (self::STATE_TERMINATE === $this->state) {
+                $this->current->terminate($this);
 
-            if (!$tickLogic) {
+                // Check if the tick logic has been changed, if not continue
+                // with termination of the strand.
+                if ($this->state === self::STATE_TERMINATE) {
+                    $this->pop();
+                    // Note that tickLogic is not reset to null.
+                }
+            } else {
                 throw new LogicException('No action has been requested.');
             }
-
-            $tickLogic();
         }
     }
+
+    const STATE_CALL = 1;
+    const STATE_RESUME = 2;
+    const STATE_EXCEPTION = 3;
+    const STATE_TERMINATE = 4;
 
     private $kernel;
     private $suspended;
     private $stack;
     private $current;
-    private $tickLogic;
+    private $state;
+    private $resumeData;
 }
