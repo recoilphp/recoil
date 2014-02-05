@@ -69,9 +69,6 @@ class Strand extends EventEmitter implements StrandInterface
             ->coroutineAdaptor()
             ->adapt($this, $coroutine);
 
-        $coroutine->initialize($this);
-        $coroutine->emit('initialize', [$this, $coroutine]);
-
         $this->stack[] = $coroutine;
 
         return $coroutine;
