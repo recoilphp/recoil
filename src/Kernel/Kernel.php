@@ -10,7 +10,6 @@ use Recoil\Kernel\Strand\StrandFactoryInterface;
 use Recoil\Kernel\Strand\StrandInterface;
 use React\EventLoop\Factory as EventLoopFactory;
 use React\EventLoop\LoopInterface;
-use SplObjectStorage;
 
 /**
  * The default kernel implementation.
@@ -49,8 +48,8 @@ class Kernel implements KernelInterface
         $this->api = $api;
         $this->coroutineAdaptor = $coroutineAdaptor;
         $this->strandFactory = $strandFactory;
-        $this->strands = new SplObjectStorage;
-        $this->terminating = false;
+        $this->strands = [];
+        $this->terminateStrands = false;
     }
 
     /**
@@ -78,11 +77,11 @@ class Kernel implements KernelInterface
      */
     public function attachStrand(StrandInterface $strand)
     {
-        if (0 === $this->strands->count()) {
-            $this->registerTick();
+        if (!$this->strands) {
+            $this->eventLoop->futureTick([$this, 'onTick']);
         }
 
-        $this->strands->attach($strand);
+        $this->strands[] = $strand;
     }
 
     /**
@@ -92,7 +91,11 @@ class Kernel implements KernelInterface
      */
     public function detachStrand(StrandInterface $strand)
     {
-        $this->strands->detach($strand);
+        $index = array_search($strand, $this->strands, true);
+
+        if (false !== $index) {
+            unset($this->strands[$index]);
+        }
     }
 
     /**
@@ -136,41 +139,6 @@ class Kernel implements KernelInterface
     }
 
     /**
-     * Step each of the strands attached to this kernel.
-     */
-    protected function tick()
-    {
-        foreach (clone $this->strands as $strand) {
-            if ($this->terminateStrands) {
-                $strand->terminate();
-            }
-
-            $strand->tick();
-        }
-
-        if (0 !== $this->strands->count()) {
-            $this->registerTick();
-        } elseif ($this->stopEventLoop) {
-            $this->eventLoop()->stop();
-        }
-
-        $this->terminateStrands = false;
-        $this->stopEventLoop = false;
-    }
-
-    /**
-     * Register the tick handler on the next event-loop tick.
-     */
-    protected function registerTick()
-    {
-        $this->eventLoop()->futureTick(
-            function () {
-                $this->tick();
-            }
-        );
-    }
-
-    /**
      * Terminate all strands and stop execution.
      *
      * The React event-loop can optionally be stopped when all strands have been
@@ -182,6 +150,33 @@ class Kernel implements KernelInterface
     {
         $this->terminateStrands = true;
         $this->stopEventLoop = $stopEventLoop;
+    }
+
+    /**
+     * Step each of the strands attached to this kernel.
+     *
+     * @internal
+     */
+    public function onTick()
+    {
+        $strands = $this->strands;
+
+        foreach ($strands as $strand) {
+            if ($this->terminateStrands) {
+                $strand->terminate();
+            }
+
+            $strand->tick();
+        }
+
+        if ($this->strands) {
+            $this->eventLoop->futureTick([$this, 'onTick']);
+        } elseif ($this->stopEventLoop) {
+            $this->eventLoop->stop();
+        }
+
+        $this->terminateStrands = false;
+        $this->stopEventLoop = false;
     }
 
     private $eventLoop;
