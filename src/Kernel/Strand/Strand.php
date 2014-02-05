@@ -6,7 +6,6 @@ use Exception;
 use LogicException;
 use Recoil\Coroutine\CoroutineInterface;
 use Recoil\Kernel\KernelInterface;
-use SplStack;
 
 /**
  * A strand represents a user-space "thread" of execution.
@@ -27,9 +26,9 @@ class Strand extends EventEmitter implements StrandInterface
     {
         $this->kernel    = $kernel;
         $this->suspended = false;
-        $this->stack     = new SplStack;
+        $this->stack     = [];
 
-        $this->stack->push(new StackBase);
+        $this->stack[] = new StackBase;
 
         $kernel->attachStrand($this);
     }
@@ -51,7 +50,7 @@ class Strand extends EventEmitter implements StrandInterface
      */
     public function current()
     {
-        return $this->stack->top();
+        return end($this->stack);
     }
 
     /**
@@ -73,7 +72,7 @@ class Strand extends EventEmitter implements StrandInterface
         $coroutine->initialize($this);
         $coroutine->emit('initialize', [$this, $coroutine]);
 
-        $this->stack->push($coroutine);
+        $this->stack[] = $coroutine;
 
         return $coroutine;
     }
@@ -85,7 +84,7 @@ class Strand extends EventEmitter implements StrandInterface
      */
     public function pop()
     {
-        $coroutine = $this->stack->pop();
+        $coroutine = array_pop($this->stack);
 
         $coroutine->finalize($this);
         $coroutine->emit('finalize', [$this, $coroutine]);
@@ -234,7 +233,7 @@ class Strand extends EventEmitter implements StrandInterface
      */
     public function hasExited()
     {
-        return $this->stack->isEmpty();
+        return !$this->stack;
     }
 
     /**
