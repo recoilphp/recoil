@@ -2,7 +2,7 @@
 <?php
 require dirname(__DIR__) . '/vendor/autoload.php';
 
-define('ITERATIONS', 5000);
+define('ITERATIONS', 50000);
 
 use React\EventLoop\Factory;
 use Recoil\Recoil;
@@ -32,7 +32,7 @@ if (!ini_get('xdebug.profiler_enable')) {
             $go = null;
             $go = function () use ($loop, &$remaining, &$go) {
                 if ($remaining--) {
-                    $loop->nextTick($go);
+                    $loop->futureTick($go);
                 }
             };
 
@@ -49,7 +49,7 @@ runBenchmark(
         Recoil::run(
             function () {
                 for ($i = 0; $i < ITERATIONS; ++$i) {
-                    yield Recoil::noop();
+                    yield;
                 }
             }
         );
