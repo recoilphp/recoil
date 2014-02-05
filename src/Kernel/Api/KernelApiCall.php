@@ -53,7 +53,7 @@ class KernelApiCall implements CoroutineInterface
      */
     public function call(StrandInterface $strand)
     {
-        $method = [$strand->kernel()->api(), $this->name()];
+        $method = [$strand->kernel()->api(), $this->name];
 
         if (!is_callable($method)) {
             $strand->throwException(
@@ -67,7 +67,7 @@ class KernelApiCall implements CoroutineInterface
 
         $strand->pop();
 
-        $arguments = $this->arguments();
+        $arguments = $this->arguments;
 
         array_unshift($arguments, $strand);
 

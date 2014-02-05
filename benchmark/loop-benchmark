@@ -2,7 +2,7 @@
 <?php
 require dirname(__DIR__) . '/vendor/autoload.php';
 
-define('ITERATIONS', 10000);
+define('ITERATIONS', 50000);
 
 use React\EventLoop\Factory;
 use Recoil\Recoil;
@@ -22,24 +22,26 @@ function runBenchmark($name, callable $work)
     printf(PHP_EOL);
 }
 
-runBenchmark(
-    'react - futureTick',
-    function () {
-        $loop = Factory::create();
+if (!ini_get('xdebug.profiler_enable')) {
+    runBenchmark(
+        'react - futureTick',
+        function () {
+            $loop = Factory::create();
 
-        $remaining = ITERATIONS;
-        $go = null;
-        $go = function () use ($loop, &$remaining, &$go) {
-            if ($remaining--) {
-                $loop->futureTick($go);
-            }
-        };
+            $remaining = ITERATIONS;
+            $go = null;
+            $go = function () use ($loop, &$remaining, &$go) {
+                if ($remaining--) {
+                    $loop->futureTick($go);
+                }
+            };
 
-        $go();
+            $go();
 
-        $loop->run();
-    }
-);
+            $loop->run();
+        }
+    );
+}
 
 runBenchmark(
     'recoil - futureTick via cooperative yield',
