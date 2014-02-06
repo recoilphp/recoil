@@ -12,34 +12,49 @@
 ## Overview
 
 The goal of **Recoil** is to enable development of asynchronous applications using familiar imperative programming
-techniques. The example below uses **Recoil** and the [React DNS component](https://github.com/reactphp/dns) to resolve
-several domain names concurrently.
+techniques. The example below uses the [Recoil Redis client](https://github.com/recoilphp/redis) and the [React DNS component](https://github.com/reactphp/dns)
+to resolve several domain names concurrently and store the results in a Redis database.
 
 ```php
+use React\Dns\Resolver\Factory as ResolverFactory;
 use Recoil\Recoil;
-use React\Dns\Resolver\Resolver;
-use React\Dns\Resolver\Factory;
+use Recoil\Redis\Client as RedisClient;
 
-function resolveDomainName($name, Resolver $resolver)
+/**
+ * Resolve a domain name and store the result in Redis.
+ */
+function resolveAndStore($redisClient, $dnsResolver, $domainName)
 {
     try {
-        $ip = (yield $resolver->resolve($name));
-        echo 'Resolved "' . $name . '" to ' . $ip . PHP_EOL;
+        $ipAddress = (yield $dnsResolver->resolve($domainName));
+
+        yield $redisClient->set($domainName, $ipAddress);
+
+        echo 'Resolved "' . $domainName . '" to ' . $ipAddress . PHP_EOL;
     } catch (Exception $e) {
-        echo 'Failed to resolve "' . $name . '" - ' . $e->getMessage() . PHP_EOL;
+        echo 'Failed to resolve "' . $domainName . '" - ' . $e->getMessage() . PHP_EOL;
     }
 }
 
 Recoil::run(
     function () {
-        $resolver = (new Factory)->create(
+        $dnsResolver = (new ResolverFactory)->create(
             '8.8.8.8',
             (yield Recoil::eventLoop())
         );
 
-        yield Recoil::execute(resolveDomainName('recoil.io', $resolver));
-        yield Recoil::execute(resolveDomainName('reactphp.org', $resolver));
-        yield Recoil::execute(resolveDomainName('probably-wont-resolve', $resolver));
+        $redisClient = new RedisClient;
+
+        yield $redisClient->connect();
+
+        // Yielding an array of co-routines executes them concurrently.
+        yield [
+            resolveAndStore($redisClient, $dnsResolver, 'recoil.io'),
+            resolveAndStore($redisClient, $dnsResolver, 'reactphp.org'),
+            resolveAndStore($redisClient, $dnsResolver, 'icecave.com.au'),
+        ];
+
+        yield $redisClient->disconnect();
     }
 );
 ```
