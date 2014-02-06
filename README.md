@@ -13,7 +13,7 @@
 
 The goal of **Recoil** is to enable development of asynchronous applications using familiar imperative programming
 techniques. The example below uses the [Recoil Redis client](https://github.com/recoilphp/redis) and the [React DNS component](https://github.com/reactphp/dns)
-to resolve several domain names concurrently and store the results in a Redis database.
+to resolve several domain names **concurrently** and store the results in a Redis database.
 
 ```php
 use React\Dns\Resolver\Factory as ResolverFactory;
