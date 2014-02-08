@@ -29,7 +29,6 @@ class GeneratorCoroutine implements CoroutineInterface
     public function call(StrandInterface $strand)
     {
         try {
-            $e = null;
             $valid = $this->generator->valid();
         } catch (Exception $e) {
             $strand->throwException($e);
@@ -55,7 +54,6 @@ class GeneratorCoroutine implements CoroutineInterface
     public function resumeWithValue(StrandInterface $strand, $value)
     {
         try {
-            $e = null;
             $this->generator->send($value);
             $valid = $this->generator->valid();
         } catch (Exception $e) {
@@ -82,7 +80,6 @@ class GeneratorCoroutine implements CoroutineInterface
     public function resumeWithException(StrandInterface $strand, Exception $exception)
     {
         try {
-            $e = null;
             $this->generator->throw($exception);
             $valid = $this->generator->valid();
         } catch (Exception $e) {
