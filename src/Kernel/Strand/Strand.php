@@ -149,8 +149,6 @@ class Strand extends EventEmitter implements StrandInterface
         $this->suspended = true;
 
         $this->kernel->detachStrand($this);
-
-        $this->emit('suspend', [$this]);
     }
 
     /**
@@ -165,8 +163,6 @@ class Strand extends EventEmitter implements StrandInterface
         $this->suspended = false;
 
         $this->kernel->attachStrand($this);
-
-        $this->emit('resume', [$this]);
     }
 
     /**

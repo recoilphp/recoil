@@ -125,7 +125,8 @@ class GeneratorCoroutine implements CoroutineInterface
      *
      * @param callable $callback The callback to invoke.
      */
-    public function registerFinalizeCallback(callable $callback) {
+    public function registerFinalizeCallback(callable $callback)
+    {
         $this->finalizeCallbacks[] = $callback;
     }
 

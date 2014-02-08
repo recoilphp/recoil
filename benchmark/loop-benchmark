@@ -2,7 +2,7 @@
 <?php
 require dirname(__DIR__) . '/vendor/autoload.php';
 
-define('ITERATIONS', 50000);
+define('ITERATIONS', 10000);
 
 use React\EventLoop\Factory;
 use Recoil\Recoil;
