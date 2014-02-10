@@ -412,16 +412,16 @@
         },
         {
             "name": "icecave/archer",
-            "version": "1.1.2",
+            "version": "1.1.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/IcecaveStudios/archer.git",
-                "reference": "c8f777640f216f75d10905619135d4f92bb0223f"
+                "reference": "bd29aecd559962e0f8cf9753fce449ae78f2a913"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/IcecaveStudios/archer/zipball/c8f777640f216f75d10905619135d4f92bb0223f",
-                "reference": "c8f777640f216f75d10905619135d4f92bb0223f",
+                "url": "https://api.github.com/repos/IcecaveStudios/archer/zipball/bd29aecd559962e0f8cf9753fce449ae78f2a913",
+                "reference": "bd29aecd559962e0f8cf9753fce449ae78f2a913",
                 "shasum": ""
             },
             "require": {
@@ -445,8 +445,8 @@
             ],
             "type": "library",
             "autoload": {
-                "psr-0": {
-                    "Icecave\\Archer": "src"
+                "psr-4": {
+                    "Icecave\\Archer\\": "src"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -480,7 +480,7 @@
                 "testing",
                 "unit"
             ],
-            "time": "2014-01-21 01:56:19"
+            "time": "2014-02-10 03:46:44"
         },
         {
             "name": "nikic/php-parser",
