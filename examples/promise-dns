@@ -40,15 +40,20 @@ function resolveDomainName($name, React\Dns\Resolver\Resolver $resolver)
 
 // -----------------------------------------------------------------------------
 
-Recoil::run(
-    function () {
-        $resolver = (new React\Dns\Resolver\Factory)->create(
-            '8.8.8.8',
-            (yield Recoil::eventLoop())
-        );
+function main()
+{
+    $resolver = (new React\Dns\Resolver\Factory)->create(
+        '8.8.8.8',
+        (yield Recoil::eventLoop())
+    );
 
-        yield Recoil::execute(resolveDomainName('recoil.io', $resolver));
-        yield Recoil::execute(resolveDomainName('reactphp.org', $resolver));
-        yield Recoil::execute(resolveDomainName('probably-wont-resolve', $resolver));
-    }
-);
+    yield [
+        resolveDomainName('recoil.io', $resolver),
+        resolveDomainName('reactphp.org', $resolver),
+        resolveDomainName('probably-wont-resolve', $resolver),
+    ];
+
+    echo 'Done.' . PHP_EOL;
+}
+
+Recoil::run('main');
