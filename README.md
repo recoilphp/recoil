@@ -252,8 +252,9 @@ React promises are based on the [Promise/A+](https://github.com/promises-aplus/p
 not yet define a mechanism for cancellation of pending promises. As such, terminating a coroutine that is waiting on a
 promise simply causes the promise resolution to be ignored.
 
-The [promise-dns example](examples/stream-file) demonstrates using the [React DNS component](https://github.com/reactphp/dns),
-a promised-based API, to resolve several domain names concurrently.
+The [promise-dns example](examples/promise-dns) demonstrates using the [React DNS component](https://github.com/reactphp/dns),
+a promised-based API, to resolve several domain names concurrently. [This example](examples/promise-dns-react) shows the
+same functionality implemented without **Recoil**.
 
 ### Using an existing event-loop
 
