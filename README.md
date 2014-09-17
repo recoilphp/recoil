@@ -156,13 +156,13 @@ execution of the caller is only resumed once the yielded coroutine has completed
 function hello()
 {
     echo 'Hello, ';
-    yield Coro::noop();
+    yield Recoil::noop();
 }
 
 function world()
 {
     echo 'world!' . PHP_EOL;
-    yield Coro::noop();
+    yield Recoil::noop();
 }
 
 Recoil::run(
