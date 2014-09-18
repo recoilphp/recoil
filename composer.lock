@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "553dbe48203cdc3f933177c33b168301",
+    "hash": "97a5fb7361a54a5b2aa90f322747bd47",
     "packages": [
         {
             "name": "evenement/evenement",
@@ -243,16 +243,16 @@
         },
         {
             "name": "react/react",
-            "version": "v0.4.1",
+            "version": "v0.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/reactphp/react.git",
-                "reference": "17044db0ab6a9c145fb1ac40822c5c17d045dc36"
+                "reference": "3a5d12166b38d059a96c232d809332e7f3e60d9d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/reactphp/react/zipball/17044db0ab6a9c145fb1ac40822c5c17d045dc36",
-                "reference": "17044db0ab6a9c145fb1ac40822c5c17d045dc36",
+                "url": "https://api.github.com/repos/reactphp/react/zipball/3a5d12166b38d059a96c232d809332e7f3e60d9d",
+                "reference": "3a5d12166b38d059a96c232d809332e7f3e60d9d",
                 "shasum": ""
             },
             "require": {
@@ -282,7 +282,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "0.5-dev"
+                    "dev-master": "0.4-dev"
                 }
             },
             "autoload": {
@@ -299,7 +299,7 @@
                 "event-loop",
                 "reactor"
             ],
-            "time": "2014-04-13 17:03:14"
+            "time": "2014-02-03 02:33:04"
         },
         {
             "name": "symfony/event-dispatcher",
