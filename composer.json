@@ -26,18 +26,20 @@
         "php": ">=5.5",
         "evenement/evenement": "~2",
         "icecave/repr": "~1",
-        "react/react": "~0.4.0"
+        "react/react": "0.4.0|~0.4.2"
     },
     "require-dev": {
         "icecave/archer": "~1",
         "phake/phake": "2.0.0-alpha4 as v1.0.3"
     },
-    "suggest": {
-        "eloquent/asplode": "Drop-in exception-based error handling."
-    },
     "autoload": {
         "psr-4": {
             "Recoil\\": "src"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-develop": "0.3.x-dev"
         }
     }
 }

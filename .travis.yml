@@ -1,10 +1,14 @@
 language: php
 
-php: ["5.5"]
+php: ["5.5", "5.6", "hhvm", "hhvm-nightly"]
+
+matrix:
+    allow_failures: [{"php": "hhvm"}, {"php": "hhvm-nightly"}]
+    fast_finish: true
 
 env:
   global:
-    - ARCHER_PUBLISH_VERSION=5.5
+    - ARCHER_PUBLISH_VERSION=5.6
     - secure: "eNkdkCDTTQDrKETgHn9u2Kbx1vvZFDkMxFgmwl6keoe9X4XtEsw/LSgHlE4dEscGVwEidzMJuH2ZapgB9KbqSJImKmtvJYjF1700zrWdXSqy5NeLiexwBwoQbkrnO27AwqpRnEFwJrBlEggsBcUYj8s9hRYlDKb3juEEKgdafxc="
 
 install:

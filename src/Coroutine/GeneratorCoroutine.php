@@ -18,6 +18,7 @@ class GeneratorCoroutine implements CoroutineInterface
     public function __construct(Generator $generator)
     {
         $this->generator = $generator;
+        $this->finalizeCallbacks = [];
     }
 
     /**
@@ -28,13 +29,20 @@ class GeneratorCoroutine implements CoroutineInterface
     public function call(StrandInterface $strand)
     {
         try {
-            $e = null;
             $valid = $this->generator->valid();
         } catch (Exception $e) {
-            $valid = false;
+            $strand->throwException($e);
+
+            return;
         }
 
-        $this->dispatch($strand, $valid, $e);
+        if ($valid) {
+            $strand->call(
+                $this->generator->current()
+            );
+        } else {
+            $strand->returnValue(null);
+        }
     }
 
     /**
@@ -46,14 +54,21 @@ class GeneratorCoroutine implements CoroutineInterface
     public function resumeWithValue(StrandInterface $strand, $value)
     {
         try {
-            $e = null;
             $this->generator->send($value);
             $valid = $this->generator->valid();
         } catch (Exception $e) {
-            $valid = false;
+            $strand->throwException($e);
+
+            return;
         }
 
-        $this->dispatch($strand, $valid, $e);
+        if ($valid) {
+            $strand->call(
+                $this->generator->current()
+            );
+        } else {
+            $strand->returnValue(null);
+        }
     }
 
     /**
@@ -65,29 +80,15 @@ class GeneratorCoroutine implements CoroutineInterface
     public function resumeWithException(StrandInterface $strand, Exception $exception)
     {
         try {
-            $e = null;
             $this->generator->throw($exception);
             $valid = $this->generator->valid();
         } catch (Exception $e) {
-            $valid = false;
+            $strand->throwException($e);
+
+            return;
         }
 
-        $this->dispatch($strand, $valid, $e);
-    }
-
-    /**
-     * Dispatch the value or exception produced by the latest tick of the
-     * generator.
-     *
-     * @param StrandInterface $strand    The strand that is executing the coroutine.
-     * @param boolean         $valid     Whether or not the generator is valid.
-     * @param Exception|null  $exception The exception thrown during the latest tick, if any.
-     */
-    protected function dispatch(StrandInterface $strand, $valid, Exception $exception = null)
-    {
-        if ($exception) {
-            $strand->throwException($exception);
-        } elseif ($valid) {
+        if ($valid) {
             $strand->call(
                 $this->generator->current()
             );
@@ -106,7 +107,26 @@ class GeneratorCoroutine implements CoroutineInterface
     public function finalize(StrandInterface $strand)
     {
         $this->generator = null;
+
+        foreach ($this->finalizeCallbacks as $callback) {
+            $callback($strand, $this);
+        }
+
+        $this->finalizeCallbacks = [];
+    }
+
+    /**
+     * Register a callback to be invoked when the co-routine is finalized.
+     *
+     * @internal
+     *
+     * @param callable $callback The callback to invoke.
+     */
+    public function registerFinalizeCallback(callable $callback)
+    {
+        $this->finalizeCallbacks[] = $callback;
     }
 
     private $generator;
+    private $finalizeCallbacks;
 }

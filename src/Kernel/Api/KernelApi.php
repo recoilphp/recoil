@@ -73,7 +73,7 @@ class KernelApi implements KernelApiInterface
      */
     public function finally_(StrandInterface $strand, callable $callback)
     {
-        $strand->current()->once('finalize', $callback);
+        $strand->current()->registerFinalizeCallback($callback);
 
         $strand->resumeWithValue(null);
     }

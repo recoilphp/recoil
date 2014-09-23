@@ -1,10 +1,5 @@
 #!/usr/bin/env php
 <?php
-
-// Update git to the latest version ...
-passthru('sudo apt-get update');
-passthru('sudo apt-get install git');
-
 // Update composer to the latest version ...
 passthru('composer self-update --no-interaction');
 
