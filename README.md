@@ -6,7 +6,7 @@
 
 **Recoil** is a generator-based cooperative multitasking kernel for [React](https://github.com/reactphp/react).
 
-* Install via [Composer](http://getcomposer.org) package [recoilphp/recoil](https://packagist.org/packages/recoilphp/recoil)
+* Install via [Composer](http://getcomposer.org) package [recoil/recoil](https://packagist.org/packages/recoil/recoil)
 * Read the [API documentation](http://recoilphp.github.io/recoil/artifacts/documentation/api/)
 
 ## Overview
@@ -299,6 +299,6 @@ $kernel->execute($coroutine());
 $eventLoop->run();
 ```
 <!-- references -->
-[Build Status]: http://img.shields.io/travis/recoilphp/recoil/develop.svg
-[Test Coverage]: http://img.shields.io/coveralls/recoilphp/recoil/develop.svg
-[SemVer]: http://img.shields.io/:semver-0.1.0-yellow.svg
+[Build Status]: http://img.shields.io/travis/recoilphp/recoil/develop.svg?style=flat-square
+[Test Coverage]: http://img.shields.io/coveralls/recoilphp/recoil/develop.svg?style=flat-square
+[SemVer]: http://img.shields.io/:semver-0.2.0-yellow.svg?style=flat-square
