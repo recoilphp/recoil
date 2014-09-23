@@ -6,7 +6,7 @@
 
 **Recoil** is a generator-based cooperative multitasking kernel for [React](https://github.com/reactphp/react).
 
-* Install via [Composer](http://getcomposer.org) package [recoilphp/recoil](https://packagist.org/packages/recoilphp/recoil)
+* Install via [Composer](http://getcomposer.org) package [recoil/recoil](https://packagist.org/packages/recoil/recoil)
 * Read the [API documentation](http://recoilphp.github.io/recoil/artifacts/documentation/api/)
 
 ## Overview
