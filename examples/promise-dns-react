@@ -18,10 +18,10 @@ function resolveDomainName($name, React\Dns\Resolver\Resolver $resolver)
     return $resolver
         ->resolve($name)
         ->then(
-            function ($name) {
+            function ($ip) use ($name) {
                 echo 'Resolved "' . $name . '" to ' . $ip . PHP_EOL;
             },
-            function ($e) {
+            function ($e) use ($name) {
                 echo 'Failed to resolve "' . $name . '" - ' . $e->getMessage() . PHP_EOL;
             }
         );
