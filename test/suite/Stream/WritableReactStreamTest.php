@@ -36,12 +36,12 @@ class WritableReactStreamTest extends PHPUnit_Framework_TestCase
 
     public function testWriteError()
     {
-        $this->setExpectedException(StreamWriteException::CLASS);
+        $this->setExpectedException(StreamWriteException::class);
 
         Recoil::run(
             function () {
                 $coroutine = function () {
-                    $this->stream->onStreamError(new Exception);
+                    $this->stream->onStreamError(new Exception());
 
                     yield Recoil::noop();
                 };

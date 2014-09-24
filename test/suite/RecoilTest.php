@@ -27,7 +27,7 @@ class RecoilTest extends PHPUnit_Framework_TestCase
                 echo 'test';
                 yield;
             },
-            new StreamSelectLoop
+            new StreamSelectLoop()
         );
     }
 }

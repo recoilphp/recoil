@@ -12,15 +12,15 @@ class KernelTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
-        $this->kernel = new Kernel;
+        $this->kernel = new Kernel();
     }
 
     public function testConstructorDefaults()
     {
-        $this->assertInstanceOf(KernelApi::CLASS, $this->kernel->api());
-        $this->assertInstanceOf(CoroutineAdaptor::CLASS, $this->kernel->coroutineAdaptor());
-        $this->assertInstanceOf(StrandFactory::CLASS, $this->kernel->strandFactory());
-        $this->assertInstanceOf(LoopInterface::CLASS, $this->kernel->eventLoop());
+        $this->assertInstanceOf(KernelApi::class, $this->kernel->api());
+        $this->assertInstanceOf(CoroutineAdaptor::class, $this->kernel->coroutineAdaptor());
+        $this->assertInstanceOf(StrandFactory::class, $this->kernel->strandFactory());
+        $this->assertInstanceOf(LoopInterface::class, $this->kernel->eventLoop());
     }
 
     public function testStop()

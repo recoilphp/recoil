@@ -33,15 +33,15 @@ class Kernel implements KernelInterface
         }
 
         if (null === $api) {
-            $api = new KernelApi;
+            $api = new KernelApi();
         }
 
         if (null === $coroutineAdaptor) {
-            $coroutineAdaptor = new CoroutineAdaptor;
+            $coroutineAdaptor = new CoroutineAdaptor();
         }
 
         if (null === $strandFactory) {
-            $strandFactory = new StrandFactory;
+            $strandFactory = new StrandFactory();
         }
 
         $this->eventLoop = $eventLoop;

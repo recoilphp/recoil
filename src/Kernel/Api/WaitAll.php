@@ -58,7 +58,7 @@ class WaitAll implements CoroutineInterface
             $substrand->on(
                 'terminate',
                 function () {
-                    $this->exception = new StrandTerminatedException;
+                    $this->exception = new StrandTerminatedException();
                 }
             );
 

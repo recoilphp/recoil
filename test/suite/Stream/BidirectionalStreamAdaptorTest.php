@@ -9,8 +9,8 @@ class BidirectionalStreamAdaptorTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
-        $this->readStream = Phake::mock(ReadableStreamInterface::CLASS);
-        $this->writeStream = Phake::mock(WritableStreamInterface::CLASS);
+        $this->readStream = Phake::mock(ReadableStreamInterface::class);
+        $this->writeStream = Phake::mock(WritableStreamInterface::class);
         $this->adaptor = new BidirectionalStreamAdaptor(
             $this->readStream,
             $this->writeStream

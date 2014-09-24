@@ -28,7 +28,7 @@ class Strand extends EventEmitter implements StrandInterface
         $this->suspended = false;
         $this->stack     = [];
 
-        $this->stack[] = $this->current = new StackBase;
+        $this->stack[] = $this->current = new StackBase();
 
         $kernel->attachStrand($this);
     }

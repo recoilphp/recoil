@@ -7,7 +7,7 @@ class PhpSerializerTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
-        $this->serializer = new PhpSerializer;
+        $this->serializer = new PhpSerializer();
     }
 
     public function testSerialize()

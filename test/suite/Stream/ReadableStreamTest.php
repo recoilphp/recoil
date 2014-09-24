@@ -17,7 +17,7 @@ class ReadableStreamTest extends PHPUnit_Framework_TestCase
 
     public function testReadFailure()
     {
-        $this->setExpectedException(StreamReadException::CLASS);
+        $this->setExpectedException(StreamReadException::class);
 
         Phake::when($this->eventLoop)
             ->removeReadStream(Phake::anyParameters())

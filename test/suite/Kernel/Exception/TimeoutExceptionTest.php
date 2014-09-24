@@ -7,7 +7,7 @@ class TimeoutExceptionTest extends PHPUnit_Framework_TestCase
 {
     public function testException()
     {
-        $exception = new TimeoutException;
+        $exception = new TimeoutException();
 
         $this->assertSame('Execution has timed out.', $exception->getMessage());
     }

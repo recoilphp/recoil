@@ -18,7 +18,7 @@ class PromiseCoroutineTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
-        $this->kernel = new Kernel;
+        $this->kernel = new Kernel();
     }
 
     public function testFulfilledPromise()
@@ -75,13 +75,13 @@ class PromiseCoroutineTest extends PHPUnit_Framework_TestCase
 
         $this->kernel->eventLoop()->run();
 
-        $this->assertInstanceOf(PromiseRejectedException::CLASS, $exception);
+        $this->assertInstanceOf(PromiseRejectedException::class, $exception);
         $this->assertSame('This is the exception.', $exception->reason());
     }
 
     public function testTerminateThenFulfill()
     {
-        $deferred = new Deferred;
+        $deferred = new Deferred();
         $promise = $deferred->promise();
         $promiseCoroutine = new PromiseCoroutine($promise);
 
@@ -109,7 +109,7 @@ class PromiseCoroutineTest extends PHPUnit_Framework_TestCase
 
     public function testCancelThenReject()
     {
-        $deferred = new Deferred;
+        $deferred = new Deferred();
         $promise = $deferred->promise();
         $promiseCoroutine = new PromiseCoroutine($promise);
 

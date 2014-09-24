@@ -13,13 +13,13 @@ class CoroutineAdaptorTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
-        $this->strand  = Phake::mock(StrandInterface::CLASS);
-        $this->adaptor = new CoroutineAdaptor;
+        $this->strand  = Phake::mock(StrandInterface::class);
+        $this->adaptor = new CoroutineAdaptor();
     }
 
     public function testAdaptPassThru()
     {
-        $coroutine = Phake::mock(CoroutineInterface::CLASS);
+        $coroutine = Phake::mock(CoroutineInterface::class);
 
         $this->assertSame(
             $coroutine,
@@ -37,7 +37,7 @@ class CoroutineAdaptorTest extends PHPUnit_Framework_TestCase
 
         $coroutine = $this->adaptor->adapt($this->strand, $generator);
 
-        $this->assertInstanceOf(GeneratorCoroutine::CLASS, $coroutine);
+        $this->assertInstanceOf(GeneratorCoroutine::class, $coroutine);
 
         $this->expectOutputString('123');
         $coroutine->call($this->strand);
@@ -45,17 +45,17 @@ class CoroutineAdaptorTest extends PHPUnit_Framework_TestCase
 
     public function testAdaptWithPromise()
     {
-        $promise = Phake::mock(PromiseInterface::CLASS);
+        $promise = Phake::mock(PromiseInterface::class);
         $coroutine = $this->adaptor->adapt($this->strand, $promise);
 
-        $this->assertInstanceOf(PromiseCoroutine::CLASS, $coroutine);
+        $this->assertInstanceOf(PromiseCoroutine::class, $coroutine);
     }
 
     public function testAdaptWithArray()
     {
         $coroutine = $this->adaptor->adapt($this->strand, ['a', 'b', 'c']);
 
-        $this->assertInstanceOf(KernelApiCall::CLASS, $coroutine);
+        $this->assertInstanceOf(KernelApiCall::class, $coroutine);
         $this->assertSame('all', $coroutine->name());
         $this->assertSame([['a', 'b', 'c']], $coroutine->arguments());
     }
@@ -64,7 +64,7 @@ class CoroutineAdaptorTest extends PHPUnit_Framework_TestCase
     {
         $coroutine = $this->adaptor->adapt($this->strand, null);
 
-        $this->assertInstanceOf(KernelApiCall::CLASS, $coroutine);
+        $this->assertInstanceOf(KernelApiCall::class, $coroutine);
         $this->assertSame('cooperate', $coroutine->name());
     }
 
@@ -80,8 +80,8 @@ class CoroutineAdaptorTest extends PHPUnit_Framework_TestCase
 
     public function testAdaptProvider()
     {
-        $provider = Phake::mock(CoroutineProviderInterface::CLASS);
-        $coroutine = Phake::mock(CoroutineInterface::CLASS);
+        $provider = Phake::mock(CoroutineProviderInterface::class);
+        $coroutine = Phake::mock(CoroutineInterface::class);
 
         Phake::when($provider)
             ->coroutine($this->identicalTo($this->strand))
@@ -95,8 +95,8 @@ class CoroutineAdaptorTest extends PHPUnit_Framework_TestCase
 
     public function testAdaptNestedProvider()
     {
-        $provider = Phake::mock(CoroutineProviderInterface::CLASS);
-        $coroutine = Phake::mock(CoroutineInterface::CLASS);
+        $provider = Phake::mock(CoroutineProviderInterface::class);
+        $coroutine = Phake::mock(CoroutineInterface::class);
 
         Phake::when($provider)
             ->coroutine($this->identicalTo($this->strand))

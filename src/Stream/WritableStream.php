@@ -39,9 +39,9 @@ class WritableStream implements WritableStreamInterface
     public function write($buffer, $length = null)
     {
         if ($this->strand) {
-            throw new StreamLockedException;
+            throw new StreamLockedException();
         } elseif ($this->isClosed()) {
-            throw new StreamClosedException;
+            throw new StreamClosedException();
         }
 
         yield Recoil::suspend(
@@ -125,7 +125,7 @@ class WritableStream implements WritableStreamInterface
                 ->eventLoop()
                 ->removeWriteStream($this->stream);
 
-            $this->strand->resumeWithException(new StreamClosedException);
+            $this->strand->resumeWithException(new StreamClosedException());
             $this->strand = null;
         }
 

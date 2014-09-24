@@ -7,7 +7,7 @@ class PhpUnserializerTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
-        $this->unserializer = new PhpUnserializer;
+        $this->unserializer = new PhpUnserializer();
     }
 
     public function testFeedMultipleValues()

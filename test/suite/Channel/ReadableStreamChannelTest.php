@@ -18,7 +18,7 @@ class ReadableStreamChannelTest extends PHPUnit_Framework_TestCase
         $this->resource = fopen($this->path, 'r+');
         $this->stream = new ReadableStream($this->resource);
         $this->channel = new ReadableStreamChannel($this->stream);
-        $this->serializer = new PhpSerializer;
+        $this->serializer = new PhpSerializer();
     }
 
     public function tearDown()

@@ -14,7 +14,7 @@ class KernelFunctionalTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
-        $this->kernel = new Kernel;
+        $this->kernel = new Kernel();
     }
 
     /**

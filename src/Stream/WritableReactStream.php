@@ -44,9 +44,9 @@ class WritableReactStream implements WritableStreamInterface
     public function write($buffer, $length = null)
     {
         if ($this->strand) {
-            throw new StreamLockedException;
+            throw new StreamLockedException();
         } elseif ($this->isClosed()) {
-            throw new StreamClosedException;
+            throw new StreamClosedException();
         }
 
         if (null === $length) {
@@ -100,7 +100,7 @@ class WritableReactStream implements WritableStreamInterface
     public function close()
     {
         if ($this->strand) {
-            $this->strand->resumeWithException(new StreamClosedException);
+            $this->strand->resumeWithException(new StreamClosedException());
             $this->strand = null;
             $this->stream->close();
         } else {

@@ -13,7 +13,7 @@ class PhpUnserializer implements UnserializerInterface
     public function __construct()
     {
         $this->buffer = '';
-        $this->packets = new SplQueue;
+        $this->packets = new SplQueue();
         $this->falsePacket = serialize(false);
     }
 

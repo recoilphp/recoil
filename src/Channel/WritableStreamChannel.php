@@ -25,7 +25,7 @@ class WritableStreamChannel implements WritableChannelInterface
         SerializerInterface $serializer = null
     ) {
         if (null === $serializer) {
-            $serializer = new PhpSerializer;
+            $serializer = new PhpSerializer();
         }
 
         $this->stream = $stream;
