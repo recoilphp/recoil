@@ -176,7 +176,7 @@ Recoil::run(
 ### Returning a value from a coroutine
 
 Because PHP's `return` keyword can not be used to return a value inside a generator, the kernel API provides
-`Recoil::return_()` to send a value to the calling coroutine. Just like `return` execution of the coroutine stops when a
+`Recoil::return_()` to send a value to the calling coroutine. Just like `return`, execution of the coroutine stops when a
 value is returned.
 
 ```php
