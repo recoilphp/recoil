@@ -47,7 +47,7 @@ Recoil::run(
 
         yield $redisClient->connect();
 
-        // Yielding an array of co-routines executes them concurrently.
+        // Yielding an array of coroutines executes them concurrently.
         yield [
             resolveAndStore($redisClient, $dnsResolver, 'recoil.io'),
             resolveAndStore($redisClient, $dnsResolver, 'reactphp.org'),

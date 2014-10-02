@@ -116,7 +116,7 @@ class GeneratorCoroutine implements CoroutineInterface
     }
 
     /**
-     * Register a callback to be invoked when the co-routine is finalized.
+     * Register a callback to be invoked when the coroutine is finalized.
      *
      * @internal
      *
