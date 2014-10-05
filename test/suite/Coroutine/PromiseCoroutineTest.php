@@ -2,13 +2,14 @@
 namespace Recoil\Coroutine;
 
 use Exception;
-use Recoil\Coroutine\Exception\PromiseRejectedException;
-use Recoil\Kernel\Kernel;
-use Recoil\Recoil;
 use PHPUnit_Framework_TestCase;
 use React\Promise\Deferred;
 use React\Promise\FulfilledPromise;
+use React\Promise\Promise;
 use React\Promise\RejectedPromise;
+use Recoil\Coroutine\Exception\PromiseRejectedException;
+use Recoil\Kernel\Kernel;
+use Recoil\Recoil;
 
 /**
  * @covers Recoil\Coroutine\PromiseCoroutine
@@ -107,31 +108,31 @@ class PromiseCoroutineTest extends PHPUnit_Framework_TestCase
         $this->assertFalse($resumed);
     }
 
-    public function testCancelThenReject()
+    public function testTerminateThenReject()
     {
-        $deferred = new Deferred();
-        $promise = $deferred->promise();
+        $cancelled = false;
+        $promiseCanceller = function () use (&$cancelled) {
+            $cancelled = true;
+        };
+
+        $promise = new Promise(function () {}, $promiseCanceller);
         $promiseCoroutine = new PromiseCoroutine($promise);
 
-        $resumed = null;
-        $coroutine = function () use (&$resumed, $promiseCoroutine) {
-            $resumed = false;
+        $coroutine = function () use ($promiseCoroutine) {
             yield $promiseCoroutine;
-            $resumed = true;
         };
 
         $strand = $this->kernel->execute($coroutine());
 
-        $canceller = function () use ($deferred, $strand) {
+        $canceller = function () use ($strand) {
             $strand->terminate();
             yield;
-            $deferred->reject();
         };
 
         $this->kernel->execute($canceller());
 
         $this->kernel->eventLoop()->run();
 
-        $this->assertFalse($resumed);
+        $this->assertTrue($cancelled);
     }
 }

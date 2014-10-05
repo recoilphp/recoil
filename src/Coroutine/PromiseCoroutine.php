@@ -2,9 +2,10 @@
 namespace Recoil\Coroutine;
 
 use Exception;
+use React\Promise\CancellablePromiseInterface;
+use React\Promise\PromiseInterface;
 use Recoil\Coroutine\Exception\PromiseRejectedException;
 use Recoil\Kernel\Strand\StrandInterface;
-use React\Promise\PromiseInterface;
 
 /**
  * A coroutine that resumes when a promise is fulfilled or rejected.
@@ -47,6 +48,30 @@ class PromiseCoroutine implements CoroutineInterface
     }
 
     /**
+     * Inform the coroutine that the executing strand is being terminated.
+     *
+     * @param StrandInterface $strand The strand that is executing the coroutine.
+     */
+    public function terminate(StrandInterface $strand)
+    {
+        if ($this->promise instanceof CancellablePromiseInterface) {
+            $this->promise->cancel();
+        }
+    }
+
+    /**
+     * Finalize the coroutine.
+     *
+     * This method is invoked after the coroutine is popped from the call stack.
+     *
+     * @param StrandInterface $strand The strand that is executing the coroutine.
+     */
+    public function finalize(StrandInterface $strand)
+    {
+        $this->promise = null;
+    }
+
+    /**
      * Adapt a promise rejection reason into an exception.
      *
      * @param mixed $reason
@@ -60,18 +85,6 @@ class PromiseCoroutine implements CoroutineInterface
         }
 
         return new PromiseRejectedException($reason);
-    }
-
-    /**
-     * Finalize the coroutine.
-     *
-     * This method is invoked after the coroutine is popped from the call stack.
-     *
-     * @param StrandInterface $strand The strand that is executing the coroutine.
-     */
-    public function finalize(StrandInterface $strand)
-    {
-        $this->promise = null;
     }
 
     private $promise;

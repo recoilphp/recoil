@@ -26,7 +26,8 @@
         "php": ">=5.5",
         "evenement/evenement": "~2",
         "icecave/repr": "~1",
-        "react/react": "0.4.0|~0.4.2"
+        "react/react": "0.4.0|~0.4.2",
+        "react/promise": "dev-cancellable-promise as 2.9.9"
     },
     "require-dev": {
         "icecave/archer": "~1",
