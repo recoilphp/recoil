@@ -1,5 +1,9 @@
 # Recoil Changelog
 
+### 0.2.1 (2014-10-16)
+
+* **[IMPROVED]** Added support for cancellable promises
+
 ### 0.2.0 (2014-09-23)
 
 To faciliate several performance improvements the following backwards compatibility breaking changes have been introduced:
