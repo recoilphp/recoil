@@ -246,11 +246,8 @@ adapted into a [PromiseCoroutine](src/Coroutine/PromiseCoroutine.php) instance a
 the promise has been fulfilled.
 
 If the promise is resolved, the resulting value is returned from the yield statement. If it is rejected, the yield
-statement throws an exception describing the error. **Recoil** does not yet support progress events.
-
-React promises are based on the [Promise/A+](https://github.com/promises-aplus/promises-spec) specification, which does
-not yet define a mechanism for cancellation of pending promises. As such, terminating a coroutine that is waiting on a
-promise simply causes the promise resolution to be ignored.
+statement throws an exception describing the error. If a strand is waiting on the resolution of a cancellable promise,
+and execution of that strand is terminated the promise is cancelled. **Recoil** does not yet support progress events.
 
 The [promise-dns example](examples/promise-dns) demonstrates using the [React DNS component](https://github.com/reactphp/dns),
 a promised-based API, to resolve several domain names concurrently. [This example](examples/promise-dns-react) shows the
