@@ -12,7 +12,7 @@ class KernelApiCallTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
-        $this->api = Phake::partialMock(KernelApi::CLASS);
+        $this->api = Phake::partialMock(KernelApi::class);
         $this->kernel = new Kernel(null, $this->api);
     }
 

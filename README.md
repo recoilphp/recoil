@@ -47,7 +47,7 @@ Recoil::run(
 
         yield $redisClient->connect();
 
-        // Yielding an array of co-routines executes them concurrently.
+        // Yielding an array of coroutines executes them concurrently.
         yield [
             resolveAndStore($redisClient, $dnsResolver, 'recoil.io'),
             resolveAndStore($redisClient, $dnsResolver, 'reactphp.org'),
@@ -176,7 +176,7 @@ Recoil::run(
 ### Returning a value from a coroutine
 
 Because PHP's `return` keyword can not be used to return a value inside a generator, the kernel API provides
-`Recoil::return_()` to send a value to the calling coroutine. Just like `return` execution of the coroutine stops when a
+`Recoil::return_()` to send a value to the calling coroutine. Just like `return`, execution of the coroutine stops when a
 value is returned.
 
 ```php
@@ -246,11 +246,8 @@ adapted into a [PromiseCoroutine](src/Coroutine/PromiseCoroutine.php) instance a
 the promise has been fulfilled.
 
 If the promise is resolved, the resulting value is returned from the yield statement. If it is rejected, the yield
-statement throws an exception describing the error. **Recoil** does not yet support progress events.
-
-React promises are based on the [Promise/A+](https://github.com/promises-aplus/promises-spec) specification, which does
-not yet define a mechanism for cancellation of pending promises. As such, terminating a coroutine that is waiting on a
-promise simply causes the promise resolution to be ignored.
+statement throws an exception describing the error. If a strand is waiting on the resolution of a cancellable promise,
+and execution of that strand is terminated the promise is cancelled. **Recoil** does not yet support progress events.
 
 The [promise-dns example](examples/promise-dns) demonstrates using the [React DNS component](https://github.com/reactphp/dns),
 a promised-based API, to resolve several domain names concurrently. [This example](examples/promise-dns-react) shows the
@@ -298,7 +295,14 @@ $kernel->execute($coroutine());
 
 $eventLoop->run();
 ```
+
+## Contact us
+
+* Follow [@IcecaveStudios](https://twitter.com/IcecaveStudios) on Twitter
+* Visit the [Icecave Studios website](http://icecave.com.au)
+* Join `#icecave` on [irc.freenode.net](http://webchat.freenode.net?channels=icecave)
+
 <!-- references -->
 [Build Status]: http://img.shields.io/travis/recoilphp/recoil/develop.svg?style=flat-square
 [Test Coverage]: http://img.shields.io/coveralls/recoilphp/recoil/develop.svg?style=flat-square
-[SemVer]: http://img.shields.io/:semver-0.2.0-yellow.svg?style=flat-square
+[SemVer]: http://img.shields.io/:semver-0.2.1-yellow.svg?style=flat-square

@@ -16,7 +16,7 @@ class KernelApiTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
-        $this->kernel = new Kernel;
+        $this->kernel = new Kernel();
         $this->tolerance = 0.02;
     }
 
@@ -348,7 +348,7 @@ class KernelApiTest extends PHPUnit_Framework_TestCase
 
         $this->kernel->eventLoop()->run();
 
-        $this->assertInstanceOf(StrandInterface::CLASS, $strand);
+        $this->assertInstanceOf(StrandInterface::class, $strand);
     }
 
     public function testStop()

@@ -8,7 +8,7 @@ class StreamReadExceptionTest extends PHPUnit_Framework_TestCase
 {
     public function testException()
     {
-        $previous = new Exception;
+        $previous = new Exception();
         $exception = new StreamReadException($previous);
 
         $this->assertSame('An error occurred while reading from the stream.', $exception->getMessage());

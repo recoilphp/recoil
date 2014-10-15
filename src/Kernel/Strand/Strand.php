@@ -28,7 +28,7 @@ class Strand extends EventEmitter implements StrandInterface
         $this->suspended = false;
         $this->stack     = [];
 
-        $this->stack[] = $this->current = new StackBase;
+        $this->stack[] = $this->current = new StackBase();
 
         $kernel->attachStrand($this);
     }
@@ -230,11 +230,10 @@ class Strand extends EventEmitter implements StrandInterface
             } elseif (self::STATE_TERMINATE === $this->state) {
                 $this->current->terminate($this);
 
-                // Check if the tick logic has been changed, if not continue
-                // with termination of the strand.
+                // Check if the state has been changed, if not continue with
+                // termination of the strand.
                 if ($this->state === self::STATE_TERMINATE) {
                     $this->pop();
-                    // Note that tickLogic is not reset to null.
                 }
             } else {
                 throw new LogicException('No action has been requested.');

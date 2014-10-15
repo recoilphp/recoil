@@ -52,7 +52,7 @@ class Timeout implements CoroutineInterface
     {
         if (!$this->timer) {
             // Stop termination of the strand and instead propagate a timeout exception.
-            $strand->throwException(new TimeoutException);
+            $strand->throwException(new TimeoutException());
         }
     }
     /**

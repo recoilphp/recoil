@@ -48,9 +48,9 @@ class ReadableReactStream implements ReadableStreamInterface
     public function read($length)
     {
         if ($this->strand) {
-            throw new StreamLockedException;
+            throw new StreamLockedException();
         } elseif ($this->isClosed()) {
-            throw new StreamClosedException;
+            throw new StreamClosedException();
         }
 
         if (!$this->buffer) {
@@ -86,7 +86,7 @@ class ReadableReactStream implements ReadableStreamInterface
     public function close()
     {
         if ($this->strand) {
-            $this->strand->resumeWithException(new StreamClosedException);
+            $this->strand->resumeWithException(new StreamClosedException());
             $this->strand = null;
         }
 
@@ -149,7 +149,7 @@ class ReadableReactStream implements ReadableStreamInterface
         $this->stream->removeListener('close', [$this, 'onStreamClose']);
 
         if ($this->strand) {
-            $this->strand->resumeWithException(new StreamClosedException);
+            $this->strand->resumeWithException(new StreamClosedException());
             $this->strand = null;
         }
     }

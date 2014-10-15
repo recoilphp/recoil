@@ -14,8 +14,8 @@ class Channel implements ReadableChannelInterface, WritableChannelInterface
     public function __construct()
     {
         $this->closed = false;
-        $this->readStrands = new SplQueue;
-        $this->writeStrands = new SplQueue;
+        $this->readStrands = new SplQueue();
+        $this->writeStrands = new SplQueue();
     }
 
     /**
@@ -32,7 +32,7 @@ class Channel implements ReadableChannelInterface, WritableChannelInterface
     public function read()
     {
         if ($this->isClosed()) {
-            throw new ChannelClosedException;
+            throw new ChannelClosedException();
         }
 
         $value = (yield Recoil::suspend(
@@ -67,7 +67,7 @@ class Channel implements ReadableChannelInterface, WritableChannelInterface
     public function write($value)
     {
         if ($this->isClosed()) {
-            throw new ChannelClosedException;
+            throw new ChannelClosedException();
         }
 
         if ($this->readStrands->isEmpty()) {
@@ -94,14 +94,14 @@ class Channel implements ReadableChannelInterface, WritableChannelInterface
             $this
                 ->writeStrands
                 ->pop()
-                ->resumeWithException(new ChannelClosedException);
+                ->resumeWithException(new ChannelClosedException());
         }
 
         while (!$this->readStrands->isEmpty()) {
             $this
                 ->readStrands
                 ->pop()
-                ->resumeWithException(new ChannelClosedException);
+                ->resumeWithException(new ChannelClosedException());
         }
 
         yield Recoil::noop();

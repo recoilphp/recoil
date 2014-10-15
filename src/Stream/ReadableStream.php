@@ -39,9 +39,9 @@ class ReadableStream implements ReadableStreamInterface
     public function read($length)
     {
         if ($this->strand) {
-            throw new StreamLockedException;
+            throw new StreamLockedException();
         } elseif ($this->isClosed()) {
-            throw new StreamClosedException;
+            throw new StreamClosedException();
         }
 
         yield Recoil::suspend(
@@ -103,7 +103,7 @@ class ReadableStream implements ReadableStreamInterface
                 ->eventLoop()
                 ->removeReadStream($this->stream);
 
-            $this->strand->resumeWithException(new StreamClosedException);
+            $this->strand->resumeWithException(new StreamClosedException());
             $this->strand = null;
         }
 

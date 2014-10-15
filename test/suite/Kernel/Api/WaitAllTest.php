@@ -52,7 +52,7 @@ class WaitAllTest extends PHPUnit_Framework_TestCase
                     ]);
 
                 // Do not allow the exception to propagate to verify that the non-failed
-                // co-routine is terminated (the "X" is never echoed).
+                // coroutine is terminated (the "X" is never echoed).
                 } catch (Exception $e) {
                     $this->assertSame('This is the exception.', $e->getMessage());
 
@@ -84,9 +84,9 @@ class WaitAllTest extends PHPUnit_Framework_TestCase
                     ]);
 
                 // Do not allow the exception to propagate to verify that the non-failed
-                // co-routine is terminated (the "X" is never echoed).
+                // coroutine is terminated (the "X" is never echoed).
                 } catch (Exception $e) {
-                    $this->assertInstanceOf(StrandTerminatedException::CLASS, $e);
+                    $this->assertInstanceOf(StrandTerminatedException::class, $e);
 
                     return;
                 }

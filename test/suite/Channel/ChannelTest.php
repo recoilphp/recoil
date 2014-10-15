@@ -16,8 +16,8 @@ class ChannelTest extends PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->kernel  = new Kernel;
-        $this->channel = new Channel;
+        $this->kernel  = new Kernel();
+        $this->channel = new Channel();
     }
 
     public function testMultipleReaders()

@@ -18,7 +18,7 @@ class WritableStreamChannelTest extends PHPUnit_Framework_TestCase
         $this->resource = fopen($this->path, 'w');
         $this->stream = new WritableStream($this->resource);
         $this->channel = new WritableStreamChannel($this->stream);
-        $this->unserializer = new PhpUnserializer;
+        $this->unserializer = new PhpUnserializer();
     }
 
     public function tearDown()

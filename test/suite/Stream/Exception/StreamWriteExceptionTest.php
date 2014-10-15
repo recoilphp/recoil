@@ -8,7 +8,7 @@ class StreamWriteExceptionTest extends PHPUnit_Framework_TestCase
 {
     public function testException()
     {
-        $previous = new Exception;
+        $previous = new Exception();
         $exception = new StreamWriteException($previous);
 
         $this->assertSame('An error occurred while writing to the stream.', $exception->getMessage());

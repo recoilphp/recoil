@@ -27,7 +27,7 @@ class ReadableStreamChannel implements ReadableChannelInterface
         $bufferSize = 8192
     ) {
         if (null === $unserializer) {
-            $unserializer = new PhpUnserializer;
+            $unserializer = new PhpUnserializer();
         }
 
         $this->stream = $stream;
