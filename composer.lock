@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "764c6da7e922a809d457018550d7605e",
+    "hash": "6c46870c8c4b6ec529f2e4a3c08df6aa",
     "packages": [
         {
             "name": "evenement/evenement",
@@ -197,16 +197,16 @@
         },
         {
             "name": "react/promise",
-            "version": "dev-cancellable-promise",
+            "version": "v2.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/reactphp/promise.git",
-                "reference": "d5b6f8e05c6be03071c9e5ecf25397cd6cbccbc4"
+                "reference": "937b04f1b0ee8f6d180e75a0830aac778ca4bcd6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/reactphp/promise/zipball/d5b6f8e05c6be03071c9e5ecf25397cd6cbccbc4",
-                "reference": "d5b6f8e05c6be03071c9e5ecf25397cd6cbccbc4",
+                "url": "https://api.github.com/repos/reactphp/promise/zipball/937b04f1b0ee8f6d180e75a0830aac778ca4bcd6",
+                "reference": "937b04f1b0ee8f6d180e75a0830aac778ca4bcd6",
                 "shasum": ""
             },
             "require": {
@@ -237,7 +237,7 @@
                 }
             ],
             "description": "A lightweight implementation of CommonJS Promises/A for PHP",
-            "time": "2014-10-04 11:07:09"
+            "time": "2014-10-15 20:05:57"
         },
         {
             "name": "react/react",
@@ -1149,16 +1149,16 @@
         },
         {
             "name": "twig/twig",
-            "version": "v1.16.0",
+            "version": "v1.16.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/fabpot/Twig.git",
-                "reference": "8ce37115802e257a984a82d38254884085060024"
+                "reference": "7c4c01dcf578523cfcddf383641a4f12790270ec"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fabpot/Twig/zipball/8ce37115802e257a984a82d38254884085060024",
-                "reference": "8ce37115802e257a984a82d38254884085060024",
+                "url": "https://api.github.com/repos/fabpot/Twig/zipball/7c4c01dcf578523cfcddf383641a4f12790270ec",
+                "reference": "7c4c01dcf578523cfcddf383641a4f12790270ec",
                 "shasum": ""
             },
             "require": {
@@ -1202,16 +1202,10 @@
             "keywords": [
                 "templating"
             ],
-            "time": "2014-07-05 12:19:05"
+            "time": "2014-10-10 14:09:53"
         }
     ],
     "aliases": [
-        {
-            "alias": "2.9.9",
-            "alias_normalized": "2.9.9.0",
-            "version": "dev-cancellable-promise",
-            "package": "react/promise"
-        },
         {
             "alias": "v1.0.3",
             "alias_normalized": "1.0.3.0",
@@ -1221,7 +1215,6 @@
     ],
     "minimum-stability": "stable",
     "stability-flags": {
-        "react/promise": 20,
         "phake/phake": 15
     },
     "prefer-stable": false,
