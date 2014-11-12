@@ -152,20 +152,6 @@ class Strand extends EventEmitter implements StrandInterface
     }
 
     /**
-     * Resume execution of this strand.
-     */
-    public function resume()
-    {
-        if (!$this->suspended) {
-            return;
-        }
-
-        $this->suspended = false;
-
-        $this->kernel->attachStrand($this);
-    }
-
-    /**
      * Resume execution of this strand and send a value to the current coroutine.
      *
      * @param mixed $value The value to send to the coroutine.
@@ -239,6 +225,20 @@ class Strand extends EventEmitter implements StrandInterface
                 throw new LogicException('No action has been requested.');
             }
         }
+    }
+
+    /**
+     * Resume execution of this strand.
+     */
+    private function resume()
+    {
+        if (!$this->suspended) {
+            return;
+        }
+
+        $this->suspended = false;
+
+        $this->kernel->attachStrand($this);
     }
 
     const STATE_CALL = 1;

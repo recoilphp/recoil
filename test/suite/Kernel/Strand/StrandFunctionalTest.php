@@ -104,7 +104,7 @@ class StrandFunctionalTest extends PHPUnit_Framework_TestCase
 
         $resumer = function () use (&$strand) {
             echo 1;
-            $strand->resume();
+            $strand->resumeWithValue(null);
             echo 2;
 
             return; yield; // make this closure a generator

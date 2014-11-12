@@ -82,11 +82,6 @@ interface StrandInterface extends EventEmitterInterface
     public function suspend();
 
     /**
-     * Resume execution of this strand.
-     */
-    public function resume();
-
-    /**
      * Resume execution of this strand and send a value to the current coroutine.
      *
      * @param mixed $value The value to send to the coroutine.
