@@ -54,8 +54,8 @@ abstract class Recoil
      * This is convenience method used to start the coroutine engine.
      * It should generally not be invoked from inside other coroutines.
      *
-     * @param callable           $entryPoint    The coroutine to invoke.
-     * @param LoopInterface|null $loopInterface The React event-loop, or null to use the default.
+     * @param callable           $entryPoint The coroutine to invoke.
+     * @param LoopInterface|null $eventLoop  The React event-loop, or null to use the default.
      */
     public static function run(callable $entryPoint, LoopInterface $eventLoop = null)
     {
