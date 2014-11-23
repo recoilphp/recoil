@@ -30,6 +30,7 @@ use Recoil\Kernel\Strand\StrandInterface;
  * @method static noop() [COROUTINE] Resume the strand immediately.
  * @method static cooperate() [COROUTINE] Suspend the strand until the next tick.
  * @method static execute($coroutine) [COROUTINE] Execute a coroutine on its own strand.
+ * @method static select(StrandInterface $strand, array $strands) [COROUTINE] Wait for one or more of the given strands to exit.
  * @method static stop(bool $stopEventLoop = true) [COROUTINE] Stop the coroutine kernel / event-loop.
  */
 abstract class Recoil
