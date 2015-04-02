@@ -4,6 +4,7 @@ namespace Recoil\Kernel\Strand;
 use Evenement\EventEmitterInterface;
 use Exception;
 use Recoil\Coroutine\CoroutineInterface;
+use Recoil\Kernel\KernelInterface;
 
 /**
  * A strand represents a user-space "thread" of execution.
