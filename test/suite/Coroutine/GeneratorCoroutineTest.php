@@ -157,4 +157,78 @@ class GeneratorCoroutineTest extends PHPUnit_Framework_TestCase
 
         $this->kernel->eventLoop()->run();
     }
+
+    /**
+     * @requires PHP 7
+     */
+    public function testGeneratorReturn()
+    {
+        $this->assertGeneratorReturn(
+            "
+            function () {
+                return '<result>';
+                yield;
+            }
+            "
+        );
+    }
+
+    /**
+     * @requires PHP 7
+     */
+    public function testGeneratorReturnOnResumeWithValue()
+    {
+        $this->assertGeneratorReturn(
+            "
+            function () {
+                yield;
+                return '<result>';
+            }
+            "
+        );
+    }
+
+    /**
+     * @requires PHP 7
+     */
+    public function testGeneratorReturnOnResumeWithException()
+    {
+        $this->assertGeneratorReturn(
+            "
+            function () {
+                try {
+                    \$thrower = function () {
+                        throw new Exception('The exception.');
+                        yield;
+                    };
+
+                    yield \$thrower();
+                } catch (Exception \$e) {
+                    return '<result>';
+                }
+            }
+            "
+        );
+    }
+
+    private function assertGeneratorReturn($coroutine)
+    {
+        $coroutine = eval('return ' . $coroutine . ';');
+
+        $result = null;
+        $strand = $this->kernel->execute($coroutine());
+        $strand->on(
+            'success',
+            function ($strand, $value) use (&$result) {
+                $result = $value;
+            }
+        );
+
+        $this->kernel->eventLoop()->run();
+
+        $this->assertSame(
+            '<result>',
+            $result
+        );
+    }
 }
