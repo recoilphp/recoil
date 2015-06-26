@@ -1,6 +1,8 @@
 <?php
 namespace Recoil\Kernel;
 
+use React\EventLoop\Factory as EventLoopFactory;
+use React\EventLoop\LoopInterface;
 use Recoil\Coroutine\CoroutineAdaptor;
 use Recoil\Coroutine\CoroutineAdaptorInterface;
 use Recoil\Kernel\Api\KernelApi;
@@ -8,8 +10,6 @@ use Recoil\Kernel\Api\KernelApiInterface;
 use Recoil\Kernel\Strand\StrandFactory;
 use Recoil\Kernel\Strand\StrandFactoryInterface;
 use Recoil\Kernel\Strand\StrandInterface;
-use React\EventLoop\Factory as EventLoopFactory;
-use React\EventLoop\LoopInterface;
 
 /**
  * The default kernel implementation.
@@ -44,11 +44,11 @@ class Kernel implements KernelInterface
             $strandFactory = new StrandFactory();
         }
 
-        $this->eventLoop = $eventLoop;
-        $this->api = $api;
+        $this->eventLoop        = $eventLoop;
+        $this->api              = $api;
         $this->coroutineAdaptor = $coroutineAdaptor;
-        $this->strandFactory = $strandFactory;
-        $this->strands = [];
+        $this->strandFactory    = $strandFactory;
+        $this->strands          = [];
         $this->terminateStrands = false;
     }
 
@@ -149,7 +149,7 @@ class Kernel implements KernelInterface
     public function stop($stopEventLoop = true)
     {
         $this->terminateStrands = true;
-        $this->stopEventLoop = $stopEventLoop;
+        $this->stopEventLoop    = $stopEventLoop;
     }
 
     /**
@@ -176,7 +176,7 @@ class Kernel implements KernelInterface
         }
 
         $this->terminateStrands = false;
-        $this->stopEventLoop = false;
+        $this->stopEventLoop    = false;
     }
 
     private $eventLoop;

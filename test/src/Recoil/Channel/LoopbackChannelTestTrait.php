@@ -2,7 +2,6 @@
 namespace Recoil\Channel;
 
 use Recoil\Kernel\Kernel;
-use Recoil\Recoil;
 
 trait LoopbackChannelTestTrait
 {

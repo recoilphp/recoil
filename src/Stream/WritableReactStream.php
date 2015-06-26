@@ -2,11 +2,11 @@
 namespace Recoil\Stream;
 
 use Exception;
+use React\Stream\WritableStreamInterface as WritableReactStreamInterface;
 use Recoil\Recoil;
 use Recoil\Stream\Exception\StreamClosedException;
 use Recoil\Stream\Exception\StreamLockedException;
 use Recoil\Stream\Exception\StreamWriteException;
-use React\Stream\WritableStreamInterface as WritableReactStreamInterface;
 
 /**
  * Exposes a React writable stream as a Recoil writable stream.

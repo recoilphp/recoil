@@ -12,8 +12,8 @@ class PhpUnserializer implements UnserializerInterface
 {
     public function __construct()
     {
-        $this->buffer = '';
-        $this->packets = new SplQueue();
+        $this->buffer      = '';
+        $this->packets     = new SplQueue();
         $this->falsePacket = serialize(false);
     }
 
@@ -39,7 +39,7 @@ class PhpUnserializer implements UnserializerInterface
                 break;
             }
 
-            $packet = substr($this->buffer, self::PACKET_SIZE_LENGTH, $packetSize);
+            $packet       = substr($this->buffer, self::PACKET_SIZE_LENGTH, $packetSize);
             $this->buffer = substr($this->buffer, self::PACKET_SIZE_LENGTH + $packetSize);
             $this->packets->push($packet);
         }

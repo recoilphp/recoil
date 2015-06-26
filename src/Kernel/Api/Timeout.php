@@ -18,7 +18,7 @@ class Timeout implements CoroutineInterface
 
     public function __construct($timeout, $coroutine)
     {
-        $this->timeout = $timeout;
+        $this->timeout   = $timeout;
         $this->coroutine = $coroutine;
     }
 

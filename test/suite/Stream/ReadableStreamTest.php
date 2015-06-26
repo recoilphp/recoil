@@ -1,10 +1,10 @@
 <?php
 namespace Recoil\Stream;
 
+use PHPUnit_Framework_TestCase;
+use Phake;
 use Recoil\Recoil;
 use Recoil\Stream\Exception\StreamReadException;
-use Phake;
-use PHPUnit_Framework_TestCase;
 
 class ReadableStreamTest extends PHPUnit_Framework_TestCase
 {

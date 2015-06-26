@@ -1,7 +1,6 @@
 <?php
 namespace Recoil\Channel;
 
-use Exception;
 use Recoil\Channel\Exception\ChannelLockedException;
 use Recoil\Recoil;
 

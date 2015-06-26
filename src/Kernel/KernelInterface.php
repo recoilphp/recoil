@@ -1,10 +1,10 @@
 <?php
 namespace Recoil\Kernel;
 
+use React\EventLoop\LoopInterface;
 use Recoil\Coroutine\CoroutineAdaptorInterface;
 use Recoil\Kernel\Strand\StrandFactoryInterface;
 use Recoil\Kernel\Strand\StrandInterface;
-use React\EventLoop\LoopInterface;
 
 /**
  * A coroutine kernel.

@@ -2,10 +2,10 @@
 namespace Recoil\Kernel\Api;
 
 use Exception;
+use PHPUnit_Framework_TestCase;
 use Recoil\Kernel\Exception\TimeoutException;
 use Recoil\Kernel\Kernel;
 use Recoil\Recoil;
-use PHPUnit_Framework_TestCase;
 
 class TimeoutTest extends PHPUnit_Framework_TestCase
 {
@@ -23,7 +23,7 @@ class TimeoutTest extends PHPUnit_Framework_TestCase
         };
 
         $coroutine = function () use ($immediate) {
-            echo (yield new Timeout(0.01, $immediate()));
+            echo(yield new Timeout(0.01, $immediate()));
         };
 
         $this->kernel->execute($coroutine());

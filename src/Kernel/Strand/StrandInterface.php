@@ -4,6 +4,7 @@ namespace Recoil\Kernel\Strand;
 use Evenement\EventEmitterInterface;
 use Exception;
 use Recoil\Coroutine\CoroutineInterface;
+use Recoil\Kernel\KernelInterface;
 
 /**
  * A strand represents a user-space "thread" of execution.
@@ -80,11 +81,6 @@ interface StrandInterface extends EventEmitterInterface
      * The kernel will not call tick() until the strand is resumed.
      */
     public function suspend();
-
-    /**
-     * Resume execution of this strand.
-     */
-    public function resume();
 
     /**
      * Resume execution of this strand and send a value to the current coroutine.

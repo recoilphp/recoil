@@ -1,9 +1,9 @@
 <?php
 namespace Recoil\Kernel\Api;
 
+use PHPUnit_Framework_TestCase;
 use Recoil\Kernel\Kernel;
 use Recoil\Recoil;
-use PHPUnit_Framework_TestCase;
 
 class SelectTest extends PHPUnit_Framework_TestCase
 {

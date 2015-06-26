@@ -2,9 +2,9 @@
 namespace Recoil\Coroutine;
 
 use Exception;
-use Recoil\Recoil;
-use Recoil\Kernel\Kernel;
 use PHPUnit_Framework_TestCase;
+use Recoil\Kernel\Kernel;
+use Recoil\Recoil;
 
 /**
  * @covers Recoil\Coroutine\GeneratorCoroutine
@@ -51,7 +51,7 @@ class GeneratorCoroutineTest extends PHPUnit_Framework_TestCase
 
         $coroutine = function () {
             echo 1;
-            echo (yield Recoil::suspend(
+            echo(yield Recoil::suspend(
                 function ($strand) {
                     $strand->resumeWithValue(2);
                 }
@@ -69,7 +69,7 @@ class GeneratorCoroutineTest extends PHPUnit_Framework_TestCase
 
         $coroutine = function () {
             echo 1;
-            echo (yield Recoil::suspend(
+            echo(yield Recoil::suspend(
                 function ($strand) {
                     $strand->resumeWithValue(2);
                 }
@@ -156,5 +156,79 @@ class GeneratorCoroutineTest extends PHPUnit_Framework_TestCase
         $this->kernel->execute($coroutine());
 
         $this->kernel->eventLoop()->run();
+    }
+
+    /**
+     * @requires PHP 7
+     */
+    public function testGeneratorReturn()
+    {
+        $this->assertGeneratorReturn(
+            "
+            function () {
+                return '<result>';
+                yield;
+            }
+            "
+        );
+    }
+
+    /**
+     * @requires PHP 7
+     */
+    public function testGeneratorReturnOnResumeWithValue()
+    {
+        $this->assertGeneratorReturn(
+            "
+            function () {
+                yield;
+                return '<result>';
+            }
+            "
+        );
+    }
+
+    /**
+     * @requires PHP 7
+     */
+    public function testGeneratorReturnOnResumeWithException()
+    {
+        $this->assertGeneratorReturn(
+            "
+            function () {
+                try {
+                    \$thrower = function () {
+                        throw new Exception('The exception.');
+                        yield;
+                    };
+
+                    yield \$thrower();
+                } catch (Exception \$e) {
+                    return '<result>';
+                }
+            }
+            "
+        );
+    }
+
+    private function assertGeneratorReturn($coroutine)
+    {
+        $coroutine = eval('return ' . $coroutine . ';');
+
+        $result = null;
+        $strand = $this->kernel->execute($coroutine());
+        $strand->on(
+            'success',
+            function ($strand, $value) use (&$result) {
+                $result = $value;
+            }
+        );
+
+        $this->kernel->eventLoop()->run();
+
+        $this->assertSame(
+            '<result>',
+            $result
+        );
     }
 }

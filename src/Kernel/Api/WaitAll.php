@@ -20,7 +20,7 @@ class WaitAll implements CoroutineInterface
     {
         $this->coroutines = $coroutines;
         $this->substrands = [];
-        $this->values = [];
+        $this->values     = [];
     }
 
     /**

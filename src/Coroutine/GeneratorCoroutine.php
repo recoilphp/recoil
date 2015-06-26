@@ -17,7 +17,11 @@ class GeneratorCoroutine implements CoroutineInterface
      */
     public function __construct(Generator $generator)
     {
-        $this->generator = $generator;
+        if (null === self::$hasReturnValue) {
+            self::$hasReturnValue = method_exists(Generator::class, 'getReturn');
+        }
+
+        $this->generator         = $generator;
         $this->finalizeCallbacks = [];
     }
 
@@ -40,6 +44,8 @@ class GeneratorCoroutine implements CoroutineInterface
             $strand->call(
                 $this->generator->current()
             );
+        } elseif (self::$hasReturnValue) {
+            $strand->returnValue($this->generator->getReturn());
         } else {
             $strand->returnValue(null);
         }
@@ -66,6 +72,8 @@ class GeneratorCoroutine implements CoroutineInterface
             $strand->call(
                 $this->generator->current()
             );
+        } elseif (self::$hasReturnValue) {
+            $strand->returnValue($this->generator->getReturn());
         } else {
             $strand->returnValue(null);
         }
@@ -92,6 +100,8 @@ class GeneratorCoroutine implements CoroutineInterface
             $strand->call(
                 $this->generator->current()
             );
+        } elseif (self::$hasReturnValue) {
+            $strand->returnValue($this->generator->getReturn());
         } else {
             $strand->returnValue(null);
         }
@@ -127,6 +137,7 @@ class GeneratorCoroutine implements CoroutineInterface
         $this->finalizeCallbacks[] = $callback;
     }
 
+    private static $hasReturnValue;
     private $generator;
     private $finalizeCallbacks;
 }

@@ -1,13 +1,11 @@
 <?php
 namespace Recoil\Coroutine;
 
-use Recoil\Kernel\Api\KernelApiCall;
-use Recoil\Kernel\Kernel;
-use Recoil\Kernel\Strand\StrandInterface;
-use Recoil\Recoil;
-use Phake;
 use PHPUnit_Framework_TestCase;
+use Phake;
 use React\Promise\PromiseInterface;
+use Recoil\Kernel\Api\KernelApiCall;
+use Recoil\Kernel\Strand\StrandInterface;
 
 class CoroutineAdaptorTest extends PHPUnit_Framework_TestCase
 {
@@ -45,7 +43,7 @@ class CoroutineAdaptorTest extends PHPUnit_Framework_TestCase
 
     public function testAdaptWithPromise()
     {
-        $promise = Phake::mock(PromiseInterface::class);
+        $promise   = Phake::mock(PromiseInterface::class);
         $coroutine = $this->adaptor->adapt($this->strand, $promise);
 
         $this->assertInstanceOf(PromiseCoroutine::class, $coroutine);
@@ -80,7 +78,7 @@ class CoroutineAdaptorTest extends PHPUnit_Framework_TestCase
 
     public function testAdaptProvider()
     {
-        $provider = Phake::mock(CoroutineProviderInterface::class);
+        $provider  = Phake::mock(CoroutineProviderInterface::class);
         $coroutine = Phake::mock(CoroutineInterface::class);
 
         Phake::when($provider)
@@ -95,7 +93,7 @@ class CoroutineAdaptorTest extends PHPUnit_Framework_TestCase
 
     public function testAdaptNestedProvider()
     {
-        $provider = Phake::mock(CoroutineProviderInterface::class);
+        $provider  = Phake::mock(CoroutineProviderInterface::class);
         $coroutine = Phake::mock(CoroutineInterface::class);
 
         Phake::when($provider)

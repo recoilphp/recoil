@@ -13,8 +13,8 @@ class Channel implements ReadableChannelInterface, WritableChannelInterface
 {
     public function __construct()
     {
-        $this->closed = false;
-        $this->readStrands = new SplQueue();
+        $this->closed       = false;
+        $this->readStrands  = new SplQueue();
         $this->writeStrands = new SplQueue();
     }
 

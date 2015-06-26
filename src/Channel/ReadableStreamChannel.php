@@ -1,7 +1,6 @@
 <?php
 namespace Recoil\Channel;
 
-use Exception;
 use Recoil\Channel\Exception\ChannelClosedException;
 use Recoil\Channel\Exception\ChannelLockedException;
 use Recoil\Channel\Serialization\PhpUnserializer;
@@ -30,9 +29,9 @@ class ReadableStreamChannel implements ReadableChannelInterface
             $unserializer = new PhpUnserializer();
         }
 
-        $this->stream = $stream;
+        $this->stream       = $stream;
         $this->unserializer = $unserializer;
-        $this->bufferSize = $bufferSize;
+        $this->bufferSize   = $bufferSize;
     }
 
     /**

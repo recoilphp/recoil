@@ -2,12 +2,12 @@
 namespace Recoil\Stream;
 
 use Exception;
+use PHPUnit_Framework_TestCase;
+use Phake;
+use React\Stream\Stream;
 use Recoil\Recoil;
 use Recoil\Stream\Exception\StreamClosedException;
 use Recoil\Stream\Exception\StreamReadException;
-use Phake;
-use PHPUnit_Framework_TestCase;
-use React\Stream\Stream;
 
 class ReadableReactStreamTest extends PHPUnit_Framework_TestCase
 {

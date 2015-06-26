@@ -175,14 +175,15 @@ Recoil::run(
 
 ### Returning a value from a coroutine
 
-Because PHP's `return` keyword can not be used to return a value inside a generator, the kernel API provides
-`Recoil::return_()` to send a value to the calling coroutine. Just like `return`, execution of the coroutine stops when a
-value is returned.
+#### PHP 7
+
+To return a value from a coroutine, simply use the `return` keyword as you would in a normal function.
 
 ```php
 function multiply($a, $b)
 {
-    yield Recoil::return_($a * $b);
+    yield Recoil::noop();
+    return $a * $b;
     echo 'This code is never reached.';
 }
 
@@ -192,6 +193,20 @@ Recoil::run(
         echo '3 * 7 is ' . $result . PHP_EOL;
     }
 );
+```
+
+#### PHP 5
+
+Because the `return` keyword can not be used to return a value inside a generator before PHP version 7, the kernel API provides
+`Recoil::return_()` to send a value to the calling coroutine. Just like `return`, execution of the coroutine stops when a
+value is returned.
+
+```php
+function multiply($a, $b)
+{
+    yield Recoil::return_($a * $b);
+    echo 'This code is never reached.';
+}
 ```
 
 ### Throwing and catching exceptions
@@ -305,4 +320,4 @@ $eventLoop->run();
 <!-- references -->
 [Build Status]: http://img.shields.io/travis/recoilphp/recoil/develop.svg?style=flat-square
 [Test Coverage]: http://img.shields.io/coveralls/recoilphp/recoil/develop.svg?style=flat-square
-[SemVer]: http://img.shields.io/:semver-0.2.1-yellow.svg?style=flat-square
+[SemVer]: http://img.shields.io/:semver-0.3.0-yellow.svg?style=flat-square

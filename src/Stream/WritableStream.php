@@ -106,7 +106,7 @@ class WritableStream implements WritableStreamInterface
     {
         while ($buffer) {
             $bytesWritten = (yield $this->write($buffer));
-            $buffer = substr($buffer, $bytesWritten);
+            $buffer       = substr($buffer, $bytesWritten);
         }
     }
 

@@ -1,12 +1,12 @@
 <?php
 namespace Recoil\Kernel;
 
+use PHPUnit_Framework_TestCase;
+use React\EventLoop\LoopInterface;
 use Recoil\Coroutine\CoroutineAdaptor;
 use Recoil\Kernel\Api\KernelApi;
 use Recoil\Kernel\Strand\StrandFactory;
 use Recoil\Recoil;
-use PHPUnit_Framework_TestCase;
-use React\EventLoop\LoopInterface;
 
 class KernelTest extends PHPUnit_Framework_TestCase
 {
