@@ -1,17 +1,17 @@
 <?php
 namespace Recoil\Channel;
 
-use Recoil\Recoil;
 use PHPUnit_Framework_TestCase;
 use Phake;
+use Recoil\Recoil;
 
 class BidirectionalChannelAdaptorTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
-        $this->readChannel = Phake::mock(ReadableChannelInterface::class);
+        $this->readChannel  = Phake::mock(ReadableChannelInterface::class);
         $this->writeChannel = Phake::mock(WritableChannelInterface::class);
-        $this->adaptor = new BidirectionalChannelAdaptor(
+        $this->adaptor      = new BidirectionalChannelAdaptor(
             $this->readChannel,
             $this->writeChannel
         );

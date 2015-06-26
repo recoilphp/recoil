@@ -2,22 +2,21 @@
 namespace Recoil\Kernel\Api;
 
 use Exception;
-use Recoil\Kernel\Kernel;
-use Recoil\Recoil;
 use PHPUnit_Framework_TestCase;
+use Recoil\Kernel\Kernel;
 
 class SleepTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
-        $this->kernel = new Kernel();
+        $this->kernel    = new Kernel();
         $this->tolerance = 0.02;
     }
 
     public function testSleep()
     {
         $start = 0;
-        $end = 0;
+        $end   = 0;
 
         $coroutine = function () use (&$start, &$end) {
             $start = microtime(true);
@@ -35,7 +34,7 @@ class SleepTest extends PHPUnit_Framework_TestCase
     public function testResumeWithValueBeforeTimeout()
     {
         $start = 0;
-        $end = 0;
+        $end   = 0;
 
         $coroutine = function () use (&$start, &$end) {
             $start = microtime(true);
@@ -61,7 +60,7 @@ class SleepTest extends PHPUnit_Framework_TestCase
     public function testResumeWithExceptionBeforeTimeout()
     {
         $start = 0;
-        $end = 0;
+        $end   = 0;
 
         $coroutine = function () use (&$start, &$end) {
             $start = microtime(true);
@@ -92,7 +91,7 @@ class SleepTest extends PHPUnit_Framework_TestCase
 
     public function testTerminateBeforeTimeout()
     {
-        $resumed = null;
+        $resumed   = null;
         $coroutine = function () use (&$resumed) {
             $resumed = false;
             yield new Sleep(0.15);

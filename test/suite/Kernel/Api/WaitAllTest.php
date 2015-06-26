@@ -2,10 +2,9 @@
 namespace Recoil\Kernel\Api;
 
 use Exception;
-use Recoil\Kernel\Exception\StrandTerminatedException;
-use Recoil\Kernel\Kernel;
-use Recoil\Recoil;
 use PHPUnit_Framework_TestCase;
+use Recoil\Kernel\Exception\StrandTerminatedException;
+use Recoil\Recoil;
 
 class WaitAllTest extends PHPUnit_Framework_TestCase
 {

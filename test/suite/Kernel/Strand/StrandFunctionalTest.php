@@ -27,7 +27,7 @@ class StrandFunctionalTest extends PHPUnit_Framework_TestCase
 
         $coroutine = function () use (&$strand) {
             echo 1;
-            echo (yield Recoil::suspend(
+            echo(yield Recoil::suspend(
                 function ($s) use (&$strand) {
                     echo 2;
                     $strand = $s;

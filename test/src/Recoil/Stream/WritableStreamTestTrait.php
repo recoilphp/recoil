@@ -2,20 +2,20 @@
 namespace Recoil\Stream;
 
 use Exception;
+use Phake;
+use React\EventLoop\StreamSelectLoop;
 use Recoil\Recoil;
 use Recoil\Stream\Exception\StreamClosedException;
 use Recoil\Stream\Exception\StreamLockedException;
-use Phake;
-use React\EventLoop\StreamSelectLoop;
 
 trait WritableStreamTestTrait
 {
     public function setUp()
     {
         $this->eventLoop = Phake::partialMock(StreamSelectLoop::CLASS);
-        $this->path = tempnam(sys_get_temp_dir(), 'recoil-');
-        $this->resource = fopen($this->path, 'w');
-        $this->stream = $this->createStream();
+        $this->path      = tempnam(sys_get_temp_dir(), 'recoil-');
+        $this->resource  = fopen($this->path, 'w');
+        $this->stream    = $this->createStream();
     }
 
     public function tearDown()

@@ -1,9 +1,9 @@
 <?php
 namespace Recoil;
 
+use React\EventLoop\LoopInterface;
 use Recoil\Kernel\Api\KernelApiCall;
 use Recoil\Kernel\Kernel;
-use React\EventLoop\LoopInterface;
 use Recoil\Kernel\Strand\StrandInterface;
 
 /**

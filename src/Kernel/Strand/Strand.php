@@ -82,7 +82,7 @@ class Strand extends EventEmitter implements StrandInterface
      */
     public function pop()
     {
-        $coroutine = array_pop($this->stack);
+        $coroutine     = array_pop($this->stack);
         $this->current = end($this->stack);
 
         $coroutine->finalize($this);
@@ -109,7 +109,7 @@ class Strand extends EventEmitter implements StrandInterface
             return null;
         }
 
-        $this->state = self::STATE_CALL;
+        $this->state      = self::STATE_CALL;
         $this->resumeData = null;
 
         return $coroutine;
@@ -160,7 +160,7 @@ class Strand extends EventEmitter implements StrandInterface
     {
         $this->resume();
 
-        $this->state = self::STATE_RESUME;
+        $this->state      = self::STATE_RESUME;
         $this->resumeData = $value;
     }
 
@@ -173,7 +173,7 @@ class Strand extends EventEmitter implements StrandInterface
     {
         $this->resume();
 
-        $this->state = self::STATE_EXCEPTION;
+        $this->state      = self::STATE_EXCEPTION;
         $this->resumeData = $exception;
     }
 
@@ -184,7 +184,7 @@ class Strand extends EventEmitter implements StrandInterface
     {
         $this->resume();
 
-        $this->state = self::STATE_TERMINATE;
+        $this->state      = self::STATE_TERMINATE;
         $this->resumeData = null;
     }
 
@@ -241,8 +241,8 @@ class Strand extends EventEmitter implements StrandInterface
         $this->kernel->attachStrand($this);
     }
 
-    const STATE_CALL = 1;
-    const STATE_RESUME = 2;
+    const STATE_CALL      = 1;
+    const STATE_RESUME    = 2;
     const STATE_EXCEPTION = 3;
     const STATE_TERMINATE = 4;
 

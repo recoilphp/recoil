@@ -2,9 +2,9 @@
 namespace Recoil\Coroutine;
 
 use Exception;
-use Recoil\Recoil;
-use Recoil\Kernel\Kernel;
 use PHPUnit_Framework_TestCase;
+use Recoil\Kernel\Kernel;
+use Recoil\Recoil;
 
 /**
  * @covers Recoil\Coroutine\GeneratorCoroutine
@@ -51,7 +51,7 @@ class GeneratorCoroutineTest extends PHPUnit_Framework_TestCase
 
         $coroutine = function () {
             echo 1;
-            echo (yield Recoil::suspend(
+            echo(yield Recoil::suspend(
                 function ($strand) {
                     $strand->resumeWithValue(2);
                 }
@@ -69,7 +69,7 @@ class GeneratorCoroutineTest extends PHPUnit_Framework_TestCase
 
         $coroutine = function () {
             echo 1;
-            echo (yield Recoil::suspend(
+            echo(yield Recoil::suspend(
                 function ($strand) {
                     $strand->resumeWithValue(2);
                 }

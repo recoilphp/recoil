@@ -1,8 +1,8 @@
 <?php
 namespace Recoil\Coroutine;
 
-use Recoil\Kernel\Strand\StrandInterface;
 use InvalidArgumentException;
+use Recoil\Kernel\Strand\StrandInterface;
 
 /**
  * Adapts arbitrary values into coroutine objects.

@@ -2,11 +2,11 @@
 namespace Recoil\Kernel\Api;
 
 use Exception;
+use PHPUnit_Framework_TestCase;
 use Recoil\Kernel\Exception\TimeoutException;
 use Recoil\Kernel\Kernel;
 use Recoil\Kernel\Strand\StrandInterface;
 use Recoil\Recoil;
-use PHPUnit_Framework_TestCase;
 
 /**
  * @covers Recoil\Kernel\Api\KernelApi
@@ -16,13 +16,13 @@ class KernelApiTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
-        $this->kernel = new Kernel();
+        $this->kernel    = new Kernel();
         $this->tolerance = 0.02;
     }
 
     public function testStrand()
     {
-        $strand = null;
+        $strand    = null;
         $coroutine = function () use (&$strand) {
             $strand = (yield Recoil::strand());
         };
@@ -36,7 +36,7 @@ class KernelApiTest extends PHPUnit_Framework_TestCase
 
     public function testKernel()
     {
-        $kernel = null;
+        $kernel    = null;
         $coroutine = function () use (&$kernel) {
             $kernel = (yield Recoil::kernel());
         };
@@ -71,7 +71,7 @@ class KernelApiTest extends PHPUnit_Framework_TestCase
                 yield Recoil::return_(1);
             };
 
-            echo (yield $f());
+            echo(yield $f());
         };
 
         $this->kernel->execute($coroutine());
@@ -105,7 +105,7 @@ class KernelApiTest extends PHPUnit_Framework_TestCase
         $this->expectOutputString('12');
 
         $coroutine = function () {
-            $strand = (yield Recoil::strand());
+            $strand    = (yield Recoil::strand());
             $coroutine = $strand->current();
 
             yield Recoil::finally_(
@@ -192,7 +192,7 @@ class KernelApiTest extends PHPUnit_Framework_TestCase
     public function testSleep()
     {
         $start = 0;
-        $end = 0;
+        $end   = 0;
 
         $coroutine = function () use (&$start, &$end) {
             $start = microtime(true);
@@ -238,7 +238,7 @@ class KernelApiTest extends PHPUnit_Framework_TestCase
         };
 
         $coroutine = function () use ($immediate) {
-            echo (yield Recoil::timeout(0.01, $immediate()));
+            echo(yield Recoil::timeout(0.01, $immediate()));
         };
 
         $this->kernel->execute($coroutine());
@@ -250,7 +250,7 @@ class KernelApiTest extends PHPUnit_Framework_TestCase
     {
         $this->expectOutputString('12345');
 
-        $result = null;
+        $result    = null;
         $coroutine = function () use (&$result) {
             $f = function ($value) {
                 echo $value;
@@ -332,7 +332,7 @@ class KernelApiTest extends PHPUnit_Framework_TestCase
     {
         $this->expectOutputString('123');
 
-        $strand = null;
+        $strand    = null;
         $coroutine = function () use (&$strand) {
             $f = function () {
                 echo 3;

@@ -2,11 +2,11 @@
 namespace Recoil\Coroutine;
 
 use Generator;
-use Recoil\Kernel\Strand\StrandInterface;
-use Recoil\Recoil;
 use Icecave\Repr\Repr;
 use InvalidArgumentException;
 use React\Promise\PromiseInterface;
+use Recoil\Kernel\Strand\StrandInterface;
+use Recoil\Recoil;
 
 /**
  * The default coroutine adaptor implementation.

@@ -24,7 +24,7 @@ class PromiseCoroutineTest extends PHPUnit_Framework_TestCase
 
     public function testFulfilledPromise()
     {
-        $value = null;
+        $value     = null;
         $coroutine = function () use (&$value) {
             $value = (yield new PromiseCoroutine(
                 new FulfilledPromise(123)
@@ -82,11 +82,11 @@ class PromiseCoroutineTest extends PHPUnit_Framework_TestCase
 
     public function testTerminateThenFulfill()
     {
-        $deferred = new Deferred();
-        $promise = $deferred->promise();
+        $deferred         = new Deferred();
+        $promise          = $deferred->promise();
         $promiseCoroutine = new PromiseCoroutine($promise);
 
-        $resumed = null;
+        $resumed   = null;
         $coroutine = function () use (&$resumed, $promiseCoroutine) {
             $resumed = false;
             yield $promiseCoroutine;
@@ -110,7 +110,7 @@ class PromiseCoroutineTest extends PHPUnit_Framework_TestCase
 
     public function testTerminateThenReject()
     {
-        $cancelled = false;
+        $cancelled        = false;
         $promiseCanceller = function () use (&$cancelled) {
             $cancelled = true;
         };

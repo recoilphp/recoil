@@ -13,7 +13,7 @@ class BidirectionalChannelAdaptor implements BidirectionalChannelInterface
         ReadableChannelInterface $readChannel,
         WritableChannelInterface $writeChannel
     ) {
-        $this->readChannel = $readChannel;
+        $this->readChannel  = $readChannel;
         $this->writeChannel = $writeChannel;
     }
 

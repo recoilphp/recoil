@@ -2,11 +2,11 @@
 namespace Recoil\Stream;
 
 use Exception;
+use React\Stream\ReadableStreamInterface as ReadableReactStreamInterface;
 use Recoil\Recoil;
 use Recoil\Stream\Exception\StreamClosedException;
 use Recoil\Stream\Exception\StreamLockedException;
 use Recoil\Stream\Exception\StreamReadException;
-use React\Stream\ReadableStreamInterface as ReadableReactStreamInterface;
 
 /**
  * Exposes a React readable stream as a Recoil readable stream.
@@ -65,10 +65,10 @@ class ReadableReactStream implements ReadableStreamInterface
         }
 
         if (strlen($this->buffer) > $length) {
-            $buffer = substr($this->buffer, 0, $length);
+            $buffer       = substr($this->buffer, 0, $length);
             $this->buffer = substr($this->buffer, $length);
         } else {
-            $buffer = $this->buffer;
+            $buffer       = $this->buffer;
             $this->buffer = '';
         }
 

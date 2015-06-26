@@ -8,7 +8,7 @@ class ChannelLockedExceptionTest extends PHPUnit_Framework_TestCase
 {
     public function testException()
     {
-        $previous = new Exception();
+        $previous  = new Exception();
         $exception = new ChannelLockedException($previous);
 
         $this->assertSame('Channel is already in use by another strand.', $exception->getMessage());

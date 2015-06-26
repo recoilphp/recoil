@@ -1,9 +1,9 @@
 <?php
 namespace Recoil\Channel;
 
+use InvalidArgumentException;
 use Recoil\Channel\Exception\ChannelClosedException;
 use Recoil\Channel\Exception\ChannelLockedException;
-use InvalidArgumentException;
 
 /**
  * Interface and specification for coroutine based writable data-channels.

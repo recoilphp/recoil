@@ -21,7 +21,7 @@ class GeneratorCoroutine implements CoroutineInterface
             self::$hasReturnValue = method_exists(Generator::class, 'getReturn');
         }
 
-        $this->generator = $generator;
+        $this->generator         = $generator;
         $this->finalizeCallbacks = [];
     }
 

@@ -1,11 +1,9 @@
 <?php
 namespace Recoil\Channel;
 
-use Exception;
+use PHPUnit_Framework_TestCase;
 use Recoil\Channel\Exception\ChannelClosedException;
 use Recoil\Kernel\Kernel;
-use Recoil\Recoil;
-use PHPUnit_Framework_TestCase;
 
 class ChannelTest extends PHPUnit_Framework_TestCase
 {
@@ -48,11 +46,11 @@ class ChannelTest extends PHPUnit_Framework_TestCase
 
         $reader = function () {
             for ($i = 1; $i <= 5; ++$i) {
-                echo (yield $this->channel->read());
+                echo(yield $this->channel->read());
             }
         };
 
-        $next = 1;
+        $next   = 1;
         $writer = function ($id) use (&$next) {
             while (true) {
                 yield $this->channel->write($id . $next++);

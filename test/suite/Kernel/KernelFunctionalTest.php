@@ -2,7 +2,6 @@
 namespace Recoil\Kernel;
 
 use Exception;
-use Recoil\Recoil;
 use InvalidArgumentException;
 use PHPUnit_Framework_TestCase;
 use React\Promise\FulfilledPromise;
@@ -84,7 +83,7 @@ class KernelFunctionalTest extends PHPUnit_Framework_TestCase
      */
     public function testYieldPromise()
     {
-        $value = null;
+        $value     = null;
         $coroutine = function () use (&$value) {
             $value = (yield new FulfilledPromise(123));
         };

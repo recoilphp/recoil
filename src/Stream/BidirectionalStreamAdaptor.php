@@ -15,7 +15,7 @@ class BidirectionalStreamAdaptor implements BidirectionalStreamInterface
         ReadableStreamInterface $readStream,
         WritableStreamInterface $writeStream
     ) {
-        $this->readStream = $readStream;
+        $this->readStream  = $readStream;
         $this->writeStream = $writeStream;
     }
 

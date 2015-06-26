@@ -18,7 +18,7 @@ class Select implements CoroutineInterface
     public function __construct(array $strands)
     {
         $this->substrands = new SplObjectStorage();
-        $this->exited = [];
+        $this->exited     = [];
 
         foreach ($strands as $index => $strand) {
             if ($strand->hasExited()) {
