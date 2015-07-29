@@ -212,7 +212,7 @@ function multiply($a, $b)
 ### Throwing and catching exceptions
 
 One of the major advantages made available by coroutines is that errors can be reported using familiar exception
-handling techniques. Unlike `return`, the `throw` keyword can be used in the standard way inside PHP generators.
+handling techniques. The `throw` keyword can be used in the standard way inside PHP generators in both PHP version 5 and 7.
 
 ```php
 function multiply($a, $b)
