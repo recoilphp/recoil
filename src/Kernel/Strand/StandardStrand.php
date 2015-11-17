@@ -18,7 +18,7 @@ use Recoil\Kernel\Kernel;
  * @event suspend   Execution of the strand has been suspended.
  * @event resumed   Execution of the strand has been resumed.
  */
-class Strand extends EventEmitter implements StrandInterface
+class StandardStrand extends EventEmitter implements StrandInterface
 {
     /**
      * @param Kernel The coroutine kernel.

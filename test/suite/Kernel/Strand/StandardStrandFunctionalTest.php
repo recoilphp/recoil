@@ -10,7 +10,7 @@ use Recoil\Recoil;
 /**
  * @group functional
  */
-class StrandFunctionalTest extends PHPUnit_Framework_TestCase
+class StandardStrandFunctionalTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
@@ -330,7 +330,7 @@ class StrandFunctionalTest extends PHPUnit_Framework_TestCase
 
     public function testTickWithoutAction()
     {
-        $strand = new Strand($this->kernel);
+        $strand = new StandardStrand($this->kernel);
 
         $this->setExpectedException(
             'LogicException',

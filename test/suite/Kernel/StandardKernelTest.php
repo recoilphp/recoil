@@ -6,7 +6,7 @@ use PHPUnit_Framework_TestCase;
 use React\EventLoop\LoopInterface;
 use Recoil\Coroutine\StandardCoroutineAdaptor;
 use Recoil\Kernel\Api\StandardKernelApi;
-use Recoil\Kernel\Strand\StrandFactory;
+use Recoil\Kernel\Strand\StandardStrandFactory;
 use Recoil\Recoil;
 
 class StandardKernelTest extends PHPUnit_Framework_TestCase
@@ -20,7 +20,7 @@ class StandardKernelTest extends PHPUnit_Framework_TestCase
     {
         $this->assertInstanceOf(StandardKernelApi::class, $this->kernel->api());
         $this->assertInstanceOf(StandardCoroutineAdaptor::class, $this->kernel->coroutineAdaptor());
-        $this->assertInstanceOf(StrandFactory::class, $this->kernel->strandFactory());
+        $this->assertInstanceOf(StandardStrandFactory::class, $this->kernel->strandFactory());
         $this->assertInstanceOf(LoopInterface::class, $this->kernel->eventLoop());
     }
 

@@ -7,7 +7,7 @@ use Recoil\Kernel\Kernel;
 /**
  * The default strand factory.
  */
-class StrandFactory implements StrandFactoryInterface
+class StandardStrandFactory implements StrandFactoryInterface
 {
     /**
      * Create a strand.
@@ -18,6 +18,6 @@ class StrandFactory implements StrandFactoryInterface
      */
     public function createStrand(Kernel $kernel)
     {
-        return new Strand($kernel);
+        return new StandardStrand($kernel);
     }
 }

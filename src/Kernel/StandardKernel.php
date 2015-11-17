@@ -8,7 +8,7 @@ use Recoil\Coroutine\CoroutineAdaptor;
 use Recoil\Coroutine\StandardCoroutineAdaptor;
 use Recoil\Kernel\Api\KernelApi;
 use Recoil\Kernel\Api\StandardKernelApi;
-use Recoil\Kernel\Strand\StrandFactory;
+use Recoil\Kernel\Strand\StandardStrandFactory;
 use Recoil\Kernel\Strand\StrandFactoryInterface;
 use Recoil\Kernel\Strand\StrandInterface;
 
@@ -42,7 +42,7 @@ class StandardKernel implements Kernel
         }
 
         if (null === $strandFactory) {
-            $strandFactory = new StrandFactory();
+            $strandFactory = new StandardStrandFactory();
         }
 
         $this->eventLoop        = $eventLoop;
