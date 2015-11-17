@@ -4,7 +4,7 @@ namespace Recoil\Channel;
 use PHPUnit_Framework_TestCase;
 use Recoil\Channel\Serialization\PhpSerializer;
 use Recoil\Recoil;
-use Recoil\Stream\ReadableStream;
+use Recoil\Stream\ReadablePhpStream;
 
 class ReadableStreamChannelTest extends PHPUnit_Framework_TestCase
 {
@@ -16,7 +16,7 @@ class ReadableStreamChannelTest extends PHPUnit_Framework_TestCase
     {
         $this->path       = tempnam(sys_get_temp_dir(), 'recoil-');
         $this->resource   = fopen($this->path, 'r+');
-        $this->stream     = new ReadableStream($this->resource);
+        $this->stream     = new ReadablePhpStream($this->resource);
         $this->channel    = new ReadableStreamChannel($this->stream);
         $this->serializer = new PhpSerializer();
     }
