@@ -13,7 +13,7 @@ use Recoil\Stream\WritableStream;
 /**
  * A writable channel that serializes values onto a stream.
  */
-class WritableStreamChannel implements WritableChannelInterface
+class WritableStreamChannel implements WritableChannel
 {
     /**
      * @param WritableStream           $stream     The underlying stream.

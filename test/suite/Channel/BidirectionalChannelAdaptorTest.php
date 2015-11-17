@@ -10,8 +10,8 @@ class BidirectionalChannelAdaptorTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
-        $this->readChannel  = Phake::mock(ReadableChannelInterface::class);
-        $this->writeChannel = Phake::mock(WritableChannelInterface::class);
+        $this->readChannel  = Phake::mock(ReadableChannel::class);
+        $this->writeChannel = Phake::mock(WritableChannel::class);
         $this->adaptor      = new BidirectionalChannelAdaptor(
             $this->readChannel,
             $this->writeChannel

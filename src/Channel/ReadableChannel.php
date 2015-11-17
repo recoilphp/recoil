@@ -17,7 +17,7 @@ use Recoil\Channel\Exception\ChannelLockedException;
  *
  * @link http://www.ietf.org/rfc/rfc2119.txt
  */
-interface ReadableChannelInterface
+interface ReadableChannel
 {
     /**
      * [COROUTINE] Read a value from this channel.

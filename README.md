@@ -115,7 +115,7 @@ The [stream-file example](examples/stream-file) demonstrates using a readable st
 *Channels* are stream-like objects that produce and consume PHP values rather than byte streams. Channels are intended
 as the primary method for communication between strands.
 
-Like streams there are [readable](src/Channel/ReadableChannelInterface.php) and [writable](src/Channel/WritableChannelInterface.php)
+Like streams there are [readable](src/Channel/ReadableChannel.php) and [writable](src/Channel/WritableChannel.php)
 variants. Some channel implementations allow for multiple concurrent read and write operations.
 
 Both in-memory and stream-based channels are provided. Stream-based channels use a serialization protocol to encode and

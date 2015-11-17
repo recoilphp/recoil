@@ -10,7 +10,7 @@ use SplQueue;
  * An unbuffered (synchronous) loop-back data channel that allows multiple
  * concurrent read/write operations.
  */
-class Channel implements ReadableChannelInterface, WritableChannelInterface
+class Channel implements ReadableChannel, WritableChannel
 {
     public function __construct()
     {

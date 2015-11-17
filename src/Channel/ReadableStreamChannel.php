@@ -14,7 +14,7 @@ use Recoil\Stream\ReadableStream;
 /**
  * A readable channel that unserializes values from a stream.
  */
-class ReadableStreamChannel implements ReadableChannelInterface
+class ReadableStreamChannel implements ReadableChannel
 {
     /**
      * @param ReadableStream             $stream       The underlying stream.
