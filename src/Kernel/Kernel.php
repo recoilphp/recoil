@@ -4,7 +4,7 @@ namespace Recoil\Kernel;
 
 use React\EventLoop\LoopInterface;
 use Recoil\Coroutine\CoroutineAdaptor;
-use Recoil\Kernel\Strand\StrandFactoryInterface;
+use Recoil\Kernel\Strand\StrandFactory;
 use Recoil\Kernel\Strand\StrandInterface;
 
 /**
@@ -55,7 +55,7 @@ interface Kernel
     /**
      * Fetch the factory used to create new strands.
      *
-     * @return StrandFactoryInterface The kernel's strand factory.
+     * @return StrandFactory The kernel's strand factory.
      */
     public function strandFactory();
 

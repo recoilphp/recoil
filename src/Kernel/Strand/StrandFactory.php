@@ -7,7 +7,7 @@ use Recoil\Kernel\Kernel;
 /**
  * A factory for strands.
  */
-interface StrandFactoryInterface
+interface StrandFactory
 {
     /**
      * Create a strand.

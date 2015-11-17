@@ -9,7 +9,7 @@ use Recoil\Coroutine\StandardCoroutineAdaptor;
 use Recoil\Kernel\Api\KernelApi;
 use Recoil\Kernel\Api\StandardKernelApi;
 use Recoil\Kernel\Strand\StandardStrandFactory;
-use Recoil\Kernel\Strand\StrandFactoryInterface;
+use Recoil\Kernel\Strand\StrandFactory;
 use Recoil\Kernel\Strand\StrandInterface;
 
 /**
@@ -21,13 +21,13 @@ class StandardKernel implements Kernel
      * @param LoopInterface|null          $eventLoop        The React event-loop.
      * @param KernelApi|null              $api              The kernel's API implementation.
      * @param CoroutineAdaptor|null       $coroutineAdaptor The kernel's coroutine adaptor.
-     * @param StrandFactoryInterface|null $strandFactory    The kernel's strand factory.
+     * @param StrandFactory|null $strandFactory    The kernel's strand factory.
      */
     public function __construct(
         LoopInterface $eventLoop = null,
         KernelApi $api = null,
         CoroutineAdaptor $coroutineAdaptor = null,
-        StrandFactoryInterface $strandFactory = null
+        StrandFactory $strandFactory = null
     ) {
         if (null === $eventLoop) {
             $eventLoop = EventLoopFactory::create();
@@ -122,7 +122,7 @@ class StandardKernel implements Kernel
     /**
      * Fetch the factory used to create new strands.
      *
-     * @return StrandFactoryInterface The kernel's strand factory.
+     * @return StrandFactory The kernel's strand factory.
      */
     public function strandFactory()
     {
