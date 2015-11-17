@@ -10,7 +10,7 @@ use Recoil\Stream\Exception\StreamReadException;
 /**
  * A readable stream that operates directly on a native PHP stream resource.
  */
-class ReadablePhpStream implements ReadableStreamInterface
+class ReadablePhpStream implements ReadableStream
 {
     /**
      * @param resource $stream The underlying PHP stream resource.

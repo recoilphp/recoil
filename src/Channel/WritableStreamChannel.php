@@ -7,7 +7,7 @@ use Recoil\Channel\Serialization\PhpSerializer;
 use Recoil\Channel\Serialization\SerializerInterface;
 use Recoil\Stream\Exception\StreamClosedException;
 use Recoil\Stream\Exception\StreamLockedException;
-use Recoil\Stream\WritableStreamInterface;
+use Recoil\Stream\WritableStream;
 
 /**
  * A writable channel that serializes values onto a stream.
@@ -15,11 +15,11 @@ use Recoil\Stream\WritableStreamInterface;
 class WritableStreamChannel implements WritableChannelInterface
 {
     /**
-     * @param WritableStreamInterface  $stream     The underlying stream.
+     * @param WritableStream           $stream     The underlying stream.
      * @param SerializerInterface|null $serializer The serializer used to convert values into stream data.
      */
     public function __construct(
-        WritableStreamInterface $stream,
+        WritableStream $stream,
         SerializerInterface $serializer = null
     ) {
         if (null === $serializer) {

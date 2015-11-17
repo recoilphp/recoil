@@ -12,8 +12,8 @@ use Recoil\Stream\Exception\StreamWriteException;
 class BidirectionalStreamAdaptor implements BidirectionalStreamInterface
 {
     public function __construct(
-        ReadableStreamInterface $readStream,
-        WritableStreamInterface $writeStream
+        ReadableStream $readStream,
+        WritableStream $writeStream
     ) {
         $this->readStream  = $readStream;
         $this->writeStream = $writeStream;

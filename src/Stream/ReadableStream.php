@@ -14,7 +14,7 @@ use Recoil\Stream\Exception\StreamReadException;
  *
  * @link http://www.ietf.org/rfc/rfc2119.txt
  */
-interface ReadableStreamInterface
+interface ReadableStream
 {
     /**
      * [COROUTINE] Read data from the stream.

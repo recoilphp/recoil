@@ -2,7 +2,7 @@
 namespace Recoil\Stream;
 
 use Exception;
-use React\Stream\WritableStreamInterface as WritableReactStreamInterface;
+use React\Stream\WritableStreamInterface;
 use Recoil\Recoil;
 use Recoil\Stream\Exception\StreamClosedException;
 use Recoil\Stream\Exception\StreamLockedException;
@@ -11,12 +11,12 @@ use Recoil\Stream\Exception\StreamWriteException;
 /**
  * Exposes a React writable stream as a Recoil writable stream.
  */
-class WritableReactStream implements WritableStreamInterface
+class WritableReactStream implements WritableStream
 {
     /**
      * @param WritableReactStreamInterface $stream The underlying React stream.
      */
-    public function __construct(WritableReactStreamInterface $stream)
+    public function __construct(WritableStreamInterface $stream)
     {
         $this->stream = $stream;
 

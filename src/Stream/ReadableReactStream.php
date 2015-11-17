@@ -2,7 +2,7 @@
 namespace Recoil\Stream;
 
 use Exception;
-use React\Stream\ReadableStreamInterface as ReadableReactStreamInterface;
+use React\Stream\ReadableStreamInterface;
 use Recoil\Recoil;
 use Recoil\Stream\Exception\StreamClosedException;
 use Recoil\Stream\Exception\StreamLockedException;
@@ -11,12 +11,12 @@ use Recoil\Stream\Exception\StreamReadException;
 /**
  * Exposes a React readable stream as a Recoil readable stream.
  */
-class ReadableReactStream implements ReadableStreamInterface
+class ReadableReactStream implements ReadableStream
 {
     /**
-     * @param ReadableReactStreamInterface $stream The underlying React stream.
+     * @param ReadableStreamInterface $stream The underlying React stream.
      */
-    public function __construct(ReadableReactStreamInterface $stream)
+    public function __construct(ReadableStreamInterface $stream)
     {
         $this->stream = $stream;
         $this->buffer = '';

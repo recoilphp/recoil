@@ -8,7 +8,7 @@ use Recoil\Channel\Serialization\UnserializerInterface;
 use Recoil\Recoil;
 use Recoil\Stream\Exception\StreamClosedException;
 use Recoil\Stream\Exception\StreamLockedException;
-use Recoil\Stream\ReadableStreamInterface;
+use Recoil\Stream\ReadableStream;
 
 /**
  * A readable channel that unserializes values from a stream.
@@ -16,12 +16,12 @@ use Recoil\Stream\ReadableStreamInterface;
 class ReadableStreamChannel implements ReadableChannelInterface
 {
     /**
-     * @param ReadableStreamInterface    $stream       The underlying stream.
+     * @param ReadableStream             $stream       The underlying stream.
      * @param UnserializerInterface|null $unserializer The unserializer to use to convert stream data into values.
      * @param integer                    $bufferSize   The maximum number of bytes to read from the stream at a time.
      */
     public function __construct(
-        ReadableStreamInterface $stream,
+        ReadableStream $stream,
         UnserializerInterface $unserializer = null,
         $bufferSize = 8192
     ) {

@@ -102,7 +102,7 @@ is accessed via the [Recoil facade](src/Recoil.php).
 
 ### Streams
 
-*Streams* provide a coroutine based abstraction for [readable](src/Stream/ReadableStreamInterface.php) and [writable](src/Stream/WritableStreamInterface.php)
+*Streams* provide a coroutine based abstraction for [readable](src/Stream/ReadableStream.php) and [writable](src/Stream/WritableStream.php)
 data streams. The interfaces are somewhat similar to the built-in PHP stream API.
 
 Stream operations are cooperative, that is, when reading or writing to a stream, execution of the coroutine is suspended

@@ -14,7 +14,7 @@ use Recoil\Stream\Exception\StreamWriteException;
  *
  * @link http://www.ietf.org/rfc/rfc2119.txt
  */
-interface WritableStreamInterface
+interface WritableStream
 {
     /**
      * [COROUTINE] Write data to this stream.
