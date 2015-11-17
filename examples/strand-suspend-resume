@@ -9,7 +9,7 @@ require dirname(__DIR__) . '/vendor/autoload.php';
  * coroutine based.
  */
 
-use Recoil\Kernel\Strand\StrandInterface;
+use Recoil\Kernel\Strand\Strand;
 use Recoil\Recoil;
 
 Recoil::run(
@@ -20,7 +20,7 @@ Recoil::run(
         // manually resumed. It accepts a callback that is passed the suspended
         // strand object.
         $value = (yield Recoil::suspend(
-            function (StrandInterface $strand) {
+            function (Strand $strand) {
                 // Add a timer that resumes the strand after one second.
                 //
                 // A value can be returned to the suspended strand using

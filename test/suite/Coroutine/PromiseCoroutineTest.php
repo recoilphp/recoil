@@ -1,4 +1,5 @@
 <?php
+
 namespace Recoil\Coroutine;
 
 use Exception;
@@ -8,7 +9,7 @@ use React\Promise\FulfilledPromise;
 use React\Promise\Promise;
 use React\Promise\RejectedPromise;
 use Recoil\Coroutine\Exception\PromiseRejectedException;
-use Recoil\Kernel\Kernel;
+use Recoil\Kernel\StandardKernel;
 use Recoil\Recoil;
 
 /**
@@ -19,7 +20,7 @@ class PromiseCoroutineTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
-        $this->kernel = new Kernel();
+        $this->kernel = new StandardKernel();
     }
 
     public function testFulfilledPromise()

@@ -1,8 +1,9 @@
 <?php
+
 namespace Recoil\Stream;
 
 use Exception;
-use React\Stream\ReadableStreamInterface as ReadableReactStreamInterface;
+use React\Stream\ReadableStreamInterface;
 use Recoil\Recoil;
 use Recoil\Stream\Exception\StreamClosedException;
 use Recoil\Stream\Exception\StreamLockedException;
@@ -11,12 +12,12 @@ use Recoil\Stream\Exception\StreamReadException;
 /**
  * Exposes a React readable stream as a Recoil readable stream.
  */
-class ReadableReactStream implements ReadableStreamInterface
+class ReadableReactStream implements ReadableStream
 {
     /**
-     * @param ReadableReactStreamInterface $stream The underlying React stream.
+     * @param ReadableStreamInterface $stream The underlying React stream.
      */
-    public function __construct(ReadableReactStreamInterface $stream)
+    public function __construct(ReadableStreamInterface $stream)
     {
         $this->stream = $stream;
         $this->buffer = '';
@@ -108,7 +109,7 @@ class ReadableReactStream implements ReadableStreamInterface
     }
 
     /**
-     * @internal
+     * @access private
      */
     public function onStreamData($data)
     {
@@ -124,7 +125,7 @@ class ReadableReactStream implements ReadableStreamInterface
     }
 
     /**
-     * @internal
+     * @access private
      */
     public function onStreamEnd()
     {
@@ -139,7 +140,7 @@ class ReadableReactStream implements ReadableStreamInterface
     }
 
     /**
-     * @internal
+     * @access private
      */
     public function onStreamClose()
     {
@@ -155,7 +156,7 @@ class ReadableReactStream implements ReadableStreamInterface
     }
 
     /**
-     * @internal
+     * @access private
      */
     public function onStreamError(Exception $exception)
     {

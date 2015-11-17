@@ -2,34 +2,29 @@
 
 namespace Recoil\Stream;
 
-use Exception;
-use React\Stream\WritableStreamInterface;
+use ErrorException;
 use Recoil\Recoil;
 use Recoil\Stream\Exception\StreamClosedException;
 use Recoil\Stream\Exception\StreamLockedException;
 use Recoil\Stream\Exception\StreamWriteException;
 
 /**
- * Exposes a React writable stream as a Recoil writable stream.
+ * A writable stream that operates directly on a native PHP stream resource.
  */
-class WritableReactStream implements WritableStream
+class WritablePhpStream implements WritableStream
 {
     /**
-     * @param WritableReactStreamInterface $stream The underlying React stream.
+     * @param resource $stream The underlying PHP stream resource.
      */
-    public function __construct(WritableStreamInterface $stream)
+    public function __construct($stream)
     {
         $this->stream = $stream;
-
-        $this->stream->on('drain', [$this, 'onStreamDrain']);
-        $this->stream->on('error', [$this, 'onStreamError']);
     }
 
     /**
      * [COROUTINE] Write data to this stream.
      *
-     * Execution of the current strand is suspended until the underlying stream
-     * is drained.
+     * Execution of the current strand is suspended until the data is sent.
      *
      * Write operations must be exclusive. If concurrent writes are attempted a
      * StreamLockedException is thrown.
@@ -50,25 +45,46 @@ class WritableReactStream implements WritableStream
             throw new StreamClosedException();
         }
 
-        if (null === $length) {
-            $length = strlen($buffer);
-        } else {
-            $buffer = substr($buffer, 0, $length);
-        }
-
         yield Recoil::suspend(
-            function ($strand) use ($buffer) {
+            function ($strand) {
                 $this->strand = $strand;
 
-                if ($this->stream->write($buffer)) {
-                    $this->onStreamDrain();
-                }
+                $strand
+                    ->kernel()
+                    ->eventLoop()
+                    ->addWriteStream(
+                        $this->stream,
+                        function ($stream, $eventLoop) use ($strand) {
+                            $eventLoop->removeWriteStream($this->stream);
+                            $this->strand->resumeWithValue(null);
+                        }
+                    );
             }
         );
 
         $this->strand = null;
 
-        yield Recoil::return_($length);
+        $exception = null;
+
+        set_error_handler(
+            function ($code, $message, $file, $line) use (&$exception) {
+                $exception = new ErrorException($message, 0, $code, $file, $line);
+            }
+        );
+
+        $bytesWritten = fwrite(
+            $this->stream,
+            $buffer,
+            $length ?: strlen($buffer)
+        );
+
+        restore_error_handler();
+
+        if (false === $bytesWritten) {
+            throw new StreamWriteException($exception);
+        }
+
+        yield Recoil::return_($bytesWritten);
     // @codeCoverageIgnoreStart
     }
     // @codeCoverageIgnoreEnd
@@ -89,7 +105,10 @@ class WritableReactStream implements WritableStream
      */
     public function writeAll($buffer)
     {
-        yield $this->write($buffer);
+        while ($buffer) {
+            $bytesWritten = (yield $this->write($buffer));
+            $buffer       = substr($buffer, $bytesWritten);
+        }
     }
 
     /**
@@ -101,22 +120,21 @@ class WritableReactStream implements WritableStream
     public function close()
     {
         if ($this->strand) {
+            $this
+                ->strand
+                ->kernel()
+                ->eventLoop()
+                ->removeWriteStream($this->stream);
+
             $this->strand->resumeWithException(new StreamClosedException());
             $this->strand = null;
-            $this->stream->close();
-        } else {
-            yield Recoil::suspend(
-                function ($strand) {
-                    $this->stream->once(
-                        'close',
-                        function () use ($strand) {
-                            $strand->resumeWithValue(null);
-                        }
-                    );
-                    $this->stream->end();
-                }
-            );
         }
+
+        if (is_resource($this->stream)) {
+            fclose($this->stream);
+        }
+
+        yield Recoil::noop();
     }
 
     /**
@@ -126,26 +144,7 @@ class WritableReactStream implements WritableStream
      */
     public function isClosed()
     {
-        return !$this->stream->isWritable();
-    }
-
-    /**
-     * @access private
-     */
-    public function onStreamDrain()
-    {
-        if ($this->strand) {
-            $this->strand->resumeWithValue(false);
-        }
-    }
-
-    /**
-     * @access private
-     */
-    public function onStreamError(Exception $exception)
-    {
-        $this->strand->resumeWithException(new StreamWriteException($exception));
-        $this->strand = null;
+        return !is_resource($this->stream);
     }
 
     private $stream;

@@ -1,11 +1,11 @@
 <?php
+
 namespace Recoil\Kernel\Strand;
 
-use Evenement\EventEmitter;
+use Evenement\EventEmitterInterface;
 use Exception;
-use LogicException;
-use Recoil\Coroutine\CoroutineInterface;
-use Recoil\Kernel\KernelInterface;
+use Recoil\Coroutine\Coroutine;
+use Recoil\Kernel\Kernel;
 
 /**
  * A strand represents a user-space "thread" of execution.
@@ -17,41 +17,21 @@ use Recoil\Kernel\KernelInterface;
  * @event suspend   Execution of the strand has been suspended.
  * @event resumed   Execution of the strand has been resumed.
  */
-class Strand extends EventEmitter implements StrandInterface
+interface Strand extends EventEmitterInterface
 {
-    /**
-     * @param KernelInterface The coroutine kernel.
-     */
-    public function __construct(KernelInterface $kernel)
-    {
-        $this->kernel    = $kernel;
-        $this->suspended = false;
-        $this->stack     = [];
-
-        $this->stack[] = $this->current = new StackBase();
-
-        $kernel->attachStrand($this);
-    }
-
     /**
      * Fetch the kernel on which this strand is executing.
      *
-     * @return KernelInterface The coroutine kernel.
+     * @return Kernel The coroutine kernel.
      */
-    public function kernel()
-    {
-        return $this->kernel;
-    }
+    public function kernel();
 
     /**
-     * Fetch the coroutine currently being executed.
+     * Fetch the coroutine this strand is currently executing.
      *
-     * @return CoroutineInterface The coroutine currently being executed.
+     * @return Coroutine The coroutine currently being executed.
      */
-    public function current()
-    {
-        return $this->current;
-    }
+    public function current();
 
     /**
      * Push a coroutine onto the stack.
@@ -60,196 +40,77 @@ class Strand extends EventEmitter implements StrandInterface
      *
      * @param mixed $coroutine The coroutine to call.
      *
-     * @return CoroutineInterface The adapted coroutine.
+     * @return Coroutine The adapted coroutine.
      */
-    public function push($coroutine)
-    {
-        $coroutine = $this
-            ->kernel()
-            ->coroutineAdaptor()
-            ->adapt($this, $coroutine);
-
-        $this->stack[] = $coroutine;
-        $this->current = $coroutine;
-
-        return $coroutine;
-    }
+    public function push($coroutine);
 
     /**
      * Pop the current coroutine off the stack.
      *
-     * @return CoroutineInterface
+     * @return Coroutine
      */
-    public function pop()
-    {
-        $coroutine     = array_pop($this->stack);
-        $this->current = end($this->stack);
-
-        $coroutine->finalize($this);
-
-        return $coroutine;
-    }
+    public function pop();
 
     /**
-     * Call the given coroutine immediately.
+     * Call the given coroutine.
      *
      * The value must be adaptable using the kernel's coroutine adaptor.
      *
      * @param mixed $coroutine The coroutine to call.
      *
-     * @return CoroutineInterface|null The adapted coroutine, or null if no adaptation could be made.
+     * @return Coroutine|null The adapted coroutine, or null if no adaptation could be made.
      */
-    public function call($coroutine)
-    {
-        try {
-            $coroutine = $this->push($coroutine);
-        } catch (Exception $e) {
-            $this->resumeWithException($e);
-
-            return null;
-        }
-
-        $this->state      = self::STATE_CALL;
-        $this->resumeData = null;
-
-        return $coroutine;
-    }
+    public function call($coroutine);
 
     /**
-     * Return a value to calling coroutine.
+     * Return a value to the calling coroutine.
      *
      * @param mixed $value The value to return.
      */
-    public function returnValue($value = null)
-    {
-        $this->pop();
-        $this->resumeWithValue($value);
-    }
+    public function returnValue($value = null);
 
     /**
      * Throw an exception to the calling coroutine.
      *
      * @param Exception $exception The exception to throw.
      */
-    public function throwException(Exception $exception)
-    {
-        $this->pop();
-        $this->resumeWithException($exception);
-    }
+    public function throwException(Exception $exception);
 
     /**
      * Suspend execution of this strand.
+     *
+     * The kernel will not call tick() until the strand is resumed.
      */
-    public function suspend()
-    {
-        if ($this->suspended) {
-            return;
-        }
-
-        $this->suspended = true;
-
-        $this->kernel->detachStrand($this);
-    }
+    public function suspend();
 
     /**
      * Resume execution of this strand and send a value to the current coroutine.
      *
      * @param mixed $value The value to send to the coroutine.
      */
-    public function resumeWithValue($value)
-    {
-        $this->resume();
-
-        $this->state      = self::STATE_RESUME;
-        $this->resumeData = $value;
-    }
+    public function resumeWithValue($value);
 
     /**
      * Resume execution of this strand and throw an exception to the current coroutine.
      *
      * @param Exception $exception The exception to send to the coroutine.
      */
-    public function resumeWithException(Exception $exception)
-    {
-        $this->resume();
-
-        $this->state      = self::STATE_EXCEPTION;
-        $this->resumeData = $exception;
-    }
+    public function resumeWithException(Exception $exception);
 
     /**
-     * Terminate this execution context.
+     * Terminate execution of this strand.
      */
-    public function terminate()
-    {
-        $this->resume();
-
-        $this->state      = self::STATE_TERMINATE;
-        $this->resumeData = null;
-    }
+    public function terminate();
 
     /**
      * Check if the strand has exited.
      *
      * @return boolean True if the strand has exited; otherwise false.
      */
-    public function hasExited()
-    {
-        return !$this->stack;
-    }
+    public function hasExited();
 
     /**
      * Perform the next unit-of-work for this strand.
      */
-    public function tick()
-    {
-        while (!$this->suspended) {
-            if ($this->state === self::STATE_CALL) {
-                $this->state = null;
-                $this->current->call($this);
-            } elseif ($this->state === self::STATE_RESUME) {
-                $this->state = null;
-                $this->current->resumeWithValue($this, $this->resumeData);
-            } elseif ($this->state === self::STATE_EXCEPTION) {
-                $this->state = null;
-                $this->current->resumeWithException($this, $this->resumeData);
-            } elseif (self::STATE_TERMINATE === $this->state) {
-                $this->current->terminate($this);
-
-                // Check if the state has been changed, if not continue with
-                // termination of the strand.
-                if ($this->state === self::STATE_TERMINATE) {
-                    $this->pop();
-                }
-            } else {
-                throw new LogicException('No action has been requested.');
-            }
-        }
-    }
-
-    /**
-     * Resume execution of this strand.
-     */
-    private function resume()
-    {
-        if (!$this->suspended) {
-            return;
-        }
-
-        $this->suspended = false;
-
-        $this->kernel->attachStrand($this);
-    }
-
-    const STATE_CALL      = 1;
-    const STATE_RESUME    = 2;
-    const STATE_EXCEPTION = 3;
-    const STATE_TERMINATE = 4;
-
-    private $kernel;
-    private $suspended;
-    private $stack;
-    private $current;
-    private $state;
-    private $resumeData;
+    public function tick();
 }

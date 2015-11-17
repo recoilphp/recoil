@@ -1,19 +1,20 @@
 <?php
+
 namespace Recoil\Kernel\Strand;
 
 use Exception;
 use PHPUnit_Framework_TestCase;
-use Recoil\Kernel\Kernel;
+use Recoil\Kernel\StandardKernel;
 use Recoil\Recoil;
 
 /**
  * @group functional
  */
-class StrandFunctionalTest extends PHPUnit_Framework_TestCase
+class StandardStrandFunctionalTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
-        $this->kernel = new Kernel();
+        $this->kernel = new StandardKernel();
     }
 
     /**
@@ -329,7 +330,7 @@ class StrandFunctionalTest extends PHPUnit_Framework_TestCase
 
     public function testTickWithoutAction()
     {
-        $strand = new Strand($this->kernel);
+        $strand = new StandardStrand($this->kernel);
 
         $this->setExpectedException(
             'LogicException',

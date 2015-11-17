@@ -1,7 +1,6 @@
 <?php
-namespace Recoil\Channel;
 
-use Recoil\Kernel\Kernel;
+namespace Recoil\Channel;
 
 trait LoopbackChannelTestTrait
 {

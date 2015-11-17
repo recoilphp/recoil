@@ -1,17 +1,18 @@
 <?php
+
 namespace Recoil\Kernel\Api;
 
 use Exception;
 use PHPUnit_Framework_TestCase;
 use Recoil\Kernel\Exception\TimeoutException;
-use Recoil\Kernel\Kernel;
+use Recoil\Kernel\StandardKernel;
 use Recoil\Recoil;
 
 class TimeoutTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
-        $this->kernel = new Kernel();
+        $this->kernel = new StandardKernel();
     }
 
     public function testTimeout()

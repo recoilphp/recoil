@@ -1,16 +1,17 @@
 <?php
+
 namespace Recoil\Kernel\Api;
 
-use Recoil\Coroutine\CoroutineInterface;
+use Recoil\Coroutine\Coroutine;
 use Recoil\Coroutine\CoroutineTrait;
-use Recoil\Kernel\Strand\StrandInterface;
+use Recoil\Kernel\Strand\Strand;
 
 /**
- * Internal implementation of KernelApiInterface::sleep().
+ * Internal implementation of KernelApi::sleep().
  *
- * @internal
+ * @access private
  */
-class Sleep implements CoroutineInterface
+class Sleep implements Coroutine
 {
     use CoroutineTrait;
 
@@ -22,9 +23,9 @@ class Sleep implements CoroutineInterface
     /**
      * Invoked when tick() is called for the first time.
      *
-     * @param StrandInterface $strand The strand that is executing the coroutine.
+     * @param Strand $strand The strand that is executing the coroutine.
      */
-    public function call(StrandInterface $strand)
+    public function call(Strand $strand)
     {
         $strand->suspend();
 
@@ -44,9 +45,9 @@ class Sleep implements CoroutineInterface
      *
      * This method is invoked after the coroutine is popped from the call stack.
      *
-     * @param StrandInterface $strand The strand that is executing the coroutine.
+     * @param Strand $strand The strand that is executing the coroutine.
      */
-    public function finalize(StrandInterface $strand)
+    public function finalize(Strand $strand)
     {
         if ($this->timer) {
             $this->timer->cancel();

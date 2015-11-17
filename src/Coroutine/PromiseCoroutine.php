@@ -1,16 +1,17 @@
 <?php
+
 namespace Recoil\Coroutine;
 
 use Exception;
 use React\Promise\CancellablePromiseInterface;
 use React\Promise\PromiseInterface;
 use Recoil\Coroutine\Exception\PromiseRejectedException;
-use Recoil\Kernel\Strand\StrandInterface;
+use Recoil\Kernel\Strand\Strand;
 
 /**
  * A coroutine that resumes when a promise is fulfilled or rejected.
  */
-class PromiseCoroutine implements CoroutineInterface
+class PromiseCoroutine implements Coroutine
 {
     use CoroutineTrait;
 
@@ -25,9 +26,9 @@ class PromiseCoroutine implements CoroutineInterface
     /**
      * Start the coroutine.
      *
-     * @param StrandInterface $strand The strand that is executing the coroutine.
+     * @param Strand $strand The strand that is executing the coroutine.
      */
-    public function call(StrandInterface $strand)
+    public function call(Strand $strand)
     {
         $strand->suspend();
 
@@ -50,9 +51,9 @@ class PromiseCoroutine implements CoroutineInterface
     /**
      * Inform the coroutine that the executing strand is being terminated.
      *
-     * @param StrandInterface $strand The strand that is executing the coroutine.
+     * @param Strand $strand The strand that is executing the coroutine.
      */
-    public function terminate(StrandInterface $strand)
+    public function terminate(Strand $strand)
     {
         if ($this->promise instanceof CancellablePromiseInterface) {
             $this->promise->cancel();
@@ -64,9 +65,9 @@ class PromiseCoroutine implements CoroutineInterface
      *
      * This method is invoked after the coroutine is popped from the call stack.
      *
-     * @param StrandInterface $strand The strand that is executing the coroutine.
+     * @param Strand $strand The strand that is executing the coroutine.
      */
-    public function finalize(StrandInterface $strand)
+    public function finalize(Strand $strand)
     {
         $this->promise = null;
     }

@@ -1,4 +1,5 @@
 <?php
+
 namespace Recoil\Channel;
 
 use Recoil\Channel\Exception\ChannelClosedException;
@@ -7,11 +8,11 @@ use Recoil\Channel\Exception\ChannelLockedException;
 /**
  * Adapts separate read/write channels into a bidirectional channel.
  */
-class BidirectionalChannelAdaptor implements BidirectionalChannelInterface
+class BidirectionalChannelAdaptor implements BidirectionalChannel
 {
     public function __construct(
-        ReadableChannelInterface $readChannel,
-        WritableChannelInterface $writeChannel
+        ReadableChannel $readChannel,
+        WritableChannel $writeChannel
     ) {
         $this->readChannel  = $readChannel;
         $this->writeChannel = $writeChannel;

@@ -1,10 +1,11 @@
 <?php
+
 namespace Recoil;
 
 use React\EventLoop\LoopInterface;
 use Recoil\Kernel\Api\KernelApiCall;
-use Recoil\Kernel\Kernel;
-use Recoil\Kernel\Strand\StrandInterface;
+use Recoil\Kernel\StandardKernel;
+use Recoil\Kernel\Strand\Strand;
 
 /**
  * Public facade for Kernel API calls.
@@ -13,8 +14,8 @@ use Recoil\Kernel\Strand\StrandInterface;
  * implementation provided by whichever coroutine kernel is currently being
  * used for execution.
  *
- * The interface {@link Recoil\Kernel\KernelApiInterface} defines the
- * operations that are available; some kernels may provide additional features.
+ * The interface {@link Recoil\Kernel\KernelApi} defines the operations that are
+ * available; some kernels may provide additional features.
  *
  * @method static strand() [COROUTINE] Get the strand the coroutine is executing on.
  * @method static kernel() [COROUTINE] Get the coroutine kernel that the current strand is executing on.
@@ -30,7 +31,7 @@ use Recoil\Kernel\Strand\StrandInterface;
  * @method static noop() [COROUTINE] Resume the strand immediately.
  * @method static cooperate() [COROUTINE] Suspend the strand until the next tick.
  * @method static execute($coroutine) [COROUTINE] Execute a coroutine on its own strand.
- * @method static select(StrandInterface $strand, array $strands) [COROUTINE] Wait for one or more of the given strands to exit.
+ * @method static select(Strand $strand, array $strands) [COROUTINE] Wait for one or more of the given strands to exit.
  * @method static stop(bool $stopEventLoop = true) [COROUTINE] Stop the coroutine kernel / event-loop.
  */
 abstract class Recoil
@@ -38,8 +39,8 @@ abstract class Recoil
     /**
      * [COROUTINE] Invoke a kernel API function.
      *
-     * @see Recoil\Kernel\KernelApiInterface
-     * @see Recoil\Kernel\KernelInterface::api()
+     * @see Recoil\Kernel\KernelApi
+     * @see Recoil\Kernel\Kernel::api()
      *
      * @param string $name      The name of the kernel API function to invoke.
      * @param array  $arguments The arguments to the kernel API function.
@@ -60,7 +61,7 @@ abstract class Recoil
      */
     public static function run(callable $entryPoint, LoopInterface $eventLoop = null)
     {
-        $kernel = new Kernel($eventLoop);
+        $kernel = new StandardKernel($eventLoop);
         $kernel->execute($entryPoint());
         $kernel->eventLoop()->run();
     }

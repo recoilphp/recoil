@@ -1,4 +1,5 @@
 <?php
+
 namespace Recoil\Channel;
 
 use InvalidArgumentException;
@@ -17,7 +18,7 @@ use Recoil\Channel\Exception\ChannelLockedException;
  *
  * @link http://www.ietf.org/rfc/rfc2119.txt
  */
-interface WritableChannelInterface
+interface WritableChannel
 {
     /**
      * [COROUTINE] Write a value to this channel.

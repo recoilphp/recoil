@@ -1,4 +1,5 @@
 <?php
+
 namespace Recoil\Channel\Serialization;
 
 use PHPUnit_Framework_TestCase;

@@ -96,13 +96,13 @@ Internally, the kernel uses a [React event-loop](https://github.com/reactphp/eve
 applications to execute coroutine based code alongside "conventional" React code by sharing an event-loop instance.
 
 Coroutine control flow, the current strand, and the kernel itself can be manipulated using the *kernel API*. The
-supported operations are defined in [KernelApiInterface](src/Kernel/Api/KernelApiInterface.php) (though custom kernel
-implementations may provide additional operations). Inside an executing coroutine, the kernel API for the current kernel
-is accessed via the [Recoil facade](src/Recoil.php).
+supported operations are defined in [KernelApi](src/Kernel/Api/KernelApi.php) (though custom kernel implementations may
+provide additional operations). Inside an executing coroutine, the kernel API for the current kernel is accessed via the
+[Recoil facade](src/Recoil.php).
 
 ### Streams
 
-*Streams* provide a coroutine based abstraction for [readable](src/Stream/ReadableStreamInterface.php) and [writable](src/Stream/WritableStreamInterface.php)
+*Streams* provide a coroutine based abstraction for [readable](src/Stream/ReadableStream.php) and [writable](src/Stream/WritableStream.php)
 data streams. The interfaces are somewhat similar to the built-in PHP stream API.
 
 Stream operations are cooperative, that is, when reading or writing to a stream, execution of the coroutine is suspended
@@ -115,7 +115,7 @@ The [stream-file example](examples/stream-file) demonstrates using a readable st
 *Channels* are stream-like objects that produce and consume PHP values rather than byte streams. Channels are intended
 as the primary method for communication between strands.
 
-Like streams there are [readable](src/Channel/ReadableChannelInterface.php) and [writable](src/Channel/WritableChannelInterface.php)
+Like streams there are [readable](src/Channel/ReadableChannel.php) and [writable](src/Channel/WritableChannel.php)
 variants. Some channel implementations allow for multiple concurrent read and write operations.
 
 Both in-memory and stream-based channels are provided. Stream-based channels use a serialization protocol to encode and
@@ -299,7 +299,7 @@ manually.
 ```php
 $eventLoop = new React\EventLoop\StreamSelectLoop;
 
-$kernel = new Recoil\Kernel\Kernel($eventLoop);
+$kernel = new Recoil\Kernel\StandardKernel($eventLoop);
 
 $coroutine = function () {
     echo 'Hello, world!' . PHP_EOL;

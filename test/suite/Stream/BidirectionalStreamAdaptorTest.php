@@ -1,16 +1,17 @@
 <?php
+
 namespace Recoil\Stream;
 
-use PHPUnit_Framework_TestCase;
 use Phake;
+use PHPUnit_Framework_TestCase;
 use Recoil\Recoil;
 
 class BidirectionalStreamAdaptorTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
-        $this->readStream  = Phake::mock(ReadableStreamInterface::class);
-        $this->writeStream = Phake::mock(WritableStreamInterface::class);
+        $this->readStream  = Phake::mock(ReadableStream::class);
+        $this->writeStream = Phake::mock(WritableStream::class);
         $this->adaptor     = new BidirectionalStreamAdaptor(
             $this->readStream,
             $this->writeStream

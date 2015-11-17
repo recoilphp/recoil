@@ -1,4 +1,5 @@
 <?php
+
 namespace Recoil\Stream;
 
 use Recoil\Stream\Exception\StreamClosedException;
@@ -9,11 +10,11 @@ use Recoil\Stream\Exception\StreamWriteException;
 /**
  * Adapts separate read/write streams into a bidirectional stream.
  */
-class BidirectionalStreamAdaptor implements BidirectionalStreamInterface
+class BidirectionalStreamAdaptor implements BidirectionalStream
 {
     public function __construct(
-        ReadableStreamInterface $readStream,
-        WritableStreamInterface $writeStream
+        ReadableStream $readStream,
+        WritableStream $writeStream
     ) {
         $this->readStream  = $readStream;
         $this->writeStream = $writeStream;

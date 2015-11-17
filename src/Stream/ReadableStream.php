@@ -1,33 +1,38 @@
 <?php
+
 namespace Recoil\Stream;
 
-use ErrorException;
-use Recoil\Recoil;
 use Recoil\Stream\Exception\StreamClosedException;
 use Recoil\Stream\Exception\StreamLockedException;
 use Recoil\Stream\Exception\StreamReadException;
 
 /**
- * A readable stream that operates directly on a native PHP stream resource.
+ * Interface and specification for coroutine based readable streams.
+ *
+ * The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD",
+ * "SHOULD NOT", "RECOMMENDED",  "MAY", and "OPTIONAL" in this document are to
+ * be interpreted as described in RFC 2119.
+ *
+ * @link http://www.ietf.org/rfc/rfc2119.txt
  */
-class ReadableStream implements ReadableStreamInterface
+interface ReadableStream
 {
-    /**
-     * @param resource $stream The underlying PHP stream resource.
-     */
-    public function __construct($stream)
-    {
-        $this->stream = $stream;
-    }
-
     /**
      * [COROUTINE] Read data from the stream.
      *
-     * Execution of the current strand is suspended until data is available or
-     * the end of the data stream is reached.
+     * The implementation MUST suspend execution of the current strand until
+     * data is available or the end of the data stream is reached. Execution
+     * MAY be resumed before $length bytes have been read.
      *
-     * Read operations must be exclusive. If concurrent reads are attempted a
-     * StreamLockedException is thrown.
+     * If the stream is already closed a StreamClosedException MUST be thrown.
+     *
+     * If the end of the data stream is reached the implementation MUST close
+     * the stream such that future invocations throw a StreamClosedException and
+     * isClosed() returns true.
+     *
+     * The implementation MAY require read operations to be exclusive. If
+     * concurrent reads are attempted but not supported the implementation MUST
+     * throw a StreamLockedException.
      *
      * @param integer $length The maximum number of bytes to read.
      *
@@ -36,94 +41,32 @@ class ReadableStream implements ReadableStreamInterface
      * @throws StreamLockedException if concurrent reads are unsupported.
      * @throws StreamReadException   if an error occurs while reading from the stream.
      */
-    public function read($length)
-    {
-        if ($this->strand) {
-            throw new StreamLockedException();
-        } elseif ($this->isClosed()) {
-            throw new StreamClosedException();
-        }
-
-        yield Recoil::suspend(
-            function ($strand) {
-                $this->strand = $strand;
-
-                $strand
-                    ->kernel()
-                    ->eventLoop()
-                    ->addReadStream(
-                        $this->stream,
-                        function ($stream, $eventLoop) {
-                            $eventLoop->removeReadStream($stream);
-                            $this->strand->resumeWithValue(null);
-                        }
-                    );
-            }
-        );
-
-        $this->strand = null;
-
-        $exception = null;
-
-        set_error_handler(
-            function ($code, $message, $file, $line) use (&$exception) {
-                $exception = new ErrorException($message, 0, $code, $file, $line);
-            }
-        );
-
-        $buffer = fread($this->stream, $length);
-
-        restore_error_handler();
-
-        if (is_resource($this->stream) && feof($this->stream)) {
-            fclose($this->stream);
-        }
-
-        if (false === $buffer) {
-            throw new StreamReadException($exception);
-        }
-
-        yield Recoil::return_($buffer);
-    // @codeCoverageIgnoreStart
-    }
-    // @codeCoverageIgnoreEnd
+    public function read($length);
 
     /**
      * [COROUTINE] Close this stream.
      *
      * Closing a stream indicates that no more data will be read from the
-     * stream.
+     * stream. Once a stream is closed future, invocations of read() MUST throw
+     * a StreamClosedException.
+     *
+     * The implementation SHOULD NOT throw an exception if close() is called on
+     * an already-closed stream.
+     *
+     * The implementation SHOULD support closing the stream while a read
+     * operation is in progress, otherwise StreamLockedException MUST be thrown.
+     *
+     * @throws StreamLockedException if the stream can not be closed due to a pending read operation.
      */
-    public function close()
-    {
-        if ($this->strand) {
-            $this
-                ->strand
-                ->kernel()
-                ->eventLoop()
-                ->removeReadStream($this->stream);
-
-            $this->strand->resumeWithException(new StreamClosedException());
-            $this->strand = null;
-        }
-
-        if (is_resource($this->stream)) {
-            fclose($this->stream);
-        }
-
-        yield Recoil::noop();
-    }
+    public function close();
 
     /**
      * Check if this stream is closed.
      *
+     * The implementation MUST return true after close() has been called or if
+     * the end of the data stream has been reached.
+     *
      * @return boolean True if the stream has been closed; otherwise, false.
      */
-    public function isClosed()
-    {
-        return !is_resource($this->stream);
-    }
-
-    private $stream;
-    private $strand;
+    public function isClosed();
 }

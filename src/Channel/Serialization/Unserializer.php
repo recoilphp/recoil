@@ -1,4 +1,5 @@
 <?php
+
 namespace Recoil\Channel\Serialization;
 
 use LogicException;
@@ -7,7 +8,7 @@ use RuntimeException;
 /**
  * A mechanism for unserializing PHP values from stream-based channels.
  */
-interface UnserializerInterface
+interface Unserializer
 {
     /**
      * Parse data received from the stream.
