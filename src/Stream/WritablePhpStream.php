@@ -10,7 +10,7 @@ use Recoil\Stream\Exception\StreamWriteException;
 /**
  * A writable stream that operates directly on a native PHP stream resource.
  */
-class WritableStream implements WritableStreamInterface
+class WritablePhpStream implements WritableStreamInterface
 {
     /**
      * @param resource $stream The underlying PHP stream resource.
