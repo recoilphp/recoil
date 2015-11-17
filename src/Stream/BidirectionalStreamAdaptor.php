@@ -10,7 +10,7 @@ use Recoil\Stream\Exception\StreamWriteException;
 /**
  * Adapts separate read/write streams into a bidirectional stream.
  */
-class BidirectionalStreamAdaptor implements BidirectionalStreamInterface
+class BidirectionalStreamAdaptor implements BidirectionalStream
 {
     public function __construct(
         ReadableStream $readStream,
