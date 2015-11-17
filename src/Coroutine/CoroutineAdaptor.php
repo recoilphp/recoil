@@ -2,17 +2,13 @@
 
 namespace Recoil\Coroutine;
 
-use Generator;
-use Icecave\Repr\Repr;
 use InvalidArgumentException;
-use React\Promise\PromiseInterface;
 use Recoil\Kernel\Strand\StrandInterface;
-use Recoil\Recoil;
 
 /**
- * The default coroutine adaptor implementation.
+ * Adapts arbitrary values into coroutine objects.
  */
-class CoroutineAdaptor implements CoroutineAdaptorInterface
+interface CoroutineAdaptor
 {
     /**
      * Adapt a value into a coroutine.
@@ -23,26 +19,5 @@ class CoroutineAdaptor implements CoroutineAdaptorInterface
      * @return CoroutineInterface
      * @throws InvalidArgumentException if now valid adaptation can be made.
      */
-    public function adapt(StrandInterface $strand, $value)
-    {
-        while ($value instanceof CoroutineProviderInterface) {
-            $value = $value->coroutine($strand);
-        }
-
-        if ($value instanceof CoroutineInterface) {
-            return $value;
-        } elseif ($value instanceof Generator) {
-            return new GeneratorCoroutine($value);
-        } elseif ($value instanceof PromiseInterface) {
-            return new PromiseCoroutine($value);
-        } elseif (is_array($value)) {
-            return Recoil::all($value);
-        } elseif (null === $value) {
-            return Recoil::cooperate();
-        }
-
-        throw new InvalidArgumentException(
-            'Unable to adapt ' . Repr::repr($value) . ' into a coroutine.'
-        );
-    }
+    public function adapt(StrandInterface $strand, $value);
 }

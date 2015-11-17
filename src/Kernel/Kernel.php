@@ -5,7 +5,7 @@ namespace Recoil\Kernel;
 use React\EventLoop\Factory as EventLoopFactory;
 use React\EventLoop\LoopInterface;
 use Recoil\Coroutine\CoroutineAdaptor;
-use Recoil\Coroutine\CoroutineAdaptorInterface;
+use Recoil\Coroutine\StandardCoroutineAdaptor;
 use Recoil\Kernel\Api\KernelApi;
 use Recoil\Kernel\Api\KernelApiInterface;
 use Recoil\Kernel\Strand\StrandFactory;
@@ -20,13 +20,13 @@ class Kernel implements KernelInterface
     /**
      * @param LoopInterface|null             $eventLoop        The React event-loop.
      * @param KernelApiInterface|null        $api              The kernel's API implementation.
-     * @param CoroutineAdaptorInterface|null $coroutineAdaptor The kernel's coroutine adaptor.
+     * @param CoroutineAdaptor|null $coroutineAdaptor The kernel's coroutine adaptor.
      * @param StrandFactoryInterface|null    $strandFactory    The kernel's strand factory.
      */
     public function __construct(
         LoopInterface $eventLoop = null,
         KernelApiInterface $api = null,
-        CoroutineAdaptorInterface $coroutineAdaptor = null,
+        CoroutineAdaptor $coroutineAdaptor = null,
         StrandFactoryInterface $strandFactory = null
     ) {
         if (null === $eventLoop) {
@@ -38,7 +38,7 @@ class Kernel implements KernelInterface
         }
 
         if (null === $coroutineAdaptor) {
-            $coroutineAdaptor = new CoroutineAdaptor();
+            $coroutineAdaptor = new StandardCoroutineAdaptor();
         }
 
         if (null === $strandFactory) {
@@ -112,7 +112,7 @@ class Kernel implements KernelInterface
     /**
      * Fetch the object used to adapt values into coroutines.
      *
-     * @return CoroutineAdaptorInterface The kernel's coroutine adaptor.
+     * @return CoroutineAdaptor The kernel's coroutine adaptor.
      */
     public function coroutineAdaptor()
     {

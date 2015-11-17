@@ -3,7 +3,7 @@
 namespace Recoil\Kernel;
 
 use React\EventLoop\LoopInterface;
-use Recoil\Coroutine\CoroutineAdaptorInterface;
+use Recoil\Coroutine\CoroutineAdaptor;
 use Recoil\Kernel\Strand\StrandFactoryInterface;
 use Recoil\Kernel\Strand\StrandInterface;
 
@@ -48,7 +48,7 @@ interface KernelInterface
     /**
      * Fetch the object used to adapt values into coroutines.
      *
-     * @return CoroutineAdaptorInterface The kernel's coroutine adaptor.
+     * @return CoroutineAdaptor The kernel's coroutine adaptor.
      */
     public function coroutineAdaptor();
 
