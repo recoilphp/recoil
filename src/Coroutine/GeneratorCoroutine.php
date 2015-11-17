@@ -129,7 +129,7 @@ class GeneratorCoroutine implements Coroutine
     /**
      * Register a callback to be invoked when the coroutine is finalized.
      *
-     * @internal
+     * @access private
      *
      * @param callable $callback The callback to invoke.
      */

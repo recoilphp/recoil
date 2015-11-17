@@ -4,7 +4,7 @@ namespace Recoil;
 
 use React\EventLoop\LoopInterface;
 use Recoil\Kernel\Api\KernelApiCall;
-use Recoil\Kernel\Kernel;
+use Recoil\Kernel\StandardKernel;
 use Recoil\Kernel\Strand\StrandInterface;
 
 /**
@@ -14,8 +14,8 @@ use Recoil\Kernel\Strand\StrandInterface;
  * implementation provided by whichever coroutine kernel is currently being
  * used for execution.
  *
- * The interface {@link Recoil\Kernel\KernelApiInterface} defines the
- * operations that are available; some kernels may provide additional features.
+ * The interface {@link Recoil\Kernel\KernelApi} defines the operations that are
+ * available; some kernels may provide additional features.
  *
  * @method static strand() [COROUTINE] Get the strand the coroutine is executing on.
  * @method static kernel() [COROUTINE] Get the coroutine kernel that the current strand is executing on.
@@ -39,8 +39,8 @@ abstract class Recoil
     /**
      * [COROUTINE] Invoke a kernel API function.
      *
-     * @see Recoil\Kernel\KernelApiInterface
-     * @see Recoil\Kernel\KernelInterface::api()
+     * @see Recoil\Kernel\KernelApi
+     * @see Recoil\Kernel\Kernel::api()
      *
      * @param string $name      The name of the kernel API function to invoke.
      * @param array  $arguments The arguments to the kernel API function.
@@ -61,7 +61,7 @@ abstract class Recoil
      */
     public static function run(callable $entryPoint, LoopInterface $eventLoop = null)
     {
-        $kernel = new Kernel($eventLoop);
+        $kernel = new StandardKernel($eventLoop);
         $kernel->execute($entryPoint());
         $kernel->eventLoop()->run();
     }

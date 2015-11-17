@@ -8,9 +8,9 @@ use Recoil\Kernel\Strand\StrandInterface;
 use SplObjectStorage;
 
 /**
- * Internal implementation of KernelApiInterface::select().
+ * Internal implementation of KernelApi::select().
  *
- * @internal
+ * @access private
  */
 class Select implements Coroutine
 {

@@ -10,11 +10,11 @@ use React\Promise\FulfilledPromise;
 /**
  * @group functional
  */
-class KernelFunctionalTest extends PHPUnit_Framework_TestCase
+class StandardKernelFunctionalTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
-        $this->kernel = new Kernel();
+        $this->kernel = new StandardKernel();
     }
 
     /**

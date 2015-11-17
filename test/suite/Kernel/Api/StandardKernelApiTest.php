@@ -5,19 +5,19 @@ namespace Recoil\Kernel\Api;
 use Exception;
 use PHPUnit_Framework_TestCase;
 use Recoil\Kernel\Exception\TimeoutException;
-use Recoil\Kernel\Kernel;
+use Recoil\Kernel\StandardKernel;
 use Recoil\Kernel\Strand\StrandInterface;
 use Recoil\Recoil;
 
 /**
- * @covers Recoil\Kernel\Api\KernelApi
+ * @covers Recoil\Kernel\Api\StandardKernelApi
  * @covers Recoil\Kernel\Api\KernelApiCall
  */
-class KernelApiTest extends PHPUnit_Framework_TestCase
+class StandardKernelApiTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
-        $this->kernel    = new Kernel();
+        $this->kernel    = new StandardKernel();
         $this->tolerance = 0.02;
     }
 

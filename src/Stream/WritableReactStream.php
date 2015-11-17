@@ -130,7 +130,7 @@ class WritableReactStream implements WritableStream
     }
 
     /**
-     * @internal
+     * @access private
      */
     public function onStreamDrain()
     {
@@ -140,7 +140,7 @@ class WritableReactStream implements WritableStream
     }
 
     /**
-     * @internal
+     * @access private
      */
     public function onStreamError(Exception $exception)
     {

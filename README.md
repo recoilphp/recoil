@@ -96,9 +96,9 @@ Internally, the kernel uses a [React event-loop](https://github.com/reactphp/eve
 applications to execute coroutine based code alongside "conventional" React code by sharing an event-loop instance.
 
 Coroutine control flow, the current strand, and the kernel itself can be manipulated using the *kernel API*. The
-supported operations are defined in [KernelApiInterface](src/Kernel/Api/KernelApiInterface.php) (though custom kernel
-implementations may provide additional operations). Inside an executing coroutine, the kernel API for the current kernel
-is accessed via the [Recoil facade](src/Recoil.php).
+supported operations are defined in [KernelApi](src/Kernel/Api/KernelApi.php) (though custom kernel implementations may
+provide additional operations). Inside an executing coroutine, the kernel API for the current kernel is accessed via the
+[Recoil facade](src/Recoil.php).
 
 ### Streams
 
@@ -299,7 +299,7 @@ manually.
 ```php
 $eventLoop = new React\EventLoop\StreamSelectLoop;
 
-$kernel = new Recoil\Kernel\Kernel($eventLoop);
+$kernel = new Recoil\Kernel\StandardKernel($eventLoop);
 
 $coroutine = function () {
     echo 'Hello, world!' . PHP_EOL;

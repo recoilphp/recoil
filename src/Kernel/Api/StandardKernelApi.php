@@ -6,30 +6,39 @@ use Exception;
 use Recoil\Kernel\Strand\StrandInterface;
 
 /**
- * Public interface for manipulating the kernel and the current strand.
+ * The default kernel API implementation.
  */
-interface KernelApiInterface
+class StandardKernelApi implements KernelApi
 {
     /**
      * Get the strand the coroutine is executing on.
      *
      * @param StrandInterface $strand The currently executing strand.
      */
-    public function strand(StrandInterface $strand);
+    public function strand(StrandInterface $strand)
+    {
+        $strand->resumeWithValue($strand);
+    }
 
     /**
      * Get the coroutine kernel that the current strand is executing on.
      *
      * @param StrandInterface $strand The currently executing strand.
      */
-    public function kernel(StrandInterface $strand);
+    public function kernel(StrandInterface $strand)
+    {
+        $strand->resumeWithValue($strand->kernel());
+    }
 
     /**
      * Get the React event-loop that the coroutine kernel is executing on.
      *
      * @param StrandInterface $strand The currently executing strand.
      */
-    public function eventLoop(StrandInterface $strand);
+    public function eventLoop(StrandInterface $strand)
+    {
+        $strand->resumeWithValue($strand->kernel()->eventLoop());
+    }
 
     /**
      * Return a value to the calling coroutine.
@@ -37,7 +46,10 @@ interface KernelApiInterface
      * @param StrandInterface $strand The currently executing strand.
      * @param mixed           $value  The value to send to the calling coroutine.
      */
-    public function return_(StrandInterface $strand, $value = null);
+    public function return_(StrandInterface $strand, $value = null)
+    {
+        $strand->returnValue($value);
+    }
 
     /**
      * Throw an exception to the calling coroutine.
@@ -45,7 +57,10 @@ interface KernelApiInterface
      * @param StrandInterface $strand    The currently executing strand.
      * @param Exception       $exception The error to send to the calling coroutine.
      */
-    public function throw_(StrandInterface $strand, Exception $exception);
+    public function throw_(StrandInterface $strand, Exception $exception)
+    {
+        $strand->throwException($exception);
+    }
 
     /**
      * Register a callback to be invoked when the current coroutine is popped
@@ -57,14 +72,22 @@ interface KernelApiInterface
      * @param StrandInterface $strand   The currently executing strand.
      * @param callable        $callback The callback to invoke.
      */
-    public function finally_(StrandInterface $strand, callable $callback);
+    public function finally_(StrandInterface $strand, callable $callback)
+    {
+        $strand->current()->registerFinalizeCallback($callback);
+
+        $strand->resumeWithValue(null);
+    }
 
     /**
      * Terminate execution of the strand.
      *
      * @param StrandInterface $strand The currently executing strand.
      */
-    public function terminate(StrandInterface $strand);
+    public function terminate(StrandInterface $strand)
+    {
+        $strand->terminate();
+    }
 
     /**
      * Suspend execution for a specified period of time.
@@ -72,15 +95,22 @@ interface KernelApiInterface
      * @param StrandInterface $strand  The currently executing strand.
      * @param number          $timeout The number of seconds to wait before resuming.
      */
-    public function sleep(StrandInterface $strand, $timeout);
+    public function sleep(StrandInterface $strand, $timeout)
+    {
+        return new Sleep($timeout);
+    }
 
     /**
-     * Suspend execution of the strand until it is resumed manually.
+     * Suspend execution of the strand.
      *
-     * @param StrandInterface $strand   The currently executing strand.
-     * @param callable        $callback A callback which is passed the strand after it is suspended.
+     * @param StrandInterface $strand The currently executing strand.
      */
-    public function suspend(StrandInterface $strand, callable $callback);
+    public function suspend(StrandInterface $strand, callable $callback)
+    {
+        $strand->suspend();
+
+        $callback($strand);
+    }
 
     /**
      * Execute a coroutine with a time limit.
@@ -92,7 +122,10 @@ interface KernelApiInterface
      * @param number          $timeout   The number of seconds to wait before cancelling.
      * @param mixed           $coroutine The coroutine to execute.
      */
-    public function timeout(StrandInterface $strand, $timeout, $coroutine);
+    public function timeout(StrandInterface $strand, $timeout, $coroutine)
+    {
+        return new Timeout($timeout, $coroutine);
+    }
 
     /**
      * Execute the given coroutines concurrently.
@@ -104,21 +137,39 @@ interface KernelApiInterface
      * @param StrandInterface $strand     The currently executing strand.
      * @param array           $coroutines The coroutines to execute.
      */
-    public function all(StrandInterface $strand, array $coroutines);
-
-    /**
-     * Resume the strand immediately.
-     *
-     * @param StrandInterface $strand The currently executing strand.
-     */
-    public function noop(StrandInterface $strand);
+    public function all(StrandInterface $strand, array $coroutines)
+    {
+        return new WaitAll($coroutines);
+    }
 
     /**
      * Suspend the strand until the next tick.
      *
      * @param StrandInterface $strand The currently executing strand.
      */
-    public function cooperate(StrandInterface $strand);
+    public function cooperate(StrandInterface $strand)
+    {
+        $strand->suspend();
+
+        $strand
+            ->kernel()
+            ->eventLoop()
+            ->futureTick(
+                function () use ($strand) {
+                    $strand->resumeWithValue(null);
+                }
+            );
+    }
+
+    /**
+     * Resume the strand immediately.
+     *
+     * @param StrandInterface $strand The currently executing strand.
+     */
+    public function noop(StrandInterface $strand)
+    {
+        $strand->resumeWithValue(null);
+    }
 
     /**
      * Execute a coroutine on its own strand.
@@ -126,7 +177,14 @@ interface KernelApiInterface
      * @param StrandInterface $strand    The currently executing strand.
      * @param mixed           $coroutine The coroutine to execute.
      */
-    public function execute(StrandInterface $strand, $coroutine);
+    public function execute(StrandInterface $strand, $coroutine)
+    {
+        $substrand = $strand
+            ->kernel()
+            ->execute($coroutine);
+
+        $strand->resumeWithValue($substrand);
+    }
 
     /**
      * Wait for one or more of the given strands to exit.
@@ -134,7 +192,10 @@ interface KernelApiInterface
      * @param StrandInterface   $strand  The currently executing strand.
      * @param StrandInterface[] $strands The strands to wait for.
      */
-    public function select(StrandInterface $strand, array $strands);
+    public function select(StrandInterface $strand, array $strands)
+    {
+        return new Select($strands);
+    }
 
     /**
      * Stop the coroutine kernel / event-loop.
@@ -145,5 +206,12 @@ interface KernelApiInterface
      * @param StrandInterface $strand        The currently executing strand.
      * @param boolean         $stopEventLoop Indicates whether or not the React event-loop should also be stopped.
      */
-    public function stop(StrandInterface $strand, $stopEventLoop = true);
+    public function stop(StrandInterface $strand, $stopEventLoop = true)
+    {
+        $strand->terminate();
+
+        $strand
+            ->kernel()
+            ->stop($stopEventLoop);
+    }
 }

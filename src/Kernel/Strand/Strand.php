@@ -6,7 +6,7 @@ use Evenement\EventEmitter;
 use Exception;
 use LogicException;
 use Recoil\Coroutine\Coroutine;
-use Recoil\Kernel\KernelInterface;
+use Recoil\Kernel\Kernel;
 
 /**
  * A strand represents a user-space "thread" of execution.
@@ -21,9 +21,9 @@ use Recoil\Kernel\KernelInterface;
 class Strand extends EventEmitter implements StrandInterface
 {
     /**
-     * @param KernelInterface The coroutine kernel.
+     * @param Kernel The coroutine kernel.
      */
-    public function __construct(KernelInterface $kernel)
+    public function __construct(Kernel $kernel)
     {
         $this->kernel    = $kernel;
         $this->suspended = false;
@@ -37,7 +37,7 @@ class Strand extends EventEmitter implements StrandInterface
     /**
      * Fetch the kernel on which this strand is executing.
      *
-     * @return KernelInterface The coroutine kernel.
+     * @return Kernel The coroutine kernel.
      */
     public function kernel()
     {

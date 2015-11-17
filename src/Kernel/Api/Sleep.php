@@ -7,9 +7,9 @@ use Recoil\Coroutine\CoroutineTrait;
 use Recoil\Kernel\Strand\StrandInterface;
 
 /**
- * Internal implementation of KernelApiInterface::sleep().
+ * Internal implementation of KernelApi::sleep().
  *
- * @internal
+ * @access private
  */
 class Sleep implements Coroutine
 {

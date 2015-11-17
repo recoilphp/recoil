@@ -9,9 +9,9 @@ use Recoil\Kernel\Exception\TimeoutException;
 use Recoil\Kernel\Strand\StrandInterface;
 
 /**
- * Internal implementation of KernelApiInterface::timeout().
+ * Internal implementation of KernelApi::timeout().
  *
- * @internal
+ * @access private
  */
 class Timeout implements Coroutine
 {

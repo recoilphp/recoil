@@ -2,8 +2,6 @@
 
 namespace Recoil\Channel;
 
-use Recoil\Kernel\Kernel;
-
 trait LoopbackChannelTestTrait
 {
     public function testReadThenWrite()

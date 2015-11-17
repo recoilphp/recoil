@@ -5,7 +5,7 @@ namespace Recoil\Kernel\Strand;
 use Evenement\EventEmitterInterface;
 use Exception;
 use Recoil\Coroutine\Coroutine;
-use Recoil\Kernel\KernelInterface;
+use Recoil\Kernel\Kernel;
 
 /**
  * A strand represents a user-space "thread" of execution.
@@ -22,7 +22,7 @@ interface StrandInterface extends EventEmitterInterface
     /**
      * Fetch the kernel on which this strand is executing.
      *
-     * @return KernelInterface The coroutine kernel.
+     * @return Kernel The coroutine kernel.
      */
     public function kernel();
 

@@ -9,9 +9,9 @@ use Recoil\Kernel\Exception\StrandTerminatedException;
 use Recoil\Kernel\Strand\StrandInterface;
 
 /**
- * Internal implementation of KernelApiInterface::all().
+ * Internal implementation of KernelApi::all().
  *
- * @internal
+ * @access private
  */
 class WaitAll implements Coroutine
 {

@@ -109,7 +109,7 @@ class ReadableReactStream implements ReadableStream
     }
 
     /**
-     * @internal
+     * @access private
      */
     public function onStreamData($data)
     {
@@ -125,7 +125,7 @@ class ReadableReactStream implements ReadableStream
     }
 
     /**
-     * @internal
+     * @access private
      */
     public function onStreamEnd()
     {
@@ -140,7 +140,7 @@ class ReadableReactStream implements ReadableStream
     }
 
     /**
-     * @internal
+     * @access private
      */
     public function onStreamClose()
     {
@@ -156,7 +156,7 @@ class ReadableReactStream implements ReadableStream
     }
 
     /**
-     * @internal
+     * @access private
      */
     public function onStreamError(Exception $exception)
     {

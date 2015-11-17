@@ -10,8 +10,8 @@ use Recoil\Kernel\Strand\StrandInterface;
 /**
  * Represents a call to a feature provided by the Kernel API.
  *
- * @see Recoil\Kernel\KernelApiInterface
- * @see Recoil\Kernel\KernelInterface::api()
+ * @see Recoil\Kernel\KernelApi
+ * @see Recoil\Kernel\Kernel::api()
  */
 class KernelApiCall implements Coroutine
 {

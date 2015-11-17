@@ -10,7 +10,7 @@ use Recoil\Coroutine\CoroutineTrait;
 /**
  * The base coroutine in a strand's call-stack.
  *
- * @internal
+ * @access private
  */
 class StackBase implements Coroutine
 {

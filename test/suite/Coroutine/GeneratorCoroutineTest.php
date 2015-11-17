@@ -4,7 +4,7 @@ namespace Recoil\Coroutine;
 
 use Exception;
 use PHPUnit_Framework_TestCase;
-use Recoil\Kernel\Kernel;
+use Recoil\Kernel\StandardKernel;
 use Recoil\Recoil;
 
 /**
@@ -15,7 +15,7 @@ class GeneratorCoroutineTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
-        $this->kernel = new Kernel();
+        $this->kernel = new StandardKernel();
     }
 
     public function testCall()
