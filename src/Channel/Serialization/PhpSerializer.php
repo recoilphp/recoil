@@ -7,7 +7,7 @@ use InvalidArgumentException;
 /**
  * A serializer that uses the built-in PHP serialization protocol.
  */
-class PhpSerializer implements SerializerInterface
+class PhpSerializer implements Serializer
 {
     /**
      * Serialize a value to a string.

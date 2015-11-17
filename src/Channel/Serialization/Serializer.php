@@ -7,7 +7,7 @@ use InvalidArgumentException;
 /**
  * A mechanism for serializing PHP values on stream-based channels.
  */
-interface SerializerInterface
+interface Serializer
 {
     /**
      * Serialize a value to a string.

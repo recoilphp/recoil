@@ -5,7 +5,7 @@ namespace Recoil\Channel;
 use Recoil\Channel\Exception\ChannelClosedException;
 use Recoil\Channel\Exception\ChannelLockedException;
 use Recoil\Channel\Serialization\PhpSerializer;
-use Recoil\Channel\Serialization\SerializerInterface;
+use Recoil\Channel\Serialization\Serializer;
 use Recoil\Stream\Exception\StreamClosedException;
 use Recoil\Stream\Exception\StreamLockedException;
 use Recoil\Stream\WritableStream;
@@ -16,12 +16,12 @@ use Recoil\Stream\WritableStream;
 class WritableStreamChannel implements WritableChannel
 {
     /**
-     * @param WritableStream           $stream     The underlying stream.
-     * @param SerializerInterface|null $serializer The serializer used to convert values into stream data.
+     * @param WritableStream  $stream     The underlying stream.
+     * @param Serializer|null $serializer The serializer used to convert values into stream data.
      */
     public function __construct(
         WritableStream $stream,
-        SerializerInterface $serializer = null
+        Serializer $serializer = null
     ) {
         if (null === $serializer) {
             $serializer = new PhpSerializer();
