@@ -6,7 +6,7 @@ use Exception;
 use Recoil\Coroutine\Coroutine;
 use Recoil\Coroutine\CoroutineTrait;
 use Recoil\Kernel\Exception\StrandTerminatedException;
-use Recoil\Kernel\Strand\StrandInterface;
+use Recoil\Kernel\Strand\Strand;
 
 /**
  * Internal implementation of KernelApi::all().
@@ -27,9 +27,9 @@ class WaitAll implements Coroutine
     /**
      * Start the coroutine.
      *
-     * @param StrandInterface $strand The strand that is executing the coroutine.
+     * @param Strand $strand The strand that is executing the coroutine.
      */
-    public function call(StrandInterface $strand)
+    public function call(Strand $strand)
     {
         $this->strand = $strand;
         $this->strand->suspend();
@@ -87,9 +87,9 @@ class WaitAll implements Coroutine
      *
      * This method is invoked after the coroutine is popped from the call stack.
      *
-     * @param StrandInterface $strand The strand that is executing the coroutine.
+     * @param Strand $strand The strand that is executing the coroutine.
      */
-    public function finalize(StrandInterface $strand)
+    public function finalize(Strand $strand)
     {
         $this->strand = null;
 

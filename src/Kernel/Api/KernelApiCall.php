@@ -5,7 +5,7 @@ namespace Recoil\Kernel\Api;
 use BadMethodCallException;
 use Recoil\Coroutine\Coroutine;
 use Recoil\Coroutine\CoroutineTrait;
-use Recoil\Kernel\Strand\StrandInterface;
+use Recoil\Kernel\Strand\Strand;
 
 /**
  * Represents a call to a feature provided by the Kernel API.
@@ -50,9 +50,9 @@ class KernelApiCall implements Coroutine
     /**
      * Start the coroutine.
      *
-     * @param StrandInterface $strand The strand that is executing the coroutine.
+     * @param Strand $strand The strand that is executing the coroutine.
      */
-    public function call(StrandInterface $strand)
+    public function call(Strand $strand)
     {
         $method = [$strand->kernel()->api(), $this->name];
 

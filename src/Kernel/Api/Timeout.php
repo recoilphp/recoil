@@ -6,7 +6,7 @@ use Exception;
 use Recoil\Coroutine\Coroutine;
 use Recoil\Coroutine\CoroutineTrait;
 use Recoil\Kernel\Exception\TimeoutException;
-use Recoil\Kernel\Strand\StrandInterface;
+use Recoil\Kernel\Strand\Strand;
 
 /**
  * Internal implementation of KernelApi::timeout().
@@ -26,9 +26,9 @@ class Timeout implements Coroutine
     /**
      * Invoked when tick() is called for the first time.
      *
-     * @param StrandInterface $strand The strand that is executing the coroutine.
+     * @param Strand $strand The strand that is executing the coroutine.
      */
-    public function call(StrandInterface $strand)
+    public function call(Strand $strand)
     {
         $this->timer = $strand
             ->kernel()
@@ -47,9 +47,9 @@ class Timeout implements Coroutine
     /**
      * Inform the coroutine that the executing strand is being terminated.
      *
-     * @param StrandInterface $strand The strand that is executing the coroutine.
+     * @param Strand $strand The strand that is executing the coroutine.
      */
-    public function terminate(StrandInterface $strand)
+    public function terminate(Strand $strand)
     {
         if (!$this->timer) {
             // Stop termination of the strand and instead propagate a timeout exception.
@@ -61,9 +61,9 @@ class Timeout implements Coroutine
      *
      * This method is invoked after the coroutine is popped from the call stack.
      *
-     * @param StrandInterface $strand The strand that is executing the coroutine.
+     * @param Strand $strand The strand that is executing the coroutine.
      */
-    public function finalize(StrandInterface $strand)
+    public function finalize(Strand $strand)
     {
         if ($this->timer) {
             $this->timer->cancel();

@@ -15,7 +15,7 @@
 To faciliate several performance improvements the following backwards compatibility breaking changes have been introduced:
 
 * **[BC]** `CoroutineInterface` no longer implements `EventEmitterInterface` - several unused events were fired every time a coroutine was called
-* **[BC]** `Recoil::finalize()` now only works with generated based coroutines - this was previously implemented using the aforementioned events
+* **[BC]** `Recoil::finalize()` now only works with generator based coroutines - this was previously implemented using the aforementioned events
 
 ### 0.1.0 (2014-02-04)
 

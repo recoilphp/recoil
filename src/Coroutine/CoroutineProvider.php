@@ -2,7 +2,7 @@
 
 namespace Recoil\Coroutine;
 
-use Recoil\Kernel\Strand\StrandInterface;
+use Recoil\Kernel\Strand\Strand;
 
 /**
  * A coroutine provide is an object that can produce an object that can be
@@ -13,9 +13,9 @@ interface CoroutineProvider
     /**
      * Produce a coroutine.
      *
-     * @param StrandInterface $strand The strand that will execute the coroutine.
+     * @param Strand $strand The strand that will execute the coroutine.
      *
      * @return mixed
      */
-    public function coroutine(StrandInterface $strand);
+    public function coroutine(Strand $strand);
 }

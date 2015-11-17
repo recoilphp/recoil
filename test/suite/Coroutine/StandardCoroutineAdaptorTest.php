@@ -6,13 +6,13 @@ use Phake;
 use PHPUnit_Framework_TestCase;
 use React\Promise\PromiseInterface;
 use Recoil\Kernel\Api\KernelApiCall;
-use Recoil\Kernel\Strand\StrandInterface;
+use Recoil\Kernel\Strand\Strand;
 
 class StandardCoroutineAdaptorTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
-        $this->strand  = Phake::mock(StrandInterface::class);
+        $this->strand  = Phake::mock(Strand::class);
         $this->adaptor = new StandardCoroutineAdaptor();
     }
 

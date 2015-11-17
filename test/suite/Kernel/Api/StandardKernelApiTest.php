@@ -6,7 +6,7 @@ use Exception;
 use PHPUnit_Framework_TestCase;
 use Recoil\Kernel\Exception\TimeoutException;
 use Recoil\Kernel\StandardKernel;
-use Recoil\Kernel\Strand\StrandInterface;
+use Recoil\Kernel\Strand\Strand;
 use Recoil\Recoil;
 
 /**
@@ -349,7 +349,7 @@ class StandardKernelApiTest extends PHPUnit_Framework_TestCase
 
         $this->kernel->eventLoop()->run();
 
-        $this->assertInstanceOf(StrandInterface::class, $strand);
+        $this->assertInstanceOf(Strand::class, $strand);
     }
 
     public function testStop()

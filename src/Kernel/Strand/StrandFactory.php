@@ -14,7 +14,7 @@ interface StrandFactory
      *
      * @param Kernel $kernel The kernel on which the strand will execute.
      *
-     * @return StrandInterface
+     * @return Strand
      */
     public function createStrand(Kernel $kernel);
 }

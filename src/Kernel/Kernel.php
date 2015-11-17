@@ -4,8 +4,8 @@ namespace Recoil\Kernel;
 
 use React\EventLoop\LoopInterface;
 use Recoil\Coroutine\CoroutineAdaptor;
+use Recoil\Kernel\Strand\Strand;
 use Recoil\Kernel\Strand\StrandFactory;
-use Recoil\Kernel\Strand\StrandInterface;
 
 /**
  * A coroutine kernel.
@@ -20,23 +20,23 @@ interface Kernel
      *
      * @param mixed $coroutine The coroutine to execute.
      *
-     * @return StrandInterface The strand on which the coroutine will execute.
+     * @return Strand The strand on which the coroutine will execute.
      */
     public function execute($coroutine);
 
     /**
      * Attach an existing strand to this kernel.
      *
-     * @param StrandInterface The strand to attach.
+     * @param Strand The strand to attach.
      */
-    public function attachStrand(StrandInterface $strand);
+    public function attachStrand(Strand $strand);
 
     /**
      * Detach an existing strand from this kernel.
      *
-     * @param StrandInterface The strand to detach.
+     * @param Strand The strand to detach.
      */
-    public function detachStrand(StrandInterface $strand);
+    public function detachStrand(Strand $strand);
 
     /**
      * Fetch the object that implements the kernel API.

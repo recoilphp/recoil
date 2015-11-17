@@ -4,7 +4,7 @@ namespace Recoil\Coroutine;
 
 use Exception;
 use Generator;
-use Recoil\Kernel\Strand\StrandInterface;
+use Recoil\Kernel\Strand\Strand;
 
 /**
  * A coroutine wrapper for PHP generators.
@@ -29,9 +29,9 @@ class GeneratorCoroutine implements Coroutine
     /**
      * Invoked when tick() is called for the first time.
      *
-     * @param StrandInterface $strand The strand that is executing the coroutine.
+     * @param Strand $strand The strand that is executing the coroutine.
      */
-    public function call(StrandInterface $strand)
+    public function call(Strand $strand)
     {
         try {
             $valid = $this->generator->valid();
@@ -55,10 +55,10 @@ class GeneratorCoroutine implements Coroutine
     /**
      * Invoked when tick() is called after sendOnNextTick().
      *
-     * @param StrandInterface $strand The strand that is executing the coroutine.
-     * @param mixed           $value  The value passed to sendOnNextTick().
+     * @param Strand $strand The strand that is executing the coroutine.
+     * @param mixed  $value  The value passed to sendOnNextTick().
      */
-    public function resumeWithValue(StrandInterface $strand, $value)
+    public function resumeWithValue(Strand $strand, $value)
     {
         try {
             $this->generator->send($value);
@@ -83,10 +83,10 @@ class GeneratorCoroutine implements Coroutine
     /**
      * Resume execution of a suspended coroutine by passing it an exception.
      *
-     * @param StrandInterface $strand    The strand that is executing the coroutine.
-     * @param Exception       $exception The exception to send to the coroutine.
+     * @param Strand    $strand    The strand that is executing the coroutine.
+     * @param Exception $exception The exception to send to the coroutine.
      */
-    public function resumeWithException(StrandInterface $strand, Exception $exception)
+    public function resumeWithException(Strand $strand, Exception $exception)
     {
         try {
             $this->generator->throw($exception);
@@ -113,9 +113,9 @@ class GeneratorCoroutine implements Coroutine
      *
      * This method is invoked after the coroutine is popped from the call stack.
      *
-     * @param StrandInterface $strand The strand that is executing the coroutine.
+     * @param Strand $strand The strand that is executing the coroutine.
      */
-    public function finalize(StrandInterface $strand)
+    public function finalize(Strand $strand)
     {
         $this->generator = null;
 

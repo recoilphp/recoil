@@ -17,7 +17,7 @@ use Recoil\Kernel\Kernel;
  * @event suspend   Execution of the strand has been suspended.
  * @event resumed   Execution of the strand has been resumed.
  */
-interface StrandInterface extends EventEmitterInterface
+interface Strand extends EventEmitterInterface
 {
     /**
      * Fetch the kernel on which this strand is executing.

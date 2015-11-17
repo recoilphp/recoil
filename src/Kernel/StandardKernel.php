@@ -9,8 +9,8 @@ use Recoil\Coroutine\StandardCoroutineAdaptor;
 use Recoil\Kernel\Api\KernelApi;
 use Recoil\Kernel\Api\StandardKernelApi;
 use Recoil\Kernel\Strand\StandardStrandFactory;
+use Recoil\Kernel\Strand\Strand;
 use Recoil\Kernel\Strand\StrandFactory;
-use Recoil\Kernel\Strand\StrandInterface;
 
 /**
  * The default kernel implementation.
@@ -18,10 +18,10 @@ use Recoil\Kernel\Strand\StrandInterface;
 class StandardKernel implements Kernel
 {
     /**
-     * @param LoopInterface|null          $eventLoop        The React event-loop.
-     * @param KernelApi|null              $api              The kernel's API implementation.
-     * @param CoroutineAdaptor|null       $coroutineAdaptor The kernel's coroutine adaptor.
-     * @param StrandFactory|null $strandFactory    The kernel's strand factory.
+     * @param LoopInterface|null    $eventLoop        The React event-loop.
+     * @param KernelApi|null        $api              The kernel's API implementation.
+     * @param CoroutineAdaptor|null $coroutineAdaptor The kernel's coroutine adaptor.
+     * @param StrandFactory|null    $strandFactory    The kernel's strand factory.
      */
     public function __construct(
         LoopInterface $eventLoop = null,
@@ -61,7 +61,7 @@ class StandardKernel implements Kernel
      *
      * @param mixed $coroutine The coroutine to execute.
      *
-     * @return StrandInterface The strand on which the coroutine will execute.
+     * @return Strand The strand on which the coroutine will execute.
      */
     public function execute($coroutine)
     {
@@ -74,9 +74,9 @@ class StandardKernel implements Kernel
     /**
      * Attach an existing strand to this kernel.
      *
-     * @param StrandInterface The strand to attach.
+     * @param Strand The strand to attach.
      */
-    public function attachStrand(StrandInterface $strand)
+    public function attachStrand(Strand $strand)
     {
         if (!$this->strands) {
             $this->eventLoop->futureTick([$this, 'onTick']);
@@ -88,9 +88,9 @@ class StandardKernel implements Kernel
     /**
      * Detach an existing strand from this kernel.
      *
-     * @param StrandInterface The strand to detach.
+     * @param Strand The strand to detach.
      */
-    public function detachStrand(StrandInterface $strand)
+    public function detachStrand(Strand $strand)
     {
         $index = array_search($strand, $this->strands, true);
 
