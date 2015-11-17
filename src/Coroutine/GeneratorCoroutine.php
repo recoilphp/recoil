@@ -9,7 +9,7 @@ use Recoil\Kernel\Strand\StrandInterface;
 /**
  * A coroutine wrapper for PHP generators.
  */
-class GeneratorCoroutine implements CoroutineInterface
+class GeneratorCoroutine implements Coroutine
 {
     use CoroutineTrait;
 

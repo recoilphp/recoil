@@ -18,7 +18,7 @@ class StandardCoroutineAdaptorTest extends PHPUnit_Framework_TestCase
 
     public function testAdaptPassThru()
     {
-        $coroutine = Phake::mock(CoroutineInterface::class);
+        $coroutine = Phake::mock(Coroutine::class);
 
         $this->assertSame(
             $coroutine,
@@ -79,8 +79,8 @@ class StandardCoroutineAdaptorTest extends PHPUnit_Framework_TestCase
 
     public function testAdaptProvider()
     {
-        $provider  = Phake::mock(CoroutineProviderInterface::class);
-        $coroutine = Phake::mock(CoroutineInterface::class);
+        $provider  = Phake::mock(CoroutineProvider::class);
+        $coroutine = Phake::mock(Coroutine::class);
 
         Phake::when($provider)
             ->coroutine($this->identicalTo($this->strand))
@@ -94,8 +94,8 @@ class StandardCoroutineAdaptorTest extends PHPUnit_Framework_TestCase
 
     public function testAdaptNestedProvider()
     {
-        $provider  = Phake::mock(CoroutineProviderInterface::class);
-        $coroutine = Phake::mock(CoroutineInterface::class);
+        $provider  = Phake::mock(CoroutineProvider::class);
+        $coroutine = Phake::mock(Coroutine::class);
 
         Phake::when($provider)
             ->coroutine($this->identicalTo($this->strand))

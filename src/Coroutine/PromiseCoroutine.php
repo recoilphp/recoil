@@ -11,7 +11,7 @@ use Recoil\Kernel\Strand\StrandInterface;
 /**
  * A coroutine that resumes when a promise is fulfilled or rejected.
  */
-class PromiseCoroutine implements CoroutineInterface
+class PromiseCoroutine implements Coroutine
 {
     use CoroutineTrait;
 

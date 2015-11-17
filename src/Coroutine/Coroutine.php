@@ -8,7 +8,7 @@ use Recoil\Kernel\Strand\StrandInterface;
 /**
  * A coroutine represents a unit of work that can be suspended and resumed.
  */
-interface CoroutineInterface
+interface Coroutine
 {
     /**
      * Start the coroutine.

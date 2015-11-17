@@ -2,7 +2,7 @@
 
 namespace Recoil\Kernel\Api;
 
-use Recoil\Coroutine\CoroutineInterface;
+use Recoil\Coroutine\Coroutine;
 use Recoil\Coroutine\CoroutineTrait;
 use Recoil\Kernel\Strand\StrandInterface;
 
@@ -11,7 +11,7 @@ use Recoil\Kernel\Strand\StrandInterface;
  *
  * @internal
  */
-class Sleep implements CoroutineInterface
+class Sleep implements Coroutine
 {
     use CoroutineTrait;
 

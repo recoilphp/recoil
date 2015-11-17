@@ -20,16 +20,16 @@ class StandardCoroutineAdaptor implements CoroutineAdaptor
      * @param StrandInterface $strand The currently executing strand.
      * @param mixed           $value  The value to adapt.
      *
-     * @return CoroutineInterface
+     * @return Coroutine
      * @throws InvalidArgumentException if now valid adaptation can be made.
      */
     public function adapt(StrandInterface $strand, $value)
     {
-        while ($value instanceof CoroutineProviderInterface) {
+        while ($value instanceof CoroutineProvider) {
             $value = $value->coroutine($strand);
         }
 
-        if ($value instanceof CoroutineInterface) {
+        if ($value instanceof Coroutine) {
             return $value;
         } elseif ($value instanceof Generator) {
             return new GeneratorCoroutine($value);

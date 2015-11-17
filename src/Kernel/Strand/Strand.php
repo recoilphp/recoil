@@ -5,7 +5,7 @@ namespace Recoil\Kernel\Strand;
 use Evenement\EventEmitter;
 use Exception;
 use LogicException;
-use Recoil\Coroutine\CoroutineInterface;
+use Recoil\Coroutine\Coroutine;
 use Recoil\Kernel\KernelInterface;
 
 /**
@@ -47,7 +47,7 @@ class Strand extends EventEmitter implements StrandInterface
     /**
      * Fetch the coroutine currently being executed.
      *
-     * @return CoroutineInterface The coroutine currently being executed.
+     * @return Coroutine The coroutine currently being executed.
      */
     public function current()
     {
@@ -61,7 +61,7 @@ class Strand extends EventEmitter implements StrandInterface
      *
      * @param mixed $coroutine The coroutine to call.
      *
-     * @return CoroutineInterface The adapted coroutine.
+     * @return Coroutine The adapted coroutine.
      */
     public function push($coroutine)
     {
@@ -79,7 +79,7 @@ class Strand extends EventEmitter implements StrandInterface
     /**
      * Pop the current coroutine off the stack.
      *
-     * @return CoroutineInterface
+     * @return Coroutine
      */
     public function pop()
     {
@@ -98,7 +98,7 @@ class Strand extends EventEmitter implements StrandInterface
      *
      * @param mixed $coroutine The coroutine to call.
      *
-     * @return CoroutineInterface|null The adapted coroutine, or null if no adaptation could be made.
+     * @return Coroutine|null The adapted coroutine, or null if no adaptation could be made.
      */
     public function call($coroutine)
     {

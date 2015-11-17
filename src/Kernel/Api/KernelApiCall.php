@@ -3,7 +3,7 @@
 namespace Recoil\Kernel\Api;
 
 use BadMethodCallException;
-use Recoil\Coroutine\CoroutineInterface;
+use Recoil\Coroutine\Coroutine;
 use Recoil\Coroutine\CoroutineTrait;
 use Recoil\Kernel\Strand\StrandInterface;
 
@@ -13,7 +13,7 @@ use Recoil\Kernel\Strand\StrandInterface;
  * @see Recoil\Kernel\KernelApiInterface
  * @see Recoil\Kernel\KernelInterface::api()
  */
-class KernelApiCall implements CoroutineInterface
+class KernelApiCall implements Coroutine
 {
     use CoroutineTrait;
 

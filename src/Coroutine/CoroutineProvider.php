@@ -8,7 +8,7 @@ use Recoil\Kernel\Strand\StrandInterface;
  * A coroutine provide is an object that can produce an object that can be
  * adapted into a coroutine using the kernel's coroutine adaptor.
  */
-interface CoroutineProviderInterface
+interface CoroutineProvider
 {
     /**
      * Produce a coroutine.

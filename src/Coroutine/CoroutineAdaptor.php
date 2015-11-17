@@ -16,7 +16,7 @@ interface CoroutineAdaptor
      * @param StrandInterface $strand The currently executing strand.
      * @param mixed           $value  The value to adapt.
      *
-     * @return CoroutineInterface
+     * @return Coroutine
      * @throws InvalidArgumentException if now valid adaptation can be made.
      */
     public function adapt(StrandInterface $strand, $value);

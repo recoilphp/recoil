@@ -2,7 +2,7 @@
 
 namespace Recoil\Kernel\Api;
 
-use Recoil\Coroutine\CoroutineInterface;
+use Recoil\Coroutine\Coroutine;
 use Recoil\Coroutine\CoroutineTrait;
 use Recoil\Kernel\Strand\StrandInterface;
 use SplObjectStorage;
@@ -12,7 +12,7 @@ use SplObjectStorage;
  *
  * @internal
  */
-class Select implements CoroutineInterface
+class Select implements Coroutine
 {
     use CoroutineTrait;
 

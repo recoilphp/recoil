@@ -18,10 +18,10 @@ use Recoil\Kernel\Strand\StrandInterface;
 class Kernel implements KernelInterface
 {
     /**
-     * @param LoopInterface|null             $eventLoop        The React event-loop.
-     * @param KernelApiInterface|null        $api              The kernel's API implementation.
-     * @param CoroutineAdaptor|null $coroutineAdaptor The kernel's coroutine adaptor.
-     * @param StrandFactoryInterface|null    $strandFactory    The kernel's strand factory.
+     * @param LoopInterface|null          $eventLoop        The React event-loop.
+     * @param KernelApiInterface|null     $api              The kernel's API implementation.
+     * @param CoroutineAdaptor|null       $coroutineAdaptor The kernel's coroutine adaptor.
+     * @param StrandFactoryInterface|null $strandFactory    The kernel's strand factory.
      */
     public function __construct(
         LoopInterface $eventLoop = null,

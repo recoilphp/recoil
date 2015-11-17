@@ -4,7 +4,7 @@ namespace Recoil\Kernel\Strand;
 
 use Exception;
 use LogicException;
-use Recoil\Coroutine\CoroutineInterface;
+use Recoil\Coroutine\Coroutine;
 use Recoil\Coroutine\CoroutineTrait;
 
 /**
@@ -12,7 +12,7 @@ use Recoil\Coroutine\CoroutineTrait;
  *
  * @internal
  */
-class StackBase implements CoroutineInterface
+class StackBase implements Coroutine
 {
     use CoroutineTrait;
 
