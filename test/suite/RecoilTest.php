@@ -1,4 +1,5 @@
 <?php
+
 namespace Recoil;
 
 use PHPUnit_Framework_TestCase;

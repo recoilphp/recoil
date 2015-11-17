@@ -1,8 +1,9 @@
 <?php
+
 namespace Recoil\Stream;
 
-use PHPUnit_Framework_TestCase;
 use Phake;
+use PHPUnit_Framework_TestCase;
 use Recoil\Recoil;
 use Recoil\Stream\Exception\StreamReadException;
 

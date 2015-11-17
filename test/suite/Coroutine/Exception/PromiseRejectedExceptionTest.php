@@ -1,4 +1,5 @@
 <?php
+
 namespace Recoil\Coroutine\Exception;
 
 use PHPUnit_Framework_TestCase;

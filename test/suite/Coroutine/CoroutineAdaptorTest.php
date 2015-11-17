@@ -1,8 +1,9 @@
 <?php
+
 namespace Recoil\Coroutine;
 
-use PHPUnit_Framework_TestCase;
 use Phake;
+use PHPUnit_Framework_TestCase;
 use React\Promise\PromiseInterface;
 use Recoil\Kernel\Api\KernelApiCall;
 use Recoil\Kernel\Strand\StrandInterface;

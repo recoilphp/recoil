@@ -1,4 +1,5 @@
 <?php
+
 namespace Recoil\Coroutine\Exception;
 
 use Exception;

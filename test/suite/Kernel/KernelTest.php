@@ -1,4 +1,5 @@
 <?php
+
 namespace Recoil\Kernel;
 
 use PHPUnit_Framework_TestCase;

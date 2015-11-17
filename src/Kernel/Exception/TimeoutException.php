@@ -1,4 +1,5 @@
 <?php
+
 namespace Recoil\Kernel\Exception;
 
 use RuntimeException;

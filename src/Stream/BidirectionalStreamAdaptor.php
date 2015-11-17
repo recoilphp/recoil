@@ -1,4 +1,5 @@
 <?php
+
 namespace Recoil\Stream;
 
 use Recoil\Stream\Exception\StreamClosedException;

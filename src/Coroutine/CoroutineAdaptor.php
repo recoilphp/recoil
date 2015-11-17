@@ -1,4 +1,5 @@
 <?php
+
 namespace Recoil\Coroutine;
 
 use Generator;

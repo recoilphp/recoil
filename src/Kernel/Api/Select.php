@@ -1,4 +1,5 @@
 <?php
+
 namespace Recoil\Kernel\Api;
 
 use Recoil\Coroutine\CoroutineInterface;

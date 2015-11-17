@@ -1,4 +1,5 @@
 <?php
+
 namespace Recoil\Kernel;
 
 use Exception;

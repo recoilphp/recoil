@@ -1,4 +1,5 @@
 <?php
+
 namespace Recoil\Channel;
 
 use Recoil\Recoil;

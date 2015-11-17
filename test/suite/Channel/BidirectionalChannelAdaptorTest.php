@@ -1,8 +1,9 @@
 <?php
+
 namespace Recoil\Channel;
 
-use PHPUnit_Framework_TestCase;
 use Phake;
+use PHPUnit_Framework_TestCase;
 use Recoil\Recoil;
 
 class BidirectionalChannelAdaptorTest extends PHPUnit_Framework_TestCase

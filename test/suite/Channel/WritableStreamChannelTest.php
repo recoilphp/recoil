@@ -1,4 +1,5 @@
 <?php
+
 namespace Recoil\Channel;
 
 use PHPUnit_Framework_TestCase;

@@ -1,10 +1,11 @@
 <?php
+
 namespace Recoil\Kernel\Api;
 
 use BadMethodCallException;
 use Exception;
-use PHPUnit_Framework_TestCase;
 use Phake;
+use PHPUnit_Framework_TestCase;
 use Recoil\Kernel\Kernel;
 use Recoil\Recoil;
 

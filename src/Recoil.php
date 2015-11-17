@@ -1,4 +1,5 @@
 <?php
+
 namespace Recoil;
 
 use React\EventLoop\LoopInterface;

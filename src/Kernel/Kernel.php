@@ -1,4 +1,5 @@
 <?php
+
 namespace Recoil\Kernel;
 
 use React\EventLoop\Factory as EventLoopFactory;
