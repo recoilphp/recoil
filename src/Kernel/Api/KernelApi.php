@@ -129,6 +129,16 @@ interface KernelApi
     public function execute(Strand $strand, $coroutine);
 
     /**
+     * Create a function that executes a coroutine in its own strand.
+     *
+     * If $coroutine is callable, it is expected to return a coroutine.
+     *
+     * @param Strand $strand    The currently executing strand.
+     * @param mixed  $coroutine The coroutine to execute.
+     */
+    public function callback(Strand $stand, $coroutine);
+
+    /**
      * Wait for one or more of the given strands to exit.
      *
      * @param Strand   $strand  The currently executing strand.

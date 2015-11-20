@@ -352,6 +352,48 @@ class StandardKernelApiTest extends PHPUnit_Framework_TestCase
         $this->assertInstanceOf(Strand::class, $strand);
     }
 
+    public function testCallback()
+    {
+        $this->expectOutputString('123');
+
+        $coroutine = function () {
+            $f = function () {
+                echo 3;
+                yield Recoil::noop();
+            };
+
+            echo 1;
+            $callback = (yield Recoil::callback($f()));
+            $callback();
+            echo 2;
+        };
+
+        $this->kernel->execute($coroutine());
+
+        $this->kernel->eventLoop()->run();
+    }
+
+    public function testCallbackWithCallable()
+    {
+        $this->expectOutputString('123');
+
+        $coroutine = function () {
+            $f = function ($value) {
+                echo $value;
+                yield Recoil::noop();
+            };
+
+            echo 1;
+            $callback = (yield Recoil::callback($f));
+            $callback(3);
+            echo 2;
+        };
+
+        $this->kernel->execute($coroutine());
+
+        $this->kernel->eventLoop()->run();
+    }
+
     public function testStop()
     {
         $this->expectOutputString('1');

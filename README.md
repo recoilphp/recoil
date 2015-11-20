@@ -268,6 +268,30 @@ The [promise-dns example](examples/promise-dns) demonstrates using the [React DN
 a promised-based API, to resolve several domain names concurrently. [This example](examples/promise-dns-react) shows the
 same functionality implemented without **Recoil**.
 
+### Callback and Events
+
+Conventional asynchronous code uses callback functions to inform a caller when a result is available or an event occurs.
+The kernel API provides `Recoil::callback()` to create a callback that executes a coroutine on its own strand.
+
+```php
+use Evenement\EventEmitter;
+
+Recoil::run(
+    function () {
+        $eventEmitter = new EventEmitter();
+        $eventEmitter->on(
+            'hello'
+            (yield Recoil::callback(
+                function ($name) {
+                    echo 'Hello, ' . $name . '!' . PHP_EOL;
+                    yield Recoil::noop();
+                }
+            ))
+        );
+    }
+);
+```
+
 ### Using an existing event-loop
 
 In all of the examples above, the `Recoil::run()` convenience function is used to start the kernel. Internally this

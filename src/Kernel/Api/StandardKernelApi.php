@@ -187,6 +187,36 @@ class StandardKernelApi implements KernelApi
     }
 
     /**
+     * Create a function that executes a coroutine in its own strand.
+     *
+     * If $coroutine is callable, it is expected to return a coroutine.
+     *
+     * @param Strand $strand    The currently executing strand.
+     * @param mixed  $coroutine The coroutine to execute.
+     */
+    public function callback(Strand $strand, $coroutine)
+    {
+        $kernel = $strand->kernel();
+
+        if (is_callable($coroutine)) {
+            $callback = function () use ($kernel, $coroutine) {
+                $kernel->execute(
+                    call_user_func_array(
+                        $coroutine,
+                        func_get_args()
+                    )
+                );
+            };
+        } else {
+            $callback = function () use ($kernel, $coroutine) {
+                $kernel->execute($coroutine);
+            };
+        }
+
+        $strand->resumeWithValue($callback);
+    }
+
+    /**
      * Wait for one or more of the given strands to exit.
      *
      * @param Strand   $strand  The currently executing strand.
