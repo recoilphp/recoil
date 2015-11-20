@@ -1,5 +1,15 @@
 # Recoil Changelog
 
+### Next Version (predicted 0.4.0)
+
+* **[BC]** Dropped `Interface` suffix from interfaces
+* **[BC]** Renamed `ReadableStream` to `ReadablePhpStream`
+* **[BC]** Renamed `WritableStream` to `WritablePhpStream`
+* **[BC]** Renamed `CoroutineAdaptor` to `StandardCoroutineAdaptor`
+* **[BC]** Renamed `KernelApi` to `StandardKernelApi`
+* **[BC]** Renamed `Strand` to `StandardStrand`
+* **[BC]** Renamed `StrandFactory` to `StandardStrandFactory`
+
 ### 0.3.0 (2015-06-26)
 
 * **[BC]** Removed `StrandInterface::resume()`
