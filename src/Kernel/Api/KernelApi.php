@@ -77,10 +77,10 @@ interface KernelApi
     /**
      * Suspend execution of the strand until it is resumed manually.
      *
-     * @param Strand   $strand   The currently executing strand.
-     * @param callable $callback A callback which is passed the strand after it is suspended.
+     * @param Strand        $strand   The currently executing strand.
+     * @param callable|null $callback A callback which is passed the strand after it is suspended.
      */
-    public function suspend(Strand $strand, callable $callback);
+    public function suspend(Strand $strand, callable $callback = null);
 
     /**
      * Execute a coroutine with a time limit.

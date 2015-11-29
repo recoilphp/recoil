@@ -105,11 +105,13 @@ class StandardKernelApi implements KernelApi
      *
      * @param Strand $strand The currently executing strand.
      */
-    public function suspend(Strand $strand, callable $callback)
+    public function suspend(Strand $strand, callable $callback = null)
     {
         $strand->suspend();
 
-        $callback($strand);
+        if ($callback) {
+            $callback($strand);
+        }
     }
 
     /**

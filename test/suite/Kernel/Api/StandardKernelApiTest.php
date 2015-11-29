@@ -212,6 +212,20 @@ class StandardKernelApiTest extends PHPUnit_Framework_TestCase
     {
         $this->expectOutputString('');
 
+        $coroutine = function () {
+            yield Recoil::suspend();
+            echo 'X';
+        };
+
+        $expectedStrand = $this->kernel->execute($coroutine());
+
+        $this->kernel->eventLoop()->run();
+    }
+
+    public function testSuspendWithCallback()
+    {
+        $this->expectOutputString('');
+
         $strand = null;
 
         $coroutine = function () use (&$strand) {
