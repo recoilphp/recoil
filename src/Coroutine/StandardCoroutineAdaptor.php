@@ -3,9 +3,10 @@
 namespace Recoil\Coroutine;
 
 use Generator;
+use GuzzleHttp\Promise\PromiseInterface as GuzzlePromise;
 use Icecave\Repr\Repr;
 use InvalidArgumentException;
-use React\Promise\PromiseInterface;
+use React\Promise\PromiseInterface as ReactPromise;
 use Recoil\Kernel\Strand\Strand;
 use Recoil\Recoil;
 
@@ -33,7 +34,10 @@ class StandardCoroutineAdaptor implements CoroutineAdaptor
             return $value;
         } elseif ($value instanceof Generator) {
             return new GeneratorCoroutine($value);
-        } elseif ($value instanceof PromiseInterface) {
+        } elseif (
+            $value instanceof ReactPromise ||
+            $value instanceof GuzzlePromise
+        ) {
             return new PromiseCoroutine($value);
         } elseif (is_array($value)) {
             return Recoil::all($value);

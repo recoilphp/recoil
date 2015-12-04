@@ -3,8 +3,8 @@
 namespace Recoil\Coroutine;
 
 use Exception;
+use GuzzleHttp\Promise\PromiseInterface as GuzzlePromise;
 use React\Promise\CancellablePromiseInterface;
-use React\Promise\PromiseInterface;
 use Recoil\Coroutine\Exception\PromiseRejectedException;
 use Recoil\Kernel\Strand\Strand;
 
@@ -16,9 +16,9 @@ class PromiseCoroutine implements Coroutine
     use CoroutineTrait;
 
     /**
-     * @param PromiseInterface $promise The wrapped promise object.
+     * @param object $promise The wrapped promise object.
      */
-    public function __construct(PromiseInterface $promise)
+    public function __construct($promise)
     {
         $this->promise = $promise;
     }
@@ -55,7 +55,10 @@ class PromiseCoroutine implements Coroutine
      */
     public function terminate(Strand $strand)
     {
-        if ($this->promise instanceof CancellablePromiseInterface) {
+        if (
+            $this->promise instanceof CancellablePromiseInterface ||
+            $this->promise instanceof GuzzlePromise
+        ) {
             $this->promise->cancel();
         }
     }
