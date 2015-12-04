@@ -30,6 +30,7 @@
     },
     "require-dev": {
         "icecave/archer": "^1",
+        "guzzlehttp/promises": "^1",
         "phake/phake": "2.0.0-alpha4 as v1.0.3",
         "react/dns": "^0.4",
         "react/promise": "^2",

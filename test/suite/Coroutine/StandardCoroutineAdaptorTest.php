@@ -2,8 +2,10 @@
 
 namespace Recoil\Coroutine;
 
+use GuzzleHttp\Promise\PromiseInterface as GuzzlePromiseInterface;
 use Phake;
 use PHPUnit_Framework_TestCase;
+use React\Promise\CancellablePromiseInterface;
 use React\Promise\PromiseInterface;
 use Recoil\Kernel\Api\KernelApiCall;
 use Recoil\Kernel\Strand\Strand;
@@ -47,7 +49,32 @@ class StandardCoroutineAdaptorTest extends PHPUnit_Framework_TestCase
         $promise   = Phake::mock(PromiseInterface::class);
         $coroutine = $this->adaptor->adapt($this->strand, $promise);
 
-        $this->assertInstanceOf(PromiseCoroutine::class, $coroutine);
+        $this->assertEquals(
+            new PromiseCoroutine($promise, false),
+            $coroutine
+        );
+    }
+
+    public function testAdaptWithCancellablePromise()
+    {
+        $promise   = Phake::mock(CancellablePromiseInterface::class);
+        $coroutine = $this->adaptor->adapt($this->strand, $promise);
+
+        $this->assertEquals(
+            new PromiseCoroutine($promise, true),
+            $coroutine
+        );
+    }
+
+    public function testAdaptWithGuzzlePromise()
+    {
+        $promise   = Phake::mock(GuzzlePromiseInterface::class);
+        $coroutine = $this->adaptor->adapt($this->strand, $promise);
+
+        $this->assertEquals(
+            new PromiseCoroutine($promise, true),
+            $coroutine
+        );
     }
 
     public function testAdaptWithArray()
