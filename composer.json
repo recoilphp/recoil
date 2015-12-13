@@ -23,18 +23,15 @@
         }
     ],
     "require": {
-        "php": ">=5.5",
-        "evenement/evenement": "^2",
+        "php": ">=7",
         "icecave/repr": "^1",
-        "react/event-loop": "^0.4"
+        "react/event-loop": "^0.4",
+        "react/promise": "^2"
     },
     "require-dev": {
+        "eloquent/phony": "dev-feature/php7",
         "icecave/archer": "^1",
-        "guzzlehttp/promises": "^1",
-        "phake/phake": "2.0.0-alpha4 as v1.0.3",
-        "react/dns": "^0.4",
-        "react/promise": "^2",
-        "react/stream": "^0.4"
+        "react/dns": "^0.4"
     },
     "autoload": {
         "psr-4": {

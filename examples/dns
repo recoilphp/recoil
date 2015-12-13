@@ -1,0 +1,56 @@
+#!/usr/bin/env php
+<?php declare(strict_types = 1);
+
+require dirname(__DIR__) . '/vendor/autoload.php';
+
+use Recoil\React\Recoil;
+
+/**
+ * Resolve a name to an IP address.
+ *
+ * @param string                      $name     The name to resolve.
+ * @param React\Dns\Resolver\Resolver $resolver The resolver to use.
+ */
+function resolveDomainName($name, React\Dns\Resolver\Resolver $resolver)
+{
+    try {
+        // Resolver::resolve(...) returns a React promise.
+        //
+        // Yielding a promise in a coroutine causes the coroutine to suspend
+        // until the promise is resolved or rejected.
+        //
+        // If the promise is resolved, the value is returned from the yield
+        // statement.
+
+        $ip = yield $resolver->resolve($name);
+
+        echo 'Resolved "' . $name . '" to ' . $ip . PHP_EOL;
+
+    } catch (Exception $e) {
+
+        // The promise was rejected.
+
+        echo 'Failed to resolve "' . $name . '" - ' . $e->getMessage() . PHP_EOL;
+
+    }
+}
+
+// -----------------------------------------------------------------------------
+
+function main()
+{
+    $resolver = (new React\Dns\Resolver\Factory)->create(
+        '8.8.8.8',
+        yield Recoil::eventLoop()
+    );
+
+    yield [
+        resolveDomainName('recoil.io', $resolver),
+        resolveDomainName('reactphp.org', $resolver),
+        resolveDomainName('probably-wont-resolve', $resolver),
+    ];
+
+    echo 'Done.' . PHP_EOL;
+}
+
+Recoil::run('main');

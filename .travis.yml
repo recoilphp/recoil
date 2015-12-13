@@ -1,6 +1,7 @@
 language: php
+sudo: false
 
-php: ["5.5", "5.6", "7", "nightly", "hhvm", "hhvm-nightly"]
+php: ["7", "nightly", "hhvm", "hhvm-nightly"]
 
 matrix:
     allow_failures: [{"php": "nightly"}, {"php": "hhvm"}, {"php": "hhvm-nightly"}]
@@ -8,7 +9,6 @@ matrix:
 
 env:
   global:
-    - ARCHER_PUBLISH_VERSION=5.6
     - secure: "g0uexghpfxjO1pVYCBqj/P957zCZQT1v5naWgzDtu5n2Sh1WoW00K4+jOYJ4bbIm+1O8wbzzlyOuYZMMz0xXLVzuOdoMwMhfcnI+pE/dpa4J/vs1RFqoLh4HuNx9oPErNODdmWIkeC1SpcuBeYZfYxEL6UJIWbZZq3a9BIslx88="
 
 install:

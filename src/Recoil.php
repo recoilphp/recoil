@@ -1,68 +1,46 @@
 <?php
 
+declare (strict_types = 1);
+
 namespace Recoil;
 
-use React\EventLoop\LoopInterface;
-use Recoil\Kernel\Api\KernelApiCall;
-use Recoil\Kernel\StandardKernel;
-use Recoil\Kernel\Strand\Strand;
+use Exception;
+use Recoil\Kernel\Api;
+use Recoil\Kernel\ApiCall;
+use Recoil\Kernel\Awaitable;
 
 /**
- * Public facade for Kernel API calls.
+ * Public facade for kernel API calls.
  *
  * This class contains no implementation; it is a proxy for the kernel API
  * implementation provided by whichever coroutine kernel is currently being
  * used for execution.
  *
- * The interface {@link Recoil\Kernel\KernelApi} defines the operations that are
- * available; some kernels may provide additional features.
+ * The standard API provides the following operations:
  *
- * @method static strand() [COROUTINE] Get the strand the coroutine is executing on.
- * @method static kernel() [COROUTINE] Get the coroutine kernel that the current strand is executing on.
- * @method static eventLoop() [COROUTINE] Get the React event-loop that the coroutine kernel is executing on.
- * @method static return_($value) [COROUTINE] Return a value to the calling coroutine.
- * @method static throw_(Exception $exception) [COROUTINE] Throw an exception to the calling coroutine.
- * @method static finally_(callable $callback) [COROUTINE] Register a callback to be invoked when the current coroutine ends.
- * @method static terminate() [COROUTINE] Terminate execution of this strand.
- * @method static sleep(float $timeout) [COROUTINE] Suspend execution for a specified period of time.
- * @method static suspend(callable $callback) [COROUTINE] Suspend execution of the strand until it is resumed manually.
- * @method static timeout(float $timeout, $coroutine) [COROUTINE] Execute a coroutine with a time limit.
- * @method static all(array $coroutines) [COROUTINE] Execute the given coroutines concurrently.
- * @method static noop() [COROUTINE] Resume the strand immediately.
- * @method static cooperate() [COROUTINE] Suspend the strand until the next tick.
- * @method static execute($coroutine) [COROUTINE] Execute a coroutine on its own strand.
- * @method static select(Strand $strand, array $strands) [COROUTINE] Wait for one or more of the given strands to exit.
- * @method static stop(bool $stopEventLoop = true) [COROUTINE] Stop the coroutine kernel / event-loop.
+ * @method static execute($task)                 Execute a task in a new strand.
+ * @method static callback($task)                Create a callback that executes a task in a new strand.
+ * @method static cooperate()                    Suspend execution briefly, allowing other strands to execute.
+ * @method static sleep(float $seconds)          Suspend execution for a specified interval.
+ * @method static timeout(float $seconds, $task) Execute a task with a maximum running time.
+ * @method static terminate()                    Terminate the current strand.
+ * @method static all(...$tasks)                 Execute tasks in parallel and wait for them all to complete.
+ * @method static any(...$tasks)                 Execute tasks in parallel and wait for one of them to complete.
+ * @method static some(int $count, ...$tasks)    Execute tasks in parallel and wait for a specific number of them to complete.
+ * @method static race(...$tasks)                Execute tasks in parallel and wait for one of them to complete or produce an exception.
  */
 abstract class Recoil
 {
     /**
-     * [COROUTINE] Invoke a kernel API function.
+     * Invoke a kernel API operation.
      *
-     * @see Recoil\Kernel\KernelApi
-     * @see Recoil\Kernel\Kernel::api()
+     * @see Api
      *
-     * @param string $name      The name of the kernel API function to invoke.
-     * @param array  $arguments The arguments to the kernel API function.
+     * @param string $name      The operation name, corresponds to the methods in Api.
+     * @param array  $arguments The operation arguments.
      */
-    public static function __callStatic($name, array $arguments)
+    public static function __callStatic(string $name, array $arguments) : Awaitable
     {
-        return new KernelApiCall($name, $arguments);
-    }
-
-    /**
-     * Create and run a new coroutine kernel.
-     *
-     * This is convenience method used to start the coroutine engine.
-     * It should generally not be invoked from inside other coroutines.
-     *
-     * @param callable           $entryPoint The coroutine to invoke.
-     * @param LoopInterface|null $eventLoop  The React event-loop, or null to use the default.
-     */
-    public static function run(callable $entryPoint, LoopInterface $eventLoop = null)
-    {
-        $kernel = new StandardKernel($eventLoop);
-        $kernel->execute($entryPoint());
-        $kernel->eventLoop()->run();
+        return new ApiCall($name, $arguments);
     }
 }
