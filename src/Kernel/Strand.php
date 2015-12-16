@@ -4,7 +4,7 @@ declare (strict_types = 1);
 
 namespace Recoil\Kernel;
 
-interface Strand extends AwaitableProvider, Suspendable
+interface Strand extends Awaitable, Suspendable
 {
     /**
      * Terminate this strand.

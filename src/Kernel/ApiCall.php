@@ -22,8 +22,6 @@ final class ApiCall implements Awaitable
     /**
      * Perform the work and resume the caller upon completion.
      *
-     * This method must not be called multiple times on the same object.
-     *
      * @param Suspendable $caller The waiting object.
      * @param Api         $api    The kernel API.
      */

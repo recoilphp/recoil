@@ -16,9 +16,15 @@ trait StrandTrait
         throw new \LogicException('Not implemented.');
     }
 
-    public function awaitable() : Awaitable
+    /**
+     * Perform the work and resume the caller upon completion.
+     *
+     * @param Suspendable $caller The waiting object.
+     * @param Api         $api    The kernel API.
+     */
+    public function await(Suspendable $caller, Api $api)
     {
-        throw new \LogicException('Not implemented.');
+        $this->observers[] = $caller;
     }
 
     /**
@@ -28,6 +34,10 @@ trait StrandTrait
      */
     public function resume($result = null)
     {
+        foreach ($this->observers as $observer) {
+            $observer->resume($result);
+        }
+
         $this->finalize(null, $result);
     }
 
@@ -38,6 +48,10 @@ trait StrandTrait
      */
     public function throw(Exception $exception)
     {
+        foreach ($this->observers as $observer) {
+            $observer->throw($exception);
+        }
+
         if (!$this->finalize($exception, null)) {
             // @todo implement kernel-wide error capture
             throw $exception;
@@ -58,4 +72,9 @@ trait StrandTrait
     {
         return false;
     }
+
+    /**
+     * @var array<Suspendable>
+     */
+    private $observers = [];
 }

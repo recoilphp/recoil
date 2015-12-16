@@ -42,7 +42,7 @@ trait ApiTrait
         } elseif ($task instanceof Awaitable) {
             $task->await($caller, $this);
         } elseif ($task instanceof Generator) {
-            (new GeneratorCoroutine($task))->await($caller, $this);
+            (new Coroutine($task))->await($caller, $this);
         } elseif ($depth > 1) {
             $caller->resume($task);
         } elseif (\is_callable($task)) {
@@ -148,7 +148,7 @@ trait ApiTrait
      */
     public function all(Suspendable $caller, ...$tasks)
     {
-        // @todo
+        // (new Wait(count($tasks), $tasks))->await($caller, $this);
     }
 
     /**
@@ -166,7 +166,7 @@ trait ApiTrait
      */
     public function any(Suspendable $caller, ...$tasks)
     {
-        // @todo
+        // (new Wait(1, $tasks))->await($caller, $this);
     }
 
     /**
@@ -190,7 +190,7 @@ trait ApiTrait
      */
     public function some(Suspendable $caller, int $count, ...$tasks)
     {
-        // @todo
+        // (new Wait($count, $tasks))->await($caller, $this);
     }
 
     /**
@@ -205,7 +205,7 @@ trait ApiTrait
      */
     public function race(Suspendable $caller, ...$tasks)
     {
-        // @todo
+        // (new Race($tasks))->await($caller, $this);
     }
 
     private function unknownOperation(string $name, Suspendable $caller)

@@ -12,7 +12,9 @@ class StrandTraitTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
-        $this->caller = Phony::mock(Suspendable::class);
+        $this->caller1 = Phony::mock(Suspendable::class);
+        $this->caller2 = Phony::mock(Suspendable::class);
+        $this->api = Phony::mock(Api::class);
 
         $this->subject = Phony::partialMock(StrandTrait::class);
     }
@@ -22,26 +24,32 @@ class StrandTraitTest extends PHPUnit_Framework_TestCase
         $this->markTestSkipped();
     }
 
-    public function testAwaitable()
-    {
-        $this->markTestSkipped();
-    }
-
     public function testResume()
     {
+        $this->subject->mock()->await($this->caller1->mock(), $this->api->mock());
+        $this->subject->mock()->await($this->caller2->mock(), $this->api->mock());
+
         $this->subject->mock()->resume('<result>');
+
+        $this->caller1->resume->calledWith('<result>');
+        $this->caller2->resume->calledWith('<result>');
 
         $this->subject->finalize->calledWith(null, '<result>');
     }
 
     public function testThrow()
     {
+        $this->subject->mock()->await($this->caller1->mock(), $this->api->mock());
+        $this->subject->mock()->await($this->caller2->mock(), $this->api->mock());
+
         $exception = new Exception('<exception>');
 
         try {
             $this->subject->mock()->throw($exception);
             $this->fail('Expected exception was not thrown.');
         } catch (Exception $e) {
+            $this->caller1->throw->calledWith($exception);
+            $this->caller2->throw->calledWith($exception);
             $this->subject->finalize->calledWith($exception, null);
             $this->assertSame($exception, $e);
         }

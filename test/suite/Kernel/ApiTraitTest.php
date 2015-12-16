@@ -94,7 +94,7 @@ class ApiTraitTest extends PHPUnit_Framework_TestCase
         );
 
         $awaitable->await->calledWith(
-            $this->isInstanceOf(GeneratorCoroutine::class),
+            $this->isInstanceOf(Coroutine::class),
             $this->subject->mock()
         );
 
@@ -179,7 +179,7 @@ class ApiTraitTest extends PHPUnit_Framework_TestCase
         );
 
         $awaitable->await->calledWith(
-            $this->isInstanceOf(GeneratorCoroutine::class),
+            $this->isInstanceOf(Coroutine::class),
             $this->subject->mock()
         );
 

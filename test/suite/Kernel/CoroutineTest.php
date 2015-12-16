@@ -8,7 +8,7 @@ use Eloquent\Phony\Phpunit\Phony;
 use Exception;
 use PHPUnit_Framework_TestCase;
 
-class GeneratorCoroutineTest extends PHPUnit_Framework_TestCase
+class CoroutineTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
@@ -29,7 +29,7 @@ class GeneratorCoroutineTest extends PHPUnit_Framework_TestCase
         $spy = Phony::spy($fn);
         $this->spy = $spy;
         $this->generator = $spy();
-        $this->subject = new GeneratorCoroutine($this->generator);
+        $this->subject = new Coroutine($this->generator);
     }
 
     public function testAwait()
