@@ -15,12 +15,14 @@ interface Api
      * caller once it is complete.
      *
      * @param int         $source One of the DispatchSource constants.
+     * @param Strand      $strand The strand the caller is executing on.
      * @param Suspendable $caller The object waiting for the task to complete.
      * @param mixed       $task   The task to execute.
      * @param mixed       $key    The key yielded from the generator (for DispatchSource::COROUTINE).
      */
     public function __dispatch(
         int $source,
+        Strand $strand,
         Suspendable $caller,
         $task,
         $key = null
@@ -28,8 +30,6 @@ interface Api
 
     /**
      * Invoke a non-standard API operation.
-     *
-     * The first element in $arguments must be an instance of {@see Suspendable}.
      */
     public function __call(string $name, array $arguments);
 
@@ -42,10 +42,11 @@ interface Api
      * The API implementation must delay execution of the strand until the
      * next tick, allowing the caller to use Strand::capture() if necessary.
      *
+     * @param Strand      $strand The strand the caller is executing on.
      * @param Suspendable $caller The object waiting for the task to complete.
      * @param mixed       $task   The task to execute.
      */
-    public function execute(Suspendable $caller, $task);
+    public function execute(Strand $strand, Suspendable $caller, $task);
 
     /**
      * Create a callback function that starts a new strand of execution.
@@ -55,25 +56,28 @@ interface Api
      *
      * The caller is resumed with the callback.
      *
+     * @param Strand      $strand The strand the caller is executing on.
      * @param Suspendable $caller The object waiting for the task to complete.
      * @param mixed       $task   The task to execute.
      */
-    public function callback(Suspendable $caller, $task);
+    public function callback(Strand $strand, Suspendable $caller, $task);
 
     /**
      * Allow other strands to execute then resume The object waiting for the task to complete.
      *
+     * @param Strand      $strand The strand the caller is executing on.
      * @param Suspendable $caller The object waiting for the task to complete.
      */
-    public function cooperate(Suspendable $caller);
+    public function cooperate(Strand $strand, Suspendable $caller);
 
     /**
      * Resume execution of the caller after a specified interval.
      *
+     * @param Strand      $strand  The strand the caller is executing on.
      * @param Suspendable $caller  The object waiting for the task to complete.
      * @param float       $seconds The interval to wait.
      */
-    public function sleep(Suspendable $caller, float $seconds);
+    public function sleep(Strand $strand, Suspendable $caller, float $seconds);
 
     /**
      * Execute a task with a maximum running time.
@@ -81,16 +85,20 @@ interface Api
      * If the task does not complete within the specified time it is cancelled,
      * otherwise the caller is resumed with the value or exception produced.
      *
+     * @param Strand      $strand  The strand the caller is executing on.
      * @param Suspendable $caller  The object waiting for the task to complete.
      * @param float       $seconds The interval to allow for execution.
      * @param mixed       $task    The task to execute.
      */
-    public function timeout(Suspendable $caller, float $seconds, $task);
+    public function timeout(Strand $strand, Suspendable $caller, float $seconds, $task);
 
     /**
      * Terminate the strand that the caller is running on.
+     *
+     * @param Strand      $strand The strand the caller is executing on.
+     * @param Suspendable $caller The object waiting for the task to complete.
      */
-    public function terminate(Suspendable $caller);
+    public function terminate(Strand $strand, Suspendable $caller);
 
     /**
      * Execute multiple tasks on their own strands and wait for them all to
@@ -103,10 +111,11 @@ interface Api
      * The array order matches the order of completion. The array keys indicate
      * the order in which the task was passed to this operation.
      *
+     * @param Strand      $strand    The strand the caller is executing on.
      * @param Suspendable $caller    The object waiting for the task to complete.
      * @param mixed       $tasks,... The tasks to execute.
      */
-    public function all(Suspendable $caller, ...$tasks);
+    public function all(Strand $strand, Suspendable $caller, ...$tasks);
 
     /**
      * Execute multiple tasks on their own strands and wait for one of them to
@@ -118,10 +127,11 @@ interface Api
      * {@see CompositeException}.
      *
      *
+     * @param Strand      $strand    The strand the caller is executing on.
      * @param Suspendable $caller    The object waiting for the task to complete.
      * @param mixed       $tasks,... The tasks to execute.
      */
-    public function any(Suspendable $caller, ...$tasks);
+    public function any(Strand $strand, Suspendable $caller, ...$tasks);
 
     /**
      * Execute multiple tasks on their own strands and wait for a specific
@@ -138,11 +148,12 @@ interface Api
      * possible for ($count) strands to complete, all pending strands are
      * terminated and the caller is resumed with a {@see CompositeException}.
      *
+     * @param Strand      $strand    The strand the caller is executing on.
      * @param Suspendable $caller    The object waiting for the task to complete.
      * @param int         $count     The number of strands to wait for.
      * @param mixed       $tasks,... The tasks to execute.
      */
-    public function some(Suspendable $caller, int $count, ...$tasks);
+    public function some(Strand $strand, Suspendable $caller, int $count, ...$tasks);
 
     /**
      * Execute multiple tasks in on their own strands and wait for one of them
@@ -151,8 +162,9 @@ interface Api
      * The caller is resumed with the result of the first strand to finish,
      * regardless of whether it finishes successfully or produces an exception.
      *
+     * @param Strand      $strand    The strand the caller is executing on.
      * @param Suspendable $caller    The object waiting for the task to complete.
      * @param mixed       $tasks,... The tasks to execute.
      */
-    public function race(Suspendable $caller, ...$tasks);
+    public function race(Strand $strand, Suspendable $caller, ...$tasks);
 }

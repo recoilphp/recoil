@@ -76,6 +76,7 @@ class ReactKernelTest extends PHPUnit_Framework_TestCase
         $this->api->__dispatch->calledWith(
             DispatchSource::KERNEL,
             $strand,
+            $strand,
             '<task>'
         );
     }

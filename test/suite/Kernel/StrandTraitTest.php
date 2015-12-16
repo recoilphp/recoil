@@ -12,6 +12,7 @@ class StrandTraitTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
+        $this->strand = Phony::mock(Strand::class);
         $this->caller1 = Phony::mock(Suspendable::class);
         $this->caller2 = Phony::mock(Suspendable::class);
         $this->api = Phony::mock(Api::class);
@@ -26,8 +27,17 @@ class StrandTraitTest extends PHPUnit_Framework_TestCase
 
     public function testResume()
     {
-        $this->subject->mock()->await($this->caller1->mock(), $this->api->mock());
-        $this->subject->mock()->await($this->caller2->mock(), $this->api->mock());
+        $this->subject->mock()->await(
+            $this->strand->mock(),
+            $this->caller1->mock(),
+            $this->api->mock()
+        );
+
+        $this->subject->mock()->await(
+            $this->strand->mock(),
+            $this->caller2->mock(),
+            $this->api->mock()
+        );
 
         $this->subject->mock()->resume('<result>');
 
@@ -39,8 +49,17 @@ class StrandTraitTest extends PHPUnit_Framework_TestCase
 
     public function testThrow()
     {
-        $this->subject->mock()->await($this->caller1->mock(), $this->api->mock());
-        $this->subject->mock()->await($this->caller2->mock(), $this->api->mock());
+        $this->subject->mock()->await(
+            $this->strand->mock(),
+            $this->caller1->mock(),
+            $this->api->mock()
+        );
+
+        $this->subject->mock()->await(
+            $this->strand->mock(),
+            $this->caller2->mock(),
+            $this->api->mock()
+        );
 
         $exception = new Exception('<exception>');
 

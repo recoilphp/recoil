@@ -12,8 +12,9 @@ interface Awaitable
     /**
      * Perform the work and resume the caller upon completion.
      *
+     * @param Strand      $strand The executing strand.
      * @param Suspendable $caller The waiting object.
      * @param Api         $api    The kernel API.
      */
-    public function await(Suspendable $caller, Api $api);
+    public function await(Strand $strand, Suspendable $caller, Api $api);
 }

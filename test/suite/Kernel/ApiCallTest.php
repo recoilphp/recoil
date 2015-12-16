@@ -11,6 +11,7 @@ class ApiCallTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
+        $this->strand = Phony::mock(Strand::class);
         $this->caller = Phony::mock(Suspendable::class);
         $this->api = Phony::mock(Api::class);
 
@@ -20,11 +21,13 @@ class ApiCallTest extends PHPUnit_Framework_TestCase
     public function testAwait()
     {
         $this->subject->await(
+            $this->strand->mock(),
             $this->caller->mock(),
             $this->api->mock()
         );
 
         $this->api->{'<name>'}->calledWith(
+            $this->strand->mock(),
             $this->caller->mock(),
             1, 2, 3
         );

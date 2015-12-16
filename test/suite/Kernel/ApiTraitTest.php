@@ -14,25 +14,13 @@ use UnexpectedValueException;
 abstract class ApiTraitTestWorkaround implements Api
 {
     use ApiTrait;
-
-    public function execute(Suspendable $caller, $task)
-    {
-    }
-    public function cooperate(Suspendable $caller)
-    {
-    }
-    public function sleep(Suspendable $caller, float $seconds)
-    {
-    }
-    public function timeout(Suspendable $caller, float $seconds, $task)
-    {
-    }
 }
 
 class ApiTraitTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
+        $this->strand = Phony::mock(Strand::class);
         $this->caller = Phony::mock(Suspendable::class);
 
         // @todo remove workaround
@@ -49,15 +37,18 @@ class ApiTraitTest extends PHPUnit_Framework_TestCase
 
         $this->subject->mock()->__dispatch(
             DispatchSource::KERNEL, // irrelevant to this implementation
+            $this->strand->mock(),
             $this->caller->mock(),
             $provider->mock()
         );
 
         $awaitable->await->calledWith(
+            $this->strand->mock(),
             $this->caller->mock(),
             $this->subject->mock()
         );
 
+        $this->strand->noInteraction();
         $this->caller->noInteraction();
     }
 
@@ -67,15 +58,18 @@ class ApiTraitTest extends PHPUnit_Framework_TestCase
 
         $this->subject->mock()->__dispatch(
             DispatchSource::KERNEL, // irrelevant to this implementation
+            $this->strand->mock(),
             $this->caller->mock(),
             $awaitable->mock()
         );
 
         $awaitable->await->calledWith(
+            $this->strand->mock(),
             $this->caller->mock(),
             $this->subject->mock()
         );
 
+        $this->strand->noInteraction();
         $this->caller->noInteraction();
     }
 
@@ -89,15 +83,18 @@ class ApiTraitTest extends PHPUnit_Framework_TestCase
 
         $this->subject->mock()->__dispatch(
             DispatchSource::KERNEL, // irrelevant to this implementation
+            $this->strand->mock(),
             $this->caller->mock(),
             $generator()
         );
 
         $awaitable->await->calledWith(
+            $this->strand->mock(),
             $this->isInstanceOf(Coroutine::class),
             $this->subject->mock()
         );
 
+        $this->strand->noInteraction();
         $this->caller->noInteraction();
     }
 
@@ -107,6 +104,7 @@ class ApiTraitTest extends PHPUnit_Framework_TestCase
 
         $this->subject->mock()->__dispatch(
             DispatchSource::KERNEL, // irrelevant to this implementation
+            $this->strand->mock(),
             $this->caller->mock(),
             $fn
         );
@@ -118,6 +116,8 @@ class ApiTraitTest extends PHPUnit_Framework_TestCase
         $this->subject->cooperate->never()->called();
 
         $this->caller->resume->calledWith(null);
+
+        $this->strand->noInteraction();
     }
 
     public function testDispatchWithCallableThatReturnsAwaitableProvider()
@@ -130,15 +130,18 @@ class ApiTraitTest extends PHPUnit_Framework_TestCase
 
         $this->subject->mock()->__dispatch(
             DispatchSource::KERNEL, // irrelevant to this implementation
+            $this->strand->mock(),
             $this->caller->mock(),
             $fn
         );
 
         $awaitable->await->calledWith(
+            $this->strand->mock(),
             $this->caller->mock(),
             $this->subject->mock()
         );
 
+        $this->strand->noInteraction();
         $this->caller->noInteraction();
     }
 
@@ -150,15 +153,18 @@ class ApiTraitTest extends PHPUnit_Framework_TestCase
 
         $this->subject->mock()->__dispatch(
             DispatchSource::KERNEL, // irrelevant to this implementation
+            $this->strand->mock(),
             $this->caller->mock(),
             $fn
         );
 
         $awaitable->await->calledWith(
+            $this->strand->mock(),
             $this->caller->mock(),
             $this->subject->mock()
         );
 
+        $this->strand->noInteraction();
         $this->caller->noInteraction();
     }
 
@@ -174,15 +180,18 @@ class ApiTraitTest extends PHPUnit_Framework_TestCase
 
         $this->subject->mock()->__dispatch(
             DispatchSource::KERNEL, // irrelevant to this implementation
+            $this->strand->mock(),
             $this->caller->mock(),
             $fn
         );
 
         $awaitable->await->calledWith(
+            $this->strand->mock(),
             $this->isInstanceOf(Coroutine::class),
             $this->subject->mock()
         );
 
+        $this->strand->noInteraction();
         $this->caller->noInteraction();
     }
 
@@ -192,11 +201,14 @@ class ApiTraitTest extends PHPUnit_Framework_TestCase
 
         $this->subject->mock()->__dispatch(
             DispatchSource::KERNEL, // irrelevant to this implementation
+            $this->strand->mock(),
             $this->caller->mock(),
             $fn
         );
 
         $this->caller->resume->calledWith('<value>');
+
+        $this->strand->noInteraction();
     }
 
     public function testDispatchWithCallableThatThrows()
@@ -207,23 +219,31 @@ class ApiTraitTest extends PHPUnit_Framework_TestCase
 
         $this->subject->mock()->__dispatch(
             DispatchSource::KERNEL, // irrelevant to this implementation
+            $this->strand->mock(),
             $this->caller->mock(),
             $fn
         );
 
         $this->caller->throw->calledWith($exception);
+
+        $this->strand->noInteraction();
     }
 
     public function testDispatchWithNull()
     {
         $this->subject->mock()->__dispatch(
             DispatchSource::KERNEL, // irrelevant to this implementation
+            $this->strand->mock(),
             $this->caller->mock(),
             null
         );
 
-        $this->subject->cooperate->calledWith($this->caller->mock());
+        $this->subject->cooperate->calledWith(
+            $this->strand->mock(),
+            $this->caller->mock()
+        );
 
+        $this->strand->noInteraction();
         $this->caller->noInteraction();
     }
 
@@ -231,12 +251,18 @@ class ApiTraitTest extends PHPUnit_Framework_TestCase
     {
         $this->subject->mock()->__dispatch(
             DispatchSource::KERNEL, // irrelevant to this implementation
+            $this->strand->mock(),
             $this->caller->mock(),
             10
         );
 
-        $this->subject->sleep->calledWith($this->caller->mock(), 10.0);
+        $this->subject->sleep->calledWith(
+            $this->strand->mock(),
+            $this->caller->mock(),
+            10.0
+        );
 
+        $this->strand->noInteraction();
         $this->caller->noInteraction();
     }
 
@@ -244,12 +270,18 @@ class ApiTraitTest extends PHPUnit_Framework_TestCase
     {
         $this->subject->mock()->__dispatch(
             DispatchSource::KERNEL, // irrelevant to this implementation
+            $this->strand->mock(),
             $this->caller->mock(),
             10.5
         );
 
-        $this->subject->sleep->calledWith($this->caller->mock(), 10.5);
+        $this->subject->sleep->calledWith(
+            $this->strand->mock(),
+            $this->caller->mock(),
+            10.5
+        );
 
+        $this->strand->noInteraction();
         $this->caller->noInteraction();
     }
 
@@ -257,12 +289,19 @@ class ApiTraitTest extends PHPUnit_Framework_TestCase
     {
         $this->subject->mock()->__dispatch(
             DispatchSource::KERNEL, // irrelevant to this implementation
+            $this->strand->mock(),
             $this->caller->mock(),
             ['<a>', '<b>']
         );
 
-        $this->subject->all->calledWith($this->caller->mock(), '<a>', '<b>');
+        $this->subject->all->calledWith(
+            $this->strand->mock(),
+            $this->caller->mock(),
+            '<a>',
+            '<b>'
+        );
 
+        $this->strand->noInteraction();
         $this->caller->noInteraction();
     }
 
@@ -275,6 +314,7 @@ class ApiTraitTest extends PHPUnit_Framework_TestCase
 
         $this->subject->mock()->__dispatch(
             DispatchSource::KERNEL, // irrelevant to this implementation
+            $this->strand->mock(),
             $this->caller->mock(),
             $promise->mock()
         );
@@ -301,6 +341,8 @@ class ApiTraitTest extends PHPUnit_Framework_TestCase
         // Verify promise reject is sent to caller for non-exceptions...
         $reject('<reason>');
         $this->caller->throw->calledWith(new RejectedException('<reason>'));
+
+        $this->strand->noInteraction();
     }
 
     public function testDispatchWithCancellablePromise()
@@ -320,6 +362,7 @@ class ApiTraitTest extends PHPUnit_Framework_TestCase
     {
         $this->subject->mock()->__dispatch(
             DispatchSource::KERNEL,
+            $this->strand->mock(),
             $this->caller->mock(),
             '<string>'
         );
@@ -329,12 +372,15 @@ class ApiTraitTest extends PHPUnit_Framework_TestCase
                 'The value ("<string>") does not describe any known operation.'
             )
         );
+
+        $this->strand->noInteraction();
     }
 
     public function testDispatchWithInvalidTaskFromCoroutine()
     {
         $this->subject->mock()->__dispatch(
             DispatchSource::COROUTINE,
+            $this->strand->mock(),
             $this->caller->mock(),
             '<string>',
             '<key>'
@@ -345,33 +391,24 @@ class ApiTraitTest extends PHPUnit_Framework_TestCase
                 'The yielded pair ("<key>", "<string>") does not describe any known operation.'
             )
         );
+
+        $this->strand->noInteraction();
     }
 
     public function testUnknownOperation()
     {
-        $this->subject->mock()->unknown($this->caller->mock());
+        $this->subject->mock()->unknown(
+            $this->strand->mock(),
+            $this->caller->mock()
+        );
 
         $this->caller->throw->calledWith(
             new BadMethodCallException(
                 'The API does not implement an operation named "unknown".'
             )
         );
-    }
 
-    public function testCallback()
-    {
-        $awaitable = Phony::mock(Awaitable::class);
-
-        $this->subject->mock()->callback(
-            $this->caller->mock(),
-            $awaitable->mock()
-        );
-
-        $fn = $this->caller->resume->calledWith('~')->argument();
-
-        $this->assertTrue(is_callable($fn));
-
-        $awaitable->noInteraction();
+        $this->strand->noInteraction();
     }
 
     public function testTerminate()

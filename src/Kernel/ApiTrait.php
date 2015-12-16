@@ -21,12 +21,14 @@ trait ApiTrait
      * caller once it is complete.
      *
      * @param int         $source One of the DispatchSource constants.
+     * @param Strand      $strand The strand the caller is executing on.
      * @param Suspendable $caller The object waiting for the task to complete.
      * @param mixed       $task   The task to execute.
      * @param mixed       $key    The key yielded from the generator (for DispatchSource::COROUTINE).
      */
     public function __dispatch(
         int $source,
+        Strand $strand,
         Suspendable $caller,
         $task,
         $key = null
@@ -38,11 +40,11 @@ trait ApiTrait
         $depth++;
 
         if ($task instanceof AwaitableProvider) {
-            $task->awaitable()->await($caller, $this);
+            $task->awaitable()->await($strand, $caller, $this);
         } elseif ($task instanceof Awaitable) {
-            $task->await($caller, $this);
+            $task->await($strand, $caller, $this);
         } elseif ($task instanceof Generator) {
-            (new Coroutine($task))->await($caller, $this);
+            (new Coroutine($task))->await($strand, $caller, $this);
         } elseif ($depth > 1) {
             $caller->resume($task);
         } elseif (\is_callable($task)) {
@@ -53,11 +55,11 @@ trait ApiTrait
                 $caller->throw($e);
             }
         } elseif (null === $task) {
-            $this->cooperate($caller);
+            $this->cooperate($strand, $caller);
         } elseif (\is_integer($task) || \is_float($task)) {
-            $this->sleep($caller, $task);
+            $this->sleep($strand, $caller, $task);
         } elseif (\is_array($task)) {
-            $this->all($caller, ...$task);
+            $this->all($strand, $caller, ...$task);
         } elseif (\method_exists($task, 'then')) {
             $task->then(
                 [$caller, 'resume'],
@@ -101,35 +103,14 @@ trait ApiTrait
     }
 
     /**
-     * Create a callback function that starts a new strand of execution.
-     *
-     * This method can be used to integrate the kernel with callback-based
-     * asynchronous code.
-     *
-     * The caller is resumed with the callback.
-     *
-     * @param Suspendable $caller The object waiting for the task to complete.
-     * @param mixed       $task   The task to execute.
-     */
-    public function callback(Suspendable $caller, $task)
-    {
-        $caller->resume(
-            function () use ($caller, $task) {
-                return $this->__dispatch(
-                    DispatchSource::API,
-                    $caller,
-                    $task
-                );
-            }
-        );
-    }
-
-    /**
      * Terminate the strand that the caller is running on.
+     *
+     * @param Strand      $strand The strand the caller is executing on.
+     * @param Suspendable $caller The object waiting for the task to complete.
      */
-    public function terminate(Suspendable $caller)
+    public function terminate(Strand $strand, Suspendable $caller)
     {
-        $caller->throw(new \LogicException('Not implemented'));
+        $strand->terminate();
     }
 
     /**
@@ -143,12 +124,13 @@ trait ApiTrait
      * The array order matches the order of completion. The array keys indicate
      * the order in which the task was passed to this operation.
      *
+     * @param Strand      $strand    The strand the caller is executing on.
      * @param Suspendable $caller    The object waiting for the task to complete.
      * @param mixed       $tasks,... The tasks to execute.
      */
-    public function all(Suspendable $caller, ...$tasks)
+    public function all(Strand $strand, Suspendable $caller, ...$tasks)
     {
-        // (new Wait(count($tasks), $tasks))->await($caller, $this);
+        // (new Wait(count($tasks), $tasks))->await($strand, $caller, $this);
     }
 
     /**
@@ -160,13 +142,13 @@ trait ApiTrait
      * strands produce exceptions the caller is resumed with a
      * {@see CompositeException}.
      *
-     *
+     * @param Strand      $strand    The strand the caller is executing on.
      * @param Suspendable $caller    The object waiting for the task to complete.
      * @param mixed       $tasks,... The tasks to execute.
      */
-    public function any(Suspendable $caller, ...$tasks)
+    public function any(Strand $strand, Suspendable $caller, ...$tasks)
     {
-        // (new Wait(1, $tasks))->await($caller, $this);
+        // (new Wait(1, $tasks))->await($strand, $caller, $this);
     }
 
     /**
@@ -184,13 +166,14 @@ trait ApiTrait
      * possible for ($count) strands to complete, all pending strands are
      * terminated and the caller is resumed with a {@see CompositeException}.
      *
+     * @param Strand      $strand    The strand the caller is executing on.
      * @param Suspendable $caller    The object waiting for the task to complete.
      * @param int         $count     The number of strands to wait for.
      * @param mixed       $tasks,... The tasks to execute.
      */
-    public function some(Suspendable $caller, int $count, ...$tasks)
+    public function some(Strand $strand, Suspendable $caller, int $count, ...$tasks)
     {
-        // (new Wait($count, $tasks))->await($caller, $this);
+        // (new Wait($count, $tasks))->await($strand, $caller, $this);
     }
 
     /**
@@ -200,15 +183,16 @@ trait ApiTrait
      * The caller is resumed with the result of the first strand to finish,
      * regardless of whether it finishes successfully or produces an exception.
      *
+     * @param Strand      $strand    The strand the caller is executing on.
      * @param Suspendable $caller    The object waiting for the task to complete.
      * @param mixed       $tasks,... The tasks to execute.
      */
-    public function race(Suspendable $caller, ...$tasks)
+    public function race(Strand $strand, Suspendable $caller, ...$tasks)
     {
-        // (new Race($tasks))->await($caller, $this);
+        // (new Race($tasks))->await($strand, $caller, $this);
     }
 
-    private function unknownOperation(string $name, Suspendable $caller)
+    private function unknownOperation(string $name, Strand $strand, Suspendable $caller)
     {
         $caller->throw(new BadMethodCallException(
             'The API does not implement an operation named "' . $name . '".'

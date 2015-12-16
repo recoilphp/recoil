@@ -52,7 +52,6 @@ namespace Recoil\Kernel;
 //         }
 //     }
 
-
 //     /**
 //      * @var array
 //      */
@@ -63,3 +62,4 @@ namespace Recoil\Kernel;
 //      */
 //     private $results = [];
 // }
+

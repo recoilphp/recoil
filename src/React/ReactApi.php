@@ -8,6 +8,7 @@ use React\EventLoop\LoopInterface;
 use Recoil\Kernel\Api;
 use Recoil\Kernel\ApiTrait;
 use Recoil\Kernel\DispatchSource;
+use Recoil\Kernel\Strand;
 use Recoil\Kernel\Suspendable;
 
 /**
@@ -29,32 +30,63 @@ final class ReactApi implements Api
      * This method executes a task in the "background". The caller is resumed
      * with the {@see Strand} before the strand is started.
      *
+     * @param Strand      $strand The strand the caller is executing on.
      * @param Suspendable $caller The object waiting for the task to complete.
      * @param mixed       $task   The task to execute.
      */
-    public function execute(Suspendable $caller, $task)
+    public function execute(Strand $strand, Suspendable $caller, $task)
     {
-        $strand = new ReactStrand();
+        $substrand = new ReactStrand();
 
         $this->eventLoop->futureTick(
-            function () use ($strand, $task) {
+            function () use ($substrand, $task) {
                 $this->__dispatch(
                     DispatchSource::API,
-                    $strand,
+                    $substrand,
+                    $substrand,
                     $task
                 );
             }
         );
 
-        $caller->resume($strand);
+        $caller->resume($substrand);
+    }
+
+    /**
+     * Create a callback function that starts a new strand of execution.
+     *
+     * This method can be used to integrate the kernel with callback-based
+     * asynchronous code.
+     *
+     * The caller is resumed with the callback.
+     *
+     * @param Strand      $strand The strand the caller is executing on.
+     * @param Suspendable $caller The object waiting for the task to complete.
+     * @param mixed       $task   The task to execute.
+     */
+    public function callback(Strand $strand, Suspendable $caller, $task)
+    {
+        $caller->resume(
+            function () use ($task) {
+                $substrand = new ReactStrand();
+
+                return $this->__dispatch(
+                    DispatchSource::API,
+                    $substrand,
+                    $substrand,
+                    $task
+                );
+            }
+        );
     }
 
     /**
      * Allow other strands to execute then resume The object waiting for the task to complete.
      *
+     * @param Strand      $strand The strand the caller is executing on.
      * @param Suspendable $caller The object waiting for the task to complete.
      */
-    public function cooperate(Suspendable $caller)
+    public function cooperate(Strand $strand, Suspendable $caller)
     {
         $this->eventLoop->futureTick(
             function () use ($caller) {
@@ -66,10 +98,11 @@ final class ReactApi implements Api
     /**
      * Resume execution of the caller after a specified interval.
      *
+     * @param Strand      $strand  The strand the caller is executing on.
      * @param Suspendable $caller  The object waiting for the task to complete.
      * @param float       $seconds The interval to wait.
      */
-    public function sleep(Suspendable $caller, float $seconds)
+    public function sleep(Strand $strand, Suspendable $caller, float $seconds)
     {
         if ($seconds <= 0) {
             $this->eventLoop->futureTick(
@@ -94,11 +127,12 @@ final class ReactApi implements Api
      * If the task does not complete within the specified time it is cancelled,
      * otherwise the caller is resumed with the value or exception produced.
      *
+     * @param Strand      $strand  The strand the caller is executing on.
      * @param Suspendable $caller  The object waiting for the task to complete.
      * @param float       $seconds The interval to allow for execution.
      * @param mixed       $task    The task to execute.
      */
-    public function timeout(Suspendable $caller, float $seconds, $task)
+    public function timeout(Strand $strand, Suspendable $caller, float $seconds, $task)
     {
         $current->throw(new \LogicException('Not implemented.'));
     }
@@ -108,9 +142,10 @@ final class ReactApi implements Api
      *
      * The caller is resumed with the event loop used by this API.
      *
+     * @param Strand      $strand The strand the caller is executing on.
      * @param Suspendable $caller The object waiting for the task to complete.
      */
-    public function eventLoop(Suspendable $caller)
+    public function eventLoop(Strand $strand, Suspendable $caller)
     {
         $caller->resume($this->eventLoop);
     }

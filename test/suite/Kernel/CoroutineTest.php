@@ -12,6 +12,7 @@ class CoroutineTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
+        $this->strand = Phony::mock(Strand::class);
         $this->caller = Phony::mock(Suspendable::class);
         $this->api = Phony::mock(Api::class);
 
@@ -22,6 +23,11 @@ class CoroutineTest extends PHPUnit_Framework_TestCase
                 return '<result>';
             }
         );
+    }
+
+    public function tearDown()
+    {
+        $this->strand->noInteraction();
     }
 
     public function useGenerator(callable $fn)
@@ -35,12 +41,14 @@ class CoroutineTest extends PHPUnit_Framework_TestCase
     public function testAwait()
     {
         $this->subject->await(
+            $this->strand->mock(),
             $this->caller->mock(),
             $this->api->mock()
         );
 
         $this->api->__dispatch->calledWith(
             DispatchSource::COROUTINE,
+            $this->strand->mock(),
             $this->subject,
             '<value>',
             '<key>'
@@ -53,6 +61,7 @@ class CoroutineTest extends PHPUnit_Framework_TestCase
     public function testResume()
     {
         $this->subject->await(
+            $this->strand->mock(),
             $this->caller->mock(),
             $this->api->mock()
         );
@@ -69,12 +78,13 @@ class CoroutineTest extends PHPUnit_Framework_TestCase
     public function testResumeDuringTick()
     {
         $this->api->__dispatch->does(
-            function ($source, $coroutine) {
+            function ($source, $strand, $coroutine) {
                 $coroutine->resume('<result>');
             }
         );
 
         $this->subject->await(
+            $this->strand->mock(),
             $this->caller->mock(),
             $this->api->mock()
         );
@@ -89,6 +99,7 @@ class CoroutineTest extends PHPUnit_Framework_TestCase
         $exception = new Exception('<exception>');
 
         $this->subject->await(
+            $this->strand->mock(),
             $this->caller->mock(),
             $this->api->mock()
         );
@@ -107,12 +118,13 @@ class CoroutineTest extends PHPUnit_Framework_TestCase
         $exception = new Exception('<exception>');
 
         $this->api->__dispatch->does(
-            function ($source, $coroutine) use ($exception) {
+            function ($source, $strand, $coroutine) use ($exception) {
                 $coroutine->throw($exception);
             }
         );
 
         $this->subject->await(
+            $this->strand->mock(),
             $this->caller->mock(),
             $this->api->mock()
         );

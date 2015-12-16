@@ -20,14 +20,16 @@ final class Coroutine implements Awaitable, Suspendable
     /**
      * Perform the work and resume the caller upon completion.
      *
+     * @param Strand      $strand The executing strand.
      * @param Suspendable $caller The waiting object.
      * @param Api         $api    The kernel API.
      */
-    public function await(Suspendable $caller, Api $api)
+    public function await(Strand $strand, Suspendable $caller, Api $api)
     {
-        assert(!$this->caller,   'coroutine already started');
+        assert(!$this->strand,   'coroutine already started');
         assert($this->generator, 'coroutine already finished');
 
+        $this->strand = $strand;
         $this->caller = $caller;
         $this->api = $api;
         $this->tick();
@@ -40,7 +42,7 @@ final class Coroutine implements Awaitable, Suspendable
      */
     public function resume($result = null)
     {
-        assert($this->caller,  'coroutine not started');
+        assert($this->strand,  'coroutine not started');
         assert(!$this->action, 'coroutine not suspended');
 
         $this->action = 'send';
@@ -58,7 +60,7 @@ final class Coroutine implements Awaitable, Suspendable
      */
     public function throw(Exception $exception)
     {
-        assert($this->caller,  'coroutine not started');
+        assert($this->strand,  'coroutine not started');
         assert(!$this->action, 'coroutine not suspended');
 
         $this->action = 'throw';
@@ -90,6 +92,7 @@ final class Coroutine implements Awaitable, Suspendable
             if ($this->generator->valid()) {
                 $this->api->__dispatch(
                     DispatchSource::COROUTINE,
+                    $this->strand,
                     $this,
                     $this->generator->current(),
                     $this->generator->key()
@@ -103,7 +106,7 @@ final class Coroutine implements Awaitable, Suspendable
             }
         } catch (Exception $e) {
             $this->caller->throw($e);
-            $this->generator = $this->caller = $this->api = null;
+            $this->generator = $this->strand = $this->caller = $this->api = null;
 
             return;
         } finally {
@@ -111,13 +114,18 @@ final class Coroutine implements Awaitable, Suspendable
         }
 
         $this->caller->resume($this->generator->getReturn());
-        $this->generator = $this->caller = $this->api = null;
+        $this->generator = $this->strand = $this->caller = $this->api = null;
     }
 
     /**
      * @var Generator|null The coroutine implementation.
      */
     private $generator;
+
+    /**
+     * @var Strand|null The strand the coroutine is executing on.
+     */
+    private $strand;
 
     /**
      * @var Suspendable|null The object waiting for this coroutine to complete.

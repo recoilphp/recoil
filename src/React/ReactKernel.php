@@ -83,6 +83,7 @@ final class ReactKernel implements Kernel
                 $this->api->__dispatch(
                     DispatchSource::KERNEL,
                     $strand,
+                    $strand,
                     $task
                 );
             }
