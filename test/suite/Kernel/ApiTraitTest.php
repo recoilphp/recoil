@@ -395,7 +395,7 @@ class ApiTraitTest extends PHPUnit_Framework_TestCase
         $this->strand->noInteraction();
     }
 
-    public function testUnknownOperation()
+    public function testCallMagicMethod()
     {
         $this->subject->mock()->unknown(
             $this->strand->mock(),
@@ -413,7 +413,13 @@ class ApiTraitTest extends PHPUnit_Framework_TestCase
 
     public function testTerminate()
     {
-        $this->markTestIncomplete();
+        $this->subject->mock()->terminate(
+            $this->strand->mock(),
+            $this->caller->mock()
+        );
+
+        $this->strand->terminate->called();
+        $this->caller->noInteraction();
     }
 
     public function testAll()
