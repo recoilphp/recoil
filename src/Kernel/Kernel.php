@@ -4,20 +4,22 @@ declare (strict_types = 1);
 
 namespace Recoil\Kernel;
 
+use Generator;
+
 interface Kernel
 {
     /**
      * Start a new strand of execution.
      *
-     * The task can be any value that is accepted by the API's __dispatch()
-     * method.
+     * The coroutine can be a generator object, or a generator function.
      *
-     * The kernel implementation must delay execution of the strand until the
-     * next tick, allowing the caller to use Strand::capture() if necessary.
+     * The implementation must delay execution of the strand until the next
+     * 'tick' of the kernel to allow the user to inspect the strand object
+     * before execution begins.
      *
-     * @param mixed $task The task to execute.
+     * @param Generator|callable $coroutine The coroutine to execute.
      *
      * @return Strand
      */
-    public function execute($task) : Strand;
+    public function execute($coroutine) : Strand;
 }

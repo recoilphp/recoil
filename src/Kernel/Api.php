@@ -4,49 +4,46 @@ declare (strict_types = 1);
 
 namespace Recoil\Kernel;
 
-/**
- * The kernel API provides the operations available via the {@see Recoil\Recoil}
- * facade and by yielded from generator-based coroutines.
- */
+use Generator;
+use Recoil\Exception\CompositeException;
+use Recoil\Exception\TimeoutException;
+
 interface Api
 {
     /**
-     * Adapt an arbitrary "task" value into work to perform and resume the
-     * caller once it is complete.
+     * Dispatch an API call based on the key/value yielded from a coroutine.
      *
-     * @param int         $source One of the DispatchSource constants.
-     * @param Strand      $strand The strand the caller is executing on.
-     * @param Suspendable $caller The object waiting for the task to complete.
-     * @param mixed       $task   The task to execute.
-     * @param mixed       $key    The key yielded from the generator (for DispatchSource::COROUTINE).
+     * @param Strand $strand The strand executing the API call.
+     * @param mixed  $key    The yielded key.
+     * @param mixed  $value  The yielded value.
+     *
+     * @return callable|null A callable that cancels the operation.
      */
-    public function __dispatch(
-        int $source,
-        Strand $strand,
-        Suspendable $caller,
-        $task,
-        $key = null
-    );
+    public function __dispatch(Strand $strand, $key, $value);
 
     /**
      * Invoke a non-standard API operation.
+     *
+     * @return callable|null A callable that cancels the operation.
      */
     public function __call(string $name, array $arguments);
 
     /**
      * Start a new strand of execution.
      *
-     * This method executes a task in the "background". The caller is resumed
-     * with the {@see Strand}.
+     * This method executes a coroutine in a new strand. The calling strand is
+     * resumed with the new {@see Strand} object.
      *
-     * The API implementation must delay execution of the strand until the
-     * next tick, allowing the caller to use Strand::capture() if necessary.
+     * The coroutine can be a generator object, or a generator function.
      *
-     * @param Strand      $strand The strand the caller is executing on.
-     * @param Suspendable $caller The object waiting for the task to complete.
-     * @param mixed       $task   The task to execute.
+     * The implementation must delay execution of the strand until the next
+     * 'tick' of the kernel to allow the user to inspect the strand object
+     * before execution begins.
+     *
+     * @param Strand $strand The strand executing the API call.
+     * @param Generator|callable $coroutine The coroutine to execute.
      */
-    public function execute(Strand $strand, Suspendable $caller, $task);
+    public function execute(Strand $strand, $coroutine);
 
     /**
      * Create a callback function that starts a new strand of execution.
@@ -54,117 +51,138 @@ interface Api
      * This method can be used to integrate the kernel with callback-based
      * asynchronous code.
      *
+     * The coroutine can be a generator object, or a generator function.
+     *
      * The caller is resumed with the callback.
      *
-     * @param Strand      $strand The strand the caller is executing on.
-     * @param Suspendable $caller The object waiting for the task to complete.
-     * @param mixed       $task   The task to execute.
+     * @param Strand $strand The strand executing the API call.
+     * @param Generator|callable $coroutine The coroutine to execute.
      */
-    public function callback(Strand $strand, Suspendable $caller, $task);
+    public function callback(Strand $strand, $coroutine);
 
     /**
-     * Allow other strands to execute then resume The object waiting for the task to complete.
+     * Allow other strands to execute then resume the strand.
      *
-     * @param Strand      $strand The strand the caller is executing on.
-     * @param Suspendable $caller The object waiting for the task to complete.
+     * @param Strand $strand The strand executing the API call.
+     *
+     * @return callable|null A callable that cancels the operation.
      */
-    public function cooperate(Strand $strand, Suspendable $caller);
+    public function cooperate(Strand $strand);
 
     /**
-     * Resume execution of the caller after a specified interval.
+     * Resume execution of the strand after a specified interval.
      *
-     * @param Strand      $strand  The strand the caller is executing on.
-     * @param Suspendable $caller  The object waiting for the task to complete.
-     * @param float       $seconds The interval to wait.
+     * @param Strand $strand  The strand executing the API call.
+     * @param float  $seconds The interval to wait.
+     *
+     * @return callable|null A callable that cancels the operation.
      */
-    public function sleep(Strand $strand, Suspendable $caller, float $seconds);
+    public function sleep(Strand $strand, float $seconds);
 
     /**
-     * Execute a task with a maximum running time.
+     * Execute a task on its own strand that is terminated after a timeout.
      *
-     * If the task does not complete within the specified time it is cancelled,
-     * otherwise the caller is resumed with the value or exception produced.
+     * If the task does not complete within the specific time its strand is
+     * terminated and the calling strand is resumed with a
+     * {@see TimeoutException}. Otherwise, the calling strand is resumed with
+     * the value or exception produced by the task.
      *
-     * @param Strand      $strand  The strand the caller is executing on.
-     * @param Suspendable $caller  The object waiting for the task to complete.
-     * @param float       $seconds The interval to allow for execution.
-     * @param mixed       $task    The task to execute.
+     * The task can be a generator object, a generator function, or any value
+     * that can be used with __dispatch().
+     *
+     * @param Strand $strand  The strand executing the API call.
+     * @param float  $seconds The interval to allow for execution.
+     * @param mixed  $task    The task to execute.
+     *
+     * @return callable|null A callable that cancels the operation.
      */
-    public function timeout(Strand $strand, Suspendable $caller, float $seconds, $task);
+    public function timeout(Strand $strand, float $seconds, $task);
 
     /**
-     * Terminate the strand that the caller is running on.
+     * Terminate the current strand.
      *
-     * @param Strand      $strand The strand the caller is executing on.
-     * @param Suspendable $caller The object waiting for the task to complete.
+     * @param Strand $strand The strand executing the API call.
      */
-    public function terminate(Strand $strand, Suspendable $caller);
+    public function terminate(Strand $strand);
 
     /**
      * Execute multiple tasks on their own strands and wait for them all to
      * complete.
      *
      * If one of the strands produces an exception, all pending strands are
-     * terminated and the caller is resumed with that exception. Otherwise, the
-     * caller is resumed with an array containing the results of each task.
+     * terminated and the calling strand is resumed with that exception.
+     * Otherwise, the calling strand is resumed with an array containing the
+     * results of each task.
      *
      * The array order matches the order of completion. The array keys indicate
-     * the order in which the task was passed to this operation.
+     * the order in which the task was passed to this operation. This allows
+     * unpacking of the result with list() to get the results in pass-order.
      *
-     * @param Strand      $strand    The strand the caller is executing on.
-     * @param Suspendable $caller    The object waiting for the task to complete.
-     * @param mixed       $tasks,... The tasks to execute.
+     * Each task can be a generator object, a generator function, or any value
+     * that can be used with __dispatch().
+     *
+     * @param Strand $strand    The strand executing the API call.
+     * @param mixed  $tasks,... The tasks to execute.
+     *
+     * @return callable|null A callable that cancels the operation.
      */
-    public function all(Strand $strand, Suspendable $caller, ...$tasks);
+    public function all(Strand $strand, ...$tasks);
 
     /**
      * Execute multiple tasks on their own strands and wait for one of them to
      * complete.
      *
      * If one of the strands completes, all pending strands are terminated and
-     * the caller is resumed with the result of that strand. If all of the
-     * strands produce exceptions the caller is resumed with a
+     * the calling strand is resumed with the result of that strand. If all of
+     * the strands produce exceptions the calling strand is resumed with a
      * {@see CompositeException}.
      *
+     * Each task can be a generator object, a generator function, or any value
+     * that can be used with __dispatch().
      *
-     * @param Strand      $strand    The strand the caller is executing on.
-     * @param Suspendable $caller    The object waiting for the task to complete.
-     * @param mixed       $tasks,... The tasks to execute.
+     * @param Strand $strand    The strand executing the API call.
+     * @param mixed  $tasks,... The tasks to execute.
+     *
+     * @return callable|null A callable that cancels the operation.
      */
-    public function any(Strand $strand, Suspendable $caller, ...$tasks);
+    public function any(Strand $strand, ...$tasks);
 
     /**
      * Execute multiple tasks on their own strands and wait for a specific
      * number of them to complete.
      *
      * Once ($count) strands have completed, all pending strands are terminated
-     * and the caller is resumed with an array containing the results of the
-     * completed tasks.
+     * and the calling strand is resumed with an array containing the results of
+     * the completed tasks.
      *
      * The array order matches the order of completion. The array keys indicate
-     * the order in which the task was passed to this operation.
+     * the order in which the task was passed to this operation. This allows
+     * unpacking of the result with list() to get the results in pass-order.
      *
      * If enough strands produce an exception, such that it is no longer
      * possible for ($count) strands to complete, all pending strands are
-     * terminated and the caller is resumed with a {@see CompositeException}.
+     * terminated and the calling strand is resumed with a
+     * {@see CompositeException}.
      *
-     * @param Strand      $strand    The strand the caller is executing on.
-     * @param Suspendable $caller    The object waiting for the task to complete.
-     * @param int         $count     The number of strands to wait for.
-     * @param mixed       $tasks,... The tasks to execute.
+     * @param Strand $strand    The strand executing the API call.
+     * @param int    $count     The number of strands to wait for.
+     * @param mixed  $tasks,... The tasks to execute.
+     *
+     * @return callable|null A callable that cancels the operation.
      */
-    public function some(Strand $strand, Suspendable $caller, int $count, ...$tasks);
+    public function some(Strand $strand, int $count, ...$tasks);
 
     /**
      * Execute multiple tasks in on their own strands and wait for one of them
      * to complete or produce an exception.
      *
-     * The caller is resumed with the result of the first strand to finish,
+     * The calling strand resumed with the result of the first strand to finish,
      * regardless of whether it finishes successfully or produces an exception.
      *
-     * @param Strand      $strand    The strand the caller is executing on.
-     * @param Suspendable $caller    The object waiting for the task to complete.
-     * @param mixed       $tasks,... The tasks to execute.
+     * @param Strand $strand    The strand executing the API call.
+     * @param mixed  $tasks,... The tasks to execute.
+     *
+     * @return callable|null A callable that cancels the operation.
      */
-    public function race(Strand $strand, Suspendable $caller, ...$tasks);
+    public function race(Strand $strand, ...$tasks);
 }

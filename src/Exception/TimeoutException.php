@@ -7,7 +7,7 @@ namespace Recoil\Exception;
 use RuntimeException;
 
 /**
- * A task has timed out.
+ * An operation has timed out.
  */
 class TimeoutException extends RuntimeException
 {

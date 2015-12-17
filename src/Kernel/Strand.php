@@ -4,23 +4,39 @@ declare (strict_types = 1);
 
 namespace Recoil\Kernel;
 
-interface Strand extends Awaitable, Suspendable
+use Generator;
+use Throwable;
+
+interface Strand
 {
     /**
-     * Terminate this strand.
+     * Start the strand.
+     *
+     * @param Generator|callable $coroutine The strand's entry-point.
+     */
+    public function start($coroutine);
+
+    /**
+     * Terminate execution of the strand.
+     *
+     * If the strand is suspended waiting on an asynchronous operation, that
+     * operation is cancelled.
+     *
+     * The call stack is not unwound, it is simply discarded.
      */
     public function terminate();
 
     /**
-     * Capture the result of the strand, supressing the default error handling
-     * behaviour.
+     * Resume execution of a suspended strand.
      *
-     * The exact behavior of this method is defined by the particular kernel
-     * that the strand is executing on. For example, the implementation might
-     * return a promise that is settled with the result of the strand, or simply
-     * blackhole the result.
-     *
-     * @return mixed
+     * @param mixed $value The value to send to the coroutine on the the top of the call stack.
      */
-    public function capture();
+    public function resume($value = null);
+
+    /**
+     * Resume execution of a suspended strand with an error.
+     *
+     * @param Throwable $exception The exception to send to the coroutine on the top of the call stack.
+     */
+    public function throw(Throwable $exception);
 }

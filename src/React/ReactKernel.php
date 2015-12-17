@@ -11,6 +11,7 @@ use Recoil\Kernel\DispatchSource;
 use Recoil\Kernel\Kernel;
 use Recoil\Kernel\Strand;
 use RuntimeException;
+use Throwable;
 
 /**
  * A Recoil coroutine kernel based on a ReactPHP event loop.
@@ -18,34 +19,39 @@ use RuntimeException;
 final class ReactKernel implements Kernel
 {
     /**
-     * Execute a task on a new kernel.
+     * Execute a coroutine on a new kernel.
      *
      * This method blocks until the all work on the kernel is complete.
      *
-     * @param mixed              $task      The task to execute.
+     * The coroutine can be a generator object, or a generator function.
+     *
+     * @param Generator|callable $coroutine The coroutine to execute.
      * @param LoopInterface|null $eventLoop The event loop to use (null = default).
      *
-     * @return mixed The result of the task.
+     * @return mixed The result of the coroutine.
      */
-    public static function start($task, LoopInterface $eventLoop = null)
+    public static function start($coroutine, LoopInterface $eventLoop = null)
     {
         $kernel = new self($eventLoop);
-        $strand = $kernel->execute($task);
+        $strand = $kernel->execute($coroutine);
 
         $resolved = false;
         $result = null;
 
-        $strand->capture()->done(
-            function ($value) use (&$resolved, &$result) {
+        $strand->promise()->done(
+            static function ($value) use (&$resolved, &$result) {
                 $resolved = true;
                 $result = $value;
+            },
+            static function (Throwable $exception) {
+                throw $exception;
             }
         );
 
         $kernel->eventLoop->run();
 
         if (!$resolved) {
-            throw new RuntimeException('The task did not complete.');
+            throw new RuntimeException('The coroutine did not complete.');
         }
 
         return $result;
@@ -64,28 +70,23 @@ final class ReactKernel implements Kernel
     /**
      * Start a new strand of execution.
      *
-     * The task can be any value that is accepted by the API's __dispatch()
-     * method.
+     * The coroutine can be a generator object, or a generator function.
      *
-     * The kernel implementation must delay execution of the strand until the
-     * next tick, allowing the caller to use Strand::capture() if necessary.
+     * The implementation must delay execution of the strand until the next
+     * 'tick' of the kernel to allow the user to inspect the strand object
+     * before execution begins.
      *
-     * @param mixed $task The task to execute.
+     * @param Generator|callable $coroutine The coroutine to execute.
      *
      * @return Strand
      */
-    public function execute($task) : Strand
+    public function execute($coroutine) : Strand
     {
-        $strand = new ReactStrand();
+        $strand = new ReactStrand($this->api);
 
         $this->eventLoop->futureTick(
-            function () use ($strand, $task) {
-                $this->api->__dispatch(
-                    DispatchSource::KERNEL,
-                    $strand,
-                    $strand,
-                    $task
-                );
+            function () use ($strand, $coroutine) {
+                $strand->start($coroutine);
             }
         );
 

@@ -3,7 +3,8 @@
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
-use Recoil\React\Recoil;
+use Recoil\React\ReactKernel;
+use Recoil\Recoil;
 
 /**
  * Resolve a name to an IP address.
@@ -44,13 +45,17 @@ function main()
         yield Recoil::eventLoop()
     );
 
-    yield [
-        resolveDomainName('recoil.io', $resolver),
-        resolveDomainName('reactphp.org', $resolver),
-        resolveDomainName('probably-wont-resolve', $resolver),
-    ];
+    // yield [
+    //     resolveDomainName('recoil.io', $resolver),
+    //     resolveDomainName('reactphp.org', $resolver),
+    //     resolveDomainName('probably-wont-resolve', $resolver),
+    // ];
+
+    yield resolveDomainName('recoil.io', $resolver);
+    yield resolveDomainName('reactphp.org', $resolver);
+    yield resolveDomainName('probably-wont-resolve', $resolver);
 
     echo 'Done.' . PHP_EOL;
 }
 
-Recoil::run('main');
+ReactKernel::start('main');
