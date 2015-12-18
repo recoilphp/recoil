@@ -9,7 +9,7 @@ use Throwable;
 /**
  * Implementation of Api::all().
  */
-final class WaitAll implements Awaitable, StrandObserver
+final class StrandWaitAll implements Awaitable, StrandObserver
 {
     public function __construct(Strand ...$substrands)
     {

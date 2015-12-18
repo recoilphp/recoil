@@ -5,6 +5,7 @@ declare (strict_types = 1);
 namespace Recoil\Exception;
 
 use Exception;
+use Throwable;
 
 /**
  * Holds exceptions produced by API operations that run multiple strands in
@@ -13,7 +14,7 @@ use Exception;
 class CompositeException extends Exception
 {
     /**
-     * @param array<integer, Exception> The exceptions.
+     * @param array<integer, Throwable> The exceptions.
      */
     public function __construct(array $exceptions)
     {
@@ -30,7 +31,7 @@ class CompositeException extends Exception
      * allows unpacking of the result with list() to get the results in
      * pass-order.
      *
-     * @return array<integer, Exception> The exceptions.
+     * @return array<integer, Throwable> The exceptions.
      */
     public function exceptions() : array
     {
@@ -38,7 +39,7 @@ class CompositeException extends Exception
     }
 
     /**
-     * @var array<integer, Exception>
+     * @var array<integer, Throwable>
      */
     private $exceptions;
 }

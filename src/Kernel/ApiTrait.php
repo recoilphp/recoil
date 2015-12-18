@@ -4,8 +4,11 @@ declare (strict_types = 1);
 
 namespace Recoil\Kernel;
 
+use BadMethodCallException;
+use Icecave\Repr\Repr;
 use Recoil\Exception\RejectedException;
 use Throwable;
+use UnexpectedValueException;
 
 trait ApiTrait
 {
@@ -59,13 +62,13 @@ trait ApiTrait
      */
     public function __call(string $name, array $arguments)
     {
-        assert(($arguments[0] ?? null) instanceof Strand);
-
-        $arguments[0]->throw(
-            new BadMethodCallException(
-                'The API does not implement an operation named "' . $name . '".'
-            )
-        );
+        return (function (string $name, Strand $strand, ...$arguments) {
+            $strand->throw(
+                new BadMethodCallException(
+                    'The API does not implement an operation named "' . $name . '".'
+                )
+            );
+        })($name, ...$arguments);
     }
 
     /**
@@ -117,7 +120,7 @@ trait ApiTrait
             $substrands[] = $kernel->execute($coroutine);
         }
 
-        (new WaitAll(...$substrands))->await($strand, $this);
+        (new StrandWaitAll(...$substrands))->await($strand, $this);
     }
 
     /**
@@ -141,7 +144,7 @@ trait ApiTrait
             $substrands[] = $kernel->execute($coroutine);
         }
 
-        (new WaitAny(...$substrands))->await($strand, $this);
+        (new StrandWaitAny(...$substrands))->await($strand, $this);
     }
 
     /**
@@ -175,7 +178,7 @@ trait ApiTrait
             $substrands[] = $kernel->execute($coroutine);
         }
 
-        (new WaitSome($count, ...$substrands))->await($strand, $this);
+        (new StrandWaitSome($count, ...$substrands))->await($strand, $this);
     }
 
     /**
@@ -197,6 +200,6 @@ trait ApiTrait
             $substrands[] = $kernel->execute($coroutine);
         }
 
-        (new WaitRace(...$substrands))->await($strand, $this);
+        (new StrandRace(...$substrands))->await($strand, $this);
     }
 }

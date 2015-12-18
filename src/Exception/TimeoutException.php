@@ -14,10 +14,7 @@ class TimeoutException extends RuntimeException
     public function __construct(float $seconds)
     {
         parent::__construct(
-            \sprintf(
-                'The operation timed out after %.2f second(s).',
-                $seconds
-            )
+            'The operation timed out after ' . $seconds  . ' second(s).'
         );
     }
 }

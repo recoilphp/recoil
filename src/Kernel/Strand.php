@@ -6,8 +6,17 @@ namespace Recoil\Kernel;
 
 use Throwable;
 
-interface Strand
+interface Strand // @todo implements AwaitableProvider
 {
+    /**
+     * Get the strand's ID.
+     *
+     * No two active on the same kernel may share an ID.
+     *
+     * @return int The strand ID.
+     */
+    public function id() : int;
+
     /**
      * @return Kernel The kernel on which the strand is executing.
      */

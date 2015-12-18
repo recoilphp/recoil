@@ -4,7 +4,9 @@ declare (strict_types = 1);
 
 namespace Recoil\Kernel;
 
+use Closure;
 use Generator;
+use InvalidArgumentException;
 use Throwable;
 
 /**
@@ -13,14 +15,28 @@ use Throwable;
 trait StrandTrait
 {
     /**
+     * @param int    $id     The strand ID.
      * @param Kernel $kernel The kernel on which the strand is executing.
      * @param Api    $api    The kernel API used to handle yielded values.
      */
-    public function __construct(Kernel $kernel, Api $api)
+    public function __construct(int $id, Kernel $kernel, Api $api)
     {
+        $this->id = $id;
         $this->kernel = $kernel;
         $this->api = $api;
         $this->observers = [];
+    }
+
+    /**
+     * Get the strand's ID.
+     *
+     * No two active on the same kernel may share an ID.
+     *
+     * @return int The strand ID.
+     */
+    public function id() : int
+    {
+        return $this->id;
     }
 
     /**
@@ -38,6 +54,8 @@ trait StrandTrait
      */
     public function attachObserver(StrandObserver $observer)
     {
+        // @todo prevent attaching if already complete, replace $this->ticking
+        // with a state enum ...
         $this->observers[] = $observer;
     }
 
@@ -62,7 +80,7 @@ trait StrandTrait
      */
     public function start($coroutine)
     {
-        // Strand was terminated before it was even started.
+        // Strand was terminated before it was even started ...
         if ($this->terminated) {
             return;
         }
@@ -73,15 +91,23 @@ trait StrandTrait
             $this->current = $coroutine;
         } elseif ($coroutine instanceof CoroutineProvider) {
             $this->current = $coroutine->coroutine();
-        } elseif (\is_callable($coroutine)) {
+        } elseif (
+            $coroutine instanceof Closure || // perf
+            \is_callable($coroutine)
+        ) {
             $this->current = $coroutine();
+
+            if (!$this->current instanceof Generator) {
+                throw new InvalidArgumentException(
+                    'Callable must return a generator.'
+                );
+            }
         } else {
             $this->current = (static function () use ($coroutine) {
                 return yield $coroutine;
             })();
         }
 
-        assert($this->current instanceof Generator);
         $this->tick();
     }
 
@@ -95,12 +121,14 @@ trait StrandTrait
      */
     public function terminate()
     {
+        if ($this->terminated) {
+            return;
+        }
+
         $this->terminated = true;
 
         if ($this->terminator) {
-            $fn = $this->terminator;
-            $this->terminator = null;
-            $fn($this);
+            ($this->terminator)($this);
         }
 
         foreach ($this->observers as $observer) {
@@ -174,6 +202,7 @@ trait StrandTrait
     public function setTerminator(callable $fn = null)
     {
         assert(!$fn || !$this->terminator, 'terminator already exists');
+        assert(!$this->terminated, 'strand terminated');
 
         $this->terminator = $fn;
     }
@@ -181,6 +210,7 @@ trait StrandTrait
     private function tick()
     {
         assert(!$this->ticking, 'strand already ticking');
+        assert($this->current instanceof Generator, 'empty call stack / invalid generator');
 
         try {
             $this->ticking = true;
@@ -224,23 +254,23 @@ trait StrandTrait
                 }
 
                 $this->observers = [];
+
+                return;
             }
 
             if ($suspended) {
-                if ($produced instanceof Generator) {
-                    $this->stack[$this->depth++] = $this->current;
-                    $this->current = $produced;
-                    goto next;
-                } elseif ($produced instanceof CoroutineProvider) {
-                    $this->stack[$this->depth++] = $this->current;
-                    $this->current = $produced->generator();
-                    goto next;
-                }
-
                 // Catch exceptions produced by the kernel API or the yielded
                 // awaitable and return them to the current generator ...
                 try {
-                    if ($produced instanceof ApiCall) {
+                    if ($produced instanceof Generator) {
+                        $this->stack[$this->depth++] = $this->current;
+                        $this->current = $produced;
+                        goto next;
+                    } elseif ($produced instanceof CoroutineProvider) {
+                        $this->stack[$this->depth++] = $this->current;
+                        $this->current = $produced->generator();
+                        goto next;
+                    } elseif ($produced instanceof ApiCall) {
                         $this->api->{$produced->name}(
                             $this,
                             ...$produced->arguments
@@ -293,6 +323,11 @@ trait StrandTrait
     }
 
     /**
+     * @var int The strand Id.
+     */
+    private $id;
+
+    /**
      * @var Kernel The kernel.
      */
     private $kernel;
@@ -308,7 +343,7 @@ trait StrandTrait
     private $stack = [];
 
     /**
-     * @var integer The call stack depth (not including the top element).
+     * @var int The call stack depth (not including the top element).
      */
     private $depth = 0;
 
@@ -336,4 +371,14 @@ trait StrandTrait
      * @var array<StrandObserver> The objects observing this strand.
      */
     private $observers = [];
+
+    /**
+     * @var string|null The next action to perform on the current coroutine ('send' or 'throw').
+     */
+    private $action;
+
+    /**
+     * @var mixed The value or exception to send or throw on the next tick.
+     */
+    private $value;
 }
