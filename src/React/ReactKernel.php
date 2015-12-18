@@ -7,7 +7,6 @@ namespace Recoil\React;
 use React\EventLoop\Factory;
 use React\EventLoop\LoopInterface;
 use Recoil\Kernel\Api;
-use Recoil\Kernel\DispatchSource;
 use Recoil\Kernel\Kernel;
 use Recoil\Kernel\Strand;
 use RuntimeException;
@@ -23,9 +22,7 @@ final class ReactKernel implements Kernel
      *
      * This method blocks until the all work on the kernel is complete.
      *
-     * The coroutine can be a generator object, or a generator function.
-     *
-     * @param Generator|callable $coroutine The coroutine to execute.
+     * @param mixed              $coroutine The strand's entry-point.
      * @param LoopInterface|null $eventLoop The event loop to use (null = default).
      *
      * @return mixed The result of the coroutine.
@@ -70,19 +67,17 @@ final class ReactKernel implements Kernel
     /**
      * Start a new strand of execution.
      *
-     * The coroutine can be a generator object, or a generator function.
-     *
      * The implementation must delay execution of the strand until the next
      * 'tick' of the kernel to allow the user to inspect the strand object
      * before execution begins.
      *
-     * @param Generator|callable $coroutine The coroutine to execute.
+     * @param mixed $coroutine The strand's entry-point.
      *
      * @return Strand
      */
     public function execute($coroutine) : Strand
     {
-        $strand = new ReactStrand($this->api);
+        $strand = new ReactStrand($this, $this->api);
 
         $this->eventLoop->futureTick(
             function () use ($strand, $coroutine) {

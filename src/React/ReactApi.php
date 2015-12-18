@@ -7,9 +7,7 @@ namespace Recoil\React;
 use React\EventLoop\LoopInterface;
 use Recoil\Kernel\Api;
 use Recoil\Kernel\ApiTrait;
-use Recoil\Kernel\DispatchSource;
 use Recoil\Kernel\Strand;
-use Recoil\Kernel\Suspendable;
 
 /**
  * A kernel API based on the React event loop.
@@ -36,20 +34,14 @@ final class ReactApi implements Api
      * 'tick' of the kernel to allow the user to inspect the strand object
      * before execution begins.
      *
-     * @param Strand $strand The strand executing the API call.
-     * @param Generator|callable $coroutine The coroutine to execute.
+     * @param Strand $strand    The strand executing the API call.
+     * @param mixed  $coroutine The coroutine to execute.
      */
     public function execute(Strand $strand, $coroutine)
     {
-        $substrand = new ReactStrand($this);
-
-        $this->eventLoop->futureTick(
-            static function () use ($substrand, $coroutine) {
-                $substrand->start($coroutine);
-            }
+        $strand->resume(
+            $strand->kernel()->execute($coroutine)
         );
-
-        $strand->resume($substrand);
     }
 
     /**
@@ -62,16 +54,16 @@ final class ReactApi implements Api
      *
      * The caller is resumed with the callback.
      *
-     * @param Strand $strand The strand executing the API call.
-     * @param Generator|callable $coroutine The coroutine to execute.
+     * @param Strand $strand    The strand executing the API call.
+     * @param mixed  $coroutine The coroutine to execute.
      */
     public function callback(Strand $strand, $coroutine)
     {
-        $substrand = new ReactStrand($this);
+        $kernel = $strand->kernel();
 
         $strand->resume(
-            static function () use ($substrand, $coroutine) {
-                $substrand->start($coroutine);
+            static function () use ($kernel, $coroutine) {
+                $kernel->execute($coroutine);
             }
         );
     }
@@ -80,8 +72,6 @@ final class ReactApi implements Api
      * Allow other strands to execute then resume the strand.
      *
      * @param Strand $strand The strand executing the API call.
-     *
-     * @return callable|null A callable that cancels the operation.
      */
     public function cooperate(Strand $strand)
     {
@@ -97,8 +87,6 @@ final class ReactApi implements Api
      *
      * @param Strand $strand  The strand executing the API call.
      * @param float  $seconds The interval to wait.
-     *
-     * @return callable|null A callable that cancels the operation.
      */
     public function sleep(Strand $strand, float $seconds)
     {
@@ -110,9 +98,7 @@ final class ReactApi implements Api
                 }
             );
 
-            return static function () use ($strand) {
-                $strand->cancel();
-            };
+            $strand->setTerminator([$timer, 'cancel']);
         }
 
         $this->eventLoop->futureTick(
@@ -123,25 +109,31 @@ final class ReactApi implements Api
     }
 
     /**
-     * Execute a task on its own strand that is terminated after a timeout.
+     * Execute a coroutine on its own strand that is terminated after a timeout.
      *
-     * If the task does not complete within the specific time its strand is
-     * terminated and the calling strand is resumed with a
-     * {@see TimeoutException}. Otherwise, the calling strand is resumed with
-     * the value or exception produced by the task.
+     * If the coroutine does not complete within the specific time its strand is
+     * terminated and the calling strand is resumed with a {@see TimeoutException}.
+     * Otherwise, the calling strand is resumed with the value or exception
+     * produced by the coroutine.
      *
-     * The task can be a generator object, a generator function, or any value
-     * that can be used with __dispatch().
-     *
-     * @param Strand $strand  The strand executing the API call.
-     * @param float  $seconds The interval to allow for execution.
-     * @param mixed  $task    The task to execute.
-     *
-     * @return callable|null A callable that cancels the operation.
+     * @param Strand $strand    The strand executing the API call.
+     * @param float  $seconds   The interval to allow for execution.
+     * @param mixed  $coroutine The coroutine to execute.
      */
-    public function timeout(Strand $strand, float $seconds, $task)
+    public function timeout(Strand $strand, float $seconds, $coroutine)
     {
-        $current->throw(new \LogicException('Not implemented.'));
+        $substrand = $strand->kernel()->execute($coroutine);
+
+        $timer = $this->eventLoop->addTimer(
+            $seconds,
+            static function () use ($substrand) {
+                $substrand->terminate();
+            }
+        );
+
+        // @todo replace with strand linking?
+        $strand->setTerminator([$substrand, 'terminate']);
+        $substrand->await($strand, $this);
     }
 
     /**
@@ -149,7 +141,7 @@ final class ReactApi implements Api
      *
      * The caller is resumed with the event loop used by this API.
      *
-     * @param Strand $strand  The strand executing the API call.
+     * @param Strand $strand The strand executing the API call.
      */
     public function eventLoop(Strand $strand)
     {

@@ -26,7 +26,9 @@ class CompositeException extends Exception
      * Get the exceptions.
      *
      * The array order matches the order of strand completion. The array keys
-     * indicate the order in which the strands were started.
+     * indicate the order in which the strand was passed to the operation. This
+     * allows unpacking of the result with list() to get the results in
+     * pass-order.
      *
      * @return array<integer, Exception> The exceptions.
      */

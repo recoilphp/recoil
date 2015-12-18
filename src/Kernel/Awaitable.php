@@ -10,12 +10,10 @@ namespace Recoil\Kernel;
 interface Awaitable
 {
     /**
-     * Perform the work and resume strand upon completion.
+     * Perform the work.
      *
-     * @param Strand      $strand The executing strand.
-     * @param Api         $api    The kernel API.
-     *
-     * @return callable|null A callable that cancels the operation.
+     * @param Strand $strand The strand to resume on completion.
+     * @param Api    $api    The kernel API.
      */
     public function await(Strand $strand, Api $api);
 }

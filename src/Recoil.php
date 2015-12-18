@@ -4,10 +4,8 @@ declare (strict_types = 1);
 
 namespace Recoil;
 
-use Exception;
 use Recoil\Kernel\Api;
 use Recoil\Kernel\ApiCall;
-use Recoil\Kernel\Awaitable;
 
 /**
  * Public facade for kernel API calls.

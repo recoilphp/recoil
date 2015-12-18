@@ -4,31 +4,84 @@ declare (strict_types = 1);
 
 namespace Recoil\Kernel;
 
-use Throwable;
 use Generator;
+use Throwable;
 
+/**
+ * The standard strand implementation.
+ */
 trait StrandTrait
 {
-    public function __construct(Api $api)
+    /**
+     * @param Kernel $kernel The kernel on which the strand is executing.
+     * @param Api    $api    The kernel API used to handle yielded values.
+     */
+    public function __construct(Kernel $kernel, Api $api)
     {
+        $this->kernel = $kernel;
         $this->api = $api;
+        $this->observers = [];
+    }
+
+    /**
+     * @return Kernel The kernel on which the strand is executing.
+     */
+    public function kernel()
+    {
+        return $this->kernel;
+    }
+
+    /**
+     * Add a strand observer.
+     *
+     * @param StrandObserver $observer
+     */
+    public function attachObserver(StrandObserver $observer)
+    {
+        $this->observers[] = $observer;
+    }
+
+    /**
+     * Remove a strand observer.
+     *
+     * @param StrandObserver $observer
+     */
+    public function detachObserver(StrandObserver $observer)
+    {
+        $index = \array_search($observer, $this->observers, true);
+
+        if (false !== $index) {
+            unset($this->observers[$index]);
+        }
     }
 
     /**
      * Start the strand.
      *
-     * @param Generator|callable $coroutine The strand's entry-point.
+     * @param mixed $coroutine The strand's entry-point.
      */
     public function start($coroutine)
     {
-        if  (!$coroutine instanceof Generator) {
-            $coroutine = $coroutine();
+        // Strand was terminated before it was even started.
+        if ($this->terminated) {
+            return;
         }
 
-        assert(!$this->top, 'strand already started');
-        assert($coroutine instanceof Generator);
+        assert(!$this->current, 'strand already started');
 
-        $this->top = $coroutine;
+        if ($coroutine instanceof Generator) {
+            $this->current = $coroutine;
+        } elseif ($coroutine instanceof CoroutineProvider) {
+            $this->current = $coroutine->coroutine();
+        } elseif (\is_callable($coroutine)) {
+            $this->current = $coroutine();
+        } else {
+            $this->current = (static function () use ($coroutine) {
+                return yield $coroutine;
+            })();
+        }
+
+        assert($this->current instanceof Generator);
         $this->tick();
     }
 
@@ -42,18 +95,21 @@ trait StrandTrait
      */
     public function terminate()
     {
-        assert(!$this->top, 'strand already started');
-
         $this->terminated = true;
 
         if ($this->terminator) {
             $fn = $this->terminator;
+            $this->terminator = null;
             $fn($this);
         }
 
-        $this->top = null;
+        foreach ($this->observers as $observer) {
+            $observer->terminated($this);
+        }
+
         $this->stack = [];
-        $this->done(new TerminateException(), null);
+        $this->current = null;
+        $this->observers = [];
     }
 
     /**
@@ -70,7 +126,7 @@ trait StrandTrait
             return;
         }
 
-        assert($this->top, 'strand not started');
+        assert($this->current, 'strand not started');
 
         $this->terminator = null;
         $this->action = 'send';
@@ -95,7 +151,7 @@ trait StrandTrait
             return;
         }
 
-        assert($this->top, 'strand not started');
+        assert($this->current, 'strand not started');
 
         $this->terminator = null;
         $this->action = 'throw';
@@ -104,6 +160,22 @@ trait StrandTrait
         if (!$this->ticking) {
             $this->tick();
         }
+    }
+
+    /**
+     * Set the strand 'terminator'.
+     *
+     * The terminator is a function invoked when the strand is terminated. It is
+     * used by the kernel API to clean up and pending asynchronous operations.
+     *
+     * The terminator function is removed without being invoked when the strand
+     * is resumed.
+     */
+    public function setTerminator(callable $fn = null)
+    {
+        assert(!$fn || !$this->terminator, 'terminator already exists');
+
+        $this->terminator = $fn;
     }
 
     private function tick()
@@ -116,43 +188,52 @@ trait StrandTrait
             // Catch exceptions produced by the generator and propagate them up
             // the call stack ...
             try {
-                start:
                 if ($this->action) {
                     action:
-                    $this->top->{$this->action}($this->value);
+                    $this->current->{$this->action}($this->value);
                     $this->action = $this->value = null;
                 }
 
                 next:
-                $suspended = $this->top->valid();
+                $suspended = $this->current->valid();
 
                 if ($suspended) {
-                    $produced = $this->top->current();
+                    $produced = $this->current->current();
                 } else {
-                    $produced = $this->top->getReturn();
+                    $produced = $this->current->getReturn();
                 }
-
             } catch (Throwable $e) {
                 if ($this->depth) {
+                    $current = &$this->stack[--$this->depth];
+                    $this->current = $current;
+                    $current = null;
+
                     $this->action = 'throw';
                     $this->value = $e;
-                    $this->top = $this->stack[--$this->depth];
-                    unset($this->stack[$this->depth]);
                     goto action;
                 }
 
-                $this->top = null;
-                $this->done($e);
+                $this->current = null;
+
+                if (!$this->observers) {
+                    throw $e;
+                }
+
+                foreach ($this->observers as $observer) {
+                    $observer->failure($this, $e);
+                }
+
+                $this->observers = [];
             }
 
             if ($suspended) {
                 if ($produced instanceof Generator) {
-                    $this->stack[$this->depth++] = $this->top;
-                    $this->top = $produced;
+                    $this->stack[$this->depth++] = $this->current;
+                    $this->current = $produced;
                     goto next;
                 } elseif ($produced instanceof CoroutineProvider) {
-                    $this->stack[$this->depth++] = $this->top;
-                    $this->top = $produced->generator();
+                    $this->stack[$this->depth++] = $this->current;
+                    $this->current = $produced->generator();
                     goto next;
                 }
 
@@ -160,24 +241,24 @@ trait StrandTrait
                 // awaitable and return them to the current generator ...
                 try {
                     if ($produced instanceof ApiCall) {
-                        $terminator = $this->api->{$produced->name}(
+                        $this->api->{$produced->name}(
                             $this,
                             ...$produced->arguments
                         );
                     } elseif ($produced instanceof Awaitable) {
-                        $terminator = $produced->await(
+                        $produced->await(
                             $this,
                             $this->api
                         );
                     } elseif ($produced instanceof AwaitableProvider) {
-                        $terminator = $produced->awaitable()->await(
+                        $produced->awaitable()->await(
                             $this,
                             $this->api
                         );
                     } else {
-                        $terminator = $this->api->__dispatch(
+                        $this->api->__dispatch(
                             $this,
-                            $this->top->key(),
+                            $this->current->key(),
                             $produced
                         );
                     }
@@ -186,22 +267,25 @@ trait StrandTrait
                     if ($this->action) {
                         goto action;
                     }
-
-                    $this->terminator = $terminator;
                 } catch (Throwable $e) {
                     $this->action = 'throw';
                     $this->value = $e;
                     goto action;
                 }
             } elseif ($this->depth) {
+                $current = &$this->stack[--$this->depth];
+                $this->current = $current;
+                $current = null;
+
                 $this->action = 'send';
                 $this->value = $produced;
-                $this->top = $this->stack[--$this->depth];
-                unset($this->stack[$this->depth]);
                 goto action;
             } else {
-                $this->top = null;
-                $this->done(null, $produced);
+                $this->current = null;
+
+                foreach ($this->observers as $observer) {
+                    $observer->success($this, $produced);
+                }
             }
         } finally {
             $this->ticking = false;
@@ -209,15 +293,9 @@ trait StrandTrait
     }
 
     /**
-     * A hook that can be used by the implementation to perform actions upon
-     * completion of the strand.
+     * @var Kernel The kernel.
      */
-    private function done(Throwable $exception = null, $result = null)
-    {
-        if ($exception) {
-            throw $exception;
-        }
-    }
+    private $kernel;
 
     /**
      * @var Api The kernel API.
@@ -230,21 +308,24 @@ trait StrandTrait
     private $stack = [];
 
     /**
-     * @var integer The size of $this->stack
+     * @var integer The call stack depth (not including the top element).
      */
     private $depth = 0;
 
     /**
      * @var Generator|null The current top of the call stack.
      */
-    private $top;
+    private $current;
 
     /**
-     * @var callable|null A callable invoked when the strand is terminated. Used
-     *                    to cancel any pending operation that is not executing
-     *                    within Recoil.
+     * @var callable|null A callable invoked when the strand is terminated.
      */
     private $terminator;
+
+    /**
+     * @var boolean True if the strand has been terminated.
+     */
+    private $terminated = false;
 
     /**
      * @var boolean True if the strand is currently ticking.
@@ -252,7 +333,7 @@ trait StrandTrait
     private $ticking = false;
 
     /**
-     * @var boolean True if the strand has been terminated.
+     * @var array<StrandObserver> The objects observing this strand.
      */
-    private $terminated = false;
+    private $observers = [];
 }
