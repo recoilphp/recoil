@@ -268,7 +268,7 @@ trait StrandTrait
                         goto next;
                     } elseif ($produced instanceof CoroutineProvider) {
                         $this->stack[$this->depth++] = $this->current;
-                        $this->current = $produced->generator();
+                        $this->current = $produced->coroutine();
                         goto next;
                     } elseif ($produced instanceof ApiCall) {
                         $this->api->{$produced->name}(

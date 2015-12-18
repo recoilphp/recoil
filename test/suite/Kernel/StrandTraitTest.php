@@ -6,6 +6,7 @@ namespace Recoil\Kernel;
 
 use Eloquent\Phony\Phpunit\Phony;
 use Exception;
+use Generator;
 use InvalidArgumentException;
 use PHPUnit_Framework_TestCase;
 use Throwable;
@@ -333,23 +334,104 @@ class StrandTraitTest extends PHPUnit_Framework_TestCase
         );
     }
 
-    // public function testCallCoroutineProvider()
-    // {
+    public function testCallCoroutineProvider()
+    {
+        $fn = Phony::spy(function () {
+            return yield new class implements CoroutineProvider
+            {
+                public function coroutine() : Generator
+                {
+                    return '<result>';
+                    yield;
+                }
+            };
+        });
 
-    // }
+        $this->subject->mock()->start($fn);
 
-    // public function testCallApiCall()
-    // {
+        $fn->received('<result>');
 
-    // }
+        $this->observer1->success->calledWith(
+            $this->subject->mock(),
+            '<result>'
+        );
+    }
 
-    // public function testCallAwaitable()
-    // {
+    public function testCallApi()
+    {
+        $fn = Phony::spy(function () {
+            yield new ApiCall('<name>', [1, 2, 3]);
+        });
 
-    // }
+        $this->subject->mock()->start($fn);
 
-    // public function testCallAwaitableProvider()
-    // {
+        $this->api->{'<name>'}->calledWith(
+            $this->subject->mock(),
+            1,
+            2,
+            3
+        );
 
-    // }
+        $fn->never()->received();
+        $fn->never()->receivedException();
+    }
+
+    public function testCallAwaitable()
+    {
+        $awaitable = Phony::mock(Awaitable::class);
+
+        $fn = Phony::spy(function () use ($awaitable) {
+            yield $awaitable->mock();
+        });
+
+        $this->subject->mock()->start($fn);
+
+        $awaitable->await->calledWith(
+            $this->subject->mock(),
+            $this->api->mock()
+        );
+
+        $fn->never()->received();
+        $fn->never()->receivedException();
+    }
+
+    public function testCallAwaitableProvider()
+    {
+        $provider = Phony::mock(AwaitableProvider::class);
+        $awaitable = Phony::mock(Awaitable::class);
+        $provider->awaitable->returns($awaitable->mock());
+
+        $fn = Phony::spy(function () use ($provider) {
+            yield $provider->mock();
+        });
+
+        $this->subject->mock()->start($fn);
+
+        $awaitable->await->calledWith(
+            $this->subject->mock(),
+            $this->api->mock()
+        );
+
+        $fn->never()->received();
+        $fn->never()->receivedException();
+    }
+
+    public function testCallFailure()
+    {
+        $exception = Phony::mock(Throwable::class)->mock();
+        $this->api->__dispatch->throws($exception);
+
+        $fn = Phony::spy(function () {
+            yield;
+        });
+
+        $this->subject->mock()->start($fn);
+
+        $fn->receivedException($exception);
+
+        $this->observer1->failure->calledWith(
+            $this->subject->mock(),
+            $exception
+        );
+    }
 }
