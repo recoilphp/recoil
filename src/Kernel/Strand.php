@@ -71,7 +71,7 @@ interface Strand // @todo implements AwaitableProvider
      * Set the strand 'terminator'.
      *
      * The terminator is a function invoked when the strand is terminated. It is
-     * used by the kernel API to clean up and pending asynchronous operations.
+     * used by the kernel API to clean up any pending asynchronous operations.
      *
      * The terminator function is removed without being invoked when the strand
      * is resumed.

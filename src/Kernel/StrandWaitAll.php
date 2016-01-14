@@ -4,6 +4,7 @@ declare (strict_types = 1);
 
 namespace Recoil\Kernel;
 
+use Recoil\Exception\TerminatedException;
 use Throwable;
 
 /**
@@ -61,8 +62,8 @@ final class StrandWaitAll implements Awaitable, StrandObserver
     {
         foreach ($this->substrands as $s) {
             if ($s !== $strand) {
-                $strand->detachObserver($this);
-                $strand->terminate();
+                $s->detachObserver($this);
+                $s->terminate();
             }
         }
 
@@ -78,8 +79,8 @@ final class StrandWaitAll implements Awaitable, StrandObserver
     {
         foreach ($this->substrands as $s) {
             if ($s !== $strand) {
-                $strand->detachObserver($this);
-                $strand->terminate();
+                $s->detachObserver($this);
+                $s->terminate();
             }
         }
 
