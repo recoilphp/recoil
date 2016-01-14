@@ -5,14 +5,15 @@ declare (strict_types = 1);
 namespace Recoil\React;
 
 use React\Promise\Deferred;
+use Recoil\Exception\TerminatedException;
 use Recoil\Kernel\Strand;
 use Recoil\Kernel\StrandObserver;
 use Throwable;
 
 /**
- * Resolves a React deferred object when a strand completes.
+ * A strand observer that forwards events on to a React deferred object.
  */
-final class StrandResolver implements StrandObserver
+final class DeferredResolver implements StrandObserver
 {
     /**
      * @param Deferred $deferred The deferred to settle when the strand completes.
