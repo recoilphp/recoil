@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "8e3ae80a7609fa61a0e4b9bda21dc080",
-    "content-hash": "38c30f1e6440c24a8a02b12b1ed60f00",
+    "hash": "e4512b1bed11478bc668f2cc20e9758d",
+    "content-hash": "3f19969de69a0362fc034e5a11caaa87",
     "packages": [
         {
             "name": "icecave/repr",
@@ -149,16 +149,16 @@
     "packages-dev": [
         {
             "name": "eloquent/phony",
-            "version": "dev-feature/php7",
+            "version": "0.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/eloquent/phony.git",
-                "reference": "9fb0952dcec0f0b9d9125b5320a9fef290ccf1ca"
+                "reference": "4157a15d1c0abf2ccbf1d1ed65de0f8d3cd9ff85"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/eloquent/phony/zipball/9fb0952dcec0f0b9d9125b5320a9fef290ccf1ca",
-                "reference": "9fb0952dcec0f0b9d9125b5320a9fef290ccf1ca",
+                "url": "https://api.github.com/repos/eloquent/phony/zipball/4157a15d1c0abf2ccbf1d1ed65de0f8d3cd9ff85",
+                "reference": "4157a15d1c0abf2ccbf1d1ed65de0f8d3cd9ff85",
                 "shasum": ""
             },
             "require": {
@@ -180,13 +180,12 @@
                 "phpspec/prophecy": "^1",
                 "phpunit/php-code-coverage": "^2",
                 "phpunit/phpunit": "^4",
-                "sami/sami": "^3",
                 "simpletest/simpletest": "^1"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-develop": "0.7.x-dev"
+                    "dev-develop": "0.8.x-dev"
                 }
             },
             "autoload": {
@@ -224,7 +223,7 @@
                 "stubbing",
                 "test"
             ],
-            "time": "2015-12-18 01:08:28"
+            "time": "2015-12-20 11:18:18"
         },
         {
             "name": "evenement/evenement",
@@ -1553,9 +1552,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "eloquent/phony": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {

@@ -266,9 +266,7 @@ class ApiTraitTest extends PHPUnit_Framework_TestCase
 
     public function testAny()
     {
-        $this->markTestSkipped();
-
-        $this->subject->mock()->all(
+        $this->subject->mock()->any(
             $this->strand->mock(),
             '<a>',
             '<b>'

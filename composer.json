@@ -29,7 +29,7 @@
         "react/promise": "^2"
     },
     "require-dev": {
-        "eloquent/phony": "dev-feature/php7",
+        "eloquent/phony": "^0.7",
         "icecave/archer": "^1",
         "react/dns": "^0.4"
     },

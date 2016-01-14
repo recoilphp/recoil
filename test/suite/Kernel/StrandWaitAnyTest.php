@@ -6,10 +6,11 @@ namespace Recoil\Kernel;
 
 use Eloquent\Phony\Phpunit\Phony;
 use PHPUnit_Framework_TestCase;
+use Recoil\Exception\CompositeException;
 use Recoil\Exception\TerminatedException;
 use Throwable;
 
-class StrandWaitAllTest extends PHPUnit_Framework_TestCase
+class StrandWaitAnyTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
@@ -23,7 +24,7 @@ class StrandWaitAllTest extends PHPUnit_Framework_TestCase
         $this->substrand2 = Phony::mock(Strand::class);
         $this->substrand2->id->returns(2);
 
-        $this->subject = new StrandWaitAll(
+        $this->subject = new StrandWaitAny(
             $this->substrand1->mock(),
             $this->substrand2->mock()
         );
@@ -40,52 +41,57 @@ class StrandWaitAllTest extends PHPUnit_Framework_TestCase
         $this->substrand1->attachObserver->calledWith($this->subject);
         $this->substrand2->attachObserver->calledWith($this->subject);
 
-        $this->subject->success($this->substrand2->mock(), '<two>');
+        $this->subject->success($this->substrand1->mock(), '<one>');
+
+        Phony::inOrder(
+            $this->substrand2->detachObserver->calledWith($this->subject),
+            $this->substrand2->terminate->called(),
+            $this->strand->resume->calledWith('<one>')
+        );
+    }
+
+    public function testAwaitWithFailedStrands()
+    {
+        $this->subject->await(
+            $this->strand->mock(),
+            $this->api->mock()
+        );
+
+        $exception2 = Phony::mock(Throwable::class);
+        $this->subject->failure($this->substrand2->mock(), $exception2->mock());
 
         $this->strand->resume->never()->called();
         $this->strand->throw->never()->called();
 
-        $this->subject->success($this->substrand1->mock(), '<one>');
+        $exception1 = Phony::mock(Throwable::class);
+        $this->subject->failure($this->substrand1->mock(), $exception1->mock());
 
-        $this->strand->resume->calledWith(
-            [
-                1 => '<two>',
-                0 => '<one>',
-            ]
+        $this->strand->throw->calledWith(
+            new CompositeException(
+                [
+                    1 => $exception2->mock(),
+                    0 => $exception1->mock(),
+                ]
+            )
         );
     }
 
-    public function testAwaitWithFailedStrand()
+    public function testAwaitWithTerminatedStrands()
     {
         $this->subject->await(
             $this->strand->mock(),
             $this->api->mock()
         );
 
-        $exception = Phony::mock(Throwable::class);
-        $this->subject->failure($this->substrand1->mock(), $exception->mock());
-
-        Phony::inOrder(
-            $this->substrand2->detachObserver->calledWith($this->subject),
-            $this->substrand2->terminate->called(),
-            $this->strand->throw->calledWith($exception->mock())
-        );
-    }
-
-    public function testAwaitWithTerminatedStrand()
-    {
-        $this->subject->await(
-            $this->strand->mock(),
-            $this->api->mock()
-        );
-
+        $this->subject->terminated($this->substrand2->mock());
         $this->subject->terminated($this->substrand1->mock());
 
-        Phony::inOrder(
-            $this->substrand2->detachObserver->calledWith($this->subject),
-            $this->substrand2->terminate->called(),
-            $this->strand->throw->calledWith(
-                new TerminatedException($this->substrand1->mock())
+        $this->strand->throw->calledWith(
+            new CompositeException(
+                [
+                    1 => new TerminatedException($this->substrand2->mock()),
+                    0 => new TerminatedException($this->substrand1->mock()),
+                ]
             )
         );
     }

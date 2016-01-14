@@ -4,13 +4,14 @@ declare (strict_types = 1);
 
 namespace Recoil\Kernel;
 
+use Recoil\Exception\CompositeException;
 use Recoil\Exception\TerminatedException;
 use Throwable;
 
 /**
- * Implementation of Api::all().
+ * Implementation of Api::any().
  */
-final class StrandWaitAll implements Awaitable, StrandObserver
+final class StrandWaitAny implements Awaitable, StrandObserver
 {
     public function __construct(Strand ...$substrands)
     {
@@ -41,15 +42,14 @@ final class StrandWaitAll implements Awaitable, StrandObserver
      */
     public function success(Strand $strand, $value)
     {
-        $index = \array_search($strand, $this->substrands, true);
-        assert($index !== false);
-        unset($this->substrands[$index]);
-
-        $this->values[$index] = $value;
-
-        if (!$this->substrands) {
-            $this->strand->resume($this->values);
+        foreach ($this->substrands as $s) {
+            if ($s !== $strand) {
+                $s->detachObserver($this);
+                $s->terminate();
+            }
         }
+
+        $this->strand->resume($value);
     }
 
     /**
@@ -60,14 +60,17 @@ final class StrandWaitAll implements Awaitable, StrandObserver
      */
     public function failure(Strand $strand, Throwable $exception)
     {
-        foreach ($this->substrands as $s) {
-            if ($s !== $strand) {
-                $s->detachObserver($this);
-                $s->terminate();
-            }
-        }
+        $index = \array_search($strand, $this->substrands, true);
+        assert($index !== false);
+        unset($this->substrands[$index]);
 
-        $this->strand->throw($exception);
+        $this->exceptions[$index] = $exception;
+
+        if (!$this->substrands) {
+            $this->strand->throw(
+                new CompositeException($this->exceptions)
+            );
+        }
     }
 
     /**
@@ -77,14 +80,17 @@ final class StrandWaitAll implements Awaitable, StrandObserver
      */
     public function terminated(Strand $strand)
     {
-        foreach ($this->substrands as $s) {
-            if ($s !== $strand) {
-                $s->detachObserver($this);
-                $s->terminate();
-            }
-        }
+        $index = \array_search($strand, $this->substrands, true);
+        assert($index !== false);
+        unset($this->substrands[$index]);
 
-        $this->strand->throw(new TerminatedException($strand));
+        $this->exceptions[$index] = new TerminatedException($strand);
+
+        if (!$this->substrands) {
+            $this->strand->throw(
+                new CompositeException($this->exceptions)
+            );
+        }
     }
 
     /**
@@ -110,8 +116,8 @@ final class StrandWaitAll implements Awaitable, StrandObserver
     private $substrands;
 
     /**
-     * @var array<integer, mixed> The results of the successful strands. Ordered
-     *                     by completion order, indexed by strand order.
+     * @var array<integer, Exception> The exceptions thrown by failed strands.
+     *                     Ordered by completion order, indexed by strand order.
      */
-    private $values = [];
+    private $exceptions = [];
 }
