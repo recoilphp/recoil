@@ -359,9 +359,7 @@ class ApiTraitTest extends PHPUnit_Framework_TestCase
 
     public function testRace()
     {
-        $this->markTestSkipped();
-
-        $this->subject->mock()->all(
+        $this->subject->mock()->race(
             $this->strand->mock(),
             '<a>',
             '<b>'
