@@ -5,10 +5,8 @@ declare (strict_types = 1);
 namespace Recoil\React;
 
 use Eloquent\Phony\Phpunit\Phony;
-use Exception;
 use PHPUnit_Framework_TestCase;
 use React\Promise\Deferred;
-use React\Promise\ExtendedPromiseInterface;
 use Recoil\Exception\TerminatedException;
 use Recoil\Kernel\Strand;
 use Throwable;

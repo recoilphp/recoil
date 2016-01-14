@@ -2,76 +2,76 @@
 
 declare (strict_types = 1);
 
-// namespace Recoil\React;
+namespace Recoil\React;
 
-// use Eloquent\Phony\Phpunit\Phony;
-// use Exception;
-// use PHPUnit_Framework_TestCase;
-// use React\Promise\ExtendedPromiseInterface;
+use Eloquent\Phony\Phpunit\Phony;
+use PHPUnit_Framework_TestCase;
+use Recoil\Exception\TerminatedException;
+use Recoil\Kernel\Api;
+use Recoil\Kernel\Kernel;
+use Recoil\PromiseTestTrait;
+use Throwable;
 
-// class ReactStrandTest extends PHPUnit_Framework_TestCase
-// {
-//     public function setUp()
-//     {
-//         $this->subject = new ReactStrand();
-//     }
+class ReactStrandTest extends PHPUnit_Framework_TestCase
+{
+    public function setUp()
+    {
+        $this->kernel = Phony::mock(Kernel::class);
+        $this->api = Phony::mock(Api::class);
 
-//     public function testThrowWithoutCaptureIsPropagated()
-//     {
-//         $this->setExpectedException(
-//             Exception::class,
-//             '<exception>'
-//         );
+        $this->subject = new ReactStrand(
+            1,
+            $this->kernel->mock(),
+            $this->api->mock()
+        );
+    }
 
-//         $exception = new Exception('<exception>');
+    public function testPromise()
+    {
+        $promise = $this->subject->promise();
 
-//         $this->subject->throw($exception);
-//     }
+        $this->subject->start(
+            function () {
+                return '<value>';
+                yield;
+            }
+        );
 
-//     public function testCapture()
-//     {
-//         $resolve = Phony::spy();
-//         $reject = Phony::spy();
+        $this->assertResolvedWith(
+            '<value>',
+            $promise
+        );
+    }
 
-//         $promise = $this->subject->capture();
+    public function testPromiseWithStrandFailure()
+    {
+        $promise = $this->subject->promise();
+        $exception = Phony::mock(Throwable::class)->mock();
 
-//         $this->assertInstanceOf(
-//             ExtendedPromiseInterface::class,
-//             $promise
-//         );
+        $this->subject->start(
+            function () use ($exception) {
+                throw $exception;
+                yield;
+            }
+        );
 
-//         $promise->done($resolve, $reject);
+        $this->assertRejectedWith(
+            $exception,
+            $promise
+        );
+    }
 
-//         $resolve->never()->called();
+    public function testPromiseWhenTerminated()
+    {
+        $promise = $this->subject->promise();
 
-//         $this->subject->resume('<value>');
+        $this->subject->terminate();
 
-//         $resolve->calledWith('<value>');
-//         $reject->never()->called();
-//     }
+        $this->assertRejectedWith(
+            new TerminatedException($this->subject),
+            $promise
+        );
+    }
 
-//     public function testCaptureWithThrow()
-//     {
-//         $resolve = Phony::spy();
-//         $reject = Phony::spy();
-
-//         $promise = $this->subject->capture();
-
-//         $this->assertInstanceOf(
-//             ExtendedPromiseInterface::class,
-//             $promise
-//         );
-
-//         $promise->done($resolve, $reject);
-
-//         $resolve->never()->called();
-
-//         $exception = new Exception('<exception>');
-
-//         $this->subject->throw($exception);
-
-//         $resolve->never()->called();
-//         $reject->calledWith($exception);
-//     }
-// }
-
+    use PromiseTestTrait;
+}
