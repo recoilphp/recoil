@@ -6,6 +6,7 @@ namespace Recoil\Kernel;
 
 use BadMethodCallException;
 use Icecave\Repr\Repr;
+use InvalidArgumentException;
 use Recoil\Exception\RejectedException;
 use Throwable;
 use UnexpectedValueException;
@@ -156,14 +157,15 @@ trait ApiTrait
      * the completed coroutines.
      *
      * The array order matches the order of completion. The array keys indicate
-     * the order in which the coroutine was passed to this operation. This
-     * allows unpacking of the result with list() to get the results in
-     * pass-order.
+     * the order in which the coroutine was passed to this operation.
      *
      * If enough strands produce an exception, such that it is no longer
      * possible for ($count) strands to complete, all pending strands are
      * terminated and the calling strand is resumed with a
      * {@see CompositeException}.
+     *
+     * If ($count) is less than one, or greater than the number of provided
+     * coroutines, the strand is resumed with an {@see InvalidArgumentException}.
      *
      * @param Strand $strand         The strand executing the API call.
      * @param int    $count          The number of strands to wait for.
@@ -171,6 +173,22 @@ trait ApiTrait
      */
     public function some(Strand $strand, int $count, ...$coroutines)
     {
+        $max = \count($coroutines);
+
+        if ($count < 1 || $count > $max) {
+            $strand->throw(
+                new InvalidArgumentException(
+                    'Can not wait for '
+                    . $count
+                    . ' coroutines, count must be between 1 and '
+                    . $max
+                    . ', inclusive.'
+                )
+            );
+
+            return;
+        }
+
         $kernel = $strand->kernel();
         $substrands = [];
 

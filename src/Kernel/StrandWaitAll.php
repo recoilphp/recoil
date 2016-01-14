@@ -77,14 +77,7 @@ final class StrandWaitAll implements Awaitable, StrandObserver
      */
     public function terminated(Strand $strand)
     {
-        foreach ($this->substrands as $s) {
-            if ($s !== $strand) {
-                $s->detachObserver($this);
-                $s->terminate();
-            }
-        }
-
-        $this->strand->throw(new TerminatedException($strand));
+        $this->failure($strand, new TerminatedException($strand));
     }
 
     /**

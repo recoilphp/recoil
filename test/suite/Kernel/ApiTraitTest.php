@@ -6,6 +6,7 @@ namespace Recoil\Kernel;
 
 use BadMethodCallException;
 use Eloquent\Phony\Phpunit\Phony;
+use InvalidArgumentException;
 use PHPUnit_Framework_TestCase;
 use Recoil\Exception\RejectedException;
 use Throwable;
@@ -292,9 +293,7 @@ class ApiTraitTest extends PHPUnit_Framework_TestCase
 
     public function testSome()
     {
-        $this->markTestSkipped();
-
-        $this->subject->mock()->any(
+        $this->subject->mock()->some(
             $this->strand->mock(),
             1,
             '<a>',
@@ -313,7 +312,7 @@ class ApiTraitTest extends PHPUnit_Framework_TestCase
             )
         );
 
-        $this->assertSame(
+        $this->assertEquals(
             1,
             $call1->argument()->count()
         );
@@ -321,6 +320,40 @@ class ApiTraitTest extends PHPUnit_Framework_TestCase
         $this->assertSame(
             $call1->argument(),
             $call2->argument()
+        );
+
+        $this->strand->throw->never()->called();
+    }
+
+    public function testSomeWithCountTooLow()
+    {
+        $this->subject->mock()->some(
+            $this->strand->mock(),
+            0,
+            '<a>',
+            '<b>'
+        );
+
+        $this->strand->throw->calledWith(
+            new InvalidArgumentException(
+                'Can not wait for 0 coroutines, count must be between 1 and 2, inclusive.'
+            )
+        );
+    }
+
+    public function testSomeWithCountTooHigh()
+    {
+        $this->subject->mock()->some(
+            $this->strand->mock(),
+            3,
+            '<a>',
+            '<b>'
+        );
+
+        $this->strand->throw->calledWith(
+            new InvalidArgumentException(
+                'Can not wait for 3 coroutines, count must be between 1 and 2, inclusive.'
+            )
         );
     }
 

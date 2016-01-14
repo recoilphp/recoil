@@ -9,13 +9,25 @@ use Recoil\Exception\TerminatedException;
 use Throwable;
 
 /**
- * Implementation of Api::any().
+ * Implementation of Api::some().
  */
-final class StrandWaitAny implements Awaitable, StrandObserver
+final class StrandWaitSome implements Awaitable, StrandObserver
 {
-    public function __construct(Strand ...$substrands)
+    public function __construct(int $count, Strand ...$substrands)
     {
+        assert($count >= 1);
+        assert($count <= \count($substrands));
+
+        $this->count = $count;
         $this->substrands = $substrands;
+    }
+
+    /**
+     * @return int The number of remaining strands that must complete successfully.
+     */
+    public function count() : int
+    {
+        return $this->count;
     }
 
     /**
@@ -42,14 +54,20 @@ final class StrandWaitAny implements Awaitable, StrandObserver
      */
     public function success(Strand $strand, $value)
     {
-        foreach ($this->substrands as $s) {
-            if ($s !== $strand) {
+        $index = \array_search($strand, $this->substrands, true);
+        assert($index !== false);
+        unset($this->substrands[$index]);
+
+        $this->values[$index] = $value;
+
+        if (0 === --$this->count) {
+            foreach ($this->substrands as $s) {
                 $s->detachObserver($this);
                 $s->terminate();
             }
-        }
 
-        $this->strand->resume($value);
+            $this->strand->resume($this->values);
+        }
     }
 
     /**
@@ -66,7 +84,12 @@ final class StrandWaitAny implements Awaitable, StrandObserver
 
         $this->exceptions[$index] = $exception;
 
-        if (!$this->substrands) {
+        if ($this->count > count($this->substrands)) {
+            foreach ($this->substrands as $s) {
+                $s->detachObserver($this);
+                $s->terminate();
+            }
+
             $this->strand->throw(
                 new CompositeException($this->exceptions)
             );
@@ -101,9 +124,20 @@ final class StrandWaitAny implements Awaitable, StrandObserver
     private $strand;
 
     /**
+     * @var int The number of remaining strands that must complete successfully.
+     */
+    private $count;
+
+    /**
      * @var array<Strand> The strands to wait for.
      */
     private $substrands;
+
+    /**
+     * @var array<integer, mixed> The results of the successful strands. Ordered
+     *                     by completion order, indexed by strand order.
+     */
+    private $values = [];
 
     /**
      * @var array<integer, Exception> The exceptions thrown by failed strands.
