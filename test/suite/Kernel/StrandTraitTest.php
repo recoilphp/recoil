@@ -179,7 +179,19 @@ class StrandTraitTest extends PHPUnit_Framework_TestCase
 
     public function testResumeWhenTicking()
     {
-        $this->markTestIncomplete();
+        $fn = Phony::spy(function () {
+            yield;
+        });
+
+        $this->api->__dispatch->does(
+            function () {
+                $this->subject->mock()->resume('<result>');
+            }
+        );
+
+        $this->subject->mock()->start($fn);
+
+        $fn->received('<result>');
     }
 
     public function testResumeWhenTerminated()
@@ -212,7 +224,20 @@ class StrandTraitTest extends PHPUnit_Framework_TestCase
 
     public function testThrowWhenTicking()
     {
-        $this->markTestIncomplete();
+        $fn = Phony::spy(function () {
+            yield;
+        });
+
+        $exception = Phony::mock(Throwable::class)->mock();
+        $this->api->__dispatch->does(
+            function () use ($exception) {
+                $this->subject->mock()->throw($exception);
+            }
+        );
+
+        $this->subject->mock()->start($fn);
+
+        $fn->receivedException($exception);
     }
 
     public function testThrowWhenTerminated()
