@@ -2,83 +2,111 @@
 
 declare (strict_types = 1);
 
-// namespace Recoil\React;
+namespace Recoil\React;
 
-// use Eloquent\Phony\Phpunit\Phony;
-// use PHPUnit_Framework_TestCase;
-// use React\EventLoop\Factory;
-// use React\EventLoop\LoopInterface;
-// use Recoil\Kernel\Api;
-// use Recoil\Kernel\DispatchSource;
-// use Recoil\Recoil;
+use Eloquent\Phony\Phpunit\Phony;
+use Exception;
+use PHPUnit_Framework_TestCase;
+use React\EventLoop\Factory;
+use React\EventLoop\LoopInterface;
+use Recoil\Kernel\Api;
+use Recoil\Recoil;
+use RuntimeException;
 
-// class ReactKernelTest extends PHPUnit_Framework_TestCase
-// {
-//     public function setUp()
-//     {
-//         $this->eventLoop = Phony::mock(LoopInterface::class);
-//         $this->api = Phony::mock(Api::class);
+class ReactKernelTest extends PHPUnit_Framework_TestCase
+{
+    public function setUp()
+    {
+        $this->eventLoop = Phony::mock(LoopInterface::class);
+        $this->api = Phony::mock(Api::class);
 
-//         $this->subject = new ReactKernel(
-//             $this->eventLoop->mock(),
-//             $this->api->mock()
-//         );
-//     }
+        $this->subject = new ReactKernel(
+            $this->eventLoop->mock(),
+            $this->api->mock()
+        );
+    }
 
-//     public function testStart()
-//     {
-//         $result = ReactKernel::start(
-//             function () {
-//                 return yield Recoil::eventLoop();
-//             }
-//         );
+    public function testStart()
+    {
+        $result = ReactKernel::start(
+            function () {
+                return yield Recoil::eventLoop();
+            }
+        );
 
-//         $this->assertInstanceOf(
-//             LoopInterface::class,
-//             $result
-//         );
-//     }
+        $this->assertInstanceOf(
+            LoopInterface::class,
+            $result
+        );
+    }
 
-//     public function testStartWithEventLoop()
-//     {
-//         $eventLoop = Factory::create();
+    public function testStartWithFailure()
+    {
+        $this->setExpectedException(
+            Exception::class,
+            '<exception>'
+        );
 
-//         $result = ReactKernel::start(
-//             function () {
-//                 return yield Recoil::eventLoop();
-//             },
-//             $eventLoop
-//         );
+        ReactKernel::start(
+            function () use ($exception) {
+                throw new Exception('<exception>');
+                yield;
+            }
+        );
+    }
 
-//         $this->assertSame(
-//             $eventLoop,
-//             $result
-//         );
-//     }
+    public function testStartWithAbandonedCoroutine()
+    {
+        $this->setExpectedException(
+            RuntimeException::class,
+            'The coroutine did not complete.'
+        );
 
-//     public function testExecute()
-//     {
-//         $strand = $this->subject->execute('<task>');
+        ReactKernel::start(
+            function () {
+                yield Recoil::suspend();
+            }
+        );
+    }
 
-//         $fn = $this->eventLoop->futureTick->calledWith('~')->argument();
+    public function testStartWithEventLoop()
+    {
+        $eventLoop = Factory::create();
 
-//         $this->assertInstanceOf(
-//             ReactStrand::class,
-//             $strand
-//         );
+        $result = ReactKernel::start(
+            function () {
+                return yield Recoil::eventLoop();
+            },
+            $eventLoop
+        );
 
-//         $this->assertTrue(is_callable($fn));
+        $this->assertSame(
+            $eventLoop,
+            $result
+        );
+    }
 
-//         $this->api->noInteraction();
+    public function testExecute()
+    {
+        $strand = $this->subject->execute('<task>');
 
-//         $fn();
+        $fn = $this->eventLoop->futureTick->calledWith('~')->argument();
 
-//         $this->api->__dispatch->calledWith(
-//             DispatchSource::KERNEL,
-//             $strand,
-//             $strand,
-//             '<task>'
-//         );
-//     }
-// }
+        $this->assertInstanceOf(
+            ReactStrand::class,
+            $strand
+        );
 
+        $this->assertTrue(is_callable($fn));
+
+        $this->api->noInteraction();
+
+        $fn();
+
+        $this->api->__dispatch->calledWith(
+            $strand,
+            0,
+            '<task>'
+        );
+    }
+}
