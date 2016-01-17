@@ -209,7 +209,7 @@ trait ApiTrait
      * @param Strand $strand         The strand executing the API call.
      * @param mixed  $coroutines,... The coroutines to execute.
      */
-    public function race(Strand $strand, ...$coroutines)
+    public function first(Strand $strand, ...$coroutines)
     {
         $kernel = $strand->kernel();
         $substrands = [];
@@ -218,6 +218,6 @@ trait ApiTrait
             $substrands[] = $kernel->execute($coroutine);
         }
 
-        (new StrandRace(...$substrands))->await($strand, $this);
+        (new StrandWaitFirst(...$substrands))->await($strand, $this);
     }
 }

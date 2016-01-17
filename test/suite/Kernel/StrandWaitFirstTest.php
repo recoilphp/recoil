@@ -9,7 +9,7 @@ use PHPUnit_Framework_TestCase;
 use Recoil\Exception\TerminatedException;
 use Throwable;
 
-class StrandRaceTest extends PHPUnit_Framework_TestCase
+class StrandWaitFirstTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
@@ -23,7 +23,7 @@ class StrandRaceTest extends PHPUnit_Framework_TestCase
         $this->substrand2 = Phony::mock(Strand::class);
         $this->substrand2->id->returns(2);
 
-        $this->subject = new StrandRace(
+        $this->subject = new StrandWaitFirst(
             $this->substrand1->mock(),
             $this->substrand2->mock()
         );

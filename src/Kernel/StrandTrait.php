@@ -207,6 +207,11 @@ trait StrandTrait
         $this->terminator = $fn;
     }
 
+    public function awaitable() : Awaitable
+    {
+        return new StrandWaitOne($this);
+    }
+
     private function tick()
     {
         assert(!$this->ticking, 'strand already ticking');

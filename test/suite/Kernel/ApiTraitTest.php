@@ -357,9 +357,9 @@ class ApiTraitTest extends PHPUnit_Framework_TestCase
         );
     }
 
-    public function testRace()
+    public function testFirst()
     {
-        $this->subject->mock()->race(
+        $this->subject->mock()->first(
             $this->strand->mock(),
             '<a>',
             '<b>'
@@ -370,10 +370,10 @@ class ApiTraitTest extends PHPUnit_Framework_TestCase
 
         Phony::inOrder(
             $call1 = $this->substrand1->attachObserver->calledWith(
-                $this->isInstanceOf(StrandRace::class)
+                $this->isInstanceOf(StrandWaitFirst::class)
             ),
             $call2 = $this->substrand2->attachObserver->calledWith(
-                $this->isInstanceOf(StrandRace::class)
+                $this->isInstanceOf(StrandWaitFirst::class)
             )
         );
 

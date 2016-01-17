@@ -8,13 +8,13 @@ use Recoil\Exception\TerminatedException;
 use Throwable;
 
 /**
- * Implementation of Api::race().
+ * Implementation of Api::one().
  */
-final class StrandRace implements Awaitable, StrandObserver
+final class StrandWaitOne implements Awaitable, StrandObserver
 {
-    public function __construct(Strand ...$substrands)
+    public function __construct(Strand $substrand)
     {
-        $this->substrands = $substrands;
+        $this->substrand = $substrand;
     }
 
     /**
@@ -28,9 +28,7 @@ final class StrandRace implements Awaitable, StrandObserver
         $this->strand = $strand;
         $this->strand->setTerminator([$this, 'cancel']);
 
-        foreach ($this->substrands as $substrand) {
-            $substrand->attachObserver($this);
-        }
+        $this->substrand->attachObserver($this);
     }
 
     /**
@@ -41,13 +39,6 @@ final class StrandRace implements Awaitable, StrandObserver
      */
     public function success(Strand $strand, $value)
     {
-        foreach ($this->substrands as $s) {
-            if ($s !== $strand) {
-                $s->detachObserver($this);
-                $s->terminate();
-            }
-        }
-
         $this->strand->resume($value);
     }
 
@@ -59,13 +50,6 @@ final class StrandRace implements Awaitable, StrandObserver
      */
     public function failure(Strand $strand, Throwable $exception)
     {
-        foreach ($this->substrands as $s) {
-            if ($s !== $strand) {
-                $s->detachObserver($this);
-                $s->terminate();
-            }
-        }
-
         $this->strand->throw($exception);
     }
 
@@ -76,7 +60,7 @@ final class StrandRace implements Awaitable, StrandObserver
      */
     public function terminated(Strand $strand)
     {
-        $this->failure($strand, new TerminatedException($strand));
+        $this->strand->throw(new TerminatedException($strand));
     }
 
     /**
@@ -85,10 +69,8 @@ final class StrandRace implements Awaitable, StrandObserver
     public function cancel()
     {
         // @todo replace with strand linking
-        foreach ($this->substrands as $strand) {
-            $strand->detachObserver($this);
-            $strand->terminate();
-        }
+        $this->substrand->detachObserver($this);
+        $this->substrand->terminate();
     }
 
     /**
@@ -97,13 +79,7 @@ final class StrandRace implements Awaitable, StrandObserver
     private $strand;
 
     /**
-     * @var array<Strand> The strands to wait for.
+     * @var Strand The strand to wait for.
      */
-    private $substrands;
-
-    /**
-     * @var array<integer, Exception> The exceptions thrown by failed strands.
-     *                     Ordered by completion order, indexed by strand order.
-     */
-    private $exceptions = [];
+    private $substrand;
 }

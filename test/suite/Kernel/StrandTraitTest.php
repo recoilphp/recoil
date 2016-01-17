@@ -256,6 +256,16 @@ class StrandTraitTest extends PHPUnit_Framework_TestCase
         $fn->never()->receivedException();
     }
 
+    public function testAwaitable()
+    {
+        $awaitable = $this->subject->mock()->awaitable();
+
+        $this->assertEquals(
+            new StrandWaitOne($this->subject->mock()),
+            $awaitable
+        );
+    }
+
     public function testEntryPointReturn()
     {
         $fn = function () {

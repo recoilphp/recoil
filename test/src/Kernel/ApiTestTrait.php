@@ -89,7 +89,7 @@ trait ApiTestTrait
     // public function all(...$tasks) : PromiseInterface;
     // public function any(...$task) : PromiseInterface;
     // public function some(int $count, ...$tasks) : PromiseInterface;
-    // public function race(int $count, ...$tasks) : PromiseInterface;
+    // public function first(int $count, ...$tasks) : PromiseInterface;
 
     use CoroutineTestTrait;
 }

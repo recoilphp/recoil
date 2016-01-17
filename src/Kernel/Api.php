@@ -168,5 +168,5 @@ interface Api
      * @param Strand $strand         The strand executing the API call.
      * @param mixed  $coroutines,... The coroutines to execute.
      */
-    public function race(Strand $strand, ...$coroutines);
+    public function first(Strand $strand, ...$coroutines);
 }

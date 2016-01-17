@@ -11,7 +11,6 @@ use React\EventLoop\Timer\TimerInterface;
 use Recoil\Kernel\Awaitable;
 use Recoil\Kernel\Kernel;
 use Recoil\Kernel\Strand;
-use Recoil\Kernel\Suspendable;
 
 class ReactApiTest extends PHPUnit_Framework_TestCase
 {
@@ -160,4 +159,3 @@ class ReactApiTest extends PHPUnit_Framework_TestCase
         $this->strand->resume->calledWith($this->eventLoop->mock());
     }
 }
-
