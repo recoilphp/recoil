@@ -90,7 +90,7 @@ final class ReactApi implements Api
      */
     public function sleep(Strand $strand, float $seconds)
     {
-        if ($seconds >= 0) {
+        if ($seconds > 0) {
             $timer = $this->eventLoop->addTimer(
                 $seconds,
                 static function () use ($strand) {
