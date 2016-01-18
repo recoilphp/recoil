@@ -131,7 +131,6 @@ final class ReactApi implements Api
             }
         );
 
-        // @todo replace with strand linking?
         $substrand->setTerminator([$timer, 'cancel']);
         $substrand->awaitable()->await($strand, $this);
     }

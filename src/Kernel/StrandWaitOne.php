@@ -68,7 +68,6 @@ final class StrandWaitOne implements Awaitable, StrandObserver
      */
     public function cancel()
     {
-        // @todo replace with strand linking
         $this->substrand->detachObserver($this);
         $this->substrand->terminate();
     }

@@ -84,7 +84,6 @@ final class StrandWaitFirst implements Awaitable, StrandObserver
      */
     public function cancel()
     {
-        // @todo replace with strand linking
         foreach ($this->substrands as $strand) {
             $strand->detachObserver($this);
             $strand->terminate();
