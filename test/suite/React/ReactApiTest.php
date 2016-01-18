@@ -132,7 +132,8 @@ class ReactApiTest extends PHPUnit_Framework_TestCase
 
     public function testTimeout()
     {
-        $this->markTestIncomplete('Requires strands to be awaitable.');
+        $awaitable = Phony::mock(Awaitable::class);
+        $this->substrand->awaitable->returns($awaitable->mock());
 
         $this->subject->timeout(
             $this->strand->mock(),
@@ -143,7 +144,16 @@ class ReactApiTest extends PHPUnit_Framework_TestCase
         $fn = $this->eventLoop->addTimer->calledWith(10.5, '~')->argument(1);
         $this->assertTrue(is_callable($fn));
 
-        $this->substrand->noInteraction();
+        $awaitable->await->calledWith(
+            $this->strand->mock(),
+            $this->subject
+        );
+
+        $this->substrand->setTerminator->calledWith(
+            [$this->timer->mock(), 'cancel']
+        );
+
+        $this->substrand->terminate->never()->called();
 
         $fn();
 
