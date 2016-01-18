@@ -48,7 +48,7 @@ class ReactKernelTest extends PHPUnit_Framework_TestCase
         );
 
         ReactKernel::start(
-            function () use ($exception) {
+            function () {
                 throw new Exception('<exception>');
                 yield;
             }
