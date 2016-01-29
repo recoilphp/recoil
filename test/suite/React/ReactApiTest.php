@@ -94,6 +94,8 @@ class ReactApiTest extends PHPUnit_Framework_TestCase
         $fn();
 
         $this->strand->resume->calledWith();
+
+        $this->eventLoop->futureTick->never()->called();
     }
 
     public function testSleepWithZeroSeconds()
@@ -111,6 +113,8 @@ class ReactApiTest extends PHPUnit_Framework_TestCase
         $fn();
 
         $this->strand->resume->calledWith();
+
+        $this->eventLoop->addTimer->never()->called();
     }
 
     public function testSleepWithNegativeSeconds()
@@ -128,6 +132,8 @@ class ReactApiTest extends PHPUnit_Framework_TestCase
         $fn();
 
         $this->strand->resume->calledWith();
+
+        $this->eventLoop->addTimer->never()->called();
     }
 
     public function testTimeout()

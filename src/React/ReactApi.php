@@ -98,14 +98,18 @@ final class ReactApi implements Api
                 }
             );
 
-            $strand->setTerminator([$timer, 'cancel']);
+            $strand->setTerminator(
+                static function () use ($timer) {
+                    $timer->cancel();
+                }
+            );
+        } else {
+            $this->eventLoop->futureTick(
+                static function () use ($strand) {
+                    $strand->resume();
+                }
+            );
         }
-
-        $this->eventLoop->futureTick(
-            static function () use ($strand) {
-                $strand->resume();
-            }
-        );
     }
 
     /**
