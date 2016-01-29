@@ -10,6 +10,7 @@ use PHPUnit_Framework_TestCase;
 use React\EventLoop\Factory;
 use React\EventLoop\LoopInterface;
 use Recoil\Kernel\Api;
+use Recoil\Kernel\KernelTestTrait;
 use Recoil\Recoil;
 use RuntimeException;
 
@@ -108,5 +109,12 @@ class ReactKernelTest extends PHPUnit_Framework_TestCase
             0,
             '<task>'
         );
+    }
+
+    public function testWait()
+    {
+        $this->subject->wait();
+
+        $this->eventLoop->run->called();
     }
 }

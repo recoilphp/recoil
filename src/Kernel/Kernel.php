@@ -18,4 +18,9 @@ interface Kernel
      * @return Strand
      */
     public function execute($coroutine) : Strand;
+
+    /**
+     * Run the kernel and wait for all strands to complete.
+     */
+    public function wait();
 }

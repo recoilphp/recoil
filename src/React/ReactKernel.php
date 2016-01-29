@@ -89,6 +89,14 @@ final class ReactKernel implements Kernel
     }
 
     /**
+     * Run the kernel and wait for all strands to complete.
+     */
+    public function wait()
+    {
+        $this->eventLoop->run();
+    }
+
+    /**
      * @var LoopInterface The event loop.
      */
     private $eventLoop;
