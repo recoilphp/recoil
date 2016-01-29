@@ -85,9 +85,8 @@ class ReactApiTest extends PHPUnit_Framework_TestCase
         $fn = $this->eventLoop->addTimer->calledWith(10.5, '~')->argument(1);
         $this->assertTrue(is_callable($fn));
 
-        $this->strand->setTerminator->calledWith(
-            [$this->timer->mock(), 'cancel']
-        );
+        $cancel = $this->strand->setTerminator->called()->argument();
+        $this->assertTrue(is_callable($cancel));
 
         $this->strand->resume->never()->called();
 
@@ -96,6 +95,10 @@ class ReactApiTest extends PHPUnit_Framework_TestCase
         $this->strand->resume->calledWith();
 
         $this->eventLoop->futureTick->never()->called();
+
+        $this->timer->cancel->never()->called();
+        $cancel();
+        $this->timer->cancel->called();
     }
 
     public function testSleepWithZeroSeconds()
