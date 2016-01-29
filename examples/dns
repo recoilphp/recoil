@@ -51,10 +51,6 @@ function main()
         resolveDomainName('probably-wont-resolve', $resolver),
     ];
 
-    // yield resolveDomainName('recoil.io', $resolver);
-    // yield resolveDomainName('reactphp.org', $resolver);
-    // yield resolveDomainName('probably-wont-resolve', $resolver);
-
     echo 'Done.' . PHP_EOL;
 }
 
