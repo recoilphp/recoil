@@ -7,9 +7,6 @@ namespace Recoil\Kernel;
 use Recoil\Exception\TerminatedException;
 use Throwable;
 
-/**
- * Implementation of Api::one().
- */
 final class StrandWaitOne implements Awaitable, StrandObserver
 {
     public function __construct(Strand $substrand)
