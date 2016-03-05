@@ -108,7 +108,6 @@ class ApiTraitTest extends PHPUnit_Framework_TestCase
     public function testDispatchWithPromise()
     {
         $promise = Phony::mock(
-            null,
             ['function then' => null]
         );
 
@@ -145,7 +144,6 @@ class ApiTraitTest extends PHPUnit_Framework_TestCase
     public function testDispatchWithCancellablePromise()
     {
         $promise = Phony::mock(
-            null,
             [
                 'function then' => null,
                 'function cancel' => null,
