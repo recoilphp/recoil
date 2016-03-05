@@ -11,14 +11,6 @@ use InvalidArgumentException;
 use PHPUnit_Framework_TestCase;
 use Throwable;
 
-// @todo remove workaround
-// @see https://github.com/eloquent/phony/issues/112
-// $this->subject = Phony::partialMock([Strand::class, StrandTrait::class]);
-abstract class StrandTraitMock implements Strand
-{
-    use StrandTrait;
-}
-
 class StrandTraitTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
@@ -27,7 +19,7 @@ class StrandTraitTest extends PHPUnit_Framework_TestCase
         $this->api = Phony::mock(Api::class);
 
         $this->subject = Phony::partialMock(
-            StrandTraitMock::class,
+            [Strand::class, StrandTrait::class],
             [
                 123,
                 $this->kernel->mock(),

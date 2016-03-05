@@ -13,14 +13,6 @@ use Throwable;
 use TypeError;
 use UnexpectedValueException;
 
-// @todo remove workaround
-// @see https://github.com/eloquent/phony/issues/112
-// $this->subject = Phony::partialMock([Api::class, ApiTrait::class]);
-abstract class ApiTraitMock implements Api
-{
-    use ApiTrait;
-}
-
 class ApiTraitTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
@@ -36,7 +28,7 @@ class ApiTraitTest extends PHPUnit_Framework_TestCase
             $this->substrand2->mock()
         );
 
-        $this->subject = Phony::partialMock(ApiTraitMock::class);
+        $this->subject = Phony::partialMock([Api::class, ApiTrait::class]);
     }
 
     public function testDispatchWithNull()
