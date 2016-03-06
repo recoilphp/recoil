@@ -5,7 +5,7 @@
 
 Recoil is a generator-based cooperative multitasking kernel for PHP 7.
 
-    composer require --sort-packages --dev recoil/peridot
+    composer require --sort-packages --dev recoil/recoil
 
 > Please note this branch contains an implementation of Recoil that requries PHP 7. Notably absent are stream and
 channel implementations which will instead be provided as seperate packages.
