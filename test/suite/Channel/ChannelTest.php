@@ -1,9 +1,10 @@
 <?php
+
 namespace Recoil\Channel;
 
 use PHPUnit_Framework_TestCase;
 use Recoil\Channel\Exception\ChannelClosedException;
-use Recoil\Kernel\Kernel;
+use Recoil\Kernel\StandardKernel;
 
 class ChannelTest extends PHPUnit_Framework_TestCase
 {
@@ -14,7 +15,7 @@ class ChannelTest extends PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->kernel  = new Kernel();
+        $this->kernel  = new StandardKernel();
         $this->channel = new Channel();
     }
 

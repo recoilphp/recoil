@@ -1,4 +1,5 @@
 <?php
+
 namespace Recoil\Channel\Serialization;
 
 use LogicException;
@@ -8,7 +9,7 @@ use SplQueue;
 /**
  * An unserializer that uses the built-in PHP serialization protocol.
  */
-class PhpUnserializer implements UnserializerInterface
+class PhpUnserializer implements Unserializer
 {
     public function __construct()
     {

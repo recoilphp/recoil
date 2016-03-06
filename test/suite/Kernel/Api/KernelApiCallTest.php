@@ -1,19 +1,20 @@
 <?php
+
 namespace Recoil\Kernel\Api;
 
 use BadMethodCallException;
 use Exception;
-use PHPUnit_Framework_TestCase;
 use Phake;
-use Recoil\Kernel\Kernel;
+use PHPUnit_Framework_TestCase;
+use Recoil\Kernel\StandardKernel;
 use Recoil\Recoil;
 
 class KernelApiCallTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
-        $this->api    = Phake::partialMock(KernelApi::class);
-        $this->kernel = new Kernel(null, $this->api);
+        $this->api    = Phake::partialMock(StandardKernelApi::class);
+        $this->kernel = new StandardKernel(null, $this->api);
     }
 
     public function testTick()

@@ -42,7 +42,7 @@ function childProcess()
 {
     // Create a channel for writing serialized values to STDOUT ...
     $channel = new \Recoil\Channel\WritableStreamChannel(
-        new \Recoil\Stream\WritableStream(
+        new \Recoil\Stream\WritablePhpStream(
             fopen('php://stdout', 'w')
         )
     );

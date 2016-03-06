@@ -96,13 +96,13 @@ Internally, the kernel uses a [React event-loop](https://github.com/reactphp/eve
 applications to execute coroutine based code alongside "conventional" React code by sharing an event-loop instance.
 
 Coroutine control flow, the current strand, and the kernel itself can be manipulated using the *kernel API*. The
-supported operations are defined in [KernelApiInterface](src/Kernel/Api/KernelApiInterface.php) (though custom kernel
-implementations may provide additional operations). Inside an executing coroutine, the kernel API for the current kernel
-is accessed via the [Recoil facade](src/Recoil.php).
+supported operations are defined in [KernelApi](src/Kernel/Api/KernelApi.php) (though custom kernel implementations may
+provide additional operations). Inside an executing coroutine, the kernel API for the current kernel is accessed via the
+[Recoil facade](src/Recoil.php).
 
 ### Streams
 
-*Streams* provide a coroutine based abstraction for [readable](src/Stream/ReadableStreamInterface.php) and [writable](src/Stream/WritableStreamInterface.php)
+*Streams* provide a coroutine based abstraction for [readable](src/Stream/ReadableStream.php) and [writable](src/Stream/WritableStream.php)
 data streams. The interfaces are somewhat similar to the built-in PHP stream API.
 
 Stream operations are cooperative, that is, when reading or writing to a stream, execution of the coroutine is suspended
@@ -115,7 +115,7 @@ The [stream-file example](examples/stream-file) demonstrates using a readable st
 *Channels* are stream-like objects that produce and consume PHP values rather than byte streams. Channels are intended
 as the primary method for communication between strands.
 
-Like streams there are [readable](src/Channel/ReadableChannelInterface.php) and [writable](src/Channel/WritableChannelInterface.php)
+Like streams there are [readable](src/Channel/ReadableChannel.php) and [writable](src/Channel/WritableChannel.php)
 variants. Some channel implementations allow for multiple concurrent read and write operations.
 
 Both in-memory and stream-based channels are provided. Stream-based channels use a serialization protocol to encode and
@@ -212,7 +212,7 @@ function multiply($a, $b)
 ### Throwing and catching exceptions
 
 One of the major advantages made available by coroutines is that errors can be reported using familiar exception
-handling techniques. Unlike `return`, the `throw` keyword can be used in the standard way inside PHP generators.
+handling techniques. The `throw` keyword can be used in the standard way inside PHP generators in both PHP version 5 and 7.
 
 ```php
 function multiply($a, $b)
@@ -268,6 +268,30 @@ The [promise-dns example](examples/promise-dns) demonstrates using the [React DN
 a promised-based API, to resolve several domain names concurrently. [This example](examples/promise-dns-react) shows the
 same functionality implemented without **Recoil**.
 
+### Callback and Events
+
+Conventional asynchronous code uses callback functions to inform a caller when a result is available or an event occurs.
+The kernel API provides `Recoil::callback()` to create a callback that executes a coroutine on its own strand.
+
+```php
+use Evenement\EventEmitter;
+
+Recoil::run(
+    function () {
+        $eventEmitter = new EventEmitter();
+        $eventEmitter->on(
+            'hello'
+            (yield Recoil::callback(
+                function ($name) {
+                    echo 'Hello, ' . $name . '!' . PHP_EOL;
+                    yield Recoil::noop();
+                }
+            ))
+        );
+    }
+);
+```
+
 ### Using an existing event-loop
 
 In all of the examples above, the `Recoil::run()` convenience function is used to start the kernel. Internally this
@@ -299,7 +323,7 @@ manually.
 ```php
 $eventLoop = new React\EventLoop\StreamSelectLoop;
 
-$kernel = new Recoil\Kernel\Kernel($eventLoop);
+$kernel = new Recoil\Kernel\StandardKernel($eventLoop);
 
 $coroutine = function () {
     echo 'Hello, world!' . PHP_EOL;
@@ -320,4 +344,4 @@ $eventLoop->run();
 <!-- references -->
 [Build Status]: http://img.shields.io/travis/recoilphp/recoil/develop.svg?style=flat-square
 [Test Coverage]: http://img.shields.io/coveralls/recoilphp/recoil/develop.svg?style=flat-square
-[SemVer]: http://img.shields.io/:semver-0.3.0-yellow.svg?style=flat-square
+[SemVer]: http://img.shields.io/:semver-0.4.0-yellow.svg?style=flat-square

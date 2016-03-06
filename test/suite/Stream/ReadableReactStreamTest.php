@@ -1,9 +1,10 @@
 <?php
+
 namespace Recoil\Stream;
 
 use Exception;
-use PHPUnit_Framework_TestCase;
 use Phake;
+use PHPUnit_Framework_TestCase;
 use React\Stream\Stream;
 use Recoil\Recoil;
 use Recoil\Stream\Exception\StreamClosedException;

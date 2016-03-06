@@ -1,22 +1,20 @@
 <?php
+
 namespace Recoil\Kernel\Strand;
 
-use Recoil\Kernel\KernelInterface;
+use Recoil\Kernel\Kernel;
 
 /**
- * The default strand factory.
+ * A factory for strands.
  */
-class StrandFactory implements StrandFactoryInterface
+interface StrandFactory
 {
     /**
      * Create a strand.
      *
-     * @param KernelInterface The kernel on which the strand will execute.
+     * @param Kernel $kernel The kernel on which the strand will execute.
      *
-     * @return StrandInterface
+     * @return Strand
      */
-    public function createStrand(KernelInterface $kernel)
-    {
-        return new Strand($kernel);
-    }
+    public function createStrand(Kernel $kernel);
 }

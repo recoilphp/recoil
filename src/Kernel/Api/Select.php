@@ -1,17 +1,18 @@
 <?php
+
 namespace Recoil\Kernel\Api;
 
-use Recoil\Coroutine\CoroutineInterface;
+use Recoil\Coroutine\Coroutine;
 use Recoil\Coroutine\CoroutineTrait;
-use Recoil\Kernel\Strand\StrandInterface;
+use Recoil\Kernel\Strand\Strand;
 use SplObjectStorage;
 
 /**
- * Internal implementation of KernelApiInterface::select().
+ * Internal implementation of KernelApi::select().
  *
- * @internal
+ * @access private
  */
-class Select implements CoroutineInterface
+class Select implements Coroutine
 {
     use CoroutineTrait;
 
@@ -32,9 +33,9 @@ class Select implements CoroutineInterface
     /**
      * Start the coroutine.
      *
-     * @param StrandInterface $strand The strand that is executing the coroutine.
+     * @param Strand $strand The strand that is executing the coroutine.
      */
-    public function call(StrandInterface $strand)
+    public function call(Strand $strand)
     {
         // If some of the strands have exited already, resume immediately ...
         if ($this->exited) {
@@ -60,9 +61,9 @@ class Select implements CoroutineInterface
      *
      * This method is invoked after the coroutine is popped from the call stack.
      *
-     * @param StrandInterface $strand The strand that is executing the coroutine.
+     * @param Strand $strand The strand that is executing the coroutine.
      */
-    public function finalize(StrandInterface $strand)
+    public function finalize(Strand $strand)
     {
         foreach ($this->substrands as $strand) {
             $strand->removeListener(
@@ -72,7 +73,7 @@ class Select implements CoroutineInterface
         }
     }
 
-    public function onStrandExit(StrandInterface $strand)
+    public function onStrandExit(Strand $strand)
     {
         $index = $this->substrands[$strand];
 

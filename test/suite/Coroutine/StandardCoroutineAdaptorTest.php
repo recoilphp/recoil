@@ -1,23 +1,26 @@
 <?php
+
 namespace Recoil\Coroutine;
 
-use PHPUnit_Framework_TestCase;
+use GuzzleHttp\Promise\PromiseInterface as GuzzlePromiseInterface;
 use Phake;
+use PHPUnit_Framework_TestCase;
+use React\Promise\CancellablePromiseInterface;
 use React\Promise\PromiseInterface;
 use Recoil\Kernel\Api\KernelApiCall;
-use Recoil\Kernel\Strand\StrandInterface;
+use Recoil\Kernel\Strand\Strand;
 
-class CoroutineAdaptorTest extends PHPUnit_Framework_TestCase
+class StandardCoroutineAdaptorTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
-        $this->strand  = Phake::mock(StrandInterface::class);
-        $this->adaptor = new CoroutineAdaptor();
+        $this->strand  = Phake::mock(Strand::class);
+        $this->adaptor = new StandardCoroutineAdaptor();
     }
 
     public function testAdaptPassThru()
     {
-        $coroutine = Phake::mock(CoroutineInterface::class);
+        $coroutine = Phake::mock(Coroutine::class);
 
         $this->assertSame(
             $coroutine,
@@ -46,7 +49,32 @@ class CoroutineAdaptorTest extends PHPUnit_Framework_TestCase
         $promise   = Phake::mock(PromiseInterface::class);
         $coroutine = $this->adaptor->adapt($this->strand, $promise);
 
-        $this->assertInstanceOf(PromiseCoroutine::class, $coroutine);
+        $this->assertEquals(
+            new PromiseCoroutine($promise, false),
+            $coroutine
+        );
+    }
+
+    public function testAdaptWithCancellablePromise()
+    {
+        $promise   = Phake::mock(CancellablePromiseInterface::class);
+        $coroutine = $this->adaptor->adapt($this->strand, $promise);
+
+        $this->assertEquals(
+            new PromiseCoroutine($promise, true),
+            $coroutine
+        );
+    }
+
+    public function testAdaptWithGuzzlePromise()
+    {
+        $promise   = Phake::mock(GuzzlePromiseInterface::class);
+        $coroutine = $this->adaptor->adapt($this->strand, $promise);
+
+        $this->assertEquals(
+            new PromiseCoroutine($promise, true),
+            $coroutine
+        );
     }
 
     public function testAdaptWithArray()
@@ -78,8 +106,8 @@ class CoroutineAdaptorTest extends PHPUnit_Framework_TestCase
 
     public function testAdaptProvider()
     {
-        $provider  = Phake::mock(CoroutineProviderInterface::class);
-        $coroutine = Phake::mock(CoroutineInterface::class);
+        $provider  = Phake::mock(CoroutineProvider::class);
+        $coroutine = Phake::mock(Coroutine::class);
 
         Phake::when($provider)
             ->coroutine($this->identicalTo($this->strand))
@@ -93,8 +121,8 @@ class CoroutineAdaptorTest extends PHPUnit_Framework_TestCase
 
     public function testAdaptNestedProvider()
     {
-        $provider  = Phake::mock(CoroutineProviderInterface::class);
-        $coroutine = Phake::mock(CoroutineInterface::class);
+        $provider  = Phake::mock(CoroutineProvider::class);
+        $coroutine = Phake::mock(Coroutine::class);
 
         Phake::when($provider)
             ->coroutine($this->identicalTo($this->strand))

@@ -1,10 +1,11 @@
 <?php
+
 namespace Recoil\Channel;
 
 use PHPUnit_Framework_TestCase;
 use Recoil\Channel\Serialization\PhpUnserializer;
 use Recoil\Recoil;
-use Recoil\Stream\WritableStream;
+use Recoil\Stream\WritablePhpStream;
 
 class WritableStreamChannelTest extends PHPUnit_Framework_TestCase
 {
@@ -16,7 +17,7 @@ class WritableStreamChannelTest extends PHPUnit_Framework_TestCase
     {
         $this->path         = tempnam(sys_get_temp_dir(), 'recoil-');
         $this->resource     = fopen($this->path, 'w');
-        $this->stream       = new WritableStream($this->resource);
+        $this->stream       = new WritablePhpStream($this->resource);
         $this->channel      = new WritableStreamChannel($this->stream);
         $this->unserializer = new PhpUnserializer();
     }

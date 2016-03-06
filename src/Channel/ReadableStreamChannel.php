@@ -1,28 +1,29 @@
 <?php
+
 namespace Recoil\Channel;
 
 use Recoil\Channel\Exception\ChannelClosedException;
 use Recoil\Channel\Exception\ChannelLockedException;
 use Recoil\Channel\Serialization\PhpUnserializer;
-use Recoil\Channel\Serialization\UnserializerInterface;
+use Recoil\Channel\Serialization\Unserializer;
 use Recoil\Recoil;
 use Recoil\Stream\Exception\StreamClosedException;
 use Recoil\Stream\Exception\StreamLockedException;
-use Recoil\Stream\ReadableStreamInterface;
+use Recoil\Stream\ReadableStream;
 
 /**
  * A readable channel that unserializes values from a stream.
  */
-class ReadableStreamChannel implements ReadableChannelInterface
+class ReadableStreamChannel implements ReadableChannel
 {
     /**
-     * @param ReadableStreamInterface    $stream       The underlying stream.
-     * @param UnserializerInterface|null $unserializer The unserializer to use to convert stream data into values.
-     * @param integer                    $bufferSize   The maximum number of bytes to read from the stream at a time.
+     * @param ReadableStream    $stream       The underlying stream.
+     * @param Unserializer|null $unserializer The unserializer to use to convert stream data into values.
+     * @param integer           $bufferSize   The maximum number of bytes to read from the stream at a time.
      */
     public function __construct(
-        ReadableStreamInterface $stream,
-        UnserializerInterface $unserializer = null,
+        ReadableStream $stream,
+        Unserializer $unserializer = null,
         $bufferSize = 8192
     ) {
         if (null === $unserializer) {

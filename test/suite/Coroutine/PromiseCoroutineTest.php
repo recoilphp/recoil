@@ -1,4 +1,5 @@
 <?php
+
 namespace Recoil\Coroutine;
 
 use Exception;
@@ -8,7 +9,7 @@ use React\Promise\FulfilledPromise;
 use React\Promise\Promise;
 use React\Promise\RejectedPromise;
 use Recoil\Coroutine\Exception\PromiseRejectedException;
-use Recoil\Kernel\Kernel;
+use Recoil\Kernel\StandardKernel;
 use Recoil\Recoil;
 
 /**
@@ -19,7 +20,7 @@ class PromiseCoroutineTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
-        $this->kernel = new Kernel();
+        $this->kernel = new StandardKernel();
     }
 
     public function testFulfilledPromise()
@@ -27,7 +28,8 @@ class PromiseCoroutineTest extends PHPUnit_Framework_TestCase
         $value     = null;
         $coroutine = function () use (&$value) {
             $value = (yield new PromiseCoroutine(
-                new FulfilledPromise(123)
+                new FulfilledPromise(123),
+                false
             ));
         };
 
@@ -44,7 +46,8 @@ class PromiseCoroutineTest extends PHPUnit_Framework_TestCase
         $coroutine = function () use (&$exception) {
             try {
                 yield new PromiseCoroutine(
-                    new RejectedPromise(new Exception('This is the exception.'))
+                    new RejectedPromise(new Exception('This is the exception.')),
+                    false
                 );
             } catch (Exception $e) {
                 $exception = $e;
@@ -65,7 +68,8 @@ class PromiseCoroutineTest extends PHPUnit_Framework_TestCase
         $coroutine = function () use (&$exception) {
             try {
                 yield new PromiseCoroutine(
-                    new RejectedPromise('This is the exception.')
+                    new RejectedPromise('This is the exception.'),
+                    false
                 );
             } catch (PromiseRejectedException $e) {
                 $exception = $e;
@@ -84,7 +88,7 @@ class PromiseCoroutineTest extends PHPUnit_Framework_TestCase
     {
         $deferred         = new Deferred();
         $promise          = $deferred->promise();
-        $promiseCoroutine = new PromiseCoroutine($promise);
+        $promiseCoroutine = new PromiseCoroutine($promise, false);
 
         $resumed   = null;
         $coroutine = function () use (&$resumed, $promiseCoroutine) {
@@ -116,7 +120,7 @@ class PromiseCoroutineTest extends PHPUnit_Framework_TestCase
         };
 
         $promise = new Promise(function () {}, $promiseCanceller);
-        $promiseCoroutine = new PromiseCoroutine($promise);
+        $promiseCoroutine = new PromiseCoroutine($promise, true);
 
         $coroutine = function () use ($promiseCoroutine) {
             yield $promiseCoroutine;

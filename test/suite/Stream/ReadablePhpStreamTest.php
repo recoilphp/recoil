@@ -1,18 +1,19 @@
 <?php
+
 namespace Recoil\Stream;
 
-use PHPUnit_Framework_TestCase;
 use Phake;
+use PHPUnit_Framework_TestCase;
 use Recoil\Recoil;
 use Recoil\Stream\Exception\StreamReadException;
 
-class ReadableStreamTest extends PHPUnit_Framework_TestCase
+class ReadablePhpStreamTest extends PHPUnit_Framework_TestCase
 {
     use ReadableStreamTestTrait;
 
     public function createStream()
     {
-        return new ReadableStream($this->resource);
+        return new ReadablePhpStream($this->resource);
     }
 
     public function testReadFailure()

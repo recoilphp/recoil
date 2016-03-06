@@ -12,7 +12,7 @@ use Recoil\Recoil;
 
 Recoil::run(
     function () {
-        $stream = new \Recoil\Stream\ReadableStream(fopen(__FILE__, 'r'));
+        $stream = new \Recoil\Stream\ReadablePhpStream(fopen(__FILE__, 'r'));
 
         while (!$stream->isClosed()) {
             echo (yield $stream->read(512));

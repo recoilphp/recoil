@@ -1,32 +1,34 @@
 <?php
+
 namespace Recoil\Stream;
 
-use ErrorException;
-use Recoil\Recoil;
 use Recoil\Stream\Exception\StreamClosedException;
 use Recoil\Stream\Exception\StreamLockedException;
 use Recoil\Stream\Exception\StreamWriteException;
 
 /**
- * A writable stream that operates directly on a native PHP stream resource.
+ * Interface and specification for coroutine based writable streams.
+ *
+ * The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD",
+ * "SHOULD NOT", "RECOMMENDED",  "MAY", and "OPTIONAL" in this document are to
+ * be interpreted as described in RFC 2119.
+ *
+ * @link http://www.ietf.org/rfc/rfc2119.txt
  */
-class WritableStream implements WritableStreamInterface
+interface WritableStream
 {
-    /**
-     * @param resource $stream The underlying PHP stream resource.
-     */
-    public function __construct($stream)
-    {
-        $this->stream = $stream;
-    }
-
     /**
      * [COROUTINE] Write data to this stream.
      *
-     * Execution of the current strand is suspended until the data is sent.
+     * The implementation MAY suspend execution of the current strand until the
+     * data is sent.
      *
-     * Write operations must be exclusive. If concurrent writes are attempted a
-     * StreamLockedException is thrown.
+     * If the stream is already closed, or is closed while a write operation is
+     * pending the implementation MUST throw a StreamClosedException.
+     *
+     * The implementation MAY require write operations to be exclusive. If
+     * concurrent writes are attempted but not supported the implementation MUST
+     * throw a StreamLockedException.
      *
      * @param string       $buffer The data to write to the stream.
      * @param integer|null $length The maximum number of bytes to write.
@@ -36,116 +38,54 @@ class WritableStream implements WritableStreamInterface
      * @throws StreamLockedException if concurrent writes are unsupported.
      * @throws StreamWriteException  if an error occurs while writing to the stream.
      */
-    public function write($buffer, $length = null)
-    {
-        if ($this->strand) {
-            throw new StreamLockedException();
-        } elseif ($this->isClosed()) {
-            throw new StreamClosedException();
-        }
-
-        yield Recoil::suspend(
-            function ($strand) {
-                $this->strand = $strand;
-
-                $strand
-                    ->kernel()
-                    ->eventLoop()
-                    ->addWriteStream(
-                        $this->stream,
-                        function ($stream, $eventLoop) use ($strand) {
-                            $eventLoop->removeWriteStream($this->stream);
-                            $this->strand->resumeWithValue(null);
-                        }
-                    );
-            }
-        );
-
-        $this->strand = null;
-
-        $exception = null;
-
-        set_error_handler(
-            function ($code, $message, $file, $line) use (&$exception) {
-                $exception = new ErrorException($message, 0, $code, $file, $line);
-            }
-        );
-
-        $bytesWritten = fwrite(
-            $this->stream,
-            $buffer,
-            $length ?: strlen($buffer)
-        );
-
-        restore_error_handler();
-
-        if (false === $bytesWritten) {
-            throw new StreamWriteException($exception);
-        }
-
-        yield Recoil::return_($bytesWritten);
-    // @codeCoverageIgnoreStart
-    }
-    // @codeCoverageIgnoreEnd
+    public function write($buffer, $length = null);
 
     /**
      * [COROUTINE] Write all data from the given buffer to this stream.
      *
-     * Execution of the current strand is suspended until the data is sent.
+     * The implementation MAY suspend execution of the current strand until the
+     * data is sent.
      *
-     * Write operations must be exclusive. If concurrent writes are attempted a
-     * StreamLockedException is thrown.
+     * If the stream is already closed, or is closed while a write operation is
+     * pending the implementation MUST throw a StreamClosedException.
      *
-     * @param string $buffer The data to write to the stream.
+     * The implementation MAY require write operations to be exclusive. If
+     * concurrent writes are attempted but not supported the implementation MUST
+     * throw a StreamLockedException.
+     *
+     * @param string       $buffer The data to write to the stream.
+     * @param integer|null $length The maximum number of bytes to write.
      *
      * @throws StreamClosedException if the stream is already closed.
      * @throws StreamLockedException if concurrent writes are unsupported.
      * @throws StreamWriteException  if an error occurs while writing to the stream.
      */
-    public function writeAll($buffer)
-    {
-        while ($buffer) {
-            $bytesWritten = (yield $this->write($buffer));
-            $buffer       = substr($buffer, $bytesWritten);
-        }
-    }
+    public function writeAll($buffer);
 
     /**
      * [COROUTINE] Close this stream.
      *
-     * Closing a stream indicates that no more data will be written to the
-     * stream.
+     * Closing a stream indicates that no more data will be written. Once a
+     * stream is closed future invocations of write() MUST throw
+     * a StreamClosedException.
+     *
+     * The implementation SHOULD NOT throw an exception if close() is called on
+     * an already-closed stream.
+     *
+     * The implementation SHOULD support closing the stream while a write
+     * operation is in progress, otherwise StreamLockedException MUST be thrown.
+     *
+     * @throws StreamLockedException if the stream can not be closed due to a pending write operation.
      */
-    public function close()
-    {
-        if ($this->strand) {
-            $this
-                ->strand
-                ->kernel()
-                ->eventLoop()
-                ->removeWriteStream($this->stream);
-
-            $this->strand->resumeWithException(new StreamClosedException());
-            $this->strand = null;
-        }
-
-        if (is_resource($this->stream)) {
-            fclose($this->stream);
-        }
-
-        yield Recoil::noop();
-    }
+    public function close();
 
     /**
      * Check if this stream is closed.
      *
+     * The implementation MUST return true after close() has been called or the
+     * stream is closed during a write operation.
+     *
      * @return boolean True if the stream has been closed; otherwise, false.
      */
-    public function isClosed()
-    {
-        return !is_resource($this->stream);
-    }
-
-    private $stream;
-    private $strand;
+    public function isClosed();
 }
