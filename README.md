@@ -5,7 +5,7 @@
 
 Recoil is a generator-based cooperative multitasking kernel for PHP 7.
 
-    composer require --sort-packages --dev recoil/recoil
+    composer require --sort-packages recoil/recoil
 
 > Please note this branch contains an implementation of Recoil that requries PHP 7. Notably absent are stream and
 channel implementations which will instead be provided as seperate packages.
@@ -50,20 +50,20 @@ ReactKernel::start(function () {
 });
 ```
 
-This code resolves three domain names to their IP address and prints the results to the terminal. You can run it for
-yourself from the root of the repository:
+This code resolves three domain names to their IP address and prints the results to the terminal. You can try the
+example yourself by running the following command in the root of the repository:
 
 ```
 ./examples/dns
 ```
 
-If you run it a few times you'll notice that the output is not always in the same order. This is because the results are
-shown as soon as they are received from the DNS server.
+Run it a few times. You'll notice that the output is not always in the same order. This is because the requests are made
+concurrently and the results are shown as soon as they are received from the DNS server.
 
 Note that there is **no callback-passing**, and that regular PHP **exceptions are used for reporting errors**. This is
 what we mean by "familiar imperative syntax".
 
-**Clear as mud?** Read on.
+**Clear as mud?** Read on :)
 
 ## Concepts
 
@@ -76,18 +76,18 @@ to arrive, and the CPU is free to perform other tasks.
 PHP generators provide the language-level support for functions that can suspend and resume, and Recoil provides the
 glue that lets us use these features to perform asynchronous operations.
 
-A Recoil application is started by executing an "entry-point" generator, much like the `main()` function in the C
-programming language. The Recoil kernel inspects the values yielded by the generator and converts them into an operation.
-For example, yielding a `float` with value `30` causes the coroutine to suspend execution for 30 seconds.
+A Recoil application is started by executing an "entry-point" generator, a little like the `main()` function in the C
+programming language. The Recoil kernel inspects the values yielded by the generator and identifies an operation to
+perform. For example, yielding a `float` with value `30` causes the coroutine to suspend execution for 30 seconds.
 
-The example at the top of this document shows a rather more advanced usage, including concurrent execution and
-integration with asynchronous code that is not part of Recoil. The resulting code, however, is quite normal looking,
-except for the `yield` statements!
+The DNS example above shows a rather more advanced usage, including concurrent execution and integration with
+asynchronous code that is not part of Recoil. The resulting code, however, is quite normal looking, except for the
+`yield` statements!
 
-Within Recoil, the term _coroutine_ specifically refers to a PHP generator that is being executed in this way.
-It's no mistake that generators can be used in this way. [Nikita Popov](https://github.com/nikic), who is responsible
-for the original generator implementation in PHP published an [excellent article](http://nikic.github.io/2012/12/22/Cooperative-multitasking-using-coroutines-in-PHP.html)
-explaining generated-based coroutines. The article even includes an example implementation of a coroutine scheduler,
+Within Recoil, the term _coroutine_ specifically refers to a PHP generator that is being executed by the Recoil kernel.
+It's no mistake that generators can be used in this way. [Nikita Popov](https://github.com/nikic) (who is responsible
+for the original generator implementation in PHP) published an [excellent article](http://nikic.github.io/2012/12/22/Cooperative-multitasking-using-coroutines-in-PHP.html)
+explaining generator-based coroutines. The article even includes an example implementation of a coroutine scheduler,
 though it takes a somewhat different approach.
 
 ### Strands
