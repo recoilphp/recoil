@@ -194,7 +194,7 @@ function multiply($a, $b)
 }
 
 ReactKernel::start(function () {
-    $result = (yield multiply(2, 3));
+    $result = yield multiply(2, 3);
     echo '2 * 3 is ' . $result . PHP_EOL;
 });
 ```
