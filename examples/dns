@@ -1,0 +1,48 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * This is the executable example of the DNS example given in README.md.
+ */
+
+declare(strict_types = 1);
+
+require __DIR__ . '/../vendor/autoload.php';
+
+use Recoil\React\ReactKernel;
+use Recoil\Recoil;
+
+/**
+ * Resolve a name to an IP address.
+ *
+ * @param string                      $name     The name to resolve.
+ * @param React\Dns\Resolver\Resolver $resolver The resolver to use.
+ */
+function resolveDomainName($name, React\Dns\Resolver\Resolver $resolver)
+{
+    try {
+        $ip = yield $resolver->resolve($name);
+        echo 'Resolved "' . $name . '" to ' . $ip . PHP_EOL;
+    } catch (Exception $e) {
+        echo 'Failed to resolve "' . $name . '" - ' . $e->getMessage() . PHP_EOL;
+    }
+}
+
+// -----------------------------------------------------------------------------
+
+ReactKernel::start(function () {
+    $resolver = (new React\Dns\Resolver\Factory)->create(
+        '8.8.8.8',
+        yield Recoil::eventLoop()
+    );
+
+    // Yielding an array of coroutines exectutes them in parallel and waits
+    // until all have completed.
+    yield [
+        resolveDomainName('recoil.io', $resolver),
+        resolveDomainName('php.net', $resolver),
+        resolveDomainName('probably-wont-resolve', $resolver),
+    ];
+
+    echo 'Done.' . PHP_EOL;
+});

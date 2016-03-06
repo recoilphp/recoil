@@ -1,0 +1,30 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * This example shows how exceptions can be used just like in regular functions.
+ */
+
+declare(strict_types = 1);
+
+require __DIR__ . '/../vendor/autoload.php';
+
+use Recoil\React\ReactKernel;
+
+function multiply($a, $b)
+{
+    if (!is_numeric($a) || !is_numeric($b)) {
+        throw new InvalidArgumentException();
+    }
+
+    yield; // force PHP to parse this function as a generator
+    return $a * $b;
+}
+
+ReactKernel::start(function() {
+    try {
+        yield multiply(1, 'foo');
+    } catch (InvalidArgumentException $e) {
+        echo 'Invalid argument!';
+    }
+});
