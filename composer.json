@@ -10,6 +10,7 @@
     "require-dev": {
         "eloquent/phony": "^0.8",
         "icecave/archer": "^1",
+        "phpunit/phpunit": "^5.2",
         "react/dns": "^0.4"
     },
     "autoload": { "psr-4": { "Recoil\\": "src" }},

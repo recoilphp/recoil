@@ -2,7 +2,8 @@ test: install
 	vendor/bin/archer test
 
 coverage: install
-	phpdbg -qrr $(shell which phpunit) -c vendor/icecave/archer/res/phpunit/phpunit.coverage.xml
+	phpdbg -qrr vendor/bin/phpunit -c vendor/icecave/archer/res/phpunit/phpunit.coverage.xml \
+		--bootstrap vendor/autoload.php
 
 lint: install
 	./vendor/bin/php-cs-fixer fix
