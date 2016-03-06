@@ -1,6 +1,10 @@
 #!/usr/bin/env php
 <?php
 
+/**
+ * This example shows how to call one coroutine from another.
+ */
+
 declare(strict_types = 1);
 
 require __DIR__ . '/../vendor/autoload.php';

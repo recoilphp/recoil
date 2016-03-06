@@ -1,11 +1,12 @@
 #!/usr/bin/env php
 <?php
-require dirname(__DIR__) . '/vendor/autoload.php';
 
 /**
- * This example is a version of the 'promise-dns' example written using the
- * DNS component's promise-based interface directly.
+ * This example implements the same functionality as the DNS example without
+ * using coroutines (i.e., "vanilla" React).
  */
+
+require dirname(__DIR__) . '/vendor/autoload.php';
 
 /**
  * Resolve a name to an IP address.
@@ -29,26 +30,21 @@ function resolveDomainName($name, React\Dns\Resolver\Resolver $resolver)
 
 // -----------------------------------------------------------------------------
 
-function main()
-{
-    $loop = \React\EventLoop\Factory::create();
+$loop = \React\EventLoop\Factory::create();
 
-    $resolver = (new React\Dns\Resolver\Factory)->create(
-        '8.8.8.8',
-        $loop
-    );
+$resolver = (new React\Dns\Resolver\Factory)->create(
+    '8.8.8.8',
+    $loop
+);
 
-    \React\Promise\all([
-        resolveDomainName('recoil.io', $resolver),
-        resolveDomainName('reactphp.org', $resolver),
-        resolveDomainName('probably-wont-resolve', $resolver),
-    ])->then(
-        function () {
-            echo 'Done' . PHP_EOL;
-        }
-    );
+\React\Promise\all([
+    resolveDomainName('recoil.io', $resolver),
+    resolveDomainName('reactphp.org', $resolver),
+    resolveDomainName('probably-wont-resolve', $resolver),
+])->then(
+    function () {
+        echo 'Done' . PHP_EOL;
+    }
+);
 
-    $loop->run();
-}
-
-main();
+$loop->run();

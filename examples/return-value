@@ -1,6 +1,10 @@
 #!/usr/bin/env php
 <?php
 
+/**
+ * This example shows how coroutines can return values to the caller.
+ */
+
 declare(strict_types = 1);
 
 require __DIR__ . '/../vendor/autoload.php';
@@ -15,6 +19,6 @@ function multiply($a, $b)
 }
 
 ReactKernel::start(function () {
-    $result = (yield multiply(2, 3));
+    $result = yield multiply(2, 3);
     echo '2 * 3 is ' . $result . PHP_EOL;
 });

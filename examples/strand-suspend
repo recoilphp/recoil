@@ -1,0 +1,32 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * This example shows how to suspend and then resume a strand.
+ *
+ * This pattern is useful when a strand must wait on some operation that is not
+ * coroutine based.
+ */
+
+declare(strict_types = 1);
+
+require __DIR__ . '/../vendor/autoload.php';
+
+use Recoil\Kernel\Strand;
+use Recoil\React\ReactKernel;
+use Recoil\Recoil;
+
+ReactKernel::start(function () {
+    echo 'Suspending the current strand.' . PHP_EOL;
+
+    // The Recoil::suspend() API call pauses a strand until it is manually
+    // resumed. It accepts a callback that is passed the suspended strand object.
+    $value = yield Recoil::suspend(function (Strand $strand) {
+        // Perform some work, possibly asynchronously, and then resume the
+        // strand. The value used to the resume the strand is returned by the
+        // suspend call.
+        $strand->resume('The strand was resumed!');
+    });
+
+    echo $value . PHP_EOL;
+});

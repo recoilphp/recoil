@@ -1,6 +1,10 @@
 #!/usr/bin/env php
 <?php
 
+/**
+ * This example shows how exceptions can be used just like in regular functions.
+ */
+
 declare(strict_types = 1);
 
 require __DIR__ . '/../vendor/autoload.php';
