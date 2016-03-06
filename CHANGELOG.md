@@ -1,4 +1,4 @@
-# Recoil Changelog
+# Changelog
 
 ## 0.4.0 (2016-03-06)
 
