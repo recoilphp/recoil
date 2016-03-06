@@ -48,6 +48,7 @@ ReactKernel::start(function () {
         resolveDomainName('probably-wont-resolve', $resolver),
     ];
 });
+```
 
 This code resolves three domain names to their IP address and prints the results to the terminal. You can run it for
 yourself from the root of the repository:
