@@ -1,7 +1,9 @@
 #!/usr/bin/env php
-<?php declare(strict_types = 1);
+<?php
 
-require dirname(__DIR__) . '/vendor/autoload.php';
+declare(strict_types = 1);
+
+require __DIR__ . '/../vendor/autoload.php';
 
 use Recoil\React\ReactKernel;
 use Recoil\Recoil;
@@ -38,8 +40,7 @@ function resolveDomainName($name, React\Dns\Resolver\Resolver $resolver)
 
 // -----------------------------------------------------------------------------
 
-function main()
-{
+ReactKernel::start(function () {
     $resolver = (new React\Dns\Resolver\Factory)->create(
         '8.8.8.8',
         yield Recoil::eventLoop()
@@ -47,11 +48,9 @@ function main()
 
     yield [
         resolveDomainName('recoil.io', $resolver),
-        resolveDomainName('reactphp.org', $resolver),
+        resolveDomainName('php.net', $resolver),
         resolveDomainName('probably-wont-resolve', $resolver),
     ];
 
     echo 'Done.' . PHP_EOL;
-}
-
-ReactKernel::start('main');
+});
