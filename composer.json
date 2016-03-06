@@ -1,6 +1,19 @@
 {
     "name": "recoil/recoil",
     "description": "A generator-based cooperative multitasking kernel for React.",
+    "require": {
+        "php": ">=7",
+        "icecave/repr": "^1",
+        "react/event-loop": "^0.4",
+        "react/promise": "^2"
+    },
+    "require-dev": {
+        "eloquent/phony": "^0.8",
+        "icecave/archer": "^1",
+        "react/dns": "^0.4"
+    },
+    "autoload": { "psr-4": { "Recoil\\": "src" }},
+    "autoload-dev": { "psr-4": { "Recoil\\": "test/src" }},
     "keywords": [
         "coroutine",
         "generator",
@@ -21,26 +34,5 @@
             "email": "james.harris@icecave.com.au",
             "homepage": "https://github.com/jmalloc"
         }
-    ],
-    "require": {
-        "php": ">=7",
-        "icecave/repr": "^1",
-        "react/event-loop": "^0.4",
-        "react/promise": "^2"
-    },
-    "require-dev": {
-        "eloquent/phony": "^0.8",
-        "icecave/archer": "^1",
-        "react/dns": "^0.4"
-    },
-    "autoload": {
-        "psr-4": {
-            "Recoil\\": "src"
-        }
-    },
-    "extra": {
-        "branch-alias": {
-            "dev-develop": "0.3.x-dev"
-        }
-    }
+    ]
 }
