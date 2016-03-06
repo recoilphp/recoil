@@ -1,0 +1,12 @@
+<phpunit bootstrap="vendor/autoload.php" verbose="true" colors="true">
+    <testsuites>
+        <testsuite>
+            <directory>test/suite</directory>
+        </testsuite>
+    </testsuites>
+
+    <php>
+        <ini name="zend.assertions" value="1" />
+        <ini name="assert.exception" value="1" />
+    </php>
+</phpunit>

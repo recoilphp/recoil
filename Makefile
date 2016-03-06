@@ -1,20 +1,19 @@
-test: install
-	vendor/bin/archer test
+test: deps
+	vendor/bin/phpunit
 
-coverage: install
-	phpdbg -qrr vendor/bin/phpunit -c vendor/icecave/archer/res/phpunit/phpunit.coverage.xml \
-		--bootstrap vendor/autoload.php
+coverage: deps
+	phpdbg -qrr vendor/bin/phpunit -c phpunit.xml.coverage
 
-lint: install
-	./vendor/bin/php-cs-fixer fix
+lint: deps
+	vendor/bin/php-cs-fixer fix
 
-install: vendor/autoload.php
+deps: vendor/autoload.php
 
 prepare: lint coverage
 
 ci: coverage
 
-.PHONY: _default test coverage lint install prepare ci
+.PHONY: test coverage lint deps prepare ci
 
 vendor/autoload.php: composer.lock
 	composer install
