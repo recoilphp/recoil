@@ -9,6 +9,7 @@
     },
     "require-dev": {
         "eloquent/phony": "^0.8",
+        "fabpot/php-cs-fixer": "^1",
         "phpunit/phpunit": "^5.2",
         "react/dns": "^0.4"
     },

@@ -36,14 +36,19 @@ trait AsyncTestTrait
         $strand = $this->kernel->execute([$this, $method]);
         $strand->attachObserver(
             new class implements StrandObserver
-            {
-                public function success(Strand $strand, $value)
-                    { }
-                public function failure(Strand $strand, Throwable $exception)
-                    { throw $exception; }
-                public function terminated(Strand $strand)
-                    { throw new TerminatedException($strand); }
-            }
+ {
+     public function success(Strand $strand, $value)
+     {
+     }
+     public function failure(Strand $strand, Throwable $exception)
+     {
+         throw $exception;
+     }
+     public function terminated(Strand $strand)
+     {
+         throw new TerminatedException($strand);
+     }
+ }
         );
 
         $this->kernel->wait();

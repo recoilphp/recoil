@@ -365,13 +365,13 @@ class StrandTraitTest extends PHPUnit_Framework_TestCase
     {
         $fn = Phony::spy(function () {
             return yield new class implements CoroutineProvider
-            {
-                public function coroutine() : Generator
-                {
-                    return '<result>';
-                    yield;
-                }
-            };
+ {
+     public function coroutine() : Generator
+     {
+         return '<result>';
+         yield;
+     }
+ };
         });
 
         $this->subject->mock()->start($fn);

@@ -20,6 +20,7 @@ trait FunctionalInvokeTestTrait
 
         $fn = function () {
             echo 2;
+
             return 3;
             yield;
         };
@@ -34,6 +35,7 @@ trait FunctionalInvokeTestTrait
 
         $fn = function () {
             echo 2;
+
             return 3;
             yield;
         };
@@ -48,14 +50,15 @@ trait FunctionalInvokeTestTrait
 
         echo 1;
         echo yield new class implements CoroutineProvider
-        {
-            public function coroutine() : Generator
-            {
-                echo 2;
-                return 3;
-                yield;
-            }
-        };
+ {
+     public function coroutine() : Generator
+     {
+         echo 2;
+
+         return 3;
+         yield;
+     }
+ };
     }
 
     public function asyncTestInvokeAwaitable()
@@ -64,12 +67,12 @@ trait FunctionalInvokeTestTrait
 
         echo 1;
         echo yield new class implements Awaitable
-        {
-            public function await(Strand $strand, Api $api)
-            {
-                $strand->resume(2);
-            }
-        };
+ {
+     public function await(Strand $strand, Api $api)
+     {
+         $strand->resume(2);
+     }
+ };
     }
 
     public function asyncTestInvokeAwaitableProvider()
@@ -78,18 +81,18 @@ trait FunctionalInvokeTestTrait
 
         echo 1;
         echo yield new class implements AwaitableProvider
-        {
-            public function awaitable() : Awaitable
-            {
-                return new class implements Awaitable
-                {
-                    public function await(Strand $strand, Api $api)
-                    {
-                        $strand->resume(2);
-                    }
-                };
-            }
-        };
+ {
+     public function awaitable() : Awaitable
+     {
+         return new class implements Awaitable
+ {
+     public function await(Strand $strand, Api $api)
+     {
+         $strand->resume(2);
+     }
+ };
+     }
+ };
     }
 
     public function asyncTestExceptionPropagatesUpCallStack()

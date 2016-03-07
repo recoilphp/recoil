@@ -5,12 +5,6 @@ declare (strict_types = 1);
 namespace Recoil;
 
 use Eloquent\Phony\Phpunit\Phony;
-use Exception;
-use Generator;
-use Recoil\Kernel\Api;
-use Recoil\Kernel\Awaitable;
-use Recoil\Kernel\AwaitableProvider;
-use Recoil\Kernel\CoroutineProvider;
 use Recoil\Kernel\Strand;
 
 trait FunctionalApiTestTrait
@@ -68,6 +62,7 @@ trait FunctionalApiTestTrait
 
         yield Recoil::execute(function () {
             echo 2;
+
             return;
             yield;
         });

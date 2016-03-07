@@ -4,11 +4,7 @@ declare (strict_types = 1);
 
 namespace Recoil;
 
-use Generator;
 use Recoil\Kernel\Api;
-use Recoil\Kernel\Awaitable;
-use Recoil\Kernel\AwaitableProvider;
-use Recoil\Kernel\CoroutineProvider;
 use Recoil\Kernel\Strand;
 
 /**
