@@ -203,8 +203,9 @@ trait ApiTrait
      * Execute multiple coroutines in on their own strands and wait for one of
      * them to complete or produce an exception.
      *
-     * The calling strand resumed with the result of the first strand to finish,
-     * regardless of whether it finishes successfully or produces an exception.
+     * The calling strand is resumed with the result of the first strand to
+     * finish, regardless of whether it finishes successfully or produces an
+     * exception.
      *
      * @param Strand $strand         The strand executing the API call.
      * @param mixed  $coroutines,... The coroutines to execute.

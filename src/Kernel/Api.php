@@ -162,11 +162,34 @@ interface Api
      * Execute multiple coroutines in on their own strands and wait for one of
      * them to complete or produce an exception.
      *
-     * The calling strand resumed with the result of the first strand to finish,
-     * regardless of whether it finishes successfully or produces an exception.
+     * The calling strand is resumed with the result of the first strand to
+     * finish, regardless of whether it finishes successfully or produces an
+     * exception.
      *
      * @param Strand $strand         The strand executing the API call.
      * @param mixed  $coroutines,... The coroutines to execute.
      */
     public function first(Strand $strand, ...$coroutines);
+
+    /**
+     * Read data from a stream.
+     *
+     * The calling strand is resumed when a string containing the data read from
+     * the stream, or with an empty string if the stream is closed while waiting
+     * for data.
+     *
+     * @param Strand   $strand The strand executing the API call.
+     * @param resource $stream A readable stream.
+     * @param int      $size   The maximum size of the buffer to return, in bytes.
+     */
+    public function read(Strand $strand, $stream, int $size = 8192);
+
+    /**
+     * Write data to a stream.
+     *
+     * @param Strand   $strand The strand executing the API call.
+     * @param resource $stream A writable stream.
+     * @param string   $buffer The data to write to the stream.
+     */
+    public function write(Strand $strand, $stream, string $buffer);
 }

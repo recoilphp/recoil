@@ -1,0 +1,23 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * This example shows how to asynchronously read from a stream.
+ */
+
+declare(strict_types = 1);
+
+require __DIR__ . '/../vendor/autoload.php';
+
+use Recoil\React\ReactKernel;
+use Recoil\Recoil;
+
+ReactKernel::start(function () {
+    $fp = fopen('/etc/profile', 'r'); // please be aware the PHP's fopen is always blocking
+    stream_set_blocking($fp, false);
+    stream_set_read_buffer($fp, 0);
+
+    while (!feof($fp)) {
+        echo yield Recoil::read($fp);
+    }
+});
