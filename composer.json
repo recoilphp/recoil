@@ -2,7 +2,7 @@
     "name": "recoil/recoil",
     "description": "A generator-based cooperative multitasking kernel for React.",
     "require": {
-        "php": ">=7",
+        "php": "^7",
         "icecave/repr": "^1",
         "react/event-loop": "^0.4",
         "react/promise": "^2"
