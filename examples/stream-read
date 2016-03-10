@@ -18,6 +18,6 @@ ReactKernel::start(function () {
     stream_set_read_buffer($fp, 0);
 
     while (!feof($fp)) {
-        echo yield Recoil::read($fp);
+        echo yield $fp;
     }
 });
