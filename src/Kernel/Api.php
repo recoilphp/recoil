@@ -162,11 +162,45 @@ interface Api
      * Execute multiple coroutines in on their own strands and wait for one of
      * them to complete or produce an exception.
      *
-     * The calling strand resumed with the result of the first strand to finish,
-     * regardless of whether it finishes successfully or produces an exception.
+     * The calling strand is resumed with the result of the first strand to
+     * finish, regardless of whether it finishes successfully or produces an
+     * exception.
      *
      * @param Strand $strand         The strand executing the API call.
      * @param mixed  $coroutines,... The coroutines to execute.
      */
     public function first(Strand $strand, ...$coroutines);
+
+    /**
+     * Read data from a stream.
+     *
+     * The calling strand is resumed with a string containing the data read from
+     * the stream, or with an empty string if the stream has reached EOF.
+     *
+     * It is assumed that the stream is already configured as non-blocking.
+     *
+     * @param Strand   $strand The strand executing the API call.
+     * @param resource $stream A readable stream.
+     * @param int      $size   The maximum size of the buffer to return, in bytes.
+     */
+    public function read(Strand $strand, $stream, int $size = 8192);
+
+    /**
+     * Write data to a stream.
+     *
+     * The calling strand is resumed with the number of bytes written.
+     *
+     * It is assumed that the stream is already configured as non-blocking.
+     *
+     * @param Strand   $strand The strand executing the API call.
+     * @param resource $stream A writable stream.
+     * @param string   $buffer The data to write to the stream.
+     * @param int      $length The number of bytes to write from the start of the buffer.
+     */
+    public function write(
+        Strand $strand,
+        $stream,
+        string $buffer,
+        int $length = PHP_INT_MAX
+    );
 }

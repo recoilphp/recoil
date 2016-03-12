@@ -169,6 +169,123 @@ class ReactApiTest extends PHPUnit_Framework_TestCase
         $this->substrand->terminate->called();
     }
 
+    public function testRead()
+    {
+        $fp = fopen('php://memory', 'r+');
+        fwrite($fp, '<buffer>');
+        fseek($fp, 0);
+
+        $this->subject->read(
+            $this->strand->mock(),
+            $fp
+        );
+
+        $fn = $this->eventLoop->addReadStream->calledWith($fp, '~')->argument(1);
+        $this->assertTrue(is_callable($fn));
+
+        $this->strand->resume->never()->called();
+        $this->eventLoop->removeReadStream->never()->called();
+
+        $fn();
+
+        Phony::inOrder(
+            $this->eventLoop->removeReadStream->calledWith($fp),
+            $this->strand->resume->calledWith('<buffer>')
+        );
+    }
+
+    public function testReadWithLength()
+    {
+        $fp = fopen('php://memory', 'r+');
+        fwrite($fp, '<buffer>');
+        fseek($fp, 0);
+
+        $this->subject->read(
+            $this->strand->mock(),
+            $fp,
+            4
+        );
+
+        $fn = $this->eventLoop->addReadStream->calledWith($fp, '~')->argument(1);
+        $this->assertTrue(is_callable($fn));
+
+        $this->strand->resume->never()->called();
+        $this->eventLoop->removeReadStream->never()->called();
+
+        $fn();
+
+        Phony::inOrder(
+            $this->eventLoop->removeReadStream->calledWith($fp),
+            $this->strand->resume->calledWith('<buf')
+        );
+    }
+
+    public function testReadTermination()
+    {
+        $fp = fopen('php://memory', 'r+');
+
+        $this->subject->read(
+            $this->strand->mock(),
+            $fp
+        );
+
+        $fn = $this->strand->setTerminator->calledWith('~')->argument();
+        $this->assertTrue(is_callable($fn));
+
+        $fn();
+
+        $this->eventLoop->removeReadStream->calledWith($fp);
+    }
+
+    public function testWrite()
+    {
+        $fp = fopen('php://memory', 'r+');
+
+        $this->subject->write(
+            $this->strand->mock(),
+            $fp,
+            '<buffer>'
+        );
+
+        $fn = $this->eventLoop->addWriteStream->calledWith($fp, '~')->argument(1);
+        $this->assertTrue(is_callable($fn));
+
+        $this->strand->resume->never()->called();
+        $this->eventLoop->removeWriteStream->never()->called();
+
+        $fn();
+
+        Phony::inOrder(
+            $this->eventLoop->removeWriteStream->calledWith($fp),
+            $this->strand->resume->calledWith(8)
+        );
+
+        fseek($fp, 0);
+
+        $this->assertSame(
+            '<buffer>',
+            fread($fp, 1024)
+        );
+    }
+
+    public function testWriteTermination()
+    {
+        $fp = fopen('php://memory', 'w+');
+
+        $this->subject->write(
+            $this->strand->mock(),
+            $fp,
+            '<buffer>'
+        );
+
+        $fn = $this->strand->setTerminator->calledWith('~')->argument();
+        $this->assertTrue(is_callable($fn));
+
+        $fn();
+
+        $this->eventLoop->removeWriteStream->calledWith($fp);
+    }
+
     public function testEventLoop()
     {
         $this->subject->eventLoop(
