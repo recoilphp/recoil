@@ -46,9 +46,11 @@ trait ApiTrait
                 $strand->setTerminator([$value, 'cancel']);
             }
         } elseif (\is_resource($value)) {
-            $this->read($strand, $value);
-        } elseif (\is_resource($key) && \is_string($value)) {
-            $this->write($strand, $key, $value);
+            if (\is_string($key)) {
+                $this->write($strand, $value, $key);
+            } else {
+                $this->read($strand, $value);
+            }
         } else {
             $strand->throw(
                 new UnexpectedValueException(

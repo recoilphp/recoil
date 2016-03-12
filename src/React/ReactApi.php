@@ -142,37 +142,28 @@ final class ReactApi implements Api
     /**
      * Read data from a stream.
      *
-     * The calling strand is resumed when a string containing the data read from
-     * the stream, or with an empty string if the stream is closed while waiting
-     * for data.
+     * The calling strand is resumed with a string containing the data read from
+     * the stream, or with an empty string if the stream has reached EOF.
+     *
+     * It is assumed that the stream is already configured as non-blocking.
      *
      * @param Strand   $strand The strand executing the API call.
      * @param resource $stream A readable stream.
-     * @param int      $size   The maximum size of the buffer to return, in bytes.
+     * @param int      $length The maximum number of bytes to read.
      */
-    public function read(Strand $strand, $stream, int $size = 8192)
+    public function read(Strand $strand, $stream, int $length = 8192)
     {
-        if (!is_resource($stream) || feof($stream)) {
-            $strand->throw(new Exception);
-
-            return;
-        }
-
-        // stream_set_blocking($stream, false);
-        // stream_set_read_buffer($stream, 0);
+        $strand->setTerminator(
+            function () use ($stream) {
+                $this->eventLoop->removeReadStream($stream);
+            }
+        );
 
         $this->eventLoop->addReadStream(
             $stream,
-            function () use ($strand, $stream, $size) {
+            function () use ($strand, $stream, $length) {
                 $this->eventLoop->removeReadStream($stream);
-                $buffer = fread($stream, $size);
-
-                if ($buffer === false) {
-                    $info = stream_get_meta_data($stream);
-                    $strand->throw(new Exception()); // @todo
-                } else {
-                    $strand->resume($buffer);
-                }
+                $strand->resume(fread($stream, $length));
             }
         );
     }
@@ -180,15 +171,34 @@ final class ReactApi implements Api
     /**
      * Write data to a stream.
      *
+     * The calling strand is resumed with the number of bytes written.
+     *
+     * It is assumed that the stream is already configured as non-blocking.
+     *
      * @param Strand   $strand The strand executing the API call.
      * @param resource $stream A writable stream.
      * @param string   $buffer The data to write to the stream.
+     * @param int      $length The number of bytes to write from the start of the buffer.
      */
-    public function write(Strand $strand, $stream, string $buffer)
-    {
-        if (!is_resource($stream) || feof($stream)) {
-            $strand->throw(new Exception()); // @todo
-        }
+    public function write(
+        Strand $strand,
+        $stream,
+        string $buffer,
+        int $length = PHP_INT_MAX
+    ) {
+        $strand->setTerminator(
+            function () use ($stream) {
+                $this->eventLoop->removeWriteStream($stream);
+            }
+        );
+
+        $this->eventLoop->addWriteStream(
+            $stream,
+            function () use ($strand, $stream, $buffer, $length) {
+                $this->eventLoop->removeWriteStream($stream);
+                $strand->resume(fwrite($stream, $buffer, $length));
+            }
+        );
     }
 
     /**

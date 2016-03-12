@@ -9,15 +9,27 @@ declare(strict_types = 1);
 
 require __DIR__ . '/../vendor/autoload.php';
 
+
 use Recoil\React\ReactKernel;
 use Recoil\Recoil;
 
 ReactKernel::start(function () {
-    $fp = fopen('/etc/profile', 'r'); // please be aware the PHP's fopen is always blocking
+    $fp = tmpfile(); // please note that this is a *blocking* file operation
     stream_set_blocking($fp, false);
     stream_set_read_buffer($fp, 0);
 
-    while (!feof($fp)) {
-        echo yield $fp;
+    $buffer = "<line 1>\n<line 2>\n";
+
+    while ($buffer) {
+        $bytes = yield Recoil::write($fp, $buffer);
+        $buffer = substr($buffer, $bytes);
     }
+
+    fseek($fp, 0);
+
+    while (!feof($fp)) {
+        echo yield Recoil::read($fp);
+    }
+
+    fclose($fp);
 });

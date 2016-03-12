@@ -174,6 +174,39 @@ class ApiTraitTest extends PHPUnit_Framework_TestCase
         );
     }
 
+    public function testDispatchStreamRead()
+    {
+        $fp = fopen('php://memory', 'r');
+
+        $this->subject->mock()->__dispatch(
+            $this->strand->mock(),
+            123,
+            $fp
+        );
+
+        $this->subject->read->calledWith(
+            $this->strand->mock(),
+            $fp
+        );
+    }
+
+    public function testDispatchStreamWrite()
+    {
+        $fp = fopen('php://memory', 'r');
+
+        $this->subject->mock()->__dispatch(
+            $this->strand->mock(),
+            '<buffer>',
+            $fp
+        );
+
+        $this->subject->write->calledWith(
+            $this->strand->mock(),
+            $fp,
+            '<buffer>'
+        );
+    }
+
     public function testCallMagicMethod()
     {
         $this->subject->mock()->unknown(
