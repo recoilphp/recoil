@@ -77,6 +77,8 @@ interface Api
      *
      * @param Strand $strand  The strand executing the API call.
      * @param float  $seconds The interval to wait.
+     *
+     * @return null
      */
     public function sleep(Strand $strand, float $seconds);
 
