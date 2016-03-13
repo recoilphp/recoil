@@ -79,7 +79,7 @@ trait ApiTrait
      */
     public function __call(string $name, array $arguments)
     {
-        (function (string $name, Strand $strandp) {
+        (function (string $name, Strand $strand) {
             $strand->throw(
                 new BadMethodCallException(
                     'The API does not implement an operation named "' . $name . '".'
