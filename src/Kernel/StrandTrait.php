@@ -291,7 +291,7 @@ trait StrandTrait
                             $this->api
                         );
                     } else {
-                        $this->api->__dispatch(
+                        $this->api->dispatch(
                             $this,
                             $this->current->key(),
                             $produced

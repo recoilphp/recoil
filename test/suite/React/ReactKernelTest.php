@@ -103,7 +103,7 @@ class ReactKernelTest extends PHPUnit_Framework_TestCase
 
         $fn();
 
-        $this->api->__dispatch->calledWith(
+        $this->api->dispatch->calledWith(
             $strand,
             0,
             '<task>'

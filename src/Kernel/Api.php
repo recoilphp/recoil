@@ -17,7 +17,7 @@ interface Api
      * @param mixed  $key    The yielded key.
      * @param mixed  $value  The yielded value.
      */
-    public function __dispatch(Strand $strand, $key, $value);
+    public function dispatch(Strand $strand, $key, $value);
 
     /**
      * Invoke a non-standard API operation.

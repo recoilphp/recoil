@@ -67,7 +67,7 @@ class StrandTraitTest extends PHPUnit_Framework_TestCase
 
         $this->subject->mock()->start($fn());
 
-        $this->api->__dispatch->calledWith(
+        $this->api->dispatch->calledWith(
             $this->subject->mock(),
             '<key>',
             '<value>'
@@ -85,7 +85,7 @@ class StrandTraitTest extends PHPUnit_Framework_TestCase
 
         $this->subject->mock()->start($fn);
 
-        $this->api->__dispatch->calledWith(
+        $this->api->dispatch->calledWith(
             $this->subject->mock(),
             '<key>',
             '<value>'
@@ -104,7 +104,7 @@ class StrandTraitTest extends PHPUnit_Framework_TestCase
 
         $this->subject->mock()->start($provider->mock());
 
-        $this->api->__dispatch->calledWith(
+        $this->api->dispatch->calledWith(
             $this->subject->mock(),
             '<key>',
             '<value>'
@@ -125,7 +125,7 @@ class StrandTraitTest extends PHPUnit_Framework_TestCase
     {
         $this->subject->mock()->start('<value>');
 
-        $this->api->__dispatch->calledWith(
+        $this->api->dispatch->calledWith(
             $this->subject->mock(),
             0,
             '<value>'
@@ -175,7 +175,7 @@ class StrandTraitTest extends PHPUnit_Framework_TestCase
             yield;
         });
 
-        $this->api->__dispatch->does(
+        $this->api->dispatch->does(
             function () {
                 $this->subject->mock()->resume('<result>');
             }
@@ -221,7 +221,7 @@ class StrandTraitTest extends PHPUnit_Framework_TestCase
         });
 
         $exception = Phony::mock(Throwable::class)->mock();
-        $this->api->__dispatch->does(
+        $this->api->dispatch->does(
             function () use ($exception) {
                 $this->subject->mock()->throw($exception);
             }
@@ -446,7 +446,7 @@ class StrandTraitTest extends PHPUnit_Framework_TestCase
     public function testCallFailure()
     {
         $exception = Phony::mock(Throwable::class)->mock();
-        $this->api->__dispatch->throws($exception);
+        $this->api->dispatch->throws($exception);
 
         $fn = Phony::spy(function () {
             yield;

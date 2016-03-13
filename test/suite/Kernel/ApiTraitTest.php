@@ -33,7 +33,7 @@ class ApiTraitTest extends PHPUnit_Framework_TestCase
 
     public function testDispatchWithNull()
     {
-        $this->subject->mock()->__dispatch(
+        $this->subject->mock()->dispatch(
             $this->strand->mock(),
             0, // current generator key
             null
@@ -48,7 +48,7 @@ class ApiTraitTest extends PHPUnit_Framework_TestCase
 
     public function testDispatchWithInteger()
     {
-        $this->subject->mock()->__dispatch(
+        $this->subject->mock()->dispatch(
             $this->strand->mock(),
             0, // current generator key
             10
@@ -64,7 +64,7 @@ class ApiTraitTest extends PHPUnit_Framework_TestCase
 
     public function testDispatchWithFloat()
     {
-        $this->subject->mock()->__dispatch(
+        $this->subject->mock()->dispatch(
             $this->strand->mock(),
             0, // current generator key
             10.5
@@ -82,7 +82,7 @@ class ApiTraitTest extends PHPUnit_Framework_TestCase
     {
         $this->subject->all->returns(null);
 
-        $this->subject->mock()->__dispatch(
+        $this->subject->mock()->dispatch(
             $this->strand->mock(),
             0, // current generator key
             ['<a>', '<b>']
@@ -103,7 +103,7 @@ class ApiTraitTest extends PHPUnit_Framework_TestCase
             ['function then' => null]
         );
 
-        $this->subject->mock()->__dispatch(
+        $this->subject->mock()->dispatch(
             $this->strand->mock(),
             0, // current generator key
             $promise->mock()
@@ -142,7 +142,7 @@ class ApiTraitTest extends PHPUnit_Framework_TestCase
             ]
         );
 
-        $this->subject->mock()->__dispatch(
+        $this->subject->mock()->dispatch(
             $this->strand->mock(),
             0, // current generator key
             $promise->mock()
@@ -161,7 +161,7 @@ class ApiTraitTest extends PHPUnit_Framework_TestCase
 
     public function testDispatchFailure()
     {
-        $this->subject->mock()->__dispatch(
+        $this->subject->mock()->dispatch(
             $this->strand->mock(),
             123, // current generator key
             '<string>'
@@ -178,7 +178,7 @@ class ApiTraitTest extends PHPUnit_Framework_TestCase
     {
         $fp = fopen('php://memory', 'r');
 
-        $this->subject->mock()->__dispatch(
+        $this->subject->mock()->dispatch(
             $this->strand->mock(),
             123,
             $fp
@@ -194,7 +194,7 @@ class ApiTraitTest extends PHPUnit_Framework_TestCase
     {
         $fp = fopen('php://memory', 'r');
 
-        $this->subject->mock()->__dispatch(
+        $this->subject->mock()->dispatch(
             $this->strand->mock(),
             '<buffer>',
             $fp
