@@ -55,8 +55,8 @@ final class ReactKernel implements Kernel
     }
 
     /**
-     * @param LoopInterface $eventLoop The event loop.
-     * @param Api           $api       The kernel API.
+     * @param LoopInterface|null $eventLoop The event loop.
+     * @param Api|null           $api       The kernel API.
      */
     public function __construct(LoopInterface $eventLoop = null, Api $api = null)
     {
