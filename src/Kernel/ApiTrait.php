@@ -18,8 +18,8 @@ use UnexpectedValueException;
  *
  * @method null cooperate(Strand $strand);
  * @method null sleep(Strand $strand, float $seconds);
- * @method null read(Strand $strand, $stream, int $length);
- * @method null write(Strand $strand, $stream, string $buffer, int $length);
+ * @method null read(Strand $strand, $stream, int $length = 8192);
+ * @method null write(Strand $strand, $stream, string $buffer, int $length = PHP_INT_MAX);
  */
 trait ApiTrait
 {
@@ -79,7 +79,7 @@ trait ApiTrait
      */
     public function __call(string $name, array $arguments)
     {
-        (function (string $name, Strand $strand) {
+        (function (string $name, Strand $strandp) {
             $strand->throw(
                 new BadMethodCallException(
                     'The API does not implement an operation named "' . $name . '".'

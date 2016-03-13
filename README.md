@@ -3,8 +3,7 @@
 [![Build Status](http://img.shields.io/travis/recoilphp/recoil/master.svg?style=flat-square)](https://travis-ci.org/recoilphp/recoil)
 [![Code Coverage](https://img.shields.io/codecov/c/github/recoilphp/recoil/master.svg?style=flat-square)](https://codecov.io/github/recoilphp/recoil)
 [![Latest Version](http://img.shields.io/packagist/v/recoil/recoil.svg?style=flat-square&label=semver)](https://semver.org)
-
-Recoil is a generator-based cooperative multitasking kernel for PHP 7.
+[![Code Quality](https://img.shields.io/scrutinizer/g/recoilphp/recoil/master.svg?style=flat-square)](https://scrutinizer-ci.com/g/recoilphp/recoil/)
 
     composer require --sort-packages recoil/recoil
 
