@@ -26,6 +26,8 @@ interface Strand extends AwaitableProvider
      * Add a strand observer.
      *
      * @param StrandObserver $observer
+     *
+     * @return null
      */
     public function attachObserver(StrandObserver $observer);
 
@@ -33,6 +35,8 @@ interface Strand extends AwaitableProvider
      * Remove a strand observer.
      *
      * @param StrandObserver $observer
+     *
+     * @return null
      */
     public function detachObserver(StrandObserver $observer);
 
@@ -40,6 +44,8 @@ interface Strand extends AwaitableProvider
      * Start the strand.
      *
      * @param mixed $coroutine The strand's entry-point.
+     *
+     * @return null
      */
     public function start($coroutine);
 
@@ -50,6 +56,8 @@ interface Strand extends AwaitableProvider
      * operation is cancelled.
      *
      * The call stack is not unwound, it is simply discarded.
+     *
+     * @return null
      */
     public function terminate();
 
@@ -57,6 +65,8 @@ interface Strand extends AwaitableProvider
      * Resume execution of a suspended strand.
      *
      * @param mixed $value The value to send to the coroutine on the the top of the call stack.
+     *
+     * @return null
      */
     public function resume($value = null);
 
@@ -64,6 +74,8 @@ interface Strand extends AwaitableProvider
      * Resume execution of a suspended strand with an error.
      *
      * @param Throwable $exception The exception to send to the coroutine on the top of the call stack.
+     *
+     * @return null
      */
     public function throw(Throwable $exception);
 
@@ -77,6 +89,8 @@ interface Strand extends AwaitableProvider
      * is resumed.
      *
      * @param callable|null $fn The terminator function.
+     *
+     * @return null
      */
     public function setTerminator(callable $fn = null);
 }

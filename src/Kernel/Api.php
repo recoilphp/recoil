@@ -16,11 +16,15 @@ interface Api
      * @param Strand $strand The strand executing the API call.
      * @param mixed  $key    The yielded key.
      * @param mixed  $value  The yielded value.
+     *
+     * @return null
      */
     public function dispatch(Strand $strand, $key, $value);
 
     /**
      * Invoke a non-standard API operation.
+     *
+     * @return null
      */
     public function __call(string $name, array $arguments);
 
@@ -38,6 +42,8 @@ interface Api
      *
      * @param Strand $strand    The strand executing the API call.
      * @param mixed  $coroutine The coroutine to execute.
+     *
+     * @return null
      */
     public function execute(Strand $strand, $coroutine);
 
@@ -53,6 +59,8 @@ interface Api
      *
      * @param Strand $strand    The strand executing the API call.
      * @param mixed  $coroutine The coroutine to execute.
+     *
+     * @return null
      */
     public function callback(Strand $strand, $coroutine);
 
@@ -60,6 +68,8 @@ interface Api
      * Allow other strands to execute then resume the strand.
      *
      * @param Strand $strand The strand executing the API call.
+     *
+     * @return null
      */
     public function cooperate(Strand $strand);
 
@@ -82,6 +92,8 @@ interface Api
      * @param Strand $strand    The strand executing the API call.
      * @param float  $seconds   The interval to allow for execution.
      * @param mixed  $coroutine The coroutine to execute.
+     *
+     * @return null
      */
     public function timeout(Strand $strand, float $seconds, $coroutine);
 
@@ -90,6 +102,8 @@ interface Api
      *
      * @param Strand        $strand The strand executing the API call.
      * @param callable|null $fn     A function invoked with the strand after it is suspended.
+     *
+     * @return null
      */
     public function suspend(Strand $strand, callable $fn = null);
 
@@ -97,6 +111,8 @@ interface Api
      * Terminate the current strand.
      *
      * @param Strand $strand The strand executing the API call.
+     *
+     * @return null
      */
     public function terminate(Strand $strand);
 
@@ -116,6 +132,8 @@ interface Api
      *
      * @param Strand $strand         The strand executing the API call.
      * @param mixed  $coroutines,... The coroutines to execute.
+     *
+     * @return null
      */
     public function all(Strand $strand, ...$coroutines);
 
@@ -130,6 +148,8 @@ interface Api
      *
      * @param Strand $strand         The strand executing the API call.
      * @param mixed  $coroutines,... The coroutines to execute.
+     *
+     * @return null
      */
     public function any(Strand $strand, ...$coroutines);
 
@@ -155,6 +175,8 @@ interface Api
      * @param Strand $strand         The strand executing the API call.
      * @param int    $count          The number of strands to wait for.
      * @param mixed  $coroutines,... The coroutines to execute.
+     *
+     * @return null
      */
     public function some(Strand $strand, int $count, ...$coroutines);
 
@@ -168,6 +190,8 @@ interface Api
      *
      * @param Strand $strand         The strand executing the API call.
      * @param mixed  $coroutines,... The coroutines to execute.
+     *
+     * @return null
      */
     public function first(Strand $strand, ...$coroutines);
 
@@ -182,6 +206,8 @@ interface Api
      * @param Strand   $strand The strand executing the API call.
      * @param resource $stream A readable stream.
      * @param int      $size   The maximum size of the buffer to return, in bytes.
+     *
+     * @return null
      */
     public function read(Strand $strand, $stream, int $size = 8192);
 
@@ -196,6 +222,8 @@ interface Api
      * @param resource $stream A writable stream.
      * @param string   $buffer The data to write to the stream.
      * @param int      $length The number of bytes to write from the start of the buffer.
+     *
+     * @return null
      */
     public function write(
         Strand $strand,

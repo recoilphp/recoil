@@ -14,6 +14,8 @@ interface Awaitable
      *
      * @param Strand $strand The strand to resume on completion.
      * @param Api    $api    The kernel API.
+     *
+     * @return null
      */
     public function await(Strand $strand, Api $api);
 }

@@ -21,6 +21,8 @@ interface Kernel
 
     /**
      * Run the kernel and wait for all strands to complete.
+     *
+     * @return null
      */
     public function wait();
 }

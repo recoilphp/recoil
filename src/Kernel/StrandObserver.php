@@ -16,6 +16,8 @@ interface StrandObserver
      *
      * @param Strand $strand The strand.
      * @param mixed  $value  The result of the strand's entry point coroutine.
+     *
+     * @return null
      */
     public function success(Strand $strand, $value);
 
@@ -24,6 +26,8 @@ interface StrandObserver
      *
      * @param Strand    $strand    The strand.
      * @param Throwable $exception The exception.
+     *
+     * @return null
      */
     public function failure(Strand $strand, Throwable $exception);
 
@@ -31,6 +35,8 @@ interface StrandObserver
      * A strand was terminated.
      *
      * @param Strand $strand The strand.
+     *
+     * @return null
      */
     public function terminated(Strand $strand);
 }
