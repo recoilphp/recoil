@@ -298,7 +298,7 @@ trait StrandTrait
                         );
                     }
 
-                    // $this->resume() or throw() has already been called ...
+                    // resume/throw() has already been called ...
                     if ($this->action) {
                         goto action;
                     }

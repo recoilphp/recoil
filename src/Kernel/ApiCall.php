@@ -28,4 +28,4 @@ final class ApiCall
         $this->name = $name;
         $this->arguments = $arguments;
     }
-};
+}

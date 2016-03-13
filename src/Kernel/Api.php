@@ -4,7 +4,6 @@ declare (strict_types = 1);
 
 namespace Recoil\Kernel;
 
-use Generator;
 use Recoil\Exception\CompositeException;
 use Recoil\Exception\TimeoutException;
 
@@ -209,7 +208,7 @@ interface Api
      *
      * @return null
      */
-    public function read(Strand $strand, $stream, int $size = 8192);
+    public function read(Strand $strand, $stream, int $length = 8192);
 
     /**
      * Write data to a stream.
