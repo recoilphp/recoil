@@ -66,7 +66,7 @@ final class StrandWaitAny implements Awaitable, StrandObserver
 
         $this->exceptions[$index] = $exception;
 
-        if (!$this->substrands) {
+        if (empty($this->substrands)) {
             $this->strand->throw(
                 new CompositeException($this->exceptions)
             );

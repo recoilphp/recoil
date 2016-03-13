@@ -47,7 +47,7 @@ final class StrandWaitAll implements Awaitable, StrandObserver
 
         $this->values[$index] = $value;
 
-        if (!$this->substrands) {
+        if (empty($this->substrands)) {
             $this->strand->resume($this->values);
         }
     }
