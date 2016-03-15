@@ -1,6 +1,6 @@
 <?php
 
-declare (strict_types = 1);
+declare (strict_types = 1); // @codeCoverageIgnore
 
 namespace Recoil\Kernel;
 
@@ -38,6 +38,12 @@ trait ApiTrait
             $this->sleep($strand, $value);
         } elseif (\is_array($value)) {
             $this->all($strand, ...$value);
+        } elseif (\is_resource($value)) {
+            if (\is_string($key)) {
+                $this->write($strand, $value, $key);
+            } else {
+                $this->read($strand, $value);
+            }
         } elseif (\method_exists($value, 'then')) {
             $value->then(
                 static function ($result) use ($strand) {
@@ -54,12 +60,6 @@ trait ApiTrait
 
             if (\method_exists($value, 'cancel')) {
                 $strand->setTerminator([$value, 'cancel']);
-            }
-        } elseif (\is_resource($value)) {
-            if (\is_string($key)) {
-                $this->write($strand, $value, $key);
-            } else {
-                $this->read($strand, $value);
             }
         } else {
             $strand->throw(
