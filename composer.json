@@ -10,11 +10,17 @@
     "require-dev": {
         "eloquent/phony": "^0.8",
         "fabpot/php-cs-fixer": "^1",
-        "phpunit/phpunit": "^5.2",
+        "hamcrest/hamcrest-php": "^2.0",
+        "peridot-php/leo": "dev-php7",
+        "peridot-php/peridot": "^1",
+        "peridot-php/peridot-code-coverage-reporters": "^2",
         "react/dns": "^0.4"
     },
     "autoload": { "psr-4": { "Recoil\\": "src" }},
-    "autoload-dev": { "psr-4": { "Recoil\\": "test/src" }},
+    "autoload-dev": {
+        "psr-4": { "Recoil\\": "test/src" },
+        "files": [ "test/src/functions.php" ]
+    },
     "keywords": [
         "coroutine",
         "generator",
@@ -35,5 +41,11 @@
             "email": "james.harris@icecave.com.au",
             "homepage": "https://github.com/jmalloc"
         }
-    ]
+    ],
+    "repositories": {
+        "temporary jmalloc fork of peridot-php/leo": {
+            "type": "vcs",
+            "url": "https://github.com/jmalloc/leo"
+        }
+    }
 }

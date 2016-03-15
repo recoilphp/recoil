@@ -1,6 +1,6 @@
 <?php
 
-declare (strict_types = 1);
+declare (strict_types = 1); // @codeCoverageIgnore
 
 namespace Recoil\Kernel;
 
@@ -48,6 +48,7 @@ final class StrandWaitFirst implements Awaitable, StrandObserver
             }
         }
 
+        $this->substrands = [];
         $this->strand->resume($value);
     }
 
@@ -66,6 +67,7 @@ final class StrandWaitFirst implements Awaitable, StrandObserver
             }
         }
 
+        $this->substrands = [];
         $this->strand->throw($exception);
     }
 

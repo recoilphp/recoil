@@ -1,6 +1,6 @@
 <?php
 
-declare (strict_types = 1);
+declare (strict_types = 1); // @codeCoverageIgnore
 
 namespace Recoil\Kernel;
 
@@ -36,6 +36,7 @@ final class StrandWaitOne implements Awaitable, StrandObserver
      */
     public function success(Strand $strand, $value)
     {
+        $this->substrand = null;
         $this->strand->resume($value);
     }
 
@@ -47,6 +48,7 @@ final class StrandWaitOne implements Awaitable, StrandObserver
      */
     public function failure(Strand $strand, Throwable $exception)
     {
+        $this->substrand = null;
         $this->strand->throw($exception);
     }
 
@@ -57,6 +59,7 @@ final class StrandWaitOne implements Awaitable, StrandObserver
      */
     public function terminated(Strand $strand)
     {
+        $this->substrand = null;
         $this->strand->throw(new TerminatedException($strand));
     }
 
@@ -65,8 +68,10 @@ final class StrandWaitOne implements Awaitable, StrandObserver
      */
     public function cancel()
     {
-        $this->substrand->detachObserver($this);
-        $this->substrand->terminate();
+        if ($this->substrand) {
+            $this->substrand->detachObserver($this);
+            $this->substrand->terminate();
+        }
     }
 
     /**
@@ -75,7 +80,7 @@ final class StrandWaitOne implements Awaitable, StrandObserver
     private $strand;
 
     /**
-     * @var Strand The strand to wait for.
+     * @var Strand|null The strand to wait for.
      */
     private $substrand;
 }
