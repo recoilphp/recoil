@@ -4,6 +4,7 @@ declare (strict_types = 1); // @codeCoverageIgnore
 
 namespace Recoil\Kernel;
 
+use AssertionError;
 use Eloquent\Phony\Phony;
 use Exception;
 use Generator;
@@ -184,54 +185,13 @@ describe(StrandTrait::class, function () {
             $this->subject->mock()->setTerminator($fn);
 
             $this->subject->mock()->terminate();
-            $this->subject->mock()->terminate();
 
             $fn->once()->calledWith($this->subject);
         });
 
         it('notifies observers', function () {
             $this->subject->mock()->terminate();
-            $this->subject->mock()->terminate();
             $this->observer1->terminated->once()->calledWith($this->subject);
-        });
-
-        context('after the strand has been terminated', function () {
-            beforeEach(function () {
-                $this->subject->mock()->terminate();
-            });
-
-            it('->start() does nothing', function () {
-                $this->subject->mock()->start('<value>');
-                $this->api->noInteraction();
-            });
-
-            it('->resume() does nothing', function () {
-                $fn = Phony::spy(function () {
-                    yield;
-                });
-
-                $this->subject->mock()->start($fn);
-                $this->subject->mock()->terminate();
-                $this->subject->mock()->resume('<result>');
-
-                $fn->never()->received();
-                $fn->never()->receivedException();
-            });
-
-            it('->throw() does nothing', function () {
-                $fn = Phony::spy(function () {
-                    yield;
-                });
-
-                $this->subject->mock()->start($fn);
-                $this->subject->mock()->terminate();
-
-                $exception = Phony::mock(Throwable::class);
-                $this->subject->mock()->throw($exception->mock());
-
-                $fn->never()->received();
-                $fn->never()->receivedException();
-            });
         });
     });
 
@@ -459,6 +419,141 @@ describe(StrandTrait::class, function () {
                     $exception
                 );
             });
+        });
+    });
+
+    context('when the strand has completed', function () {
+        beforeEach(function () {
+            $this->subject->mock()->start(function () {
+                return;
+                yield;
+            });
+        });
+
+        it('->start() fails', function () {
+            expect(function () {
+                $this->subject->mock()->start('<value>');
+            })->to->throw(
+                AssertionError::class,
+                'strand can not be started multiple times'
+            );
+        });
+
+        it('->resume() fails', function () {
+            expect(function () {
+                $this->subject->mock()->resume('<result>');
+            })->to->throw(
+                AssertionError::class,
+                'strand must be suspended to resume'
+            );
+        });
+
+        it('->throw() fails', function () {
+            expect(function () {
+                $exception = Phony::mock(Throwable::class);
+                $this->subject->mock()->throw($exception->mock());
+            })->to->throw(
+                AssertionError::class,
+                'strand must be suspended to resume'
+            );
+        });
+
+        it('->terminate() fails', function () {
+            expect(function () {
+                $this->subject->mock()->terminate();
+            })->to->throw(
+                AssertionError::class,
+                'strand can not be terminated after it has finished'
+            );
+        });
+    });
+
+    context('when the strand has failed', function () {
+        beforeEach(function () {
+            $this->subject->mock()->start(function () {
+                throw new Exception('<exception>');
+                yield;
+            });
+        });
+
+        it('->start() fails', function () {
+            expect(function () {
+                $this->subject->mock()->start('<value>');
+            })->to->throw(
+                AssertionError::class,
+                'strand can not be started multiple times'
+            );
+        });
+
+        it('->resume() fails', function () {
+            expect(function () {
+                $this->subject->mock()->resume('<result>');
+            })->to->throw(
+                AssertionError::class,
+                'strand must be suspended to resume'
+            );
+        });
+
+        it('->throw() fails', function () {
+            expect(function () {
+                $exception = Phony::mock(Throwable::class);
+                $this->subject->mock()->throw($exception->mock());
+            })->to->throw(
+                AssertionError::class,
+                'strand must be suspended to resume'
+            );
+        });
+
+        it('->terminate() fails', function () {
+            expect(function () {
+                $this->subject->mock()->terminate();
+            })->to->throw(
+                AssertionError::class,
+                'strand can not be terminated after it has finished'
+            );
+        });
+    });
+
+    context('when the strand has been terminated', function () {
+        beforeEach(function () {
+            $this->subject->mock()->terminate();
+        });
+
+        it('->start() does nothing', function () {
+            $this->subject->mock()->start('<value>');
+            $this->api->noInteraction();
+        });
+
+        it('->resume() does nothing', function () {
+            $fn = Phony::spy(function () {
+                yield;
+            });
+
+            $this->subject->mock()->start($fn);
+            $this->subject->mock()->terminate();
+            $this->subject->mock()->resume('<result>');
+
+            $fn->never()->received();
+            $fn->never()->receivedException();
+        });
+
+        it('->throw() does nothing', function () {
+            $fn = Phony::spy(function () {
+                yield;
+            });
+
+            $this->subject->mock()->start($fn);
+            $this->subject->mock()->terminate();
+
+            $exception = Phony::mock(Throwable::class);
+            $this->subject->mock()->throw($exception->mock());
+
+            $fn->never()->received();
+            $fn->never()->receivedException();
+        });
+
+        it('->terminate() does nothing', function () {
+            $this->subject->mock()->terminate();
         });
     });
 

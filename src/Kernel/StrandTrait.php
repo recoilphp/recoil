@@ -54,7 +54,10 @@ trait StrandTrait
      */
     public function attachObserver(StrandObserver $observer)
     {
-        assert($this->state < StrandState::SUCCESS, 'strand has already exited');
+        assert(
+            $this->state < StrandState::SUCCESS,
+            'observers can not be attached after strand has finished'
+        );
 
         $this->observers[] = $observer;
     }
@@ -85,7 +88,10 @@ trait StrandTrait
             return;
         }
 
-        assert($this->state === StrandState::READY, 'strand already started');
+        assert(
+            $this->state === StrandState::READY,
+            'strand can not be started multiple times'
+        );
 
         if ($coroutine instanceof Generator) {
             $this->current = $coroutine;
@@ -125,6 +131,11 @@ trait StrandTrait
             return;
         }
 
+        assert(
+            $this->state < StrandState::SUCCESS,
+            'strand can not be terminated after it has finished'
+        );
+
         $this->state = StrandState::TERMINATED;
 
         if ($this->terminator) {
@@ -157,7 +168,7 @@ trait StrandTrait
         assert(
             $this->state === StrandState::TICKING ||
             $this->state === StrandState::SUSPENDED,
-            'strand state does not allow resume'
+            'strand must be suspended to resume'
         );
 
         $this->terminator = null;
@@ -186,7 +197,7 @@ trait StrandTrait
         assert(
             $this->state === StrandState::TICKING ||
             $this->state === StrandState::SUSPENDED,
-            'strand state does not allow resume'
+            'strand must be suspended to resume'
         );
 
         $this->terminator = null;
@@ -209,8 +220,15 @@ trait StrandTrait
      */
     public function setTerminator(callable $fn = null)
     {
-        assert(!$fn || !$this->terminator, 'terminator already exists');
-        assert($this->state !== StrandState::TERMINATED, 'strand already terminated');
+        assert(
+            !$fn || !$this->terminator,
+            'only a single terminator can be set'
+        );
+
+        assert(
+            $this->state !== StrandState::TERMINATED,
+            'terminator can not be attached to terminated strand'
+        );
 
         $this->terminator = $fn;
     }
@@ -222,8 +240,15 @@ trait StrandTrait
 
     private function tick()
     {
-        assert($this->state !== StrandState::TICKING, 'strand already ticking');
-        assert($this->current instanceof Generator, 'empty call stack / invalid generator');
+        assert(
+            $this->state !== StrandState::TICKING,
+            'tick() is not re-entrant'
+        );
+
+        assert(
+            $this->current instanceof Generator,
+            'strand cannot tick with empty call stack / invalid generator'
+        );
 
         $this->state = StrandState::TICKING;
 
@@ -258,7 +283,7 @@ trait StrandTrait
             $this->current = null;
             $this->state = StrandState::FAILED;
 
-            if (!$this->observers) {
+            if (empty($this->observers)) {
                 throw $e;
             }
 
@@ -332,6 +357,8 @@ trait StrandTrait
             foreach ($this->observers as $observer) {
                 $observer->success($this, $produced);
             }
+
+            $this->observers = [];
         }
     }
 
