@@ -9,6 +9,7 @@ use Eloquent\Phony\Phony;
 use Exception;
 use Generator;
 use InvalidArgumentException;
+use Recoil\Exception\InterruptException;
 use Throwable;
 
 describe(StrandTrait::class, function () {
@@ -193,6 +194,14 @@ describe(StrandTrait::class, function () {
             $this->subject->mock()->terminate();
             $this->observer1->terminated->once()->calledWith($this->subject);
         });
+
+        it('interrupts the kernel when an observer throws', function () {
+            $exception = new Exception('<observer-exception>');
+            $this->observer1->terminated->throws($exception);
+
+            $this->subject->mock()->terminate();
+            $this->kernel->interrupt->calledWith($exception);
+        });
     });
 
     describe('->awaitable()', function () {
@@ -244,11 +253,25 @@ describe(StrandTrait::class, function () {
                 $this->subject->mock()->detachObserver($this->observer1->mock());
 
                 $fn = function () {
-                    return '<result>';
+                    return;
                     yield;
                 };
 
                 $this->subject->mock()->start($fn);
+            });
+
+            it('interrupts the kernel when an observer throws', function () {
+                $exception = new Exception('<exception>');
+                $this->observer1->success->throws($exception);
+
+                $fn = function () {
+                    return;
+                    yield;
+                };
+
+                $this->subject->mock()->start($fn);
+
+                $this->kernel->interrupt->calledWith($exception);
             });
         });
 
@@ -297,7 +320,7 @@ describe(StrandTrait::class, function () {
                 );
             });
 
-            it('rethrows the exception when there are no observers', function () {
+            it('interrupts the kernel when there are no observers', function () {
                 $this->subject->mock()->detachObserver($this->observer1->mock());
 
                 $exception = new Exception('<exception>');
@@ -307,12 +330,28 @@ describe(StrandTrait::class, function () {
                     yield;
                 };
 
-                expect(function () use ($fn) {
-                    $this->subject->mock()->start($fn);
-                })->to->throw(
-                    Exception::class,
-                    '<exception>'
+                $this->subject->mock()->start($fn);
+
+                $this->kernel->interrupt->calledWith(
+                    new InterruptException(
+                        $this->subject->mock(),
+                        $exception
+                    )
                 );
+            });
+
+            it('interrupts the kernel when an observer throws', function () {
+                $exception = new Exception('<observer-exception>');
+                $this->observer1->failure->throws($exception);
+
+                $fn = function () {
+                    throw new Exception('<coroutine-exception>');
+                    yield;
+                };
+
+                $this->subject->mock()->start($fn);
+
+                $this->kernel->interrupt->calledWith($exception);
             });
         });
 
@@ -463,7 +502,7 @@ describe(StrandTrait::class, function () {
                 $this->subject->mock()->terminate();
             })->to->throw(
                 AssertionError::class,
-                'strand can not be terminated after it has finished'
+                'strand can not be terminated after it has exited'
             );
         });
     });
@@ -509,7 +548,7 @@ describe(StrandTrait::class, function () {
                 $this->subject->mock()->terminate();
             })->to->throw(
                 AssertionError::class,
-                'strand can not be terminated after it has finished'
+                'strand can not be terminated after it has exited'
             );
         });
     });

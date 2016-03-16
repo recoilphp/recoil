@@ -14,9 +14,9 @@ namespace Recoil\Kernel;
 interface StrandState
 {
     const READY = 0;
-    const TICKING = 1;
+    const RUNNING = 1;
     const SUSPENDED = 2;
-    const SUCCESS = 3;
-    const FAILED = 4;
-    const TERMINATED = 5;
+    const EXIT_SUCCESS = 3;
+    const EXIT_FAIL = 4;
+    const EXIT_TERMINATED = 5;
 }

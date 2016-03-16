@@ -13,7 +13,7 @@ use Recoil\Kernel\AwaitableProvider;
 use Recoil\Kernel\CoroutineProvider;
 use Recoil\Kernel\Strand;
 
-context('coroutine invocation', function () {
+context('strand + call-stack', function () {
 
     rit('can invoke generator as coroutine', function () {
         $spy = Phony::spy();
