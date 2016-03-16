@@ -8,7 +8,7 @@ use Recoil\Kernel\Strand;
 use RuntimeException;
 
 /**
- * A strand was terminated.
+ * Indicates that a strand has been explicitly terminated.
  */
 class TerminatedException extends RuntimeException
 {

@@ -2,21 +2,16 @@
 
 declare (strict_types = 1); // @codeCoverageIgnore
 
-namespace Recoil\Exception;
+namespace Recoil\Kernel\Exception;
 
 use Recoil\Kernel\Strand;
 use RuntimeException;
 use Throwable;
 
 /**
- * An exception has propagated to the top of a strand's call-stack, causing it
- * to interrupt the kernel.
- *
- * This exception is not used to pass exceptions between strands.
- *
- * @see CompositeException for the exception used when concurrent strand operations fail.
+ * An exception has propagated to the top of a strand's call-stack.
  */
-class InterruptException extends RuntimeException
+class StrandFailedException extends RuntimeException
 {
     /**
      * @param Strand    $strand    The failed strand.
@@ -34,7 +29,7 @@ class InterruptException extends RuntimeException
     }
 
     /**
-     * Get the terminated strand.
+     * Get the failed strand.
      */
     public function strand() : Strand
     {
@@ -42,7 +37,7 @@ class InterruptException extends RuntimeException
     }
 
     /**
-     * @var Strand The terminated strand.
+     * @var Strand The failed strand.
      */
     private $strand;
 }

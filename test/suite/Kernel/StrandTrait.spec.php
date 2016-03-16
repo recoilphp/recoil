@@ -9,7 +9,7 @@ use Eloquent\Phony\Phony;
 use Exception;
 use Generator;
 use InvalidArgumentException;
-use Recoil\Exception\InterruptException;
+use Recoil\Kernel\Exception\StrandFailedException;
 use Throwable;
 
 describe(StrandTrait::class, function () {
@@ -333,7 +333,7 @@ describe(StrandTrait::class, function () {
                 $this->subject->mock()->start($fn);
 
                 $this->kernel->interrupt->calledWith(
-                    new InterruptException(
+                    new StrandFailedException(
                         $this->subject->mock(),
                         $exception
                     )

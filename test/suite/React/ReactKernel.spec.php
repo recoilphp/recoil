@@ -148,4 +148,5 @@ describe(ReactKernel::class, function () {
             })->to->be->ok;
         });
     });
+
 });

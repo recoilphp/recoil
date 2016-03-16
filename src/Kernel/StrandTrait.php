@@ -7,7 +7,7 @@ namespace Recoil\Kernel;
 use Closure;
 use Generator;
 use InvalidArgumentException;
-use Recoil\Exception\InterruptException;
+use Recoil\Kernel\Exception\StrandFailedException;
 use Throwable;
 
 /**
@@ -314,7 +314,7 @@ trait StrandTrait
                 // The kernel is notified of the failure if there are no observers ...
                 if (empty($this->observers)) {
                     $this->kernel->interrupt(
-                        new InterruptException($this, $e)
+                        new StrandFailedException($this, $e)
                     );
 
                 // Otherwise the observers are notified ...
