@@ -6,6 +6,7 @@ namespace Recoil;
 
 use Eloquent\Phony\Phony;
 use Exception;
+use Recoil\Exception\TimeoutException;
 use Recoil\Kernel\Api;
 use Recoil\Kernel\Strand;
 
@@ -111,33 +112,45 @@ context('kernel api', function () {
         });
     });
 
-    xdescribe('->timeout()', function () {
-        rit('returns coroutine value if it completes before the timeout', function () {
+    describe('->timeout()', function () {
+        rit('returns value if the coroutine completes before the timeout', function () {
             $result = yield Recoil::timeout(
                 1,
                 function () {
-                    // echo "DONE" . PHP_EOL; // FIXME
                     return '<ok>';
                     yield;
                 }
             );
 
             expect($result)->to->equal('<ok>');
-            // echo "HOKAY" . PHP_EOL; // FIXME
         });
 
-        it('can limit execution time with ::timeout()', function () {
-            $result = yield Recoil::timeout(
-                0.25,
-                function () {
-                    echo 'running!';
+        rit('propagates exception if the coroutine throws before the timeout', function () {
+            try {
+                yield Recoil::timeout(
+                    1,
+                    function () {
+                        throw new Exception('<exception>');
+                        yield;
+                    }
+                );
+                assert(false, 'Expected exception was not thrown.');
+            } catch (Exception $e) {
+                expect($e->getMessage())->to->equal('<exception>');
+            }
+        });
 
-                    return '<ok>';
-                    yield;
-                }
-            );
-
-            expect($result)->to->equal('<ok>');
+        rit('throws a timeout exception if the coroutine takes too long', function () {
+            try {
+                yield Recoil::timeout(
+                    0.05,
+                    function () {
+                        yield 0.1;
+                    }
+                );
+            } catch (TimeoutException $e) {
+                // ok ...
+            }
         });
     });
 

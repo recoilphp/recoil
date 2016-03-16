@@ -128,15 +128,7 @@ final class ReactApi implements Api
     {
         $substrand = $strand->kernel()->execute($coroutine);
 
-        $timer = $this->eventLoop->addTimer(
-            $seconds,
-            static function () use ($substrand) {
-                $substrand->terminate();
-            }
-        );
-
-        $substrand->setTerminator([$timer, 'cancel']);
-        $substrand->awaitable()->await($strand, $this);
+        (new StrandTimeout($this->eventLoop, $seconds, $substrand))->await($strand, $this);
     }
 
     /**
