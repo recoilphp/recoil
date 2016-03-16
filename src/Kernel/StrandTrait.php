@@ -136,19 +136,21 @@ trait StrandTrait
             'strand can not be terminated after it has finished'
         );
 
+        $this->current = null;
         $this->state = StrandState::TERMINATED;
+        $this->stack = [];
 
         if ($this->terminator) {
             ($this->terminator)($this);
         }
 
-        foreach ($this->observers as $observer) {
-            $observer->terminated($this);
+        try {
+            foreach ($this->observers as $observer) {
+                $observer->terminated($this);
+            }
+        } finally {
+            $this->observers = [];
         }
-
-        $this->stack = [];
-        $this->current = null;
-        $this->observers = [];
     }
 
     /**
@@ -287,11 +289,13 @@ trait StrandTrait
                 throw $e;
             }
 
-            foreach ($this->observers as $observer) {
-                $observer->failure($this, $e);
+            try {
+                foreach ($this->observers as $observer) {
+                    $observer->failure($this, $e);
+                }
+            } finally {
+                $this->observers = [];
             }
-
-            $this->observers = [];
 
             return;
         }
@@ -354,11 +358,13 @@ trait StrandTrait
             $this->current = null;
             $this->state = StrandState::SUCCESS;
 
-            foreach ($this->observers as $observer) {
-                $observer->success($this, $produced);
+            try {
+                foreach ($this->observers as $observer) {
+                    $observer->success($this, $produced);
+                }
+            } finally {
+                $this->observers = [];
             }
-
-            $this->observers = [];
         }
     }
 
