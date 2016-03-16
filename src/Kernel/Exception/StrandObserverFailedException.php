@@ -15,9 +15,9 @@ use Throwable;
 class StrandObserverFailedException extends RuntimeException
 {
     /**
-     * @param Strand    $strand    The exited strand.
-     * @param StrandObserver    $observer    The offending observer.
-     * @param Throwable $exception The exception thrown by the observer.
+     * @param Strand         $strand    The exited strand.
+     * @param StrandObserver $observer  The offending observer.
+     * @param Throwable      $exception The exception thrown by the observer.
      */
     public function __construct(
         Strand $strand,
