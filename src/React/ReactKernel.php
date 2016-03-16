@@ -142,6 +142,16 @@ final class ReactKernel implements Kernel
     }
 
     /**
+     * Stop the kernel.
+     *
+     * @return null
+     */
+    public function stop()
+    {
+        $this->eventLoop->stop();
+    }
+
+    /**
      * @var LoopInterface The event loop.
      */
     private $eventLoop;

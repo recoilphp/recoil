@@ -36,9 +36,17 @@ interface Kernel
      * Interrupt the kernel.
      *
      * Execution is paused and the given exception is thrown by the current
-     * call to {@see Kernel::wait()}.
+     * call to {@see Kernel::wait()}. wait() can be called again to resume
+     * execution of running strands.
      *
      * @return null
      */
     public function interrupt(Throwable $exception);
+
+    /**
+     * Stop the kernel.
+     *
+     * @return null
+     */
+    public function stop();
 }

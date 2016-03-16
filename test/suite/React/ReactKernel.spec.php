@@ -97,17 +97,6 @@ describe(ReactKernel::class, function () {
             $this->eventLoop->run->called();
         });
 
-        it('can be interrupted', function () {
-            $exception = Phony::mock(Throwable::class)->mock();
-            $this->eventLoop->run->does(function () use ($exception) {
-                $this->subject->interrupt($exception);
-            });
-
-            expect(function () {
-                $this->subject->wait();
-            })->to->throw($exception);
-        });
-
         it('can be invoked again after an interrupt', function () {
             $this->eventLoop->run->does(function () {
                 $this->subject->interrupt(new Exception());
@@ -128,6 +117,35 @@ describe(ReactKernel::class, function () {
             $exception = Phony::mock(Throwable::class)->mock();
             $this->subject->interrupt($exception);
             $this->eventLoop->stop->called();
+        });
+
+        it('causes wait() to throw', function () {
+            $exception = Phony::mock(Throwable::class)->mock();
+            $this->eventLoop->run->does(function () use ($exception) {
+                $this->subject->interrupt($exception);
+            });
+
+            expect(function () {
+                $this->subject->wait();
+            })->to->throw($exception);
+        });
+    });
+
+    describe('->stop()', function () {
+        it('stops the event loop', function () {
+            $this->subject->stop();
+            $this->eventLoop->stop->called();
+        });
+
+        it('causes wait() to return', function () {
+            $exception = Phony::mock(Throwable::class)->mock();
+            $this->eventLoop->run->does(function () use ($exception) {
+                $this->subject->stop();
+            });
+
+            expect(function () {
+                $this->subject->wait();
+            })->to->be->ok;
         });
     });
 });
