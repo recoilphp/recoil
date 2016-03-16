@@ -36,6 +36,8 @@ final class StrandWaitOne implements Awaitable, StrandObserver
      */
     public function success(Strand $strand, $value)
     {
+        assert($this->substrand === $strand, 'unknown strand');
+
         $this->substrand = null;
         $this->strand->resume($value);
     }
@@ -48,6 +50,8 @@ final class StrandWaitOne implements Awaitable, StrandObserver
      */
     public function failure(Strand $strand, Throwable $exception)
     {
+        assert($this->substrand === $strand, 'unknown strand');
+
         $this->substrand = null;
         $this->strand->throw($exception);
     }
@@ -59,6 +63,8 @@ final class StrandWaitOne implements Awaitable, StrandObserver
      */
     public function terminated(Strand $strand)
     {
+        assert($this->substrand === $strand, 'unknown strand');
+
         $this->substrand = null;
         $this->strand->throw(new TerminatedException($strand));
     }

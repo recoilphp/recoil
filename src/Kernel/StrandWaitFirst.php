@@ -41,6 +41,8 @@ final class StrandWaitFirst implements Awaitable, StrandObserver
      */
     public function success(Strand $strand, $value)
     {
+        assert(in_array($strand, $this->substrands, true), 'unknown strand');
+
         foreach ($this->substrands as $s) {
             if ($s !== $strand) {
                 $s->detachObserver($this);
@@ -60,6 +62,8 @@ final class StrandWaitFirst implements Awaitable, StrandObserver
      */
     public function failure(Strand $strand, Throwable $exception)
     {
+        assert(in_array($strand, $this->substrands, true), 'unknown strand');
+
         foreach ($this->substrands as $s) {
             if ($s !== $strand) {
                 $s->detachObserver($this);
