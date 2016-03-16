@@ -45,7 +45,8 @@ function defineFunctionalSpec(string $description, callable $factory)
             expect($this->kernel)->to->be->an->instanceof(Kernel::class);
         });
 
+        require __DIR__ . '/functional.kernel.spec.php';
         require __DIR__ . '/functional.api.spec.php';
-        require __DIR__ . '/functional.invoke.spec.php';
+        require __DIR__ . '/functional.strand.spec.php';
     });
 }

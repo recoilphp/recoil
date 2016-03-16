@@ -6,9 +6,11 @@ namespace Recoil\React;
 
 use React\EventLoop\Factory;
 use React\EventLoop\LoopInterface;
+use Recoil\Exception\TerminatedException;
 use Recoil\Kernel\Api;
 use Recoil\Kernel\Kernel;
 use Recoil\Kernel\Strand;
+use Recoil\Kernel\StrandObserver;
 use RuntimeException;
 use Throwable;
 
@@ -29,29 +31,43 @@ final class ReactKernel implements Kernel
      */
     public static function start($coroutine, LoopInterface $eventLoop = null)
     {
+        $observer = new class implements StrandObserver
+        {
+            public $value;
+            public $exception;
+            public $exited = false;
+
+            public function success(Strand $strand, $value)
+            {
+                $this->exited = true;
+                $this->value = $value;
+            }
+
+            public function failure(Strand $strand, Throwable $exception)
+            {
+                $this->exited = true;
+                $this->exception = $exception;
+            }
+
+            public function terminated(Strand $strand)
+            {
+                $this->exited = true;
+                $this->exception = new TerminatedException($strand);
+            }
+        };
+
         $kernel = new self($eventLoop);
         $strand = $kernel->execute($coroutine);
+        $strand->attachObserver($observer);
+        $kernel->wait();
 
-        $resolved = false;
-        $result = null;
-
-        $strand->promise()->done(
-            static function ($value) use (&$resolved, &$result) {
-                $resolved = true;
-                $result = $value;
-            },
-            static function (Throwable $exception) {
-                throw $exception;
-            }
-        );
-
-        $kernel->eventLoop->run();
-
-        if (!$resolved) {
-            throw new RuntimeException('The coroutine did not complete.');
+        if ($observer->exception) {
+            throw $observer->exception;
+        } elseif ($observer->exited) {
+            return $observer->value;
         }
 
-        return $result;
+        throw new RuntimeException('The coroutine did not complete.');
     }
 
     /**
@@ -90,10 +106,39 @@ final class ReactKernel implements Kernel
 
     /**
      * Run the kernel and wait for all strands to complete.
+     *
+     * If {@see Kernel::interrupt()} is called, wait() throws the exception.
+     *
+     * Recoil uses interrupts to indicate failed strands or strand observers,
+     * but interrupts also be used by application code.
+     *
+     * @return null
+     * @throws Throwable The exception passed to {@see Kernel::interrupt()}.
      */
     public function wait()
     {
         $this->eventLoop->run();
+
+        if ($this->interruptException) {
+            $exception = $this->interruptException;
+            $this->interruptException = null;
+
+            throw $exception;
+        }
+    }
+
+    /**
+     * Interrupt the kernel.
+     *
+     * Execution is paused and the given exception is thrown by the current
+     * call to {@see Kernel::wait()}.
+     *
+     * @return null
+     */
+    public function interrupt(Throwable $exception)
+    {
+        $this->interruptException = $exception;
+        $this->eventLoop->stop();
     }
 
     /**
@@ -110,4 +155,9 @@ final class ReactKernel implements Kernel
      * @var int The next strand ID.
      */
     private $nextId = 1;
+
+    /**
+     * @var Throwable|null The exception passed to interrupt(), if any.
+     */
+    private $interruptException;
 }

@@ -4,6 +4,8 @@ declare (strict_types = 1); // @codeCoverageIgnore
 
 namespace Recoil\Kernel;
 
+use Throwable;
+
 interface Kernel
 {
     /**
@@ -14,15 +16,29 @@ interface Kernel
      * before execution begins.
      *
      * @param mixed $coroutine The strand's entry-point.
-     *
-     * @return Strand
      */
     public function execute($coroutine) : Strand;
 
     /**
      * Run the kernel and wait for all strands to complete.
      *
+     * If {@see Kernel::interrupt()} is called, wait() throws the exception.
+     *
+     * Recoil uses interrupts to indicate failed strands or strand observers,
+     * but interrupts also be used by application code.
+     *
      * @return null
+     * @throws Throwable The exception passed to {@see Kernel::interrupt()}.
      */
     public function wait();
+
+    /**
+     * Interrupt the kernel.
+     *
+     * Execution is paused and the given exception is thrown by the current
+     * call to {@see Kernel::wait()}.
+     *
+     * @return null
+     */
+    public function interrupt(Throwable $exception);
 }
