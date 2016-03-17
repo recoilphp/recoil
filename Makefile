@@ -5,12 +5,12 @@ coverage: deps
 	phpdbg -qrr vendor/bin/peridot --reporter html-code-coverage --code-coverage-path=artifacts/tests/coverage
 
 lint: $(shell find src)
-	vendor/bin/php-cs-fixer fix
 	composer validate
+	vendor/bin/php-cs-fixer fix
 
 deps: vendor
 
-prepare: lint coverage
+prepare: lint deps coverage
 
 ci: lint
 	phpdbg -qrr vendor/bin/peridot --reporter clover-code-coverage --code-coverage-path=artifacts/tests/coverage/clover.xml
