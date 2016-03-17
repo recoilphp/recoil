@@ -5,7 +5,7 @@ before_install:
 - phpenv config-rm xdebug.ini
 - composer config --global github-oauth.github.com $GITHUB_TOKEN
 install: composer install --no-interaction
-script: make ci
+script: make ci -j 50
 after_script: bash <(curl -s https://codecov.io/bash)
 env:
   global:
