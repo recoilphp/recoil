@@ -16,6 +16,7 @@
         "peridot-php/peridot-code-coverage-reporters": "^2",
         "react/dns": "^0.4"
     },
+    "sort-packages": true,
     "autoload": { "psr-4": { "Recoil\\": "src" }},
     "autoload-dev": {
         "psr-4": { "Recoil\\": "test/src" },

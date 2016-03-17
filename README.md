@@ -5,7 +5,7 @@
 [![Code Quality](https://img.shields.io/scrutinizer/g/recoilphp/recoil/master.svg?style=flat-square)](https://scrutinizer-ci.com/g/recoilphp/recoil/)
 [![Latest Version](http://img.shields.io/packagist/v/recoil/recoil.svg?style=flat-square&label=semver)](https://semver.org)
 
-    composer require --sort-packages recoil/recoil
+    composer require recoil/recoil
 
 > Please note this branch contains an implementation of Recoil that requries PHP 7. Notably absent are stream and
 channel implementations which will instead be provided as seperate packages.
