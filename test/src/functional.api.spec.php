@@ -5,6 +5,7 @@ declare (strict_types = 1); // @codeCoverageIgnore
 namespace Recoil;
 
 use Eloquent\Phony\Phony;
+use Exception;
 use Recoil\Kernel\Api;
 use Recoil\Kernel\Strand;
 
@@ -124,19 +125,97 @@ context('kernel api', function () {
             expect($result)->to->equal('<ok>');
             // echo "HOKAY" . PHP_EOL; // FIXME
         });
+
+        it('can limit execution time with ::timeout()', function () {
+            $result = yield Recoil::timeout(
+                0.25,
+                function () {
+                    echo 'running!';
+
+                    return '<ok>';
+                    yield;
+                }
+            );
+
+            expect($result)->to->equal('<ok>');
+        });
     });
 
-    it('can limit execution time with ::timeout()', function () {
-        $result = yield Recoil::timeout(
-            0.25,
-            function () {
-                echo 'running!';
-
-                return '<ok>';
+    describe('->all()', function () {
+        beforeEach(function () {
+            $this->spy = Phony::spy();
+            $this->fn1 = function () {
+                ($this->spy)(1);
                 yield;
-            }
-        );
+                ($this->spy)(3);
 
-        expect($result)->to->equal('<ok>');
+                return 'a';
+            };
+            $this->fn2 = function () {
+                ($this->spy)(2);
+                yield;
+                ($this->spy)(4);
+
+                return 'b';
+            };
+        });
+
+        rit('executes coroutines concurrently', function () {
+            yield Recoil::all(
+                ($this->fn1)(),
+                ($this->fn2)()
+            );
+
+            Phony::inOrder(
+                $this->spy->calledWith(1),
+                $this->spy->calledWith(2),
+                $this->spy->calledWith(3),
+                $this->spy->calledWith(4)
+            );
+
+            yield;
+        });
+
+        rit('returns an array of return values', function () {
+            expect(yield Recoil::all(
+                ($this->fn1)(),
+                ($this->fn2)()
+            ))->to->equal(['a', 'b']);
+        });
+
+        context('when one of the coroutines throws an exception', function () {
+            beforeEach(function () {
+                $this->fn2 = function () {
+                    throw new Exception('<exception>');
+                    yield;
+                };
+            });
+
+            rit('propagates the exception', function () {
+                try {
+                    yield Recoil::all(
+                        ($this->fn1)(),
+                        ($this->fn2)()
+                    );
+                    assert(false, 'Expected exception was not thrown.');
+                } catch (Exception $e) {
+                    expect($e->getMessage())->to->equal('<exception>');
+                }
+            });
+
+            rit('terminates the other coroutine', function () {
+                try {
+                    yield Recoil::all(
+                        ($this->fn1)(),
+                        ($this->fn2)()
+                    );
+                } catch (Exception $e) {
+                    // fall-through ...
+                }
+
+                $this->spy->never()->calledWith(3);
+            });
+        });
     });
+
 });
