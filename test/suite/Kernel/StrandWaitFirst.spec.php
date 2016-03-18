@@ -35,8 +35,8 @@ describe(StrandWaitFirst::class, function () {
     describe('->await()', function () {
         it('resumes the strand when any substrand completes', function () {
             $this->strand->setTerminator->calledWith([$this->subject, 'cancel']);
-            $this->substrand1->attachObserver->calledWith($this->subject);
-            $this->substrand2->attachObserver->calledWith($this->subject);
+            $this->substrand1->setObserver->calledWith($this->subject);
+            $this->substrand2->setObserver->calledWith($this->subject);
 
             $this->subject->success($this->substrand1->mock(), '<one>');
 
@@ -48,7 +48,7 @@ describe(StrandWaitFirst::class, function () {
             $this->subject->failure($this->substrand1->mock(), $exception->mock());
 
             Phony::inOrder(
-                $this->substrand2->detachObserver->calledWith($this->subject),
+                $this->substrand2->setObserver->calledWith(null),
                 $this->substrand2->terminate->called(),
                 $this->strand->throw->calledWith($exception)
             );
@@ -58,7 +58,7 @@ describe(StrandWaitFirst::class, function () {
             $this->subject->terminated($this->substrand1->mock());
 
             Phony::inOrder(
-                $this->substrand2->detachObserver->calledWith($this->subject),
+                $this->substrand2->setObserver->calledWith(null),
                 $this->substrand2->terminate->called(),
                 $this->strand->throw->calledWith(
                     new TerminatedException($this->substrand1->mock())
@@ -70,7 +70,7 @@ describe(StrandWaitFirst::class, function () {
             $this->subject->success($this->substrand1->mock(), '<one>');
 
             Phony::inOrder(
-                $this->substrand2->detachObserver->calledWith($this->subject),
+                $this->substrand2->setObserver->calledWith(null),
                 $this->substrand2->terminate->called(),
                 $this->strand->resume->called()
             );
@@ -82,12 +82,12 @@ describe(StrandWaitFirst::class, function () {
             $this->subject->cancel();
 
             Phony::inOrder(
-                $this->substrand1->detachObserver->calledWith($this->subject),
+                $this->substrand1->setObserver->calledWith(null),
                 $this->substrand1->terminate->called()
             );
 
             Phony::inOrder(
-                $this->substrand2->detachObserver->calledWith($this->subject),
+                $this->substrand2->setObserver->calledWith(null),
                 $this->substrand2->terminate->called()
             );
         });
@@ -97,10 +97,10 @@ describe(StrandWaitFirst::class, function () {
 
             $this->subject->cancel();
 
-            $this->substrand1->detachObserver->never()->called();
+            $this->substrand1->setObserver->never()->calledWith(null);
             $this->substrand1->terminate->never()->called();
 
-            $this->substrand2->detachObserver->once()->called();
+            $this->substrand2->setObserver->once()->calledWith(null);
             $this->substrand2->terminate->once()->called();
         });
     });

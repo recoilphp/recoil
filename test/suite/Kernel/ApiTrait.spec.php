@@ -275,10 +275,10 @@ describe(ApiTrait::class, function () {
             $this->kernel->execute->calledWith('<b>');
 
             Phony::inOrder(
-                $call1 = $this->substrand1->attachObserver->calledWith(
+                $call1 = $this->substrand1->setObserver->calledWith(
                     IsInstanceOf::anInstanceOf(StrandWaitAll::class)
                 ),
-                $call2 = $this->substrand2->attachObserver->calledWith(
+                $call2 = $this->substrand2->setObserver->calledWith(
                     IsInstanceOf::anInstanceOf(StrandWaitAll::class)
                 )
             );
@@ -299,10 +299,10 @@ describe(ApiTrait::class, function () {
             $this->kernel->execute->calledWith('<b>');
 
             Phony::inOrder(
-                $call1 = $this->substrand1->attachObserver->calledWith(
+                $call1 = $this->substrand1->setObserver->calledWith(
                     IsInstanceOf::anInstanceOf(StrandWaitAny::class)
                 ),
-                $call2 = $this->substrand2->attachObserver->calledWith(
+                $call2 = $this->substrand2->setObserver->calledWith(
                     IsInstanceOf::anInstanceOf(StrandWaitAny::class)
                 )
             );
@@ -324,10 +324,10 @@ describe(ApiTrait::class, function () {
             $this->kernel->execute->calledWith('<b>');
 
             Phony::inOrder(
-                $call1 = $this->substrand1->attachObserver->calledWith(
+                $call1 = $this->substrand1->setObserver->calledWith(
                     IsInstanceOf::anInstanceOf(StrandWaitSome::class)
                 ),
-                $call2 = $this->substrand2->attachObserver->calledWith(
+                $call2 = $this->substrand2->setObserver->calledWith(
                     IsInstanceOf::anInstanceOf(StrandWaitSome::class)
                 )
             );
@@ -381,10 +381,10 @@ describe(ApiTrait::class, function () {
             $this->kernel->execute->calledWith('<b>');
 
             Phony::inOrder(
-                $call1 = $this->substrand1->attachObserver->calledWith(
+                $call1 = $this->substrand1->setObserver->calledWith(
                     IsInstanceOf::anInstanceOf(StrandWaitFirst::class)
                 ),
-                $call2 = $this->substrand2->attachObserver->calledWith(
+                $call2 = $this->substrand2->setObserver->calledWith(
                     IsInstanceOf::anInstanceOf(StrandWaitFirst::class)
                 )
             );

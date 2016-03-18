@@ -31,7 +31,7 @@ describe(StrandWaitOne::class, function () {
     describe('->await()', function () {
         it('resumes the strand when the substrand completes', function () {
             $this->strand->setTerminator->calledWith([$this->subject, 'cancel']);
-            $this->substrand->attachObserver->calledWith($this->subject);
+            $this->substrand->setObserver->calledWith($this->subject);
 
             $this->subject->success($this->substrand->mock(), '<one>');
 
@@ -59,7 +59,7 @@ describe(StrandWaitOne::class, function () {
             $this->subject->cancel();
 
             Phony::inOrder(
-                $this->substrand->detachObserver->calledWith($this->subject),
+                $this->substrand->setObserver->calledWith(null),
                 $this->substrand->terminate->called()
             );
         });
@@ -69,7 +69,7 @@ describe(StrandWaitOne::class, function () {
 
             $this->subject->cancel();
 
-            $this->substrand->detachObserver->never()->called();
+            $this->substrand->setObserver->never()->calledWith(null);
             $this->substrand->terminate->never()->called();
         });
     });

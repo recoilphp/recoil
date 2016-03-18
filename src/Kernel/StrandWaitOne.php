@@ -25,7 +25,7 @@ final class StrandWaitOne implements Awaitable, StrandObserver
         $this->strand = $strand;
         $this->strand->setTerminator([$this, 'cancel']);
 
-        $this->substrand->attachObserver($this);
+        $this->substrand->setObserver($this);
     }
 
     /**
@@ -75,7 +75,7 @@ final class StrandWaitOne implements Awaitable, StrandObserver
     public function cancel()
     {
         if ($this->substrand) {
-            $this->substrand->detachObserver($this);
+            $this->substrand->setObserver(null);
             $this->substrand->terminate();
         }
     }
