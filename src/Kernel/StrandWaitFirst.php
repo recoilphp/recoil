@@ -29,7 +29,7 @@ final class StrandWaitFirst implements Awaitable, StrandObserver
         $this->strand->setTerminator([$this, 'cancel']);
 
         foreach ($this->substrands as $substrand) {
-            $substrand->attachObserver($this);
+            $substrand->setObserver($this);
         }
     }
 
@@ -45,7 +45,7 @@ final class StrandWaitFirst implements Awaitable, StrandObserver
 
         foreach ($this->substrands as $s) {
             if ($s !== $strand) {
-                $s->detachObserver($this);
+                $s->setObserver(null);
                 $s->terminate();
             }
         }
@@ -66,7 +66,7 @@ final class StrandWaitFirst implements Awaitable, StrandObserver
 
         foreach ($this->substrands as $s) {
             if ($s !== $strand) {
-                $s->detachObserver($this);
+                $s->setObserver(null);
                 $s->terminate();
             }
         }
@@ -91,7 +91,7 @@ final class StrandWaitFirst implements Awaitable, StrandObserver
     public function cancel()
     {
         foreach ($this->substrands as $strand) {
-            $strand->detachObserver($this);
+            $strand->setObserver(null);
             $strand->terminate();
         }
     }

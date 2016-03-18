@@ -50,9 +50,9 @@ describe(StrandWaitSome::class, function () {
 
     describe('->await()', function () {
         it('resumes the strand when enough substrands complete', function () {
-            $this->substrand1->attachObserver->calledWith($this->subject);
-            $this->substrand2->attachObserver->calledWith($this->subject);
-            $this->substrand3->attachObserver->calledWith($this->subject);
+            $this->substrand1->setObserver->calledWith($this->subject);
+            $this->substrand2->setObserver->calledWith($this->subject);
+            $this->substrand3->setObserver->calledWith($this->subject);
 
             $this->subject->success($this->substrand2->mock(), '<two>');
 
@@ -80,7 +80,7 @@ describe(StrandWaitSome::class, function () {
             $this->subject->failure($this->substrand1->mock(), $exception1->mock());
 
             Phony::inOrder(
-                $this->substrand3->detachObserver->calledWith($this->subject),
+                $this->substrand3->setObserver->calledWith(null),
                 $this->substrand3->terminate->called(),
                 $this->strand->throw->calledWith(
                     new CompositeException(
@@ -98,7 +98,7 @@ describe(StrandWaitSome::class, function () {
             $this->subject->terminated($this->substrand1->mock());
 
             Phony::inOrder(
-                $this->substrand3->detachObserver->calledWith($this->subject),
+                $this->substrand3->setObserver->calledWith(null),
                 $this->substrand3->terminate->called(),
                 $this->strand->throw->calledWith(
                     new CompositeException(
@@ -118,7 +118,7 @@ describe(StrandWaitSome::class, function () {
             $this->subject->success($this->substrand1->mock(), '<one>');
 
             Phony::inOrder(
-                $this->substrand3->detachObserver->calledWith($this->subject),
+                $this->substrand3->setObserver->calledWith(null),
                 $this->substrand3->terminate->called(),
                 $this->strand->resume->called()
             );
@@ -131,16 +131,16 @@ describe(StrandWaitSome::class, function () {
 
             $this->subject->cancel();
 
-            $this->substrand1->detachObserver->never()->called();
+            $this->substrand1->setObserver->never()->calledWith(null);
             $this->substrand1->terminate->never()->called();
 
             Phony::inOrder(
-                $this->substrand2->detachObserver->calledWith($this->subject),
+                $this->substrand2->setObserver->calledWith(null),
                 $this->substrand2->terminate->called()
             );
 
             Phony::inOrder(
-                $this->substrand3->detachObserver->calledWith($this->subject),
+                $this->substrand3->setObserver->calledWith(null),
                 $this->substrand3->terminate->called()
             );
         });

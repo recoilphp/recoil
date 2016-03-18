@@ -10,6 +10,7 @@ use Exception;
 use Generator;
 use InvalidArgumentException;
 use Recoil\Kernel\Exception\StrandFailedException;
+use Recoil\Kernel\Exception\StrandObserverFailedException;
 use Throwable;
 
 describe(StrandTrait::class, function () {
@@ -27,19 +28,7 @@ describe(StrandTrait::class, function () {
             ]
         );
 
-        // Attach some observers to verify correct behaviour in other tests
-        // observer #2 is detached and tearDown() verifies that it is never
-        // used ...
-        $this->observer1 = Phony::mock(StrandObserver::class);
-        $this->observer2 = Phony::mock(StrandObserver::class);
-
-        $this->subject->mock()->attachObserver($this->observer1->mock());
-        $this->subject->mock()->attachObserver($this->observer2->mock());
-        $this->subject->mock()->detachObserver($this->observer2->mock());
-    });
-
-    afterEach(function () {
-        $this->observer2->noInteraction();
+        $this->observer = Phony::mock(StrandObserver::class);
     });
 
     describe('->id()', function () {
@@ -56,52 +45,30 @@ describe(StrandTrait::class, function () {
 
     describe('->start()', function () {
         it('accepts a generator object', function () {
-            $fn = Phony::spy(function () {
-                yield '<key>' => '<value>';
-            });
-
+            $fn = Phony::stub()->generates(['<key>' => '<value>'])->returns();
             $this->subject->mock()->start($fn());
 
-            $this->api->dispatch->calledWith(
-                $this->subject,
-                '<key>',
-                '<value>'
-            );
-
+            $this->api->dispatch->calledWith($this->subject, '<key>', '<value>');
             $fn->never()->received();
             $fn->never()->receivedException();
         });
 
         it('accepts a generator function', function () {
-            $fn = Phony::spy(function () {
-                yield '<key>' => '<value>';
-            });
-
+            $fn = Phony::stub();
+            $fn->generates(['<key>' => '<value>']);
             $this->subject->mock()->start($fn);
 
-            $this->api->dispatch->calledWith(
-                $this->subject,
-                '<key>',
-                '<value>'
-            );
-
+            $this->api->dispatch->calledWith($this->subject, '<key>', '<value>');
             $fn->never()->received();
             $fn->never()->receivedException();
         });
 
         it('accepts a coroutine provider', function () {
             $provider = Phony::mock(CoroutineProvider::class);
-            $provider->coroutine->does(
-                function () { yield '<key>' => '<value>'; }
-            );
-
+            $provider->coroutine->generates(['<key>' => '<value>']);
             $this->subject->mock()->start($provider->mock());
 
-            $this->api->dispatch->calledWith(
-                $this->subject,
-                '<key>',
-                '<value>'
-            );
+            $this->api->dispatch->calledWith($this->subject, '<key>', '<value>');
         });
 
         it('throws when passed a regular function', function () {
@@ -115,21 +82,14 @@ describe(StrandTrait::class, function () {
 
         it('dispatches other types via the kernel api', function () {
             $this->subject->mock()->start('<value>');
-
-            $this->api->dispatch->calledWith(
-                $this->subject,
-                0,
-                '<value>'
-            );
+            $this->api->dispatch->calledWith($this->subject, 0, '<value>');
         });
     });
 
     describe('->resume()', function () {
         it('sends the value to the coroutine', function () {
-            $fn = Phony::spy(function () {
-                yield;
-            });
-
+            $fn = Phony::stub();
+            $fn->generates([null]);
             $this->subject->mock()->start($fn);
 
             $this->subject->mock()->resume('<result>');
@@ -137,14 +97,11 @@ describe(StrandTrait::class, function () {
         });
 
         it('can be invoked from inside ->tick()', function () {
-            $fn = Phony::spy(function () {
-                yield;
-            });
-
+            $fn = Phony::stub();
+            $fn->generates([null]);
             $this->api->dispatch->does(function () {
                 $this->subject->mock()->resume('<result>');
             });
-
             $this->subject->mock()->start($fn);
 
             $fn->received('<result>');
@@ -153,27 +110,22 @@ describe(StrandTrait::class, function () {
 
     describe('->throw()', function () {
         it('throws the exception to the coroutine', function () {
-            $fn = Phony::spy(function () {
-                yield;
-            });
-
+            $fn = Phony::stub();
+            $fn->generates([null]);
             $this->subject->mock()->start($fn);
-
             $exception = Phony::mock(Throwable::class);
             $this->subject->mock()->throw($exception->mock());
+
             $fn->receivedException($exception);
         });
 
         it('can be invoked from inside ->tick()', function () {
-            $fn = Phony::spy(function () {
-                yield;
-            });
-
+            $fn = Phony::stub();
+            $fn->generates([null]);
             $exception = Phony::mock(Throwable::class);
             $this->api->dispatch->does(function () use ($exception) {
                 $this->subject->mock()->throw($exception->mock());
             });
-
             $this->subject->mock()->start($fn);
 
             $fn->receivedException($exception);
@@ -184,23 +136,31 @@ describe(StrandTrait::class, function () {
         it('invokes the terminator function', function () {
             $fn = Phony::spy();
             $this->subject->mock()->setTerminator($fn);
-
             $this->subject->mock()->terminate();
 
             $fn->once()->calledWith($this->subject);
         });
 
-        it('notifies observers', function () {
+        it('notifies observer', function () {
+            $this->subject->mock()->setObserver($this->observer->mock());
             $this->subject->mock()->terminate();
-            $this->observer1->terminated->once()->calledWith($this->subject);
+
+            $this->observer->terminated->once()->calledWith($this->subject);
         });
 
         it('interrupts the kernel when an observer throws', function () {
             $exception = new Exception('<observer-exception>');
-            $this->observer1->terminated->throws($exception);
-
+            $this->observer->terminated->throws($exception);
+            $this->subject->mock()->setObserver($this->observer->mock());
             $this->subject->mock()->terminate();
-            $this->kernel->interrupt->calledWith($exception);
+
+            $this->kernel->interrupt->calledWith(
+                new StrandObserverFailedException(
+                    $this->subject->mock(),
+                    $this->observer->mock(),
+                    $exception
+                )
+            );
         });
     });
 
@@ -214,123 +174,66 @@ describe(StrandTrait::class, function () {
     describe('->tick()', function () {
         context('when a coroutine returns a value', function () {
             it('propagates the value up the call-stack', function () {
-                $fn2 = function () {
-                    return '<result>';
-                    yield;
-                };
-
-                $fn1 = Phony::spy(function () use ($fn2) {
-                    yield $fn2();
+                $fn = Phony::spy(function () {
+                    yield (function () {
+                        return '<result>';
+                        yield;
+                    })();
 
                     return '<ok>';
                 });
 
-                $this->subject->mock()->start($fn1);
+                $this->subject->mock()->start($fn);
 
-                $fn1->received('<result>');
-
-                $this->observer1->success->calledWith(
-                    $this->subject,
-                    '<ok>'
-                );
+                $fn->received('<result>');
             });
 
             it('notifies observers when the top of the stack is reached', function () {
-                $fn = function () {
-                    return '<result>';
-                    yield;
-                };
-
-                $this->subject->mock()->start($fn);
-
-                $this->observer1->success->calledWith(
-                    $this->subject,
-                    '<result>'
+                $this->subject->mock()->setObserver($this->observer->mock());
+                $this->subject->mock()->start(
+                    Phony::stub()->generates()->returns('<result>')
                 );
-            });
 
-            it('discards the value when there are no observers', function () {
-                $this->subject->mock()->detachObserver($this->observer1->mock());
-
-                $fn = function () {
-                    return;
-                    yield;
-                };
-
-                $this->subject->mock()->start($fn);
+                $this->observer->success->calledWith($this->subject, '<result>');
             });
 
             it('interrupts the kernel when an observer throws', function () {
                 $exception = new Exception('<exception>');
-                $this->observer1->success->throws($exception);
+                $this->observer->success->throws($exception);
+                $this->subject->mock()->setObserver($this->observer->mock());
+                $this->subject->mock()->start(
+                    Phony::stub()->generates()->returns()
+                );
 
-                $fn = function () {
-                    return;
-                    yield;
-                };
-
-                $this->subject->mock()->start($fn);
-
-                $this->kernel->interrupt->calledWith($exception);
+                $this->kernel->interrupt->calledWith(
+                    new StrandObserverFailedException(
+                        $this->subject->mock(),
+                        $this->observer->mock(),
+                        $exception
+                    )
+                );
             });
         });
 
         context('when a coroutine throws an exception', function () {
             it('propagates the exception up the call-stack', function () {
                 $exception = Phony::mock(Throwable::class);
-
-                $fn2 = function () use ($exception) {
-                    throw $exception->mock();
-                    yield;
-                };
-
-                $fn1 = Phony::spy(function () use ($fn2) {
-                    try {
-                        yield $fn2();
-                    } catch (Throwable $e) {
-                        //ignore ...
-                    }
-
-                    return '<ok>';
+                $fn = Phony::spy(function () use ($exception) {
+                    yield (function () use ($exception) {
+                        throw $exception->mock();
+                        yield;
+                    })();
                 });
 
-                $this->subject->mock()->start($fn1);
-
-                $fn1->receivedException($exception);
-
-                $this->observer1->success->calledWith(
-                    $this->subject,
-                    '<ok>'
-                );
-            });
-
-            it('notifies observers when the top of the stack is reached', function () {
-                $exception = Phony::mock(Throwable::class);
-
-                $fn = function () use ($exception) {
-                    throw $exception->mock();
-                    yield;
-                };
-
                 $this->subject->mock()->start($fn);
-
-                $this->observer1->failure->calledWith(
-                    $this->subject,
-                    $exception
-                );
+                $fn->receivedException($exception);
             });
 
-            it('interrupts the kernel when there are no observers', function () {
-                $this->subject->mock()->detachObserver($this->observer1->mock());
-
+            it('interrupts the kernel when there is no observer', function () {
                 $exception = new Exception('<exception>');
-
-                $fn = function () use ($exception) {
-                    throw $exception;
-                    yield;
-                };
-
-                $this->subject->mock()->start($fn);
+                $this->subject->mock()->start(
+                    Phony::stub()->generates()->throws($exception)
+                );
 
                 $this->kernel->interrupt->calledWith(
                     new StrandFailedException(
@@ -340,133 +243,107 @@ describe(StrandTrait::class, function () {
                 );
             });
 
+            it('notifies observer when the top of the stack is reached', function () {
+                $exception = new Exception('<exception>');
+                $this->subject->mock()->setObserver($this->observer->mock());
+                $this->subject->mock()->start(
+                    Phony::stub()->generates()->throws($exception)
+                );
+
+                $this->observer->failure->calledWith(
+                    $this->subject,
+                    $exception
+                );
+            });
+
             it('interrupts the kernel when an observer throws', function () {
-                $exception = new Exception('<observer-exception>');
-                $this->observer1->failure->throws($exception);
+                $observerException = new Exception('<observer-exception>');
+                $this->observer->failure->throws($observerException);
+                $strandException = new Exception('<exception>');
+                $this->subject->mock()->setObserver($this->observer->mock());
+                $this->subject->mock()->start(
+                    Phony::stub()->generates()->throws($strandException)
+                );
 
-                $fn = function () {
-                    throw new Exception('<coroutine-exception>');
-                    yield;
-                };
-
-                $this->subject->mock()->start($fn);
-
-                $this->kernel->interrupt->calledWith($exception);
+                $this->kernel->interrupt->calledWith(
+                    new StrandObserverFailedException(
+                        $this->subject->mock(),
+                        $this->observer->mock(),
+                        $observerException
+                    )
+                );
             });
         });
 
         context('when a coroutine yields', function () {
             it('invokes coroutines from coroutine providers', function () {
-                $fn = Phony::spy(function () {
-                    return yield new class implements CoroutineProvider
- {
-     public function coroutine() : Generator
-     {
-         return '<result>';
-         yield;
-     }
- };
-                });
-
+                $provider = Phony::mock(CoroutineProvider::class);
+                $provider->coroutine->generates()->returns('<result>');
+                $fn = Phony::stub();
+                $fn->generates([$provider->mock()]); // @todo https://github.com/eloquent/phony/issues/144
                 $this->subject->mock()->start($fn);
 
                 $fn->received('<result>');
             });
 
             it('dispatches kernel api calls', function () {
-                $fn = Phony::spy(function () {
-                    yield new ApiCall('<name>', [1, 2, 3]);
-                });
-
+                $fn = Phony::stub();
+                $fn->generates([new ApiCall('<name>', [1, 2, 3])]);
                 $this->subject->mock()->start($fn);
 
-                $this->api->{'<name>'}->calledWith(
-                    $this->subject,
-                    1,
-                    2,
-                    3
-                );
-
+                $this->api->{'<name>'}->calledWith($this->subject, 1, 2, 3);
                 $fn->never()->received();
                 $fn->never()->receivedException();
             });
 
             it('attaches the strand to awaitables', function () {
                 $awaitable = Phony::mock(Awaitable::class);
-
-                $fn = Phony::spy(function () use ($awaitable) {
-                    yield $awaitable->mock();
-                });
-
+                $fn = Phony::stub();
+                $fn->generates([$awaitable->mock()]); // @todo https://github.com/eloquent/phony/issues/144
                 $this->subject->mock()->start($fn);
 
-                $awaitable->await->calledWith(
-                    $this->subject,
-                    $this->api
-                );
-
+                $awaitable->await->calledWith($this->subject, $this->api);
                 $fn->never()->received();
                 $fn->never()->receivedException();
             });
 
             it('attaches the strand to awaitables from awaitable providers', function () {
-                $provider = Phony::mock(AwaitableProvider::class);
                 $awaitable = Phony::mock(Awaitable::class);
+                $provider = Phony::mock(AwaitableProvider::class);
                 $provider->awaitable->returns($awaitable);
-
-                $fn = Phony::spy(function () use ($provider) {
-                    yield $provider->mock();
-                });
-
+                $fn = Phony::stub();
+                $fn->generates([$provider->mock()]); // @todo https://github.com/eloquent/phony/issues/144
                 $this->subject->mock()->start($fn);
 
-                $awaitable->await->calledWith(
-                    $this->subject,
-                    $this->api
-                );
-
+                $awaitable->await->calledWith($this->subject, $this->api);
                 $fn->never()->received();
                 $fn->never()->receivedException();
             });
 
             it('forwards other values to the api for dispatch', function () {
-                $this->subject->mock()->start(function () {
-                    yield '<value>';
-                });
-
-                $this->api->dispatch->calledWith(
-                    $this->subject,
-                    0,
-                    '<value>'
+                $this->subject->mock()->start(
+                    Phony::stub()->generates(['<value>'])->returns()
                 );
+
+                $this->api->dispatch->calledWith($this->subject, 0, '<value>');
             });
 
             it('propagates exceptions thrown during handling of the yielded value', function () {
                 $exception = Phony::mock(Throwable::class);
                 $this->api->dispatch->throws($exception);
-
-                $fn = Phony::spy(function () {
-                    yield;
-                });
-
+                $fn = Phony::stub()->generates([null])->returns();
                 $this->subject->mock()->start($fn);
 
                 $fn->receivedException($exception);
-
-                $this->observer1->failure->calledWith(
-                    $this->subject,
-                    $exception
-                );
             });
         });
     });
 
     context('when the strand has completed', function () {
         beforeEach(function () {
-            $this->subject->mock()->start(function () {
-                return;
-                yield;
-            });
+            $this->subject->mock()->start(
+                Phony::stub()->generates()->returns()
+            );
         });
 
         it('->start() fails', function () {
@@ -509,10 +386,9 @@ describe(StrandTrait::class, function () {
 
     context('when the strand has failed', function () {
         beforeEach(function () {
-            $this->subject->mock()->start(function () {
-                throw new Exception('<exception>');
-                yield;
-            });
+            $this->subject->mock()->start(
+                Phony::stub()->generates()->throws(new Exception('<exception>'))
+            );
         });
 
         it('->start() fails', function () {
@@ -564,10 +440,8 @@ describe(StrandTrait::class, function () {
         });
 
         it('->resume() does nothing', function () {
-            $fn = Phony::spy(function () {
-                yield;
-            });
-
+            $fn = Phony::stub();
+            $fn->generates([null]);
             $this->subject->mock()->start($fn);
             $this->subject->mock()->terminate();
             $this->subject->mock()->resume('<result>');
@@ -577,13 +451,10 @@ describe(StrandTrait::class, function () {
         });
 
         it('->throw() does nothing', function () {
-            $fn = Phony::spy(function () {
-                yield;
-            });
-
+            $fn = Phony::stub();
+            $fn->generates([null]);
             $this->subject->mock()->start($fn);
             $this->subject->mock()->terminate();
-
             $exception = Phony::mock(Throwable::class);
             $this->subject->mock()->throw($exception->mock());
 

@@ -4,11 +4,9 @@ declare (strict_types = 1); // @codeCoverageIgnore
 
 namespace Recoil;
 
-use Recoil\Exception\TerminatedException;
+use Recoil\Kernel\Exception\StrandException;
 use Recoil\Kernel\Kernel;
 use Recoil\Kernel\Strand;
-use Recoil\Kernel\StrandObserver;
-use Throwable;
 
 /**
  * A coroutine-based version of it.
@@ -16,24 +14,13 @@ use Throwable;
 function rit(string $description, callable $test)
 {
     it($description, function () use ($test) {
-        $this->kernel->execute($test)->attachObserver(
-            new class implements StrandObserver
-            {
-                public function success(Strand $strand, $value)
-                {
-                }
-                public function failure(Strand $strand, Throwable $exception)
-                {
-                    throw $exception;
-                }
-                public function terminated(Strand $strand)
-                {
-                    throw new TerminatedException($strand);
-                }
-             }
-        );
+        $this->kernel->execute($test);
 
-        $this->kernel->wait();
+        try {
+            $this->kernel->wait();
+        } catch (StrandException $e) {
+            throw $e->getPrevious();
+        }
     });
 }
 

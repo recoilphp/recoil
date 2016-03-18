@@ -8,7 +8,7 @@
         "react/promise": "^2"
     },
     "require-dev": {
-        "eloquent/phony": "^0.8",
+        "eloquent/phony": "dev-master",
         "fabpot/php-cs-fixer": "^1",
         "hamcrest/hamcrest-php": "^2.0",
         "peridot-php/leo": "dev-php7",

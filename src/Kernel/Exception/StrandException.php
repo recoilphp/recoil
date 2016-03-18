@@ -8,7 +8,7 @@ use Recoil\Kernel\Strand;
 use Throwable;
 
 /**
- * A strand, or one of its observers has failed.
+ * A strand or its observer has failed.
  */
 interface StrandException extends Throwable
 {

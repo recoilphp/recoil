@@ -22,10 +22,7 @@ interface Kernel
     /**
      * Run the kernel and wait for all strands to complete.
      *
-     * If {@see Kernel::interrupt()} is called, wait() throws the exception.
-     *
-     * Recoil uses interrupts to indicate failed strands or strand observers,
-     * but interrupts also be used by application code.
+     * @see Kernel::interrupt()
      *
      * @return null
      * @throws Throwable The exception passed to {@see Kernel::interrupt()}.

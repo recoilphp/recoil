@@ -35,8 +35,8 @@ describe(StrandWaitAll::class, function () {
     describe('->await()', function () {
         it('resumes the strand when all substrands complete', function () {
             $this->strand->setTerminator->calledWith([$this->subject, 'cancel']);
-            $this->substrand1->attachObserver->calledWith($this->subject);
-            $this->substrand2->attachObserver->calledWith($this->subject);
+            $this->substrand1->setObserver->calledWith($this->subject);
+            $this->substrand2->setObserver->calledWith($this->subject);
 
             $this->subject->success($this->substrand2->mock(), '<two>');
 
@@ -72,7 +72,7 @@ describe(StrandWaitAll::class, function () {
             $this->subject->terminated($this->substrand1->mock());
 
             Phony::inOrder(
-                $this->substrand2->detachObserver->calledWith($this->subject),
+                $this->substrand2->setObserver->calledWith(null),
                 $this->substrand2->terminate->called(),
                 $this->strand->throw->called()
             );
@@ -85,11 +85,11 @@ describe(StrandWaitAll::class, function () {
 
             $this->subject->cancel();
 
-            $this->substrand1->detachObserver->never()->called();
+            $this->substrand1->setObserver->never()->calledWith(null);
             $this->substrand1->terminate->never()->called();
 
             Phony::inOrder(
-                $this->substrand2->detachObserver->calledWith($this->subject),
+                $this->substrand2->setObserver->calledWith(null),
                 $this->substrand2->terminate->called()
             );
         });
