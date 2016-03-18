@@ -11,7 +11,7 @@ use Throwable;
 /**
  * An exception has propagated to the top of a strand's call-stack.
  */
-class StrandFailedException extends RuntimeException
+class StrandFailedException extends RuntimeException implements StrandException
 {
     /**
      * @param Strand    $strand    The failed strand.

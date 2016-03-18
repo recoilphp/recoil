@@ -12,7 +12,7 @@ use Throwable;
 /**
  * A strand observer has thrown an exception.
  */
-class StrandObserverFailedException extends RuntimeException
+class StrandObserverFailedException extends RuntimeException implements StrandException
 {
     /**
      * @param Strand         $strand    The exited strand.
