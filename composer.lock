@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "ebec587cfbfea64a2b7c4d32521ddf5d",
-    "content-hash": "ef25ca92815c7f29c84d7a4ed891ab2b",
+    "hash": "4582b0672dc83fd9c57dd639335f781c",
+    "content-hash": "780d6bff740b3819d07c37f89848a6e2",
     "packages": [
         {
             "name": "icecave/repr",
@@ -150,16 +150,16 @@
     "packages-dev": [
         {
             "name": "eloquent/phony",
-            "version": "0.8.0",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/eloquent/phony.git",
-                "reference": "4aed7850ab624d7b801670cf84478993e2d32e54"
+                "reference": "ff0d9257a20e039ce99364765d8e8043e5b72e94"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/eloquent/phony/zipball/4aed7850ab624d7b801670cf84478993e2d32e54",
-                "reference": "4aed7850ab624d7b801670cf84478993e2d32e54",
+                "url": "https://api.github.com/repos/eloquent/phony/zipball/ff0d9257a20e039ce99364765d8e8043e5b72e94",
+                "reference": "ff0d9257a20e039ce99364765d8e8043e5b72e94",
                 "shasum": ""
             },
             "require": {
@@ -169,9 +169,8 @@
                 "athletic/athletic": "^0.1",
                 "counterpart/counterpart": "^1",
                 "danielstjules/pho": "^1",
-                "eloquent/asplode": "^2",
+                "fabpot/php-cs-fixer": "^1",
                 "hamcrest/hamcrest-php": "^1",
-                "icecave/archer": "dev-develop",
                 "icecave/isolator": "^3",
                 "icecave/woodhouse": "dev-develop",
                 "mockery/mockery": "^0.9",
@@ -184,11 +183,6 @@
                 "simpletest/simpletest": "^1"
             },
             "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-develop": "0.8.x-dev"
-                }
-            },
             "autoload": {
                 "psr-4": {
                     "Eloquent\\Phony\\": "src"
@@ -224,7 +218,7 @@
                 "stubbing",
                 "test"
             ],
-            "time": "2016-02-12 00:46:30"
+            "time": "2016-03-18 04:53:47"
         },
         {
             "name": "evenement/evenement",
@@ -1487,6 +1481,7 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
+        "eloquent/phony": 20,
         "peridot-php/leo": 20
     },
     "prefer-stable": false,
