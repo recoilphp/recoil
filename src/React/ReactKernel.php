@@ -22,12 +22,15 @@ final class ReactKernel implements Kernel
     /**
      * Execute a coroutine on a new kernel.
      *
-     * This method blocks until the all work on the kernel is complete.
+     * This method blocks until the kernel has nothing left to do, or is
+     * interrupted.
      *
      * @param mixed              $coroutine The strand's entry-point.
      * @param LoopInterface|null $eventLoop The event loop to use (null = default).
      *
-     * @return mixed The result of the coroutine.
+     * @return mixed The return value of the coroutine.
+     * @throws Throwable The exception produced by the coroutine, if any.
+     * @throws Throwable The exception used to interrupt the kernel.
      */
     public static function start($coroutine, LoopInterface $eventLoop = null)
     {
@@ -67,7 +70,7 @@ final class ReactKernel implements Kernel
             return $observer->value;
         }
 
-        throw new RuntimeException('The coroutine did not complete.');
+        throw new RuntimeException('The entry-point coroutine never returned.');
     }
 
     /**
@@ -105,11 +108,10 @@ final class ReactKernel implements Kernel
     }
 
     /**
-     * Run the kernel and wait for all strands to complete.
+     * Run the kernel and wait for all strands to exit.
      *
      * @see Kernel::interrupt()
      *
-     * @return null
      * @throws Throwable The exception passed to {@see Kernel::interrupt()}.
      */
     public function wait()
@@ -127,10 +129,9 @@ final class ReactKernel implements Kernel
     /**
      * Interrupt the kernel.
      *
-     * Execution is paused and the given exception is thrown by the current
-     * call to {@see Kernel::wait()}.
-     *
-     * @return null
+     * Execution of all strands is paused and the given exception is thrown by
+     * the current call to {@see Kernel::wait()}. wait() can be called again to
+     * resume execution of remaining strands.
      */
     public function interrupt(Throwable $exception)
     {
@@ -140,8 +141,6 @@ final class ReactKernel implements Kernel
 
     /**
      * Stop the kernel.
-     *
-     * @return null
      */
     public function stop()
     {

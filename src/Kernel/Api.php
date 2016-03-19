@@ -10,7 +10,11 @@ use Recoil\Exception\TimeoutException;
 interface Api
 {
     /**
-     * Dispatch an API call based on the key/value yielded from a coroutine.
+     * Dispatch an API call based on the key and value yielded from a coroutine.
+     *
+     * The implementation should not attribute any special behaviour to integer
+     * keys, as PHP's generator implementation implicitly yields integer keys
+     * when a value is yielded without specifying a key.
      *
      * @param Strand $strand The strand executing the API call.
      * @param mixed  $key    The yielded key.
@@ -23,6 +27,8 @@ interface Api
     /**
      * Invoke a non-standard API operation.
      *
+     * The first element in $arguments must be the calling strand.
+     *
      * @return null
      */
     public function __call(string $name, array $arguments);
@@ -30,13 +36,14 @@ interface Api
     /**
      * Start a new strand of execution.
      *
-     * This method executes a coroutine in a new strand. The calling strand is
-     * resumed with the new {@see Strand} object.
+     * This operation executes a coroutine in a new strand. The calling strand
+     * is resumed with the new {@see Strand} object.
      *
-     * The coroutine can be a generator object, or a generator function.
+     * The coroutine can be any generator object, a generator function, or any
+     * other value supported by {@see Api::dispatch()}.
      *
-     * The implementation must delay execution of the strand until the next
-     * 'tick' of the kernel to allow the user to inspect the strand object
+     * The implementation must delay execution of the new strand until the next
+     * 'tick' of the kernel to allow the caller to inspect the strand object
      * before execution begins.
      *
      * @param Strand $strand    The strand executing the API call.
@@ -49,12 +56,13 @@ interface Api
     /**
      * Create a callback function that starts a new strand of execution.
      *
-     * This method can be used to integrate the kernel with callback-based
+     * This operation can be used to integrate the kernel with callback-based
      * asynchronous code.
      *
-     * The coroutine can be a generator object, or a generator function.
+     * The coroutine can be any generator object, a generator function, or any
+     * other value supported by {@see Api::dispatch()}.
      *
-     * The caller is resumed with the callback.
+     * The calling strand is resumed with the callback.
      *
      * @param Strand $strand    The strand executing the API call.
      * @param mixed  $coroutine The coroutine to execute.
@@ -64,7 +72,7 @@ interface Api
     public function callback(Strand $strand, $coroutine);
 
     /**
-     * Allow other strands to execute then resume the strand.
+     * Allow other strands to execute before resuming the calling strand.
      *
      * @param Strand $strand The strand executing the API call.
      *
@@ -73,22 +81,20 @@ interface Api
     public function cooperate(Strand $strand);
 
     /**
-     * Resume execution of the strand after a specified interval.
+     * Suspend the calling strand for a fixed interval.
      *
      * @param Strand $strand  The strand executing the API call.
      * @param float  $seconds The interval to wait.
-     *
-     * @return null
      */
     public function sleep(Strand $strand, float $seconds);
 
     /**
-     * Execute a coroutine on its own strand that is terminated after a timeout.
+     * Execute a coroutine on a new strand that is terminated after a timeout.
      *
-     * If the coroutine does not complete within the specific time its strand is
-     * terminated and the calling strand is resumed with a {@see TimeoutException}.
-     * Otherwise, the calling strand is resumed with the value or exception
-     * produced by the coroutine.
+     * If the strand does not exit within the specified time it is terminated
+     * and the calling strand is resumed with a {@see TimeoutException}.
+     * Otherwise, it is resumed with the value or exception produced by the
+     * coroutine.
      *
      * @param Strand $strand    The strand executing the API call.
      * @param float  $seconds   The interval to allow for execution.
@@ -99,7 +105,11 @@ interface Api
     public function timeout(Strand $strand, float $seconds, $coroutine);
 
     /**
-     * Suspend execution of the current strand.
+     * Suspend execution of the calling strand until it is manually resumed or
+     * terminated.
+     *
+     * This operation is typically used to integrate coroutines with other forms
+     * of asynchronous code.
      *
      * @param Strand        $strand The strand executing the API call.
      * @param callable|null $fn     A function invoked with the strand after it is suspended.
@@ -109,7 +119,7 @@ interface Api
     public function suspend(Strand $strand, callable $fn = null);
 
     /**
-     * Terminate the current strand.
+     * Terminate the calling strand.
      *
      * @param Strand $strand The strand executing the API call.
      *
@@ -118,18 +128,19 @@ interface Api
     public function terminate(Strand $strand);
 
     /**
-     * Execute multiple coroutines on their own strands and wait for them all to
-     * complete.
+     * Execute multiple coroutines on new strands and wait for them all to exit.
      *
-     * If one of the strands produces an exception, all pending strands are
-     * terminated and the calling strand is resumed with that exception.
-     * Otherwise, the calling strand is resumed with an array containing the
-     * results of each coroutine.
+     * If any one of the strands fails, all remaining strands are terminated and
+     * the calling strand is resumed with the underlying exception.
      *
-     * The array order matches the order of completion. The array keys indicate
-     * the order in which the coroutine was passed to this operation. This
-     * allows unpacking of the result with list() to get the results in
-     * pass-order.
+     * Otherwise, the calling strand is resumed with an associative array
+     * containing the return values of each coroutine.
+     *
+     * The array keys correspond to the order that the coroutines are passed to
+     * the operation. The order of the elements in the array matches the order
+     * in which the strands exited. This allows predictable unpacking of the
+     * array with {@see list()} (which uses the keys), while still being able to
+     * tell the exit order if necessary.
      *
      * @param Strand $strand         The strand executing the API call.
      * @param mixed  $coroutines,... The coroutines to execute.
@@ -139,12 +150,13 @@ interface Api
     public function all(Strand $strand, ...$coroutines);
 
     /**
-     * Execute multiple coroutines on their own strands and wait for one of them
-     * to complete.
+     * Execute multiple coroutines on new strands and wait for any one of them
+     * to succeed.
      *
-     * If one of the strands completes, all pending strands are terminated and
-     * the calling strand is resumed with the result of that strand. If all of
-     * the strands produce exceptions the calling strand is resumed with a
+     * If any one of the strands succeeds, all remaining strands are terminated
+     * and the calling strand is resumed with the return value of the coroutine.
+     *
+     * If all of the strands fail, the calling strand is resumed with a
      * {@see CompositeException}.
      *
      * @param Strand $strand         The strand executing the API call.
@@ -155,26 +167,31 @@ interface Api
     public function any(Strand $strand, ...$coroutines);
 
     /**
-     * Execute multiple coroutines on their own strands and wait for a specific
-     * number of them to complete.
+     * Execute multiple coroutines on new strands and wait for a subset of them
+     * to succeed.
      *
-     * Once ($count) strands have completed, all pending strands are terminated
-     * and the calling strand is resumed with an array containing the results of
-     * the completed coroutines.
+     * Once the specified number of strands have succeeded, all remaining
+     * strands are terminated and the calling strand is resumed with an
+     * associative array containing the return values of each successful
+     * coroutine.
      *
-     * The array order matches the order of completion. The array keys indicate
-     * the order in which the coroutine was passed to this operation.
+     * The array keys correspond to the order that the coroutines are passed to
+     * the operation. The order of the elements in the array matches the order
+     * in which the strands exited.
      *
-     * If enough strands produce an exception, such that it is no longer
-     * possible for ($count) strands to complete, all pending strands are
-     * terminated and the calling strand is resumed with a
-     * {@see CompositeException}.
+     * Unlike {@see Api::all()}, {@see list()} can not be used to unpack the
+     * result directly, as the caller can not predict which of the strands will
+     * succeed.
      *
-     * If ($count) is less than one, or greater than the number of provided
-     * coroutines, the strand is resumed with an {@see InvalidArgumentException}.
+     * If enough strands fail, such that is no longer possible for the required
+     * number of strands to succeed, all remaining strands are terminated and
+     * the calling strand is resumed with a {@see CompositeException}.
+     *
+     * The specified count must be between 1 and the number of provided
+     * coroutines, inclusive.
      *
      * @param Strand $strand         The strand executing the API call.
-     * @param int    $count          The number of strands to wait for.
+     * @param int    $count          The required number of successful strands.
      * @param mixed  $coroutines,... The coroutines to execute.
      *
      * @return null
@@ -182,12 +199,12 @@ interface Api
     public function some(Strand $strand, int $count, ...$coroutines);
 
     /**
-     * Execute multiple coroutines in on their own strands and wait for one of
-     * them to complete or produce an exception.
+     * Execute multiple coroutines on new strands and wait for any one of them
+     * to exit.
      *
-     * The calling strand is resumed with the result of the first strand to
-     * finish, regardless of whether it finishes successfully or produces an
-     * exception.
+     * If any one of the strands exits, all remaining strands are terminated
+     * and the calling strand is resumed with the return value or exception
+     * produced by the coroutine.
      *
      * @param Strand $strand         The strand executing the API call.
      * @param mixed  $coroutines,... The coroutines to execute.
@@ -197,7 +214,7 @@ interface Api
     public function first(Strand $strand, ...$coroutines);
 
     /**
-     * Read data from a stream.
+     * Read data from a stream resource.
      *
      * The calling strand is resumed with a string containing the data read from
      * the stream, or with an empty string if the stream has reached EOF.
@@ -205,7 +222,7 @@ interface Api
      * It is assumed that the stream is already configured as non-blocking.
      *
      * @param Strand   $strand The strand executing the API call.
-     * @param resource $stream A readable stream.
+     * @param resource $stream A readable stream resource.
      * @param int      $size   The maximum size of the buffer to return, in bytes.
      *
      * @return null
@@ -213,14 +230,14 @@ interface Api
     public function read(Strand $strand, $stream, int $length = 8192);
 
     /**
-     * Write data to a stream.
+     * Write data to a stream resource.
      *
      * The calling strand is resumed with the number of bytes written.
      *
      * It is assumed that the stream is already configured as non-blocking.
      *
      * @param Strand   $strand The strand executing the API call.
-     * @param resource $stream A writable stream.
+     * @param resource $stream A writable stream resource.
      * @param string   $buffer The data to write to the stream.
      * @param int      $length The number of bytes to write from the start of the buffer.
      *

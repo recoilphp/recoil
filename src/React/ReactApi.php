@@ -25,13 +25,14 @@ final class ReactApi implements Api
     /**
      * Start a new strand of execution.
      *
-     * This method executes a coroutine in a new strand. The calling strand is
-     * resumed with the new {@see Strand} object.
+     * This operation executes a coroutine in a new strand. The calling strand
+     * is resumed with the new {@see Strand} object.
      *
-     * The coroutine can be a generator object, or a generator function.
+     * The coroutine can be any generator object, a generator function, or any
+     * other value supported by {@see Api::dispatch()}.
      *
-     * The implementation must delay execution of the strand until the next
-     * 'tick' of the kernel to allow the user to inspect the strand object
+     * The implementation must delay execution of the new strand until the next
+     * 'tick' of the kernel to allow the caller to inspect the strand object
      * before execution begins.
      *
      * @param Strand $strand    The strand executing the API call.
@@ -47,12 +48,13 @@ final class ReactApi implements Api
     /**
      * Create a callback function that starts a new strand of execution.
      *
-     * This method can be used to integrate the kernel with callback-based
+     * This operation can be used to integrate the kernel with callback-based
      * asynchronous code.
      *
-     * The coroutine can be a generator object, or a generator function.
+     * The coroutine can be any generator object, a generator function, or any
+     * other value supported by {@see Api::dispatch()}.
      *
-     * The caller is resumed with the callback.
+     * The calling strand is resumed with the callback.
      *
      * @param Strand $strand    The strand executing the API call.
      * @param mixed  $coroutine The coroutine to execute.
@@ -69,7 +71,7 @@ final class ReactApi implements Api
     }
 
     /**
-     * Allow other strands to execute then resume the strand.
+     * Allow other strands to execute before resuming the calling strand.
      *
      * @param Strand $strand The strand executing the API call.
      */
@@ -83,7 +85,7 @@ final class ReactApi implements Api
     }
 
     /**
-     * Resume execution of the strand after a specified interval.
+     * Suspend the calling strand for a fixed interval.
      *
      * @param Strand $strand  The strand executing the API call.
      * @param float  $seconds The interval to wait.
@@ -113,12 +115,12 @@ final class ReactApi implements Api
     }
 
     /**
-     * Execute a coroutine on its own strand that is terminated after a timeout.
+     * Execute a coroutine on a new strand that is terminated after a timeout.
      *
-     * If the coroutine does not complete within the specific time its strand is
-     * terminated and the calling strand is resumed with a {@see TimeoutException}.
-     * Otherwise, the calling strand is resumed with the value or exception
-     * produced by the coroutine.
+     * If the strand does not exit within the specified time it is terminated
+     * and the calling strand is resumed with a {@see TimeoutException}.
+     * Otherwise, it is resumed with the value or exception produced by the
+     * coroutine.
      *
      * @param Strand $strand    The strand executing the API call.
      * @param float  $seconds   The interval to allow for execution.
@@ -132,7 +134,7 @@ final class ReactApi implements Api
     }
 
     /**
-     * Read data from a stream.
+     * Read data from a stream resource.
      *
      * The calling strand is resumed with a string containing the data read from
      * the stream, or with an empty string if the stream has reached EOF.
@@ -140,8 +142,8 @@ final class ReactApi implements Api
      * It is assumed that the stream is already configured as non-blocking.
      *
      * @param Strand   $strand The strand executing the API call.
-     * @param resource $stream A readable stream.
-     * @param int      $length The maximum number of bytes to read.
+     * @param resource $stream A readable stream resource.
+     * @param int      $size   The maximum size of the buffer to return, in bytes.
      */
     public function read(Strand $strand, $stream, int $length = 8192)
     {
@@ -161,14 +163,14 @@ final class ReactApi implements Api
     }
 
     /**
-     * Write data to a stream.
+     * Write data to a stream resource.
      *
      * The calling strand is resumed with the number of bytes written.
      *
      * It is assumed that the stream is already configured as non-blocking.
      *
      * @param Strand   $strand The strand executing the API call.
-     * @param resource $stream A writable stream.
+     * @param resource $stream A writable stream resource.
      * @param string   $buffer The data to write to the stream.
      * @param int      $length The number of bytes to write from the start of the buffer.
      */

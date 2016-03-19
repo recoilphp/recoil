@@ -33,7 +33,7 @@ describe(StrandWaitFirst::class, function () {
     });
 
     describe('->await()', function () {
-        it('resumes the strand when any substrand completes', function () {
+        it('resumes the strand when any substrand succeeds', function () {
             $this->strand->setTerminator->calledWith([$this->subject, 'cancel']);
             $this->substrand1->setObserver->calledWith($this->subject);
             $this->substrand2->setObserver->calledWith($this->subject);
@@ -78,7 +78,7 @@ describe(StrandWaitFirst::class, function () {
     });
 
     describe('->cancel()', function () {
-        it('terminates the pending substrands', function () {
+        it('terminates the remaining substrands', function () {
             $this->subject->cancel();
 
             Phony::inOrder(

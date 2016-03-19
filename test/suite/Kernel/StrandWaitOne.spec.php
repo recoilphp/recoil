@@ -29,7 +29,7 @@ describe(StrandWaitOne::class, function () {
     });
 
     describe('->await()', function () {
-        it('resumes the strand when the substrand completes', function () {
+        it('resumes the strand when the substrand succeeds', function () {
             $this->strand->setTerminator->calledWith([$this->subject, 'cancel']);
             $this->substrand->setObserver->calledWith($this->subject);
 
@@ -64,7 +64,7 @@ describe(StrandWaitOne::class, function () {
             );
         });
 
-        it('does not terminate the substrand if it has already completed', function () {
+        it('does not terminate the substrand if it has already exited', function () {
             $this->subject->success($this->substrand->mock(), '<one>');
 
             $this->subject->cancel();

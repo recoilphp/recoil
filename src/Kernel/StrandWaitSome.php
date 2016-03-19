@@ -23,7 +23,13 @@ final class StrandWaitSome implements Awaitable, StrandObserver
     }
 
     /**
-     * @return int The number of remaining strands that must complete successfully.
+     * Get the number of strands that must succeed before the calling strand is
+     * resumed.
+     *
+     * The initial value is equal to the constructor's $count parameter, and is
+     * decremented each time a substrand succeeds.
+     *
+     * @return int The number of strands that must succeed.
      */
     public function count() : int
     {
@@ -47,7 +53,7 @@ final class StrandWaitSome implements Awaitable, StrandObserver
     }
 
     /**
-     * A strand completed successfully.
+     * A strand exited successfully.
      *
      * @param Strand $strand The strand.
      * @param mixed  $value  The result of the strand's entry point coroutine.
@@ -72,7 +78,7 @@ final class StrandWaitSome implements Awaitable, StrandObserver
     }
 
     /**
-     * A strand failed due to an uncaught exception.
+     * A strand exited with a failure due to an uncaught exception.
      *
      * @param Strand    $strand    The strand.
      * @param Throwable $exception The exception.
@@ -99,7 +105,7 @@ final class StrandWaitSome implements Awaitable, StrandObserver
     }
 
     /**
-     * A strand was terminated.
+     * A strand exited because it was terminated.
      *
      * @param Strand $strand The strand.
      */
@@ -109,7 +115,7 @@ final class StrandWaitSome implements Awaitable, StrandObserver
     }
 
     /**
-     * Terminate all pending strands.
+     * Terminate all remaining strands.
      */
     public function cancel()
     {
@@ -125,7 +131,7 @@ final class StrandWaitSome implements Awaitable, StrandObserver
     private $strand;
 
     /**
-     * @var int The number of remaining strands that must complete successfully.
+     * @var int The number of strands that must succeed.
      */
     private $count;
 

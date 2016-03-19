@@ -22,7 +22,7 @@ describe(DeferredResolver::class, function () {
         );
     });
 
-    it('resolves the deferred when a strand completes', function () {
+    it('resolves the deferred when a strand succeeds', function () {
         $this->subject->success(
             $this->strand->mock(),
             '<value>'

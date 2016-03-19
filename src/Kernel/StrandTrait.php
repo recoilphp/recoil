@@ -86,7 +86,7 @@ trait StrandTrait
             })();
         }
 
-        $this->tick();
+        $this->run();
     }
 
     /**
@@ -156,7 +156,7 @@ trait StrandTrait
         $this->value = $value;
 
         if ($this->state !== StrandState::RUNNING) {
-            $this->tick();
+            $this->run();
         }
     }
 
@@ -185,7 +185,7 @@ trait StrandTrait
         $this->value = $exception;
 
         if ($this->state !== StrandState::RUNNING) {
-            $this->tick();
+            $this->run();
         }
     }
 
@@ -233,19 +233,19 @@ trait StrandTrait
         return new StrandWaitOne($this);
     }
 
-    private function tick()
+    private function run()
     {
         // This method intentionally minimises function calls for performance
         // reasons at the expense of readability. It's nasty. Be gentle.
 
         assert(
             $this->state !== StrandState::RUNNING,
-            'tick() is not re-entrant'
+            __METHOD__ . '() is not re-entrant'
         );
 
         assert(
             $this->current instanceof Generator,
-            'strand cannot tick with empty call stack / invalid generator'
+            'strand cannot run with empty call stack / invalid generator'
         );
 
         $this->state = StrandState::RUNNING;

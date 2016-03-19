@@ -20,7 +20,7 @@ interface Kernel
     public function execute($coroutine) : Strand;
 
     /**
-     * Run the kernel and wait for all strands to complete.
+     * Run the kernel and wait for all strands to exit.
      *
      * @see Kernel::interrupt()
      *
@@ -32,9 +32,9 @@ interface Kernel
     /**
      * Interrupt the kernel.
      *
-     * Execution is paused and the given exception is thrown by the current
-     * call to {@see Kernel::wait()}. wait() can be called again to resume
-     * execution of running strands.
+     * Execution of all strands is paused and the given exception is thrown by
+     * the current call to {@see Kernel::wait()}. wait() can be called again to
+     * resume execution of remaining strands.
      *
      * @return null
      */

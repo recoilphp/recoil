@@ -96,7 +96,7 @@ describe(StrandTrait::class, function () {
             $fn->received('<result>');
         });
 
-        it('can be invoked from inside ->tick()', function () {
+        it('can be invoked from inside ->run()', function () {
             $fn = Phony::stub();
             $fn->generates([null]);
             $this->api->dispatch->does(function () {
@@ -119,7 +119,7 @@ describe(StrandTrait::class, function () {
             $fn->receivedException($exception);
         });
 
-        it('can be invoked from inside ->tick()', function () {
+        it('can be invoked from inside ->run()', function () {
             $fn = Phony::stub();
             $fn->generates([null]);
             $exception = Phony::mock(Throwable::class);
@@ -171,7 +171,7 @@ describe(StrandTrait::class, function () {
         });
     });
 
-    describe('->tick()', function () {
+    describe('->run()', function () {
         context('when a coroutine returns a value', function () {
             it('propagates the value up the call-stack', function () {
                 $fn = Phony::spy(function () {
@@ -339,7 +339,7 @@ describe(StrandTrait::class, function () {
         });
     });
 
-    context('when the strand has completed', function () {
+    context('when the strand has succeeded', function () {
         beforeEach(function () {
             $this->subject->mock()->start(
                 Phony::stub()->generates()->returns()

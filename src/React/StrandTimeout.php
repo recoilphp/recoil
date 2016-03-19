@@ -54,7 +54,7 @@ final class StrandTimeout implements Awaitable, StrandObserver
     }
 
     /**
-     * A strand completed successfully.
+     * A strand exited successfully.
      *
      * @param Strand $strand The strand.
      * @param mixed  $value  The result of the strand's entry point coroutine.
@@ -69,7 +69,7 @@ final class StrandTimeout implements Awaitable, StrandObserver
     }
 
     /**
-     * A strand failed due to an uncaught exception.
+     * A strand exited with a failure due to an uncaught exception.
      *
      * @param Strand    $strand    The strand.
      * @param Throwable $exception The exception.
@@ -84,7 +84,7 @@ final class StrandTimeout implements Awaitable, StrandObserver
     }
 
     /**
-     * A strand was terminated.
+     * A strand exited because it was terminated.
      *
      * @param Strand $strand The strand.
      */
@@ -98,7 +98,7 @@ final class StrandTimeout implements Awaitable, StrandObserver
     }
 
     /**
-     * Terminate all pending strands.
+     * Terminate all remaining strands.
      */
     public function cancel()
     {
@@ -110,7 +110,8 @@ final class StrandTimeout implements Awaitable, StrandObserver
     }
 
     /**
-     * Terminate all pending strands.
+     * Terminate all remaining strands, and resume the calling strand with a
+     * {@see TimeoutException}.
      */
     public function timeout()
     {

@@ -39,17 +39,15 @@ describe(StrandWaitSome::class, function () {
     });
 
     describe('->count()', function () {
-
-        it('only counts the pending strands', function () {
+        it('only counts the remaining strands', function () {
             expect($this->subject->count())->to->equal(2);
             $this->subject->success($this->substrand3->mock(), '<three>');
             expect($this->subject->count())->to->equal(1);
         });
-
     });
 
     describe('->await()', function () {
-        it('resumes the strand when enough substrands complete', function () {
+        it('resumes the strand when enough substrands succeed', function () {
             $this->substrand1->setObserver->calledWith($this->subject);
             $this->substrand2->setObserver->calledWith($this->subject);
             $this->substrand3->setObserver->calledWith($this->subject);
@@ -126,7 +124,7 @@ describe(StrandWaitSome::class, function () {
     });
 
     describe('->cancel()', function () {
-        it('only terminates the pending substrands', function () {
+        it('only terminates the remaining substrands', function () {
             $this->subject->success($this->substrand1->mock(), '<one>');
 
             $this->subject->cancel();

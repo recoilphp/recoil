@@ -23,7 +23,7 @@ describe(ReactStrand::class, function () {
         );
     });
 
-    it('resolves the promise when the strand completes', function () {
+    it('resolves the promise when the strand succeeds', function () {
         $resolve = Phony::spy();
         $reject = Phony::spy();
         $promise = $this->subject->promise();

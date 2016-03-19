@@ -21,7 +21,7 @@ use Throwable;
 final class DeferredResolver implements StrandObserver
 {
     /**
-     * @param Deferred $deferred The deferred to settle when the strand completes.
+     * @param Deferred $deferred The deferred to settle when the strand exits.
      */
     public function __construct(Deferred $deferred)
     {
@@ -29,7 +29,7 @@ final class DeferredResolver implements StrandObserver
     }
 
     /**
-     * A strand completed successfully.
+     * A strand exited successfully.
      *
      * @param Strand $strand The strand.
      * @param mixed  $value  The result of the strand's entry point coroutine.
@@ -40,7 +40,7 @@ final class DeferredResolver implements StrandObserver
     }
 
     /**
-     * A strand failed due to an uncaught exception.
+     * A strand exited with a failure due to an uncaught exception.
      *
      * @param Strand    $strand    The strand.
      * @param Throwable $exception The exception.
@@ -51,7 +51,7 @@ final class DeferredResolver implements StrandObserver
     }
 
     /**
-     * A strand was terminated.
+     * A strand exited because it was terminated.
      *
      * @param Strand $strand The strand.
      */
@@ -61,7 +61,7 @@ final class DeferredResolver implements StrandObserver
     }
 
     /**
-     * @var Deferred The deferred to settle when the strand completes.
+     * @var Deferred The deferred to settle when the strand exits.
      */
     private $deferred;
 }

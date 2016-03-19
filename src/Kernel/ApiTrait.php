@@ -24,7 +24,11 @@ use UnexpectedValueException;
 trait ApiTrait
 {
     /**
-     * Dispatch an API call based on the key/value yielded from a coroutine.
+     * Dispatch an API call based on the key and value yielded from a coroutine.
+     *
+     * The implementation should not attribute any special behaviour to integer
+     * keys, as PHP's generator implementation implicitly yields integer keys
+     * when a value is yielded without specifying a key.
      *
      * @param Strand $strand The strand executing the API call.
      * @param mixed  $key    The yielded key.
@@ -76,6 +80,8 @@ trait ApiTrait
 
     /**
      * Invoke a non-standard API operation.
+     *
+     * The first element in $arguments must be the calling strand.
      */
     public function __call(string $name, array $arguments)
     {
@@ -89,7 +95,11 @@ trait ApiTrait
     }
 
     /**
-     * Suspend execution of the current strand.
+     * Suspend execution of the calling strand until it is manually resumed or
+     * terminated.
+     *
+     * This operation is typically used to integrate coroutines with other forms
+     * of asynchronous code.
      *
      * @param Strand        $strand The strand executing the API call.
      * @param callable|null $fn     A function invoked with the strand after it is suspended.
@@ -102,7 +112,7 @@ trait ApiTrait
     }
 
     /**
-     * Terminate the current strand.
+     * Terminate the calling strand.
      *
      * @param Strand $strand The strand executing the API call.
      */
@@ -112,18 +122,19 @@ trait ApiTrait
     }
 
     /**
-     * Execute multiple coroutines on their own strands and wait for them all to
-     * complete.
+     * Execute multiple coroutines on new strands and wait for them all to exit.
      *
-     * If one of the strands produces an exception, all pending strands are
-     * terminated and the calling strand is resumed with that exception.
-     * Otherwise, the calling strand is resumed with an array containing the
-     * results of each coroutine.
+     * If any one of the strands fails, all remaining strands are terminated and
+     * the calling strand is resumed with the underlying exception.
      *
-     * The array order matches the order of completion. The array keys indicate
-     * the order in which the coroutine was passed to this operation. This
-     * allows unpacking of the result with list() to get the results in
-     * pass-order.
+     * Otherwise, the calling strand is resumed with an associative array
+     * containing the return values of each coroutine.
+     *
+     * The array keys correspond to the order that the coroutines are passed to
+     * the operation. The order of the elements in the array matches the order
+     * in which the strands exited. This allows predictable unpacking of the
+     * array with {@see list()} (which uses the keys), while still being able to
+     * tell the exit order if necessary.
      *
      * @param Strand $strand         The strand executing the API call.
      * @param mixed  $coroutines,... The coroutines to execute.
@@ -141,12 +152,13 @@ trait ApiTrait
     }
 
     /**
-     * Execute multiple coroutines on their own strands and wait for one of them
-     * to complete.
+     * Execute multiple coroutines on new strands and wait for any one of them
+     * to succeed.
      *
-     * If one of the strands completes, all pending strands are terminated and
-     * the calling strand is resumed with the result of that strand. If all of
-     * the strands produce exceptions the calling strand is resumed with a
+     * If any one of the strands succeeds, all remaining strands are terminated
+     * and the calling strand is resumed with the return value of the coroutine.
+     *
+     * If all of the strands fail, the calling strand is resumed with a
      * {@see CompositeException}.
      *
      * @param Strand $strand         The strand executing the API call.
@@ -165,26 +177,31 @@ trait ApiTrait
     }
 
     /**
-     * Execute multiple coroutines on their own strands and wait for a specific
-     * number of them to complete.
+     * Execute multiple coroutines on new strands and wait for a subset of them
+     * to succeed.
      *
-     * Once ($count) strands have completed, all pending strands are terminated
-     * and the calling strand is resumed with an array containing the results of
-     * the completed coroutines.
+     * Once the specified number of strands have succeeded, all remaining
+     * strands are terminated and the calling strand is resumed with an
+     * associative array containing the return values of each successful
+     * coroutine.
      *
-     * The array order matches the order of completion. The array keys indicate
-     * the order in which the coroutine was passed to this operation.
+     * The array keys correspond to the order that the coroutines are passed to
+     * the operation. The order of the elements in the array matches the order
+     * in which the strands exited.
      *
-     * If enough strands produce an exception, such that it is no longer
-     * possible for ($count) strands to complete, all pending strands are
-     * terminated and the calling strand is resumed with a
-     * {@see CompositeException}.
+     * Unlike {@see Api::all()}, {@see list()} can not be used to unpack the
+     * result directly, as the caller can not predict which of the strands will
+     * succeed.
      *
-     * If ($count) is less than one, or greater than the number of provided
-     * coroutines, the strand is resumed with an {@see InvalidArgumentException}.
+     * If enough strands fail, such that is no longer possible for the required
+     * number of strands to succeed, all remaining strands are terminated and
+     * the calling strand is resumed with a {@see CompositeException}.
+     *
+     * The specified count must be between 1 and the number of provided
+     * coroutines, inclusive.
      *
      * @param Strand $strand         The strand executing the API call.
-     * @param int    $count          The number of strands to wait for.
+     * @param int    $count          The required number of successful strands.
      * @param mixed  $coroutines,... The coroutines to execute.
      */
     public function some(Strand $strand, int $count, ...$coroutines)
@@ -216,12 +233,12 @@ trait ApiTrait
     }
 
     /**
-     * Execute multiple coroutines in on their own strands and wait for one of
-     * them to complete or produce an exception.
+     * Execute multiple coroutines on new strands and wait for any one of them
+     * to exit.
      *
-     * The calling strand is resumed with the result of the first strand to
-     * finish, regardless of whether it finishes successfully or produces an
-     * exception.
+     * If any one of the strands exits, all remaining strands are terminated
+     * and the calling strand is resumed with the return value or exception
+     * produced by the coroutine.
      *
      * @param Strand $strand         The strand executing the API call.
      * @param mixed  $coroutines,... The coroutines to execute.

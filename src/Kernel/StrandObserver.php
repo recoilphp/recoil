@@ -12,7 +12,7 @@ use Throwable;
 interface StrandObserver
 {
     /**
-     * A strand completed successfully.
+     * A strand exited successfully.
      *
      * @param Strand $strand The strand.
      * @param mixed  $value  The result of the strand's entry point coroutine.
@@ -22,7 +22,7 @@ interface StrandObserver
     public function success(Strand $strand, $value);
 
     /**
-     * A strand failed due to an uncaught exception.
+     * A strand exited with a failure due to an uncaught exception.
      *
      * @param Strand    $strand    The strand.
      * @param Throwable $exception The exception.
@@ -32,7 +32,7 @@ interface StrandObserver
     public function failure(Strand $strand, Throwable $exception);
 
     /**
-     * A strand was terminated.
+     * A strand exited because it was terminated.
      *
      * @param Strand $strand The strand.
      *

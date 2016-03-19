@@ -53,7 +53,7 @@ describe(ReactKernel::class, function () {
                 });
             })->to->throw(
                 RuntimeException::class,
-                'The coroutine did not complete.'
+                'The entry-point coroutine never returned.'
             );
         });
 

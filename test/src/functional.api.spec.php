@@ -113,7 +113,7 @@ context('kernel api', function () {
     });
 
     describe('->timeout()', function () {
-        rit('returns value if the coroutine completes before the timeout', function () {
+        rit('returns value if the coroutine returns before the timeout', function () {
             $result = yield Recoil::timeout(
                 1,
                 function () {

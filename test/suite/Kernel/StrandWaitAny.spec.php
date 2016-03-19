@@ -34,7 +34,7 @@ describe(StrandWaitAny::class, function () {
     });
 
     describe('->await()', function () {
-        it('resumes the strand when any substrand completes', function () {
+        it('resumes the strand when any substrand succeeds', function () {
             $this->strand->setTerminator->calledWith([$this->subject, 'cancel']);
             $this->substrand1->setObserver->calledWith($this->subject);
             $this->substrand2->setObserver->calledWith($this->subject);
@@ -90,7 +90,7 @@ describe(StrandWaitAny::class, function () {
     });
 
     describe('->cancel()', function () {
-        it('only terminates the pending substrands', function () {
+        it('only terminates the remaining substrands', function () {
             $this->subject->terminated($this->substrand1->mock());
 
             $this->subject->cancel();
