@@ -20,3 +20,17 @@ rit('runs a coroutine in a new strand', function () {
 
     expect(yield $strand)->to->equal('<ok>');
 });
+
+rit('allows the strand to be terminated immediately', function () {
+    $spy = Phony::spy(function () {
+        return;
+        yield;
+    });
+
+    $strand = yield Recoil::execute($spy);
+    $strand->terminate();
+
+    yield;
+
+    $spy->never()->called();
+});

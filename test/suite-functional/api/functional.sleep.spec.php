@@ -6,16 +6,16 @@ namespace Recoil;
 
 rit('resumes execution after the specified number of seconds', function () {
     $time = microtime(true);
-    yield Recoil::sleep(0.1);
+    yield Recoil::sleep(0.02);
     $diff = microtime(true) - $time;
 
-    expect($diff)->to->be->within(0.075, 1.075);
+    expect($diff)->to->be->within(0.01, 1.03);
 });
 
 rit('can be invoked by yielding a number', function () {
     $time = microtime(true);
-    yield 0.05;
+    yield 0.02;
     $diff = microtime(true) - $time;
 
-    expect($diff)->to->be->within(0.04, 0.06);
+    expect($diff)->to->be->within(0.01, 0.03);
 });
