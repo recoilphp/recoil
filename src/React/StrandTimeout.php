@@ -24,11 +24,11 @@ use Throwable;
 final class StrandTimeout implements Awaitable, StrandObserver
 {
     public function __construct(
-        LoopInterface $loop,
+        LoopInterface $eventLoop,
         float $timeout,
         Strand $substrand
     ) {
-        $this->loop = $loop;
+        $this->eventLoop = $eventLoop;
         $this->timeout = $timeout;
         $this->substrand = $substrand;
     }
@@ -41,7 +41,7 @@ final class StrandTimeout implements Awaitable, StrandObserver
      */
     public function await(Strand $strand, Api $api)
     {
-        $this->timer = $this->loop->addTimer(
+        $this->timer = $this->eventLoop->addTimer(
             $this->timeout,
             [$this, 'timeout']
         );
