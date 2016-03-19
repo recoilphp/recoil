@@ -5,6 +5,7 @@ declare (strict_types = 1); // @codeCoverageIgnore
 namespace Recoil\React;
 
 use React\EventLoop\LoopInterface;
+use React\EventLoop\Timer\TimerInterface;
 use Recoil\Exception\TerminatedException;
 use Recoil\Exception\TimeoutException;
 use Recoil\Kernel\Api;
