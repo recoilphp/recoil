@@ -4,7 +4,7 @@ declare (strict_types = 1); // @codeCoverageIgnore
 
 namespace Recoil\React;
 
-\Recoil\defineFunctionalSpec(
+\Recoil\importFunctionalTests(
     'ReactPHP',
     function () {
         return new ReactKernel();
