@@ -9,7 +9,6 @@ namespace Recoil\Kernel;
  * changed or removed at any time without notice.
  *
  * @access private
- * @final
  */
 interface StrandState
 {

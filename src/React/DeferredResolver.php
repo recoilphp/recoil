@@ -11,6 +11,11 @@ use Recoil\Kernel\StrandObserver;
 use Throwable;
 
 /**
+ * Please note that this code is not part of the public API. It may be
+ * changed or removed at any time without notice.
+ *
+ * @access private
+ *
  * A strand observer that forwards events on to a React deferred object.
  */
 final class DeferredResolver implements StrandObserver

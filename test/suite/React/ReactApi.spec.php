@@ -5,9 +5,9 @@ declare (strict_types = 1); // @codeCoverageIgnore
 namespace Recoil\React;
 
 use Eloquent\Phony\Phony;
+use Hamcrest\Core\IsInstanceOf;
 use React\EventLoop\LoopInterface;
 use React\EventLoop\Timer\TimerInterface;
-use Recoil\Kernel\Awaitable;
 use Recoil\Kernel\Kernel;
 use Recoil\Kernel\Strand;
 
@@ -148,42 +148,17 @@ describe(ReactApi::class, function () {
     });
 
     describe('->timeout()', function () {
-        beforeEach(function () {
-            $this->awaitable = Phony::mock(Awaitable::class);
-            $this->substrand->awaitable->returns($this->awaitable);
-
+        it('attaches a StrandTimeout instance to the substrand', function () {
             $this->subject->timeout(
                 $this->strand->mock(),
                 10.5,
                 '<coroutine>'
             );
-        });
 
-        it('executes the coroutine on a substrand', function () {
             $this->kernel->execute->calledWith('<coroutine>');
-        });
 
-        it('terminates the substrand with a timer', function () {
-            $fn = $this->eventLoop->addTimer->calledWith(10.5, '~')->argument(1);
-            expect($fn)->to->satisfy('is_callable');
-
-            $this->substrand->terminate->never()->called();
-
-            $fn();
-
-            $this->substrand->terminate->called();
-        });
-
-        it('cancels the timer if the substrand is terminated', function () {
-            $this->substrand->setTerminator->calledWith(
-                [$this->timer->mock(), 'cancel']
-            );
-        });
-
-        it('awaits the substrand', function () {
-            $this->awaitable->await->calledWith(
-                $this->strand,
-                $this->subject
+            $this->substrand->setObserver->calledWith(
+                IsInstanceOf::anInstanceOf(StrandTimeout::class)
             );
         });
     });
