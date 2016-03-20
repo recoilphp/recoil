@@ -228,6 +228,16 @@ describe(ApiTrait::class, function () {
         });
     });
 
+    describe('->strand()', function () {
+        it('resumes the strand with itself', function () {
+            $this->subject->mock()->strand(
+                $this->strand->mock()
+            );
+
+            $this->strand->resume->calledWith($this->strand);
+        });
+    });
+
     describe('->suspend()', function () {
         it('does not resume the strand', function () {
             $this->subject->mock()->suspend(
