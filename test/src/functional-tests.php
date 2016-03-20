@@ -4,6 +4,7 @@ declare (strict_types = 1); // @codeCoverageIgnore
 
 namespace Recoil;
 
+use Generator;
 use Recoil\Kernel\Exception\StrandException;
 use Recoil\Kernel\Kernel;
 
@@ -13,7 +14,11 @@ use Recoil\Kernel\Kernel;
 function rit(string $description, callable $test)
 {
     it($description, function () use ($test) {
-        $this->kernel->execute($test);
+        $result = $test();
+
+        if ($result instanceof Generator) {
+            $this->kernel->execute($test);
+        }
 
         try {
             $this->kernel->wait();
