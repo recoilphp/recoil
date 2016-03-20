@@ -34,8 +34,8 @@ rit('terminates the substrands when the calling strand is terminated', function 
         yield (function () {
             yield Recoil::some(
                 2,
-                function () { yield; assert(false, 'not terminated'); },
-                function () { yield; assert(false, 'not terminated'); }
+                function () { yield; assert(false, 'strand was not terminated'); },
+                function () { yield; assert(false, 'strand was not terminated'); }
             );
         })();
     });
@@ -115,7 +115,7 @@ context('when the required number of substrands succeed', function () {
             1,
             function () {
                 yield;
-                assert(false, 'not terminated');
+                assert(false, 'strand was not terminated');
             },
             function () {
                 return;

@@ -4,7 +4,6 @@ declare (strict_types = 1); // @codeCoverageIgnore
 
 namespace Recoil;
 
-use Eloquent\Phony\Phony;
 use Exception;
 use Generator;
 use Recoil\Kernel\Api;
@@ -14,75 +13,40 @@ use Recoil\Kernel\CoroutineProvider;
 use Recoil\Kernel\Strand;
 
 rit('can invoke generator as coroutine', function () {
-    $spy = Phony::spy();
-    $fn = function () use ($spy) {
-        $spy(2);
-
-        return 3;
+    $result = yield (function () {
         yield;
-    };
 
-    $spy(1);
-    $spy(yield $fn());
+        return '<ok>';
+    })();
 
-    Phony::inOrder(
-        $spy->calledWith(1),
-        $spy->calledWith(2),
-        $spy->calledWith(3)
-    );
+    expect($result)->to->equal('<ok>');
 });
 
 rit('can invoke generator as coroutine with yield from', function () {
-    $spy = Phony::spy();
-    $fn = function () use ($spy) {
-        $spy(2);
-
-        return 3;
+    $result = yield from (function () {
         yield;
-    };
 
-    $spy(1);
-    $spy(yield from $fn());
+        return '<ok>';
+    })();
 
-    Phony::inOrder(
-        $spy->calledWith(1),
-        $spy->calledWith(2),
-        $spy->calledWith(3)
-    );
+    expect($result)->to->equal('<ok>');
 });
 
 rit('can invoke coroutine provider', function () {
-    $spy = Phony::spy();
-    $spy(1);
-    $result = yield new class ($spy) implements CoroutineProvider
+    $result = yield new class implements CoroutineProvider
  {
-     public function __construct($spy)
-     {
-         $this->spy = $spy;
-     }
-
      public function coroutine() : Generator
      {
-         $spy = $this->spy;
-         $spy(2);
-
-         return 3;
          yield;
+
+         return '<ok>';
      }
  };
 
-    $spy($result);
-
-    Phony::inOrder(
-        $spy->calledWith(1),
-        $spy->calledWith(2),
-        $spy->calledWith(3)
-    );
+    expect($result)->to->equal('<ok>');
 });
 
 rit('can invoke awaitable provider', function () {
-    $spy = Phony::spy();
-    $spy(1);
     $result = yield new class implements AwaitableProvider
  {
      public function awaitable() : Awaitable
@@ -91,37 +55,25 @@ rit('can invoke awaitable provider', function () {
  {
      public function await(Strand $strand, Api $api)
      {
-         $strand->resume(2);
+         $strand->resume('<ok>');
      }
  };
      }
  };
 
-    $spy($result);
-
-    Phony::inOrder(
-        $spy->calledWith(1),
-        $spy->calledWith(2)
-    );
+    expect($result)->to->equal('<ok>');
 });
 
 rit('can invoke awaitable', function () {
-    $spy = Phony::spy();
-    $spy(1);
     $result = yield new class implements Awaitable
  {
      public function await(Strand $strand, Api $api)
      {
-         $strand->resume(2);
+         $strand->resume('<ok>');
      }
  };
 
-    $spy($result);
-
-    Phony::inOrder(
-        $spy->calledWith(1),
-        $spy->calledWith(2)
-    );
+    expect($result)->to->equal('<ok>');
 });
 
 rit('exception propagates up the call-stack', function () {

@@ -4,33 +4,31 @@ declare (strict_types = 1); // @codeCoverageIgnore
 
 namespace Recoil;
 
-use Eloquent\Phony\Phony;
 use Recoil\Kernel\Strand;
 
 rit('runs a coroutine in a new strand', function () {
-    $spy = Phony::spy(function () {
-        return '<ok>';
-        yield;
-    });
+    ob_start();
 
-    $strand = yield Recoil::execute($spy);
-    expect($strand)->to->be->an->instanceof(Strand::class);
+    yield Recoil::execute(function () {
+        echo 'b';
 
-    $spy->never()->called();
-
-    expect(yield $strand)->to->equal('<ok>');
-});
-
-rit('allows the strand to be terminated immediately', function () {
-    $spy = Phony::spy(function () {
         return;
         yield;
     });
 
-    $strand = yield Recoil::execute($spy);
+    echo 'a';
+    yield;
+
+    expect(ob_get_clean())->to->equal('ab');
+});
+
+rit('allows the strand to be terminated immediately', function () {
+    $strand = yield Recoil::execute(function () {
+        assert(false, 'strand was not terminated');
+        yield;
+    });
+
     $strand->terminate();
 
     yield;
-
-    $spy->never()->called();
 });

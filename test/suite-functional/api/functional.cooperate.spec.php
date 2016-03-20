@@ -4,47 +4,38 @@ declare (strict_types = 1); // @codeCoverageIgnore
 
 namespace Recoil;
 
-use Eloquent\Phony\Phony;
 use Recoil\Kernel\Strand;
 
 rit('yields control to another strand', function () {
-    $spy = Phony::spy();
+    ob_start();
 
-    yield Recoil::execute(function () use ($spy) {
-        $spy(2);
+    yield Recoil::execute(function () {
+        echo 'b';
 
         return;
         yield;
     });
 
-    $spy(1);
+    echo 'a';
     yield Recoil::cooperate();
-    $spy(3);
+    echo 'c';
 
-    Phony::inOrder(
-        $spy->calledWith(1),
-        $spy->calledWith(2),
-        $spy->calledWith(3)
-    );
+    expect(ob_get_clean())->to->equal('abc');
 });
 
 rit('can be invoked by yielding null', function () {
-    $spy = Phony::spy();
+    ob_start();
 
-    yield Recoil::execute(function () use ($spy) {
-        $spy(2);
+    yield Recoil::execute(function () {
+        echo 'b';
 
         return;
         yield;
     });
 
-    $spy(1);
+    echo 'a';
     yield;
-    $spy(3);
+    echo 'c';
 
-    Phony::inOrder(
-        $spy->calledWith(1),
-        $spy->calledWith(2),
-        $spy->calledWith(3)
-    );
+    expect(ob_get_clean())->to->equal('abc');
 });

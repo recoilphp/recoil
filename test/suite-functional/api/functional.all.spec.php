@@ -72,8 +72,8 @@ rit('terminates the substrands when the calling strand is terminated', function 
     $strand = yield Recoil::execute(function () {
         yield (function () {
             yield Recoil::all(
-                function () { yield; assert(false, 'not terminated'); },
-                function () { yield; assert(false, 'not terminated'); }
+                function () { yield; assert(false, 'strand was not terminated'); },
+                function () { yield; assert(false, 'strand was not terminated'); }
             );
         })();
     });
@@ -99,7 +99,7 @@ context('when one of the substrands fails', function () {
     rit('terminates the remaining strands', function () {
         try {
             yield Recoil::all(
-                function () { yield; assert(false, 'not terminated'); },
+                function () { yield; assert(false, 'strand was not terminated'); },
                 function () { throw new Exception('<exception>'); yield; }
             );
         } catch (Exception $e) {
@@ -128,7 +128,7 @@ context('when one of the substrands is terminated', function () {
     rit('terminates the remaining strands', function () {
         try {
             yield Recoil::all(
-                function () { yield; assert(false, 'not terminated'); },
+                function () { yield; assert(false, 'strand was not terminated'); },
                 function () { yield Recoil::terminate(); }
             );
         } catch (TerminatedException $e) {

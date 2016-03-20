@@ -69,7 +69,7 @@ rit('terminates the substrand if the calling strand is terminated', function () 
                 0.02,
                 function () {
                     yield 0.01;
-                    assert(false, 'not terminated');
+                    assert(false, 'strand was not terminated');
                 }
             );
         })();

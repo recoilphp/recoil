@@ -16,3 +16,7 @@ xdescribe('->wait()', function () {
 xdescribe('->interrupt()', function () {
     it('x', function () {});
 });
+
+xdescribe('->stop()', function () {
+    it('x', function () {});
+});

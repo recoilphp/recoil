@@ -4,25 +4,23 @@ declare (strict_types = 1); // @codeCoverageIgnore
 
 namespace Recoil;
 
-use Eloquent\Phony\Phony;
 use Recoil\Kernel\Strand;
 
 rit('creates a callback that runs a coroutine in a new strand', function () {
-    $spy = Phony::spy(function () {
+    ob_start();
+
+    $fn = yield Recoil::callback(function () {
+        echo 'c';
+
         return;
         yield;
     });
 
-    $fn = yield Recoil::callback($spy);
-    expect($fn)->to->satisfy('is_callable');
-
-    $spy->never()->called();
-
+    echo 'a';
     $fn();
-
-    $spy->never()->called();
+    echo 'b';
 
     yield;
 
-    $spy->called();
+    expect(ob_get_clean())->to->equal('abc');
 });

@@ -50,7 +50,7 @@ if (extension_loaded('posix')) {
 
         $strand = yield Recoil::execute(function () use ($stream) {
             yield Recoil::read($stream);
-            assert(false, 'strand not terminated');
+            assert(false, 'strand was not terminated');
         });
 
         yield;
