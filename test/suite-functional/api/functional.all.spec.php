@@ -41,7 +41,7 @@ rit('can be invoked by yielding an array', function () {
     expect(ob_get_clean())->to->equal('ab');
 });
 
-rit('returns an array of return values', function () {
+rit('resumes the calling strand with an array of return values', function () {
     expect(yield Recoil::all(
         function () { return 'a'; yield; },
         function () { return 'b'; yield; }
