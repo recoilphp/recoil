@@ -107,6 +107,15 @@ interface Api
     public function timeout(Strand $strand, float $seconds, $coroutine);
 
     /**
+     * Get the {@see Strand} object that represents the calling strand.
+     *
+     * @param Strand $strand The strand executing the API call.
+     *
+     * @return null
+     */
+    public function strand(Strand $strand);
+
+    /**
      * Suspend execution of the calling strand until it is manually resumed or
      * terminated.
      *

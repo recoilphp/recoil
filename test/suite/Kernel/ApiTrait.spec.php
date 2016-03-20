@@ -152,21 +152,18 @@ describe(ApiTrait::class, function () {
             });
 
             it('resumes the strand when resolved', function () {
-                $fn = $this->resolve;
-                $fn('<result>');
+                ($this->resolve)('<result>');
                 $this->strand->resume->calledWith('<result>');
             });
 
             it('resumes the strand with an exception when rejected', function () {
                 $exception = Phony::mock(Throwable::class);
-                $fn = $this->reject;
-                $fn($exception->mock());
+                ($this->reject)($exception->mock());
                 $this->strand->throw->calledWith($exception);
             });
 
             it('resumes the strand with an exception when rejected with a non-exception', function () {
-                $fn = $this->reject;
-                $fn('<reason>');
+                ($this->reject)('<reason>');
                 $this->strand->throw->calledWith(new RejectedException('<reason>'));
             });
         });
@@ -228,6 +225,16 @@ describe(ApiTrait::class, function () {
             expect(function () {
                 $this->subject->mock()->unknown();
             })->to->throw(TypeError::class);
+        });
+    });
+
+    describe('->strand()', function () {
+        it('resumes the strand with itself', function () {
+            $this->subject->mock()->strand(
+                $this->strand->mock()
+            );
+
+            $this->strand->resume->calledWith($this->strand);
         });
     });
 

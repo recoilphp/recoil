@@ -16,10 +16,10 @@
         "peridot-php/peridot-code-coverage-reporters": "^2",
         "react/dns": "^0.4"
     },
-    "autoload": { "psr-4": { "Recoil\\": "src" }},
+    "autoload": { "psr-4": { "Recoil\\": "src" } },
     "autoload-dev": {
         "psr-4": { "Recoil\\": "test/src" },
-        "files": [ "test/src/functions.php" ]
+        "files": [ "test/src/functional-tests.php" ]
     },
     "keywords": [
         "coroutine",
