@@ -267,7 +267,7 @@ trait ApiTrait
      *
      * @return null
      */
-    public abstract function cooperate(Strand $strand);
+    abstract public function cooperate(Strand $strand);
 
     /**
      * Suspend the calling strand for a fixed interval.
@@ -277,7 +277,7 @@ trait ApiTrait
      *
      * @return null
      */
-    public abstract function sleep(Strand $strand, float $seconds);
+    abstract public function sleep(Strand $strand, float $seconds);
 
     /**
      * Read data from a stream resource.
@@ -293,7 +293,7 @@ trait ApiTrait
      *
      * @return null
      */
-    public abstract function read(Strand $strand, $stream, int $length = 8192);
+    abstract public function read(Strand $strand, $stream, int $length = 8192);
 
     /**
      * Write data to a stream resource.
@@ -309,7 +309,7 @@ trait ApiTrait
      *
      * @return null
      */
-    public abstract function write(
+    abstract public function write(
         Strand $strand,
         $stream,
         string $buffer,
