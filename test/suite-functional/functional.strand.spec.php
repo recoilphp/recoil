@@ -37,9 +37,8 @@ rit('can invoke coroutine provider', function () {
  {
      public function coroutine() : Generator
      {
-         yield;
-
          return '<ok>';
+         yield;
      }
  };
 

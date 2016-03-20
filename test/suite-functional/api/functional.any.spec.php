@@ -55,7 +55,7 @@ context('when one of the substrands succeeds', function () {
         ))->to->equal('b');
     });
 
-    xit('terminates the remaining strands', function () {
+    rit('terminates the remaining strands', function () {
         yield Recoil::any(
             function () {
                 yield;
