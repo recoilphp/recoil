@@ -4,9 +4,9 @@ declare (strict_types = 1); // @codeCoverageIgnore
 
 namespace Recoil;
 
-rit('does not resume automatically', function () {
+rit('suspends the calling strand', function () {
     yield Recoil::suspend();
-    assert(false, 'strand was resumed');
+    assert(false, 'strand was not suspended');
 });
 
 rit('passes the strand to the given callback', function () {

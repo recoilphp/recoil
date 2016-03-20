@@ -90,7 +90,7 @@ context('when one of the substrands fails', function () {
                 function () { return; yield; },
                 function () { throw new Exception('<exception>'); yield; }
             );
-            assert(false, 'Expected exception was not thrown.');
+            assert(false, 'expected exception was not thrown');
         } catch (Exception $e) {
             expect($e->getMessage())->to->equal('<exception>');
         }
@@ -119,7 +119,7 @@ context('when one of the substrands is terminated', function () {
                     yield Recoil::terminate();
                 }
             );
-            assert(false, 'Expected exception was not thrown.');
+            assert(false, 'expected exception was not thrown');
         } catch (TerminatedException $e) {
             expect($e->getMessage())->to->equal("Strand #$id was terminated.");
         }

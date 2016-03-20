@@ -76,7 +76,7 @@ context('when all of the substrands fail or are terminated', function () {
                 function () { yield Recoil::terminate(); },
                 function () { throw new Exception('<exception>'); yield; }
             );
-            assert(false, 'Expected exception was not thrown.');
+            assert(false, 'expected exception was not thrown');
         } catch (CompositeException $e) {
             expect($e->exceptions())->to->have->length(2);
             expect($e->exceptions()[0])->to->be->an->instanceof(TerminatedException::class);
@@ -90,7 +90,7 @@ context('when all of the substrands fail or are terminated', function () {
                 function () { yield; yield; throw new Exception('<exception-a>'); },
                 function () { yield; throw new Exception('<exception-b>'); }
             );
-            assert(false, 'Expected exception was not thrown.');
+            assert(false, 'expected exception was not thrown');
         } catch (CompositeException $e) {
             expect(array_keys($e->exceptions()))->to->equal([1, 0]);
         }

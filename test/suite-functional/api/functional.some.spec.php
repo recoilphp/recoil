@@ -91,7 +91,7 @@ context('when too many substrands fail', function () {
                 function () { throw new Exception('<exception>'); yield; },
                 function () { yield; }
             );
-            assert(false, 'Expected exception was not thrown.');
+            assert(false, 'expected exception was not thrown');
         } catch (CompositeException $e) {
             expect($e->exceptions())->to->have->length(2);
             expect($e->exceptions()[0])->to->be->an->instanceof(TerminatedException::class);
@@ -107,7 +107,7 @@ context('when too many substrands fail', function () {
                 function () { yield; throw new Exception('<exception-b>'); },
                 function () { yield; }
             );
-            assert(false, 'Expected exception was not thrown.');
+            assert(false, 'expected exception was not thrown');
         } catch (CompositeException $e) {
             expect(array_keys($e->exceptions()))->to->equal([1, 0]);
         }

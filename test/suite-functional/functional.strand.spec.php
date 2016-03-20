@@ -132,7 +132,7 @@ rit('exception propagates up the call-stack', function () {
         };
 
         yield $fn();
-        assert(false, 'Expected exception was not thrown.');
+        assert(false, 'expected exception was not thrown');
     } catch (Exception $e) {
         expect($e->getMessage())->to->equal('<exception>');
     }
