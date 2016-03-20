@@ -7,11 +7,6 @@ namespace Recoil\Kernel;
 use React\EventLoop\Factory;
 use React\EventLoop\LoopInterface;
 use Recoil\Exception\TerminatedException;
-use Recoil\Kernel\Api;
-use Recoil\Kernel\Kernel;
-use Recoil\Kernel\KernelTrait;
-use Recoil\Kernel\Strand;
-use Recoil\Kernel\StrandObserver;
 use RuntimeException;
 use Throwable;
 
@@ -98,4 +93,30 @@ trait KernelTrait
             $this->execute($coroutine)
         );
     }
+
+    /**
+     * Start a new strand of execution.
+     *
+     * The implementation must delay execution of the strand until the next
+     * 'tick' of the kernel to allow the user to inspect the strand object
+     * before execution begins.
+     *
+     * @param mixed $coroutine The strand's entry-point.
+     */
+    public abstract function execute($coroutine) : Strand;
+
+    /**
+     * Run the kernel and wait for all strands to exit.
+     *
+     * Calls to wait() and waitForStrand() can be nested, which can be used in
+     * synchronous code to block until a particular operation is complete.
+     * However, care must be taken not to introduce deadlocks.
+     *
+     * @see Kernel::waitForStrand()
+     * @see Kernel::interrupt()
+     *
+     * @return null
+     * @throws Throwable The exception passed to {@see Kernel::interrupt()}.
+     */
+    public abstract function wait();
 }
