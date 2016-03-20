@@ -41,7 +41,7 @@ rit('can be invoked by yielding an array', function () {
     expect(ob_get_clean())->to->equal('ab');
 });
 
-rit('resumes the calling strand with an array of return values', function () {
+rit('returns an array of coroutine return values', function () {
     expect(yield Recoil::all(
         function () { return 'a'; yield; },
         function () { return 'b'; yield; }
@@ -84,7 +84,7 @@ rit('terminates the substrands when the calling strand is terminated', function 
 });
 
 context('when one of the substrands fails', function () {
-    rit('resumes the calling strand with the exception', function () {
+    rit('propagates the exception', function () {
         try {
             yield Recoil::all(
                 function () { return; yield; },
@@ -109,7 +109,7 @@ context('when one of the substrands fails', function () {
 });
 
 context('when one of the substrands is terminated', function () {
-    rit('resumes the calling strand with an exception', function () {
+    rit('throws an exception', function () {
         $id = null;
         try {
             yield Recoil::all(

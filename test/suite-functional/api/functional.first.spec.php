@@ -40,7 +40,7 @@ rit('terminates the substrands when the calling strand is terminated', function 
 });
 
 context('when one of the substrands succeeds', function () {
-    rit('resumes the calling strand with the return value', function () {
+    rit('returns the coroutine return value', function () {
         expect(yield Recoil::first(
             function () {
                 yield;
@@ -69,7 +69,7 @@ context('when one of the substrands succeeds', function () {
 });
 
 context('when one of the substrands fails', function () {
-    rit('resumes the calling strand with the exception', function () {
+    rit('propagates the exception', function () {
         try {
             yield Recoil::first(
                 function () { yield; },
@@ -93,7 +93,7 @@ context('when one of the substrands fails', function () {
 });
 
 context('when one of the substrands is terminated', function () {
-    rit('resumes the calling strand with an exception', function () {
+    rit('throws an exception', function () {
         $id = null;
         try {
             yield Recoil::first(
