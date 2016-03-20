@@ -18,8 +18,7 @@ rit('executes the coroutines', function () {
         function () {
             echo 'b';
 
-            return;
-            yield;
+            return; yield;
         }
     );
     expect(ob_get_clean())->to->equal('ab');
@@ -44,14 +43,13 @@ context('when one of the substrands succeeds', function () {
     rit('resumes the calling strand with the return value', function () {
         expect(yield Recoil::any(
             function () {
-                yield 0.02;
+                yield;
 
                 return 'a';
             },
             function () {
-                yield 0.01;
-
                 return 'b';
+                yield;
             }
         ))->to->equal('b');
     });
@@ -59,13 +57,12 @@ context('when one of the substrands succeeds', function () {
     xit('terminates the remaining strands', function () {
         yield Recoil::any(
             function () {
-                yield 0.02;
+                yield;
                 assert(false, 'not terminated');
             },
             function () {
-                yield 0.01;
-
-                return 'b';
+                return;
+                yield;
             }
         );
     });
@@ -89,8 +86,8 @@ context('when all of the substrands fail or are terminated', function () {
     rit('sorts the previous exceptions based on the order that the substrands exit', function () {
         try {
             yield Recoil::any(
-                function () { yield 0.02; throw new Exception('<exception-a>'); },
-                function () { yield 0.01; throw new Exception('<exception-b>'); }
+                function () { yield; yield; throw new Exception('<exception-a>'); },
+                function () { yield; throw new Exception('<exception-b>'); }
             );
             assert(false, 'Expected exception was not thrown.');
         } catch (CompositeException $e) {
@@ -98,57 +95,3 @@ context('when all of the substrands fail or are terminated', function () {
         }
     });
 });
-
-// context('when one of the substrands fails', function () {
-//     rit('resumes the calling strand with the exception', function () {
-//         try {
-//             yield Recoil::any(
-//                 function () { return; yield; },
-//                 function () { throw new Exception('<exception>'); yield; }
-//             );
-//             assert(false, 'Expected exception was not thrown.');
-//         } catch (Exception $e) {
-//             expect($e->getMessage())->to->equal('<exception>');
-//         }
-//     });
-
-//     rit('terminates the remaining strands', function () {
-//         try {
-//             yield Recoil::any(
-//                 function () { yield; assert(false, 'not terminated'); },
-//                 function () { throw new Exception('<exception>'); yield; }
-//             );
-//         } catch (Exception $e) {
-//             // fall-through ...
-//         }
-//     });
-// });
-
-// context('when one of the substrands is terminated', function () {
-//     rit('resumes the calling strand with an exception', function () {
-//         $id = null;
-//         try {
-//             yield Recoil::any(
-//                 function () { return; yield; },
-//                 function () use (&$id) {
-//                     $id = (yield Recoil::strand())->id();
-//                     yield Recoil::terminate();
-//                 }
-//             );
-//             assert(false, 'Expected exception was not thrown.');
-//         } catch (TerminatedException $e) {
-//             expect($e->getMessage())->to->equal("Strand #$id was terminated.");
-//         }
-//     });
-
-//     rit('terminates the remaining strands', function () {
-//         try {
-//             yield Recoil::any(
-//                 function () { yield; assert(false, 'not terminated'); },
-//                 function () { yield Recoil::terminate(); }
-//             );
-//         } catch (TerminatedException $e) {
-//             // ok ...
-//         }
-//     });
-// });
