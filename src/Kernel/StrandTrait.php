@@ -129,6 +129,10 @@ trait StrandTrait
                 $this->observer = null;
             }
         }
+
+        if (!empty($this->waitingStrands)) {
+            $this->resumeWaitingStrands();
+        }
     }
 
     /**
@@ -228,9 +232,29 @@ trait StrandTrait
         $this->terminator = $fn;
     }
 
+    /**
+     * The Strand interface extends AwaitableProvider, but this particular
+     * implementation can provide await functionality directly.
+     *
+     * Implementations must favour await() over awaitable() when both are
+     * available to avoid a pointless performance hit.
+     */
     public function awaitable() : Awaitable
     {
-        return new StrandWaitOne($this);
+        return $this;
+    }
+
+    /**
+     * @param Strand $strand The strand to resume on completion.
+     * @param Api    $api    The kernel API.
+     */
+    public function await(Strand $strand, Api $api)
+    {
+        if ($this->state < StrandState::EXIT_SUCCESS) {
+            $this->waitingStrands[] = $strand;
+        } else {
+            $strand->resume();
+        }
     }
 
     private function run()
@@ -319,6 +343,10 @@ trait StrandTrait
                     $this,
                     $e
                 ));
+            }
+
+            if (!empty($this->waitingStrands)) {
+                $this->resumeWaitingStrands();
             }
 
             // This strand has now exited ...
@@ -418,6 +446,21 @@ trait StrandTrait
                     $this->observer = null;
                 }
             }
+
+            if (!empty($this->waitingStrands)) {
+                $this->resumeWaitingStrands();
+            }
+        }
+    }
+
+    private function resumeWaitingStrands()
+    {
+        try {
+            foreach ($this->waitingStrands as $strand) {
+                $strand->resume();
+            }
+        } finally {
+            $this->waitingStrands = [];
         }
     }
 
@@ -460,6 +503,11 @@ trait StrandTrait
      * @var callable|null A callable invoked when the strand is terminated.
      */
     private $terminator;
+
+    /**
+     * @var array<Strand> Strands to resume when this strand exits.
+     */
+    private $waitingStrands = [];
 
     /**
      * @var int The current state of the strand.

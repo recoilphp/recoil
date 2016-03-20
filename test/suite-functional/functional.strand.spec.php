@@ -75,6 +75,23 @@ rit('can invoke awaitable', function () {
     expect($result)->to->equal('<ok>');
 });
 
+rit('prefers await() to awaitable()', function () {
+    $result = yield new class implements AwaitableProvider, Awaitable
+ {
+     public function awaitable() : Awaitable
+     {
+        assert(false, 'awaitable() was called');
+     }
+
+     public function await(Strand $strand, Api $api)
+     {
+         $strand->resume('<ok>');
+     }
+ };
+
+    expect($result)->to->equal('<ok>');
+});
+
 rit('exception propagates up the call-stack', function () {
     try {
         $fn = function () {
@@ -87,4 +104,30 @@ rit('exception propagates up the call-stack', function () {
     } catch (Exception $e) {
         expect($e->getMessage())->to->equal('<exception>');
     }
+});
+
+it('can be awaited by multiple strands', function () {
+    $this->kernel->execute(function () {
+        $strand = yield Recoil::strand();
+
+        yield Recoil::execute(function () use ($strand) {
+            yield $strand;
+            echo 'b';
+        });
+
+        yield Recoil::execute(function () use ($strand) {
+            yield $strand;
+            echo 'c';
+        });
+
+        yield;
+        yield;
+        yield;
+
+        echo 'a';
+    });
+
+    ob_start();
+    $this->kernel->wait();
+    expect(ob_get_clean())->to->equal('abc');
 });
