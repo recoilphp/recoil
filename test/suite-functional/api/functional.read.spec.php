@@ -44,7 +44,7 @@ if (extension_loaded('posix')) {
         $temp = tempnam(sys_get_temp_dir(), 'recoil-test-fifo-');
         unlink($temp);
         posix_mkfifo($temp, 0644);
-        $stream = fopen($temp, 'w+'); // use write mode to prevent blocking
+        $stream = fopen($temp, 'w+'); // must be w+ (read/write) to prevent blocking
         stream_set_read_buffer($stream, 0);
         stream_set_blocking($stream, false);
 

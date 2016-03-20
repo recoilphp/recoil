@@ -5,6 +5,7 @@ declare (strict_types = 1); // @codeCoverageIgnore
 namespace Recoil;
 
 use Exception;
+use InvalidArgumentException;
 use Recoil\Exception\CompositeException;
 use Recoil\Exception\TerminatedException;
 
@@ -42,6 +43,48 @@ rit('terminates the substrands when the calling strand is terminated', function 
     yield;
 
     $strand->terminate();
+});
+
+rit('throws when the count is zero', function () {
+    try {
+        yield Recoil::some(
+            0,
+            function () {},
+            function () {}
+        );
+    } catch (InvalidArgumentException $e) {
+        expect($e->getMessage())->to->equal(
+            'Can not wait for 0 coroutines, count must be between 1 and 2, inclusive.'
+        );
+    }
+});
+
+rit('throws when the count is negative', function () {
+    try {
+        yield Recoil::some(
+            -1,
+            function () {},
+            function () {}
+        );
+    } catch (InvalidArgumentException $e) {
+        expect($e->getMessage())->to->equal(
+            'Can not wait for -1 coroutines, count must be between 1 and 2, inclusive.'
+        );
+    }
+});
+
+rit('throws when the count is greater than the number of coroutines', function () {
+    try {
+        yield Recoil::some(
+            3,
+            function () {},
+            function () {}
+        );
+    } catch (InvalidArgumentException $e) {
+        expect($e->getMessage())->to->equal(
+            'Can not wait for 3 coroutines, count must be between 1 and 2, inclusive.'
+        );
+    }
 });
 
 context('when the required number of substrands succeed', function () {
