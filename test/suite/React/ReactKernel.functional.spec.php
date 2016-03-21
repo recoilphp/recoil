@@ -4,9 +4,12 @@ declare (strict_types = 1); // @codeCoverageIgnore
 
 namespace Recoil\React;
 
-\Recoil\importFunctionalTests(
-    'ReactPHP',
-    function () {
-        return new ReactKernel();
-    }
-);
+describe('ReactPHP Integration', function () {
+
+    \Recoil\importFunctionalTests(
+        function () {
+            return new ReactKernel();
+        }
+    );
+
+});

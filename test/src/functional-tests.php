@@ -28,34 +28,32 @@ function rit(string $description, callable $test)
     });
 }
 
-function importFunctionalTests(string $description, callable $factory)
+function importFunctionalTests(callable $factory)
 {
-    context("Functional Tests ($description)", function () use ($factory) {
-        beforeEach(function () use ($factory) {
-            $this->kernel = $factory();
-            expect($this->kernel)->to->be->an->instanceof(Kernel::class);
-        });
-
-        $walk = null;
-        $walk = function ($path) use (&$walk) {
-            foreach (scandir($path) as $entry) {
-                $fq = $path . '/' . $entry;
-                $matches = null;
-
-                if ($entry[0] === '.') {
-                    continue;
-                } elseif (is_dir($fq)) {
-                    context($entry, function () use ($fq, $walk) {
-                        $walk($fq);
-                    });
-                } elseif (preg_match('/^functional.(.+).spec.php$/', $entry, $matches)) {
-                    context($matches[1], function () use ($fq) {
-                        require $fq;
-                    });
-                }
-            }
-        };
-
-        $walk(__DIR__ . '/../suite-functional');
+    beforeEach(function () use ($factory) {
+        $this->kernel = $factory();
+        expect($this->kernel)->to->be->an->instanceof(Kernel::class);
     });
+
+    $walk = null;
+    $walk = function ($path) use (&$walk) {
+        foreach (scandir($path) as $entry) {
+            $fq = $path . '/' . $entry;
+            $matches = null;
+
+            if ($entry[0] === '.') {
+                continue;
+            } elseif (is_dir($fq)) {
+                context($entry, function () use ($fq, $walk) {
+                    $walk($fq);
+                });
+            } elseif (preg_match('/^functional.(.+).spec.php$/', $entry, $matches)) {
+                context($matches[1], function () use ($fq) {
+                    require $fq;
+                });
+            }
+        }
+    };
+
+    $walk(__DIR__ . '/../suite-functional');
 }

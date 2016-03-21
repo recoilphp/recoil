@@ -39,18 +39,21 @@ trait KernelTrait
 
             public function success(Strand $strand, $value)
             {
+                $strand->kernel()->stop();
                 $this->exited = true;
                 $this->value = $value;
             }
 
             public function failure(Strand $strand, Throwable $exception)
             {
+                $strand->kernel()->stop();
                 $this->exited = true;
                 $this->exception = $exception;
             }
 
             public function terminated(Strand $strand)
             {
+                $strand->kernel()->stop();
                 $this->exited = true;
                 $this->exception = new TerminatedException($strand);
             }
@@ -66,7 +69,7 @@ trait KernelTrait
             return $observer->value;
         }
 
-        throw new RuntimeException('The entry-point coroutine never returned.');
+        throw new RuntimeException('The strand never exited.');
     }
 
     /**

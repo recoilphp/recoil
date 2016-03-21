@@ -89,7 +89,16 @@ final class ReactKernel implements Kernel
      */
     public function wait()
     {
-        $this->eventLoop->run();
+        ++$this->depth;
+        try {
+            $this->eventLoop->run();
+        } finally {
+            --$this->depth;
+        }
+
+        if ($this->depth !== $this->stopAtDepth) {
+            $this->eventLoop->run();
+        }
 
         if ($this->interruptException) {
             $exception = $this->interruptException;
@@ -109,6 +118,7 @@ final class ReactKernel implements Kernel
     public function interrupt(Throwable $exception)
     {
         $this->interruptException = $exception;
+        $this->stopAtDepth = $this->depth - 1;
         $this->eventLoop->stop();
     }
 
@@ -117,6 +127,7 @@ final class ReactKernel implements Kernel
      */
     public function stop()
     {
+        $this->stopAtDepth = $this->depth - 1;
         $this->eventLoop->stop();
     }
 
@@ -131,6 +142,22 @@ final class ReactKernel implements Kernel
      * @var Api The kernel API.
      */
     private $api;
+
+    /**
+     * @var int The current nesting depth of calls to->run().
+     *
+     * React's event loop do not directly support nested calls to run(). That is,
+     * calling stop() at any level will stop iteration in all calls to run().
+     *
+     * Therefore, we need to call run() a second time if stop() has not been
+     * called enough times to bail from the current depth.
+     */
+    private $depth = 0;
+
+    /**
+     * @var int The depth at which calls to run() should NOT be repeated.
+     */
+    private $stopAtDepth = 0;
 
     /**
      * @var int The next strand ID.
