@@ -89,7 +89,7 @@ trait KernelTrait
      */
     public function waitFor($coroutine)
     {
-        $this->waitForStrand(
+        return $this->waitForStrand(
             $this->execute($coroutine)
         );
     }
