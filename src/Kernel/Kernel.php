@@ -47,7 +47,7 @@ interface Kernel
      * synchronous code to block execution until a particular asynchronous
      * operation is complete. Care must be taken to avoid deadlocks.
      *
-     * @see Kernel::wait() to wait for all sstrands.
+     * @see Kernel::wait() to wait for all strands.
      * @see Kernel::waitFor() to wait for a specific awaitable.
      * @see Kernel::stop() to stop the kernel.
      *
@@ -75,7 +75,7 @@ interface Kernel
      *
      * @see Kernel::execute() to start a new strand.
      * @see Kernel::waitForStrand() to wait for a specific strand.
-     * @see Kernel::wait() to wait for all sstrands.
+     * @see Kernel::wait() to wait for all strands.
      * @see Kernel::stop() to stop the kernel.
      *
      * @param mixed $coroutine The coroutine to execute.
