@@ -160,6 +160,164 @@ describe('->wait()', function () {
     });
 });
 
+describe('->waitForStrand()', function () {
+    it('returns the strand entry-point return value', function () {
+        $strand = $this->kernel->execute(function () {
+            return '<ok>';
+            yield;
+        });
+
+        expect($this->kernel->waitForStrand($strand))->to->equal('<ok>');
+    });
+
+    it('propagates uncaught exceptions', function () {
+        $strand = $this->kernel->execute(function () {
+            throw new Exception('<exception>');
+            yield;
+        });
+
+        expect(function () use ($strand) {
+            $this->kernel->waitForStrand($strand);
+        })->to->throw(
+            Exception::class,
+            '<exception>'
+        );
+    });
+
+    it('executes all strands', function () {
+        $this->kernel->execute(function () {
+            echo 'a';
+
+            return;
+            yield;
+        });
+        $strand = $this->kernel->execute(function () {
+            echo 'b';
+
+            return;
+            yield;
+        });
+
+        ob_start();
+        $this->kernel->waitForStrand($strand);
+        expect(ob_get_clean())->to->equal('ab');
+    });
+
+    it('returns after the strand has exited', function () {
+        $strand = $this->kernel->execute(function () {
+            echo 'a';
+
+            return;
+            yield;
+        });
+        $this->kernel->execute(function () {
+            yield;
+            echo 'b';
+        });
+
+        ob_start();
+        $this->kernel->waitForStrand($strand);
+        expect(ob_get_clean())->to->equal('a');
+    });
+
+    it('can be nested inside wait()', function () {
+        $this->kernel->execute(function () {
+            yield Recoil::execute(function () {
+                yield;
+                yield;
+                echo 'c';
+            });
+
+            $strand = yield Recoil::execute(function () {
+                yield;
+                echo 'a';
+            });
+
+            $this->kernel->waitForStrand($strand);
+            echo 'b';
+        });
+
+        ob_start();
+        $this->kernel->wait();
+        expect(ob_get_clean())->to->equal('abc');
+    });
+});
+
+describe('->waitFor()', function () {
+    it('returns the coroutine return value', function () {
+        expect($this->kernel->waitFor(function () {
+            return '<ok>';
+            yield;
+        }))->to->equal('<ok>');
+    });
+
+    it('propagates uncaught exceptions', function () {
+        expect(function () {
+            $this->kernel->waitFor(function () {
+                throw new Exception('<exception>');
+                yield;
+            });
+        })->to->throw(
+            Exception::class,
+            '<exception>'
+        );
+    });
+
+    it('executes all strands', function () {
+        $this->kernel->execute(function () {
+            echo 'a';
+
+            return;
+            yield;
+        });
+
+        ob_start();
+        $this->kernel->waitFor(function () {
+            echo 'b';
+
+            return;
+            yield;
+        });
+        expect(ob_get_clean())->to->equal('ab');
+    });
+
+    it('returns after the strand has exited', function () {
+        $this->kernel->execute(function () {
+            yield;
+            echo 'b';
+        });
+
+        ob_start();
+        $this->kernel->waitFor(function () {
+            echo 'a';
+
+            return;
+            yield;
+        });
+        expect(ob_get_clean())->to->equal('a');
+    });
+
+    it('can be nested inside wait()', function () {
+        $this->kernel->execute(function () {
+            yield Recoil::execute(function () {
+                yield;
+                yield;
+                echo 'c';
+            });
+
+            $this->kernel->waitFor(function () {
+                yield;
+                echo 'a';
+            });
+            echo 'b';
+        });
+
+        ob_start();
+        $this->kernel->wait();
+        expect(ob_get_clean())->to->equal('abc');
+    });
+});
+
 describe('->interrupt()', function () {
     it('causes wait() to throw an exception', function () {
         $this->kernel->execute(function () {

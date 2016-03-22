@@ -13,13 +13,6 @@ use UnexpectedValueException;
 
 /**
  * A partial implementation of {@see Api}.
- *
- * Assumes valid implementations of:
- *
- * @method null cooperate(Strand $strand);
- * @method null sleep(Strand $strand, float $seconds);
- * @method null read(Strand $strand, $stream, int $length = 8192);
- * @method null write(Strand $strand, $stream, string $buffer, int $length = PHP_INT_MAX);
  */
 trait ApiTrait
 {
@@ -266,4 +259,60 @@ trait ApiTrait
 
         (new StrandWaitFirst(...$substrands))->await($strand, $this);
     }
+
+    /**
+     * Allow other strands to execute before resuming the calling strand.
+     *
+     * @param Strand $strand The strand executing the API call.
+     *
+     * @return null
+     */
+    abstract public function cooperate(Strand $strand);
+
+    /**
+     * Suspend the calling strand for a fixed interval.
+     *
+     * @param Strand $strand  The strand executing the API call.
+     * @param float  $seconds The interval to wait.
+     *
+     * @return null
+     */
+    abstract public function sleep(Strand $strand, float $seconds);
+
+    /**
+     * Read data from a stream resource.
+     *
+     * The calling strand is resumed with a string containing the data read from
+     * the stream, or with an empty string if the stream has reached EOF.
+     *
+     * It is assumed that the stream is already configured as non-blocking.
+     *
+     * @param Strand   $strand The strand executing the API call.
+     * @param resource $stream A readable stream resource.
+     * @param int      $size   The maximum size of the buffer to return, in bytes.
+     *
+     * @return null
+     */
+    abstract public function read(Strand $strand, $stream, int $length = 8192);
+
+    /**
+     * Write data to a stream resource.
+     *
+     * The calling strand is resumed with the number of bytes written.
+     *
+     * It is assumed that the stream is already configured as non-blocking.
+     *
+     * @param Strand   $strand The strand executing the API call.
+     * @param resource $stream A writable stream resource.
+     * @param string   $buffer The data to write to the stream.
+     * @param int      $length The number of bytes to write from the start of the buffer.
+     *
+     * @return null
+     */
+    abstract public function write(
+        Strand $strand,
+        $stream,
+        string $buffer,
+        int $length = PHP_INT_MAX
+    );
 }

@@ -9,9 +9,8 @@ use React\EventLoop\LoopInterface;
 use Recoil\Exception\TerminatedException;
 use Recoil\Kernel\Api;
 use Recoil\Kernel\Kernel;
+use Recoil\Kernel\KernelTrait;
 use Recoil\Kernel\Strand;
-use Recoil\Kernel\StrandObserver;
-use RuntimeException;
 use Throwable;
 
 /**
@@ -28,49 +27,17 @@ final class ReactKernel implements Kernel
      * @param mixed              $coroutine The strand's entry-point.
      * @param LoopInterface|null $eventLoop The event loop to use (null = default).
      *
-     * @return mixed The return value of the coroutine.
-     * @throws Throwable The exception produced by the coroutine, if any.
-     * @throws Throwable The exception used to interrupt the kernel.
+     * @return mixed               The return value of the coroutine.
+     * @throws Throwable           The exception produced by the coroutine, if any.
+     * @throws Throwable           The exception used to interrupt the kernel.
+     * @throws TerminatedException The strand has been terminated.
      */
     public static function start($coroutine, LoopInterface $eventLoop = null)
     {
-        $observer = new class implements StrandObserver
-        {
-            public $value;
-            public $exception;
-            public $exited = false;
-
-            public function success(Strand $strand, $value)
-            {
-                $this->exited = true;
-                $this->value = $value;
-            }
-
-            public function failure(Strand $strand, Throwable $exception)
-            {
-                $this->exited = true;
-                $this->exception = $exception;
-            }
-
-            public function terminated(Strand $strand)
-            {
-                $this->exited = true;
-                $this->exception = new TerminatedException($strand);
-            }
-        };
-
         $kernel = new self($eventLoop);
         $strand = $kernel->execute($coroutine);
-        $strand->setObserver($observer);
-        $kernel->wait();
 
-        if ($observer->exception) {
-            throw $observer->exception;
-        } elseif ($observer->exited) {
-            return $observer->value;
-        }
-
-        throw new RuntimeException('The entry-point coroutine never returned.');
+        return $kernel->waitForStrand($strand);
     }
 
     /**
@@ -110,13 +77,28 @@ final class ReactKernel implements Kernel
     /**
      * Run the kernel and wait for all strands to exit.
      *
+     * Calls to wait() and waitForStrand() can be nested, which can be used in
+     * synchronous code to block until a particular operation is complete.
+     * However, care must be taken not to introduce deadlocks.
+     *
+     * @see Kernel::waitFor()
      * @see Kernel::interrupt()
      *
+     * @return null
      * @throws Throwable The exception passed to {@see Kernel::interrupt()}.
      */
     public function wait()
     {
-        $this->eventLoop->run();
+        ++$this->depth;
+        try {
+            $this->eventLoop->run();
+        } finally {
+            --$this->depth;
+        }
+
+        if ($this->depth !== $this->stopAtDepth) {
+            $this->eventLoop->run();
+        }
 
         if ($this->interruptException) {
             $exception = $this->interruptException;
@@ -136,6 +118,7 @@ final class ReactKernel implements Kernel
     public function interrupt(Throwable $exception)
     {
         $this->interruptException = $exception;
+        $this->stopAtDepth = $this->depth - 1;
         $this->eventLoop->stop();
     }
 
@@ -144,8 +127,11 @@ final class ReactKernel implements Kernel
      */
     public function stop()
     {
+        $this->stopAtDepth = $this->depth - 1;
         $this->eventLoop->stop();
     }
+
+    use KernelTrait;
 
     /**
      * @var LoopInterface The event loop.
@@ -156,6 +142,22 @@ final class ReactKernel implements Kernel
      * @var Api The kernel API.
      */
     private $api;
+
+    /**
+     * @var int The current nesting depth of calls to->run().
+     *
+     * React's event loop do not directly support nested calls to run(). That is,
+     * calling stop() at any level will stop iteration in all calls to run().
+     *
+     * Therefore, we need to call run() a second time if stop() has not been
+     * called enough times to bail from the current depth.
+     */
+    private $depth = 0;
+
+    /**
+     * @var int The depth at which calls to run() should NOT be repeated.
+     */
+    private $stopAtDepth = 0;
 
     /**
      * @var int The next strand ID.

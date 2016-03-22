@@ -25,7 +25,7 @@ describe(ReactKernel::class, function () {
         );
     });
 
-    describe('->start()', function () {
+    describe('::start()', function () {
         it('returns the coroutine result', function () {
             $result = ReactKernel::start(function () {
                 return yield Recoil::eventLoop();
@@ -53,7 +53,7 @@ describe(ReactKernel::class, function () {
                 });
             })->to->throw(
                 RuntimeException::class,
-                'The entry-point coroutine never returned.'
+                'The strand never exited.'
             );
         });
 
