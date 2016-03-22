@@ -51,15 +51,13 @@ final class ReactKernel implements Kernel
     }
 
     /**
-     * Start a new strand of execution.
+     * Execute a coroutine on a new strand.
      *
-     * The implementation must delay execution of the strand until the next
-     * 'tick' of the kernel to allow the user to inspect the strand object
-     * before execution begins.
+     * Execution is deferred until control returns to the kernel. This allows
+     * the caller to manipulate the returned {@see Strand} object before
+     * execution begins.
      *
      * @param mixed $coroutine The strand's entry-point.
-     *
-     * @return Strand
      */
     public function execute($coroutine) : Strand
     {
@@ -75,17 +73,20 @@ final class ReactKernel implements Kernel
     }
 
     /**
-     * Run the kernel and wait for all strands to exit.
+     * Run the kernel until all strands exit or the kernel is stopped.
      *
-     * Calls to wait() and waitForStrand() can be nested, which can be used in
-     * synchronous code to block until a particular operation is complete.
-     * However, care must be taken not to introduce deadlocks.
+     * Calls to {@see Kernel::wait()}, {@see Kernel::waitForStrand()} and
+     * {@see Kernel::waitFor()} may be nested. This can be useful within
+     * synchronous code to block execution until a particular asynchronous
+     * operation is complete. Care must be taken to avoid deadlocks.
      *
-     * @see Kernel::waitFor()
-     * @see Kernel::interrupt()
+     * @see Kernel::waitForStrand() to wait for a specific strand.
+     * @see Kernel::waitFor() to wait for a specific awaitable.
+     * @see Kernel::stop() to stop the kernel.
+     * @see Kernel::setExceptionHandler() to control how strand failures are handled.
      *
-     * @return null
-     * @throws Throwable The exception passed to {@see Kernel::interrupt()}.
+     * @return bool            False if the kernel was stopped with {@see Kernel::stop()}; otherwise, true.
+     * @throws StrandException A strand or strand observer has failed when thre is no exception handler.
      */
     public function wait()
     {
@@ -109,26 +110,43 @@ final class ReactKernel implements Kernel
     }
 
     /**
-     * Interrupt the kernel.
-     *
-     * Execution of all strands is paused and the given exception is thrown by
-     * the current call to {@see Kernel::wait()}. wait() can be called again to
-     * resume execution of remaining strands.
-     */
-    public function interrupt(Throwable $exception)
-    {
-        $this->interruptException = $exception;
-        $this->stopAtDepth = $this->depth - 1;
-        $this->eventLoop->stop();
-    }
-
-    /**
      * Stop the kernel.
+     *
+     * The outer-most call to {@see Kernel::wait()}, {@see Kernel::waitForStrand()}
+     * or {@see Kernel::waitFor()} is stopped.
+     *
+     * {@see Kernel::wait()} returns false when the kernel is stopped, the other
+     * variants throw a {@see KernelStoppedException}.
+     *
+     * @return null
      */
     public function stop()
     {
         $this->stopAtDepth = $this->depth - 1;
         $this->eventLoop->stop();
+    }
+
+    /**
+     * Set the exception handler.
+     *
+     * The exception handler is invoked whenever a strand fails. That is, when
+     * an exception is allowed to propagate to the top of the strand's
+     * call-stack. Or, when a strand observer throws an exception.
+     *
+     * The exception handler function must accept a single parameter of type
+     * {@see StrandException}.
+     *
+     * By default, or if the exception handler is explicitly set to NULL, the
+     * exception will instead be thrown by the outer-most call to {@see Kernel::wait()},
+     * {@see Kernel::waitForStrand()} or {@see Kernel::waitFor()}, after which
+     * the kernel may not be restarted.
+     *
+     * @param callable|null $fn The error handler (null = remove).
+     *
+     * @return null
+     */
+    public function setExceptionHandler(callable $fn = null)
+    {
     }
 
     use KernelTrait;

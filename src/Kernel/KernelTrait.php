@@ -13,21 +13,23 @@ use Throwable;
 trait KernelTrait
 {
     /**
-     * Run the kernel and wait for a specific strand to exit.
+     * Run the kernel until a specific strand exits or the kernel is stopped.
      *
-     * Calls to wait() and waitForStrand() can be nested, which can be used in
-     * synchronous code to block until a particular operation is complete.
-     * However, care must be taken not to introduce deadlocks.
+     * Calls to {@see Kernel::wait()}, {@see Kernel::waitForStrand()} and
+     * {@see Kernel::waitFor()} may be nested. This can be useful within
+     * synchronous code to block execution until a particular asynchronous
+     * operation is complete. Care must be taken to avoid deadlocks.
      *
-     * @see Kernel::wait()
-     * @see Kernel::interrupt()
+     * @see Kernel::wait() to wait for all strands.
+     * @see Kernel::waitFor() to wait for a specific awaitable.
+     * @see Kernel::stop() to stop the kernel.
      *
      * @param Strand $strand The strand to wait for.
      *
-     * @return mixed The return value of the strand's entry-point coroutine.
-     * @throws Throwable The exception produced by the strand, if any.
-     * @throws Throwable The exception used to interrupt the kernel.
-     * @throws TerminatedException The strand has been terminated.
+     * @return mixed                  The strand result, on success.
+     * @throws Throwable              The exception thrown by the strand, if failed.
+     * @throws TerminatedException    The strand has been terminated.
+     * @throws KernelStoppedException Execution was stopped with {@see Kernel::stop()}.
      */
     public function waitForStrand(Strand $strand)
     {
@@ -73,22 +75,29 @@ trait KernelTrait
     }
 
     /**
-     * Run the kernel and wait for a specific coroutine to exit.
+     * Run the kernel until the given coroutine returns or the kernel is stopped.
      *
      * This is a convenience method equivalent to:
      *
      *      $strand = $kernel->execute($coroutine);
      *      $kernel->waitForStrand($strand);
      *
-     * @see Kernel::execute()
-     * @see Kernel::waitForStrand()
+     * Calls to {@see Kernel::wait()}, {@see Kernel::waitForStrand()} and
+     * {@see Kernel::waitFor()} may be nested. This can be useful within
+     * synchronous code to block execution until a particular asynchronous
+     * operation is complete. Care must be taken to avoid deadlocks.
      *
-     * @param mixed              $coroutine The strand's entry-point.
+     * @see Kernel::execute() to start a new strand.
+     * @see Kernel::waitForStrand() to wait for a specific strand.
+     * @see Kernel::wait() to wait for all strands.
+     * @see Kernel::stop() to stop the kernel.
      *
-     * @return mixed The return value of the coroutine.
-     * @throws Throwable The exception produced by the coroutine, if any.
-     * @throws Throwable The exception used to interrupt the kernel.
-     * @throws TerminatedException The strand has been terminated.
+     * @param mixed $coroutine The coroutine to execute.
+     *
+     * @return mixed                  The return value of the coroutine.
+     * @throws Throwable              The exception produced by the coroutine, if any.
+     * @throws TerminatedException    The strand has been terminated.
+     * @throws KernelStoppedException Execution was stopped with {@see Kernel::stop()}.
      */
     public function waitFor($coroutine)
     {

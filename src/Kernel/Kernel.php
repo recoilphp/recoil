@@ -4,6 +4,7 @@ declare (strict_types = 1); // @codeCoverageIgnore
 
 namespace Recoil\Kernel;
 
+use Recoil\Kernel\Exception\StrandException;
 use Throwable;
 
 interface Kernel
@@ -15,8 +16,6 @@ interface Kernel
      * the caller to manipulate the returned {@see Strand} object before
      * execution begins.
      *
-     * @see Api::execute() to start a new strand from within a coroutine.
-     *
      * @param mixed $coroutine The strand's entry-point.
      */
     public function execute($coroutine) : Strand;
@@ -24,15 +23,10 @@ interface Kernel
     /**
      * Run the kernel until all strands exit or the kernel is stopped.
      *
-     * Calls to {@see Kernel::wait()}, {@see Kernel::waitForStrand()} and
-     * {@see Kernel::waitFor()} may be nested. This can be useful within
-     * synchronous code to block execution until a particular asynchronous
-     * operation is complete. Care must be taken to avoid deadlocks.
-     *
-     * @see Kernel::waitForStrand() to wait for a specific strand.
-     * @see Kernel::waitFor() to wait for a specific awaitable.
-     * @see Kernel::stop() to stop the kernel.
-     * @see Kernel::setExceptionHandler() to control how strand failures are handled.
+     * Calls to wait(), {@see Kernel::waitForStrand()} and {@see Kernel::waitFor()}
+     * may be nested. This can be useful within synchronous code to block
+     * execution until a particular asynchronous operation is complete. Care
+     * must be taken to avoid deadlocks.
      *
      * @return bool            False if the kernel was stopped with {@see Kernel::stop()}; otherwise, true.
      * @throws StrandException A strand or strand observer has failed when thre is no exception handler.
@@ -42,14 +36,10 @@ interface Kernel
     /**
      * Run the kernel until a specific strand exits or the kernel is stopped.
      *
-     * Calls to {@see Kernel::wait()}, {@see Kernel::waitForStrand()} and
-     * {@see Kernel::waitFor()} may be nested. This can be useful within
-     * synchronous code to block execution until a particular asynchronous
-     * operation is complete. Care must be taken to avoid deadlocks.
-     *
-     * @see Kernel::wait() to wait for all strands.
-     * @see Kernel::waitFor() to wait for a specific awaitable.
-     * @see Kernel::stop() to stop the kernel.
+     * Calls to {@see Kernel::wait()}, waitForStrand() and {@see Kernel::waitFor()}
+     * may be nested. This can be useful within synchronous code to block
+     * execution until a particular asynchronous operation is complete. Care
+     * must be taken to avoid deadlocks.
      *
      * @param Strand $strand The strand to wait for.
      *
@@ -68,15 +58,10 @@ interface Kernel
      *      $strand = $kernel->execute($coroutine);
      *      $kernel->waitForStrand($strand);
      *
-     * Calls to {@see Kernel::wait()}, {@see Kernel::waitForStrand()} and
-     * {@see Kernel::waitFor()} may be nested. This can be useful within
-     * synchronous code to block execution until a particular asynchronous
-     * operation is complete. Care must be taken to avoid deadlocks.
-     *
-     * @see Kernel::execute() to start a new strand.
-     * @see Kernel::waitForStrand() to wait for a specific strand.
-     * @see Kernel::wait() to wait for all strands.
-     * @see Kernel::stop() to stop the kernel.
+     * Calls to {@see Kernel::wait()}, {@see Kernel::waitForStrand()} and waitFor()
+     * may be nested. This can be useful within synchronous code to block
+     * execution until a particular asynchronous operation is complete. Care
+     * must be taken to avoid deadlocks.
      *
      * @param mixed $coroutine The coroutine to execute.
      *
@@ -93,8 +78,8 @@ interface Kernel
      * The outer-most call to {@see Kernel::wait()}, {@see Kernel::waitForStrand()}
      * or {@see Kernel::waitFor()} is stopped.
      *
-     * {@see Kernel::wait()} returns false when the kernel is stopped, the other
-     * variants throw a {@see KernelStoppedException}.
+     * wait() returns false when the kernel is stopped, the other variants throw
+     * a {@see KernelStoppedException}.
      *
      * @return null
      */
