@@ -29,7 +29,7 @@ interface Kernel
      * must be taken to avoid deadlocks.
      *
      * @return bool            False if the kernel was stopped with {@see Kernel::stop()}; otherwise, true.
-     * @throws StrandException A strand or strand observer has failed when thre is no exception handler.
+     * @throws StrandException A strand or strand observer has failure was not handled by the exception handler.
      */
     public function wait() : bool;
 
@@ -47,6 +47,7 @@ interface Kernel
      * @throws Throwable              The exception thrown by the strand, if failed.
      * @throws TerminatedException    The strand has been terminated.
      * @throws KernelStoppedException Execution was stopped with {@see Kernel::stop()}.
+     * @throws StrandException        A strand or strand observer has failure was not handled by the exception handler.
      */
     public function waitForStrand(Strand $strand);
 
@@ -69,6 +70,7 @@ interface Kernel
      * @throws Throwable              The exception produced by the coroutine, if any.
      * @throws TerminatedException    The strand has been terminated.
      * @throws KernelStoppedException Execution was stopped with {@see Kernel::stop()}.
+     * @throws StrandException        A strand or strand observer has failure was not handled by the exception handler.
      */
     public function waitFor($coroutine);
 
@@ -88,21 +90,34 @@ interface Kernel
     /**
      * Set the exception handler.
      *
-     * The exception handler is invoked whenever a strand fails. That is, when
-     * an exception is allowed to propagate to the top of the strand's
-     * call-stack. Or, when a strand observer throws an exception.
+     * The exception handler is invoked whenever an exception propagates to the
+     * top of a strand's call-stack, or when a strand observer throws an
+     * exception.
      *
      * The exception handler function must accept a single parameter of type
-     * {@see StrandException}.
+     * {@see StrandException} and return a boolean indicating whether or not the
+     * exception was handled.
      *
-     * By default, or if the exception handler is explicitly set to NULL, the
-     * exception will instead be thrown by the outer-most call to {@see Kernel::wait()},
+     * If the exception handler returns false, or is not set (the default), the
+     * exception will be thrown by the outer-most call to {@see Kernel::wait()},
      * {@see Kernel::waitForStrand()} or {@see Kernel::waitFor()}, after which
      * the kernel may not be restarted.
      *
-     * @param callable|null $fn The error handler (null = remove).
+     * @param callable|null $fn The exception handler (null = remove).
      *
      * @return null
      */
     public function setExceptionHandler(callable $fn = null);
+
+    /**
+     * Notify the kernel of a strand or strand observer failure.
+     *
+     * @access private
+     *
+     * This method is used by the strand implementation and should not be called
+     * by the user.
+     *
+     * @return null
+     */
+    public function triggerException(StrandException $exception);
 }
