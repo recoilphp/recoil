@@ -28,7 +28,13 @@ class StrandObserverFailedException extends RuntimeException implements StrandEx
         $this->observer = $observer;
 
         parent::__construct(
-            'Uncaught exception in strand observer for strand #' . $strand->id() . '.',
+            sprintf(
+                'Strand #%d failed in observer %s: %s (%s).',
+                $strand->id(),
+                get_class($observer),
+                get_class($previous),
+                $previous->getMessage()
+            ),
             0,
             $previous
         );

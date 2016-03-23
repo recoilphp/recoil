@@ -120,7 +120,7 @@ trait StrandTrait
             try {
                 $this->observer->terminated($this);
             } catch (Throwable $e) {
-                $this->kernel->interrupt(new StrandObserverFailedException(
+                $this->kernel->triggerException(new StrandObserverFailedException(
                     $this,
                     $this->observer,
                     $e
@@ -328,7 +328,7 @@ trait StrandTrait
                 try {
                     $this->observer->failure($this, $e);
                 } catch (Throwable $e) {
-                    $this->kernel->interrupt(new StrandObserverFailedException(
+                    $this->kernel->triggerException(new StrandObserverFailedException(
                         $this,
                         $this->observer,
                         $e
@@ -339,7 +339,7 @@ trait StrandTrait
 
             // The kernel is notified of the failure if there is no observer ...
             } else {
-                $this->kernel->interrupt(new StrandFailedException(
+                $this->kernel->triggerException(new StrandFailedException(
                     $this,
                     $e
                 ));
@@ -437,7 +437,7 @@ trait StrandTrait
                 try {
                     $this->observer->success($this, $produced);
                 } catch (Throwable $e) {
-                    $this->kernel->interrupt(new StrandObserverFailedException(
+                    $this->kernel->triggerException(new StrandObserverFailedException(
                         $this,
                         $this->observer,
                         $e
