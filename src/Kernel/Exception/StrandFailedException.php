@@ -22,7 +22,12 @@ class StrandFailedException extends RuntimeException implements StrandException
         $this->strand = $strand;
 
         parent::__construct(
-            'Strand #' . $strand->id() . ' failed due to an uncaught exception.',
+            sprintf(
+                'Strand #%d failed: %s (%s).',
+                $strand->id(),
+                get_class($previous),
+                $previous->getMessage()
+            ),
             0,
             $previous
         );

@@ -7,23 +7,24 @@ namespace Recoil\Kernel\Exception;
 use Eloquent\Phony\Phony;
 use Recoil\Kernel\Strand;
 use Throwable;
+use Error;
 
 describe(StrandFailedException::class, function () {
 
     beforeEach(function () {
         $this->strand = Phony::mock(Strand::class);
         $this->strand->id->returns(123);
+        $this->previous = new Error('<message>');
 
-        $this->previous = Phony::mock(Throwable::class);
         $this->subject = new StrandFailedException(
             $this->strand->mock(),
-            $this->previous->mock()
+            $this->previous
         );
     });
 
     it('produces a useful message', function () {
         expect($this->subject->getMessage())->to->equal(
-            'Strand #123 failed due to an uncaught exception.'
+            'Strand #123 failed: Error (<message>).'
         );
     });
 
@@ -32,7 +33,7 @@ describe(StrandFailedException::class, function () {
     });
 
     it('exposes the previous exception', function () {
-        expect($this->subject->getPrevious())->to->equal($this->previous->mock());
+        expect($this->subject->getPrevious())->to->equal($this->previous);
     });
 
 });
