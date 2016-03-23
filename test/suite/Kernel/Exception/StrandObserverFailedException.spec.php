@@ -5,9 +5,9 @@ declare (strict_types = 1); // @codeCoverageIgnore
 namespace Recoil\Kernel\Exception;
 
 use Eloquent\Phony\Phony;
+use Error;
 use Recoil\Kernel\Strand;
 use Recoil\Kernel\StrandObserver;
-use Error;
 
 describe(StrandObserverFailedException::class, function () {
 

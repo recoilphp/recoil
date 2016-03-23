@@ -5,9 +5,8 @@ declare (strict_types = 1); // @codeCoverageIgnore
 namespace Recoil\Kernel\Exception;
 
 use Eloquent\Phony\Phony;
-use Recoil\Kernel\Strand;
-use Throwable;
 use Error;
+use Recoil\Kernel\Strand;
 
 describe(StrandFailedException::class, function () {
 
