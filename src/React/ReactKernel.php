@@ -8,9 +8,12 @@ use React\EventLoop\Factory;
 use React\EventLoop\LoopInterface;
 use Recoil\Exception\TerminatedException;
 use Recoil\Kernel\Api;
+use Recoil\Kernel\Exception\KernelStoppedException;
+use Recoil\Kernel\Exception\StrandException;
 use Recoil\Kernel\Kernel;
-use Recoil\Kernel\KernelTrait;
 use Recoil\Kernel\Strand;
+use Recoil\Kernel\StrandObserver;
+use RuntimeException;
 use Throwable;
 
 /**
@@ -21,16 +24,18 @@ final class ReactKernel implements Kernel
     /**
      * Execute a coroutine on a new kernel.
      *
-     * This method blocks until the kernel has nothing left to do, or is
-     * interrupted.
+     * This is a convenience method for:
+     *
+     *     $kernel = new Kernel($eventLoop);
+     *     $kernel->waitFor($coroutine);
      *
      * @param mixed              $coroutine The strand's entry-point.
      * @param LoopInterface|null $eventLoop The event loop to use (null = default).
      *
      * @return mixed               The return value of the coroutine.
      * @throws Throwable           The exception produced by the coroutine, if any.
-     * @throws Throwable           The exception used to interrupt the kernel.
      * @throws TerminatedException The strand has been terminated.
+     * @throws StrandException A strand or strand observer has failure was not handled by the exception handler.
      */
     public static function start($coroutine, LoopInterface $eventLoop = null)
     {
@@ -75,81 +80,194 @@ final class ReactKernel implements Kernel
     /**
      * Run the kernel until all strands exit or the kernel is stopped.
      *
-     * Calls to {@see Kernel::wait()}, {@see Kernel::waitForStrand()} and
-     * {@see Kernel::waitFor()} may be nested. This can be useful within
-     * synchronous code to block execution until a particular asynchronous
-     * operation is complete. Care must be taken to avoid deadlocks.
-     *
-     * @see Kernel::waitForStrand() to wait for a specific strand.
-     * @see Kernel::waitFor() to wait for a specific awaitable.
-     * @see Kernel::stop() to stop the kernel.
-     * @see Kernel::setExceptionHandler() to control how strand failures are handled.
+     * Calls to wait(), {@see Kernel::waitForStrand()} and {@see Kernel::waitFor()}
+     * may be nested. This can be useful within synchronous code to block
+     * execution until a particular asynchronous operation is complete. Care
+     * must be taken to avoid deadlocks.
      *
      * @return bool            False if the kernel was stopped with {@see Kernel::stop()}; otherwise, true.
-     * @throws StrandException A strand or strand observer has failed when thre is no exception handler.
+     * @throws StrandException A strand or strand observer has failure was not handled by the exception handler.
      */
-    public function wait()
+    public function wait() : bool
     {
-        ++$this->depth;
-        try {
+        if ($this->fatalException) {
+            throw $this->fatalException;
+        }
+
+        $this->isRunning = true;
+        $this->eventLoop->run();
+
+        if ($this->fatalException) {
+            throw $this->fatalException;
+        }
+
+        return $this->isRunning;
+    }
+
+    /**
+     * Run the kernel until a specific strand exits or the kernel is stopped.
+     *
+     * Calls to {@see Kernel::wait()}, waitForStrand() and {@see Kernel::waitFor()}
+     * may be nested. This can be useful within synchronous code to block
+     * execution until a particular asynchronous operation is complete. Care
+     * must be taken to avoid deadlocks.
+     *
+     * @param Strand $strand The strand to wait for.
+     *
+     * @return mixed                  The strand result, on success.
+     * @throws Throwable              The exception thrown by the strand, if failed.
+     * @throws TerminatedException    The strand has been terminated.
+     * @throws KernelStoppedException Execution was stopped with {@see Kernel::stop()}.
+     * @throws StrandException        A strand or strand observer has failure was not handled by the exception handler.
+     */
+    public function waitForStrand(Strand $strand)
+    {
+        if ($this->fatalException) {
+            throw $this->fatalException;
+        }
+
+        $observer = new class implements StrandObserver
+        {
+            public $eventLoop;
+            public $pending = true;
+            public $value;
+            public $exception;
+
+            public function success(Strand $strand, $value)
+            {
+                $this->pending = false;
+                $this->value = $value;
+                $this->eventLoop->stop();
+            }
+
+            public function failure(Strand $strand, Throwable $exception)
+            {
+                $this->pending = false;
+                $this->exception = $exception;
+                $this->eventLoop->stop();
+            }
+
+            public function terminated(Strand $strand)
+            {
+                $this->pending = false;
+                $this->exception = new TerminatedException($strand);
+                $this->eventLoop->stop();
+            }
+        };
+
+        $observer->eventLoop = $this->eventLoop;
+        $strand->setObserver($observer);
+
+        $this->isRunning = true;
+
+        do {
             $this->eventLoop->run();
-        } finally {
-            --$this->depth;
+
+            if ($this->fatalException) {
+                throw $this->fatalException;
+            } elseif (!$this->isRunning) {
+                throw new KernelStoppedException();
+            }
+        } while ($observer->pending);
+
+        if ($observer->exception) {
+            throw $observer->exception;
         }
 
-        if ($this->depth !== $this->stopAtDepth) {
-            $this->eventLoop->run();
-        }
+        return $observer->value;
+    }
 
-        if ($this->interruptException) {
-            $exception = $this->interruptException;
-            $this->interruptException = null;
-
-            throw $exception;
-        }
+    /**
+     * Run the kernel until the given coroutine returns or the kernel is stopped.
+     *
+     * This is a convenience method equivalent to:
+     *
+     *      $strand = $kernel->execute($coroutine);
+     *      $kernel->waitForStrand($strand);
+     *
+     * Calls to {@see Kernel::wait()}, {@see Kernel::waitForStrand()} and waitFor()
+     * may be nested. This can be useful within synchronous code to block
+     * execution until a particular asynchronous operation is complete. Care
+     * must be taken to avoid deadlocks.
+     *
+     * @param mixed $coroutine The coroutine to execute.
+     *
+     * @return mixed                  The return value of the coroutine.
+     * @throws Throwable              The exception produced by the coroutine, if any.
+     * @throws TerminatedException    The strand has been terminated.
+     * @throws KernelStoppedException Execution was stopped with {@see Kernel::stop()}.
+     * @throws StrandException        A strand or strand observer has failure was not handled by the exception handler.
+     */
+    public function waitFor($coroutine)
+    {
+        return $this->waitForStrand(
+            $this->execute($coroutine)
+        );
     }
 
     /**
      * Stop the kernel.
      *
-     * The outer-most call to {@see Kernel::wait()}, {@see Kernel::waitForStrand()}
-     * or {@see Kernel::waitFor()} is stopped.
+     * All nested calls to {@see Kernel::wait()}, {@see Kernel::waitForStrand()}
+     * or {@see Kernel::waitFor()} are stopped.
      *
-     * {@see Kernel::wait()} returns false when the kernel is stopped, the other
-     * variants throw a {@see KernelStoppedException}.
-     *
-     * @return null
+     * wait() returns false when the kernel is stopped, the other variants throw
+     * a {@see KernelStoppedException}.
      */
     public function stop()
     {
-        $this->stopAtDepth = $this->depth - 1;
+        $this->isRunning = false;
         $this->eventLoop->stop();
     }
 
     /**
      * Set the exception handler.
      *
-     * The exception handler is invoked whenever a strand fails. That is, when
-     * an exception is allowed to propagate to the top of the strand's
-     * call-stack. Or, when a strand observer throws an exception.
+     * The exception handler is invoked whenever an exception propagates to the
+     * top of a strand's call-stack, or when a strand observer throws an
+     * exception.
      *
      * The exception handler function must accept a single parameter of type
-     * {@see StrandException}.
+     * {@see StrandException} and return a boolean indicating whether or not the
+     * exception was handled.
      *
-     * By default, or if the exception handler is explicitly set to NULL, the
-     * exception will instead be thrown by the outer-most call to {@see Kernel::wait()},
+     * If the exception handler returns false, or is not set (the default), the
+     * exception will be thrown by the outer-most call to {@see Kernel::wait()},
      * {@see Kernel::waitForStrand()} or {@see Kernel::waitFor()}, after which
      * the kernel may not be restarted.
      *
-     * @param callable|null $fn The error handler (null = remove).
-     *
-     * @return null
+     * @param callable|null $fn The exception handler (null = remove).
      */
     public function setExceptionHandler(callable $fn = null)
     {
+        $this->exceptionHandler = $fn;
     }
 
-    use KernelTrait;
+    /**
+     * Notify the kernel of a strand or strand observer failure.
+     *
+     * @access private
+     *
+     * This method is used by the strand implementation and should not be called
+     * by the user.
+     */
+    public function triggerException(StrandException $exception)
+    {
+        assert(
+            $this->fatalException === null,
+            'an exception has already been triggered'
+        );
+
+        if (
+            $this->exceptionHandler &&
+            ($this->exceptionHandler)($exception)
+        ) {
+            return;
+        }
+
+        $this->fatalException = $exception;
+        $this->eventLoop->stop();
+    }
 
     /**
      * @var LoopInterface The event loop.
@@ -162,28 +280,22 @@ final class ReactKernel implements Kernel
     private $api;
 
     /**
-     * @var int The current nesting depth of calls to->run().
-     *
-     * React's event loop do not directly support nested calls to run(). That is,
-     * calling stop() at any level will stop iteration in all calls to run().
-     *
-     * Therefore, we need to call run() a second time if stop() has not been
-     * called enough times to bail from the current depth.
-     */
-    private $depth = 0;
-
-    /**
-     * @var int The depth at which calls to run() should NOT be repeated.
-     */
-    private $stopAtDepth = 0;
-
-    /**
      * @var int The next strand ID.
      */
     private $nextId = 1;
 
     /**
-     * @var Throwable|null The exception passed to interrupt(), if any.
+     * @var bool Set to false when stop() is called.
      */
-    private $interruptException;
+    private $isRunning = false;
+
+    /**
+     * @var callable|null The exception handler.
+     */
+    private $exceptionHandler;
+
+    /**
+     * @var StrandException|null The exception passed to triggerException(), if it has not been handled.
+     */
+    private $fatalException;
 }

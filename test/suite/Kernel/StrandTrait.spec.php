@@ -160,13 +160,13 @@ describe(StrandTrait::class, function () {
             $this->waiter2->resume->calledWith();
         });
 
-        it('interrupts the kernel when an observer throws', function () {
+        it('triggers an exception on the kernel when an observer throws', function () {
             $exception = new Exception('<observer-exception>');
             $this->observer->terminated->throws($exception);
             $this->subject->mock()->setObserver($this->observer->mock());
             $this->subject->mock()->terminate();
 
-            $this->kernel->interrupt->calledWith(
+            $this->kernel->triggerException->calledWith(
                 new StrandObserverFailedException(
                     $this->subject->mock(),
                     $this->observer->mock(),
@@ -209,7 +209,7 @@ describe(StrandTrait::class, function () {
                     $this->observer->success->calledWith($this->subject, '<result>');
                 });
 
-                it('interrupts the kernel when the observer throws', function () {
+                it('triggers an exception on the kernel when the observer throws', function () {
                     $exception = new Exception('<exception>');
                     $this->observer->success->throws($exception);
                     $this->subject->mock()->setObserver($this->observer->mock());
@@ -217,7 +217,7 @@ describe(StrandTrait::class, function () {
                         Phony::stub()->generates()->returns()
                     );
 
-                    $this->kernel->interrupt->calledWith(
+                    $this->kernel->triggerException->calledWith(
                         new StrandObserverFailedException(
                             $this->subject->mock(),
                             $this->observer->mock(),
@@ -254,13 +254,13 @@ describe(StrandTrait::class, function () {
             });
 
             context('when the top of the call-stack is reached', function () {
-                it('interrupts the kernel when there is no observer', function () {
+                it('triggers an exception on the kernel when there is no observer', function () {
                     $exception = new Exception('<exception>');
                     $this->subject->mock()->start(
                         Phony::stub()->generates()->throws($exception)
                     );
 
-                    $this->kernel->interrupt->calledWith(
+                    $this->kernel->triggerException->calledWith(
                         new StrandFailedException(
                             $this->subject->mock(),
                             $exception
@@ -281,7 +281,7 @@ describe(StrandTrait::class, function () {
                     );
                 });
 
-                it('interrupts the kernel when an observer throws', function () {
+                it('triggers an exception on the kernel when an observer throws', function () {
                     $observerException = new Exception('<observer-exception>');
                     $this->observer->failure->throws($observerException);
                     $strandException = new Exception('<exception>');
@@ -290,7 +290,7 @@ describe(StrandTrait::class, function () {
                         Phony::stub()->generates()->throws($strandException)
                     );
 
-                    $this->kernel->interrupt->calledWith(
+                    $this->kernel->triggerException->calledWith(
                         new StrandObserverFailedException(
                             $this->subject->mock(),
                             $this->observer->mock(),

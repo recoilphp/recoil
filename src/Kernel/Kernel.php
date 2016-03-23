@@ -77,8 +77,8 @@ interface Kernel
     /**
      * Stop the kernel.
      *
-     * The outer-most call to {@see Kernel::wait()}, {@see Kernel::waitForStrand()}
-     * or {@see Kernel::waitFor()} is stopped.
+     * All nested calls to {@see Kernel::wait()}, {@see Kernel::waitForStrand()}
+     * or {@see Kernel::waitFor()} are stopped.
      *
      * wait() returns false when the kernel is stopped, the other variants throw
      * a {@see KernelStoppedException}.
