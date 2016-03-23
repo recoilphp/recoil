@@ -143,7 +143,7 @@ final class ReactApi implements Api
      *
      * @param Strand   $strand The strand executing the API call.
      * @param resource $stream A readable stream resource.
-     * @param int      $size   The maximum size of the buffer to return, in bytes.
+     * @param int      $length The maximum size of the buffer to return, in bytes.
      */
     public function read(Strand $strand, $stream, int $length = 8192)
     {
