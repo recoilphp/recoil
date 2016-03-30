@@ -230,6 +230,9 @@ interface Api
      * The calling strand is resumed with a string containing the data read from
      * the stream, or with an empty string if the stream has reached EOF.
      *
+     * A length of 0 (zero) may be used to block until the stream is ready for
+     * reading without consuming any data.
+     *
      * It is assumed that the stream is already configured as non-blocking.
      *
      * @param Strand   $strand The strand executing the API call.
@@ -244,6 +247,9 @@ interface Api
      * Write data to a stream resource.
      *
      * The calling strand is resumed with the number of bytes written.
+     *
+     * Am empty buffer, or a length of 0 (zero) may be used to block until the
+     * stream is ready for writing without writing any data.
      *
      * It is assumed that the stream is already configured as non-blocking.
      *

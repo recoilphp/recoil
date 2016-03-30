@@ -36,6 +36,18 @@ rit('only writes up to the specified maximum length', function () {
     expect(stream_get_contents($this->stream))->to->equal('<buf');
 });
 
+rit('can be called with a length of zero', function () {
+    expect(yield Recoil::write($this->stream, '<buffer>', 0))->to->equal(0);
+    fseek($this->stream, 0);
+    expect(stream_get_contents($this->stream))->to->equal('');
+});
+
+rit('can be called with an empty buffer', function () {
+    expect(yield Recoil::write($this->stream, ''))->to->equal(0);
+    fseek($this->stream, 0);
+    expect(stream_get_contents($this->stream))->to->equal('');
+});
+
 if (extension_loaded('posix')) {
     rit('stops waiting for the stream when the strand is terminated', function () {
         $temp = tempnam(sys_get_temp_dir(), 'recoil-test-fifo-');

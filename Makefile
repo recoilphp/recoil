@@ -11,6 +11,7 @@ lint: $(shell find src)
 deps: vendor
 
 prepare: lint deps coverage
+	travis lint
 
 ci: lint
 	phpdbg -qrr vendor/bin/peridot --reporter clover-code-coverage --code-coverage-path=artifacts/tests/coverage/clover.xml

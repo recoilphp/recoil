@@ -28,6 +28,10 @@ rit('only reads up to the specified maximum length', function () {
     expect(yield Recoil::read($this->stream, 16))->to->equal(substr($this->content, 16, 16));
 });
 
+rit('can be called with a length of zero', function () {
+    expect(yield Recoil::read($this->stream, 0))->to->equal('');
+});
+
 rit('returns an empty string at eof', function () {
     $content = '';
 
