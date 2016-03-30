@@ -248,7 +248,7 @@ interface Api
      *
      * The calling strand is resumed with the number of bytes written.
      *
-     * Am empty buffer, or a length of 0 (zero) may be used to block until the
+     * An empty buffer, or a length of 0 (zero) may be used to block until the
      * stream is ready for writing without writing any data.
      *
      * It is assumed that the stream is already configured as non-blocking.
