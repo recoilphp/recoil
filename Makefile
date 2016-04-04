@@ -10,7 +10,7 @@ lint: $(shell find src)
 
 deps: vendor
 
-prepare: lint deps coverage
+prepare: deps lint coverage
 	travis lint
 
 ci: lint
