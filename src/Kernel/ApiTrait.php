@@ -88,6 +88,54 @@ trait ApiTrait
     }
 
     /**
+     * Start a new strand of execution.
+     *
+     * This operation executes a coroutine in a new strand. The calling strand
+     * is resumed with the new {@see Strand} object.
+     *
+     * The coroutine can be any generator object, a generator function, or any
+     * other value supported by {@see Api::dispatch()}.
+     *
+     * The implementation must delay execution of the new strand until the next
+     * 'tick' of the kernel to allow the caller to inspect the strand object
+     * before execution begins.
+     *
+     * @param Strand $strand    The strand executing the API call.
+     * @param mixed  $coroutine The coroutine to execute.
+     */
+    public function execute(Strand $strand, $coroutine)
+    {
+        $strand->resume(
+            $strand->kernel()->execute($coroutine)
+        );
+    }
+
+    /**
+     * Create a callback function that starts a new strand of execution.
+     *
+     * This operation can be used to integrate the kernel with callback-based
+     * asynchronous code.
+     *
+     * The coroutine can be any generator object, a generator function, or any
+     * other value supported by {@see Api::dispatch()}.
+     *
+     * The calling strand is resumed with the callback.
+     *
+     * @param Strand $strand    The strand executing the API call.
+     * @param mixed  $coroutine The coroutine to execute.
+     */
+    public function callback(Strand $strand, $coroutine)
+    {
+        $kernel = $strand->kernel();
+
+        $strand->resume(
+            static function () use ($kernel, $coroutine) {
+                $kernel->execute($coroutine);
+            }
+        );
+    }
+
+    /**
      * Get the {@see Strand} object that represents the calling strand.
      *
      * @param Strand $strand The strand executing the API call.

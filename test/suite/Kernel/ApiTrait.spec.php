@@ -228,6 +228,41 @@ describe(ApiTrait::class, function () {
         });
     });
 
+    describe('->execute()', function () {
+        beforeEach(function () {
+            $this->subject->mock()->execute(
+                $this->strand->mock(),
+                '<coroutine>'
+            );
+        });
+
+        it('executes the coroutine', function () {
+            $this->kernel->execute->calledWith('<coroutine>');
+        });
+
+        it('resumes the strand with the substrand', function () {
+            $this->strand->resume->calledWith($this->substrand1);
+        });
+    });
+
+    describe('->callback()', function () {
+        it('resumes the strand with a callback that executes the coroutine', function () {
+            $this->subject->mock()->callback(
+                $this->strand->mock(),
+                '<coroutine>'
+            );
+
+            $fn = $this->strand->resume->calledWith('~')->argument();
+            expect($fn)->to->satisfy('is_callable');
+
+            $this->kernel->execute->never()->called();
+
+            $fn();
+
+            $this->kernel->execute->calledWith('<coroutine>');
+        });
+    });
+
     describe('->strand()', function () {
         it('resumes the strand with itself', function () {
             $this->subject->mock()->strand(

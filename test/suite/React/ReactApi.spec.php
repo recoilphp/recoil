@@ -29,41 +29,6 @@ describe(ReactApi::class, function () {
         $this->subject = new ReactApi($this->eventLoop->mock());
     });
 
-    describe('->execute()', function () {
-        beforeEach(function () {
-            $this->subject->execute(
-                $this->strand->mock(),
-                '<coroutine>'
-            );
-        });
-
-        it('executes the coroutine', function () {
-            $this->kernel->execute->calledWith('<coroutine>');
-        });
-
-        it('resumes the strand with the substrand', function () {
-            $this->strand->resume->calledWith($this->substrand);
-        });
-    });
-
-    describe('->callback()', function () {
-        it('resumes the strand with a callback that executes the coroutine', function () {
-            $this->subject->callback(
-                $this->strand->mock(),
-                '<coroutine>'
-            );
-
-            $fn = $this->strand->resume->calledWith('~')->argument();
-            expect($fn)->to->satisfy('is_callable');
-
-            $this->kernel->execute->never()->called();
-
-            $fn();
-
-            $this->kernel->execute->calledWith('<coroutine>');
-        });
-    });
-
     describe('->cooperate()', function () {
         it('resumes the strand on a future tick', function () {
             $this->subject->cooperate(
