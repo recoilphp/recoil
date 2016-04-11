@@ -66,11 +66,11 @@ final class ReactKernel implements Kernel
      */
     public function execute($coroutine) : Strand
     {
-        $strand = new ReactStrand($this->nextId++, $this, $this->api);
+        $strand = new ReactStrand($this, $this->api, $this->nextId++, $coroutine);
 
         $this->eventLoop->futureTick(
-            function () use ($strand, $coroutine) {
-                $strand->start($coroutine);
+            function () use ($strand) {
+                $strand->start();
             }
         );
 

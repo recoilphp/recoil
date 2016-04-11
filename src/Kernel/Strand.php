@@ -25,11 +25,9 @@ interface Strand extends AwaitableProvider
     /**
      * Start the strand.
      *
-     * @param mixed $coroutine The strand's entry-point.
-     *
      * @return null
      */
-    public function start($coroutine);
+    public function start();
 
     /**
      * Terminate execution of the strand.

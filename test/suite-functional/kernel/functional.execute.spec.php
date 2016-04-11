@@ -39,10 +39,8 @@ it('accepts a generator function', function () {
 });
 
 it('does not accept regular functions', function () {
-    $this->kernel->execute(function () {});
-
     try {
-        $this->kernel->wait();
+        $this->kernel->execute(function () {});
     } catch (InvalidArgumentException $e) {
         expect($e->getMessage())->to->equal('Callable must return a generator.');
     }

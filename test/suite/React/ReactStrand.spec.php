@@ -15,45 +15,60 @@ describe(ReactStrand::class, function () {
     beforeEach(function () {
         $this->kernel = Phony::mock(Kernel::class);
         $this->api = Phony::mock(Api::class);
-
-        $this->subject = new ReactStrand(
-            1,
-            $this->kernel->mock(),
-            $this->api->mock()
-        );
     });
 
     it('resolves the promise when the strand succeeds', function () {
+        $this->subject = new ReactStrand(
+            $this->kernel->mock(),
+            $this->api->mock(),
+            1,
+            function () {
+                return '<value>';
+                yield;
+            }
+        );
+
         $resolve = Phony::spy();
         $reject = Phony::spy();
         $promise = $this->subject->promise();
         $promise->then($resolve, $reject);
 
-        $this->subject->start(function () {
-            return '<value>';
-            yield;
-        });
+        $this->subject->start();
 
         $resolve->calledWith('<value>');
     });
 
     it('rejects the promise when the strand fails', function () {
+        $exception = Phony::mock(Throwable::class);
+
+        $this->subject = new ReactStrand(
+            $this->kernel->mock(),
+            $this->api->mock(),
+            1,
+            function () use ($exception) {
+                throw $exception->mock();
+                yield;
+            }
+        );
+
         $resolve = Phony::spy();
         $reject = Phony::spy();
         $promise = $this->subject->promise();
         $promise->then($resolve, $reject);
 
-        $exception = Phony::mock(Throwable::class);
-
-        $this->subject->start(function () use ($exception) {
-            throw $exception->mock();
-            yield;
-        });
+        $this->subject->start();
 
         $reject->calledWith($exception);
     });
 
     it('rejects the promise when the strand is terminated', function () {
+        $this->subject = new ReactStrand(
+            $this->kernel->mock(),
+            $this->api->mock(),
+            1,
+            '<coroutine>'
+        );
+
         $resolve = Phony::spy();
         $reject = Phony::spy();
         $promise = $this->subject->promise();

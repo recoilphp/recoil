@@ -17,15 +17,41 @@ use Throwable;
 trait StrandTrait
 {
     /**
-     * @param int    $id     The strand ID.
-     * @param Kernel $kernel The kernel on which the strand is executing.
-     * @param Api    $api    The kernel API used to handle yielded values.
+     * @param Kernel $kernel     The kernel on which the strand is executing.
+     * @param Api    $api        The kernel API used to handle yielded values.
+     * @param int    $id         The strand ID.
+     * @param mixed  $entryPoint The strand's entry-point coroutine.
      */
-    public function __construct(int $id, Kernel $kernel, Api $api)
-    {
-        $this->id = $id;
+    public function __construct(
+        Kernel $kernel,
+        Api $api,
+        int $id,
+        $entryPoint
+    ) {
         $this->kernel = $kernel;
         $this->api = $api;
+        $this->id = $id;
+
+        if ($entryPoint instanceof Generator) {
+            $this->current = $entryPoint;
+        } elseif ($entryPoint instanceof CoroutineProvider) {
+            $this->current = $entryPoint->coroutine();
+        } elseif (
+            $entryPoint instanceof Closure || // perf
+            \is_callable($entryPoint)
+        ) {
+            $this->current = $entryPoint();
+
+            if (!$this->current instanceof Generator) {
+                throw new InvalidArgumentException(
+                    'Callable must return a generator.'
+                );
+            }
+        } else {
+            $this->current = (static function () use ($entryPoint) {
+                return yield $entryPoint;
+            })();
+        }
     }
 
     /**
@@ -50,221 +76,21 @@ trait StrandTrait
 
     /**
      * Start the strand.
-     *
-     * @param mixed $coroutine The strand's entry-point.
      */
-    public function start($coroutine)
+    public function start()
     {
+        // This method intentionally minimises function calls for performance
+        // reasons at the expense of readability. It's nasty. Be gentle.
+
         // Strand was terminated before it was even started ...
         if ($this->state === StrandState::EXIT_TERMINATED) {
             return;
         }
 
         assert(
-            $this->state === StrandState::READY,
-            'strand can not be started multiple times'
-        );
-
-        if ($coroutine instanceof Generator) {
-            $this->current = $coroutine;
-        } elseif ($coroutine instanceof CoroutineProvider) {
-            $this->current = $coroutine->coroutine();
-        } elseif (
-            $coroutine instanceof Closure || // perf
-            \is_callable($coroutine)
-        ) {
-            $this->current = $coroutine();
-
-            if (!$this->current instanceof Generator) {
-                throw new InvalidArgumentException(
-                    'Callable must return a generator.'
-                );
-            }
-        } else {
-            $this->current = (static function () use ($coroutine) {
-                return yield $coroutine;
-            })();
-        }
-
-        $this->run();
-    }
-
-    /**
-     * Terminate execution of the strand.
-     *
-     * If the strand is suspended waiting on an asynchronous operation, that
-     * operation is cancelled.
-     *
-     * The call stack is not unwound, it is simply discarded.
-     */
-    public function terminate()
-    {
-        if ($this->state === StrandState::EXIT_TERMINATED) {
-            return;
-        }
-
-        assert(
-            $this->state < StrandState::EXIT_SUCCESS,
-            'strand can not be terminated after it has exited'
-        );
-
-        $this->current = null;
-        $this->state = StrandState::EXIT_TERMINATED;
-        $this->stack = [];
-
-        if ($this->terminator) {
-            ($this->terminator)($this);
-        }
-
-        if ($this->observer) {
-            try {
-                $this->observer->terminated($this);
-            } catch (Throwable $e) {
-                $this->kernel->triggerException(new StrandObserverFailedException(
-                    $this,
-                    $this->observer,
-                    $e
-                ));
-            } finally {
-                $this->observer = null;
-            }
-        }
-
-        if (!empty($this->waitingStrands)) {
-            $this->resumeWaitingStrands();
-        }
-    }
-
-    /**
-     * Resume execution of a suspended strand.
-     *
-     * @param mixed $value The value to send to the coroutine on the the top of the call stack.
-     */
-    public function resume($value = null)
-    {
-        // Ignore resumes after termination, not all asynchronous operations
-        // will have meaningful cancel operations and some may attempt to resume
-        // the strand after it has been terminated.
-        if ($this->state === StrandState::EXIT_TERMINATED) {
-            return;
-        }
-
-        assert(
-            $this->state === StrandState::RUNNING ||
+            $this->state === StrandState::READY ||
             $this->state === StrandState::SUSPENDED,
-            'strand must be suspended to resume'
-        );
-
-        $this->terminator = null;
-        $this->action = 'send';
-        $this->value = $value;
-
-        if ($this->state !== StrandState::RUNNING) {
-            $this->run();
-        }
-    }
-
-    /**
-     * Resume execution of a suspended strand with an error.
-     *
-     * @param Throwable $exception The exception to send to the coroutine on the top of the call stack.
-     */
-    public function throw(Throwable $exception)
-    {
-        // Ignore resumes after termination, not all asynchronous operations
-        // will have meaningful cancel operations and some may attempt to resume
-        // the strand after it has been terminated.
-        if ($this->state === StrandState::EXIT_TERMINATED) {
-            return;
-        }
-
-        assert(
-            $this->state === StrandState::RUNNING ||
-            $this->state === StrandState::SUSPENDED,
-            'strand must be suspended to resume'
-        );
-
-        $this->terminator = null;
-        $this->action = 'throw';
-        $this->value = $exception;
-
-        if ($this->state !== StrandState::RUNNING) {
-            $this->run();
-        }
-    }
-
-    /**
-     * Set the strand observer.
-     *
-     * @return null
-     */
-    public function setObserver(StrandObserver $observer = null)
-    {
-        assert(
-            $this->state < StrandState::EXIT_SUCCESS,
-            'observer can not be changed after strand has exited'
-        );
-
-        $this->observer = $observer;
-    }
-
-    /**
-     * Set the strand 'terminator'.
-     *
-     * The terminator is a function invoked when the strand is terminated. It is
-     * used by the kernel API to clean up any pending asynchronous operations.
-     *
-     * The terminator function is removed without being invoked when the strand
-     * is resumed.
-     */
-    public function setTerminator(callable $fn = null)
-    {
-        assert(
-            !$fn || !$this->terminator,
-            'only a single terminator can be set'
-        );
-
-        assert(
-            $this->state !== StrandState::EXIT_TERMINATED,
-            'terminator can not be attached to terminated strand'
-        );
-
-        $this->terminator = $fn;
-    }
-
-    /**
-     * The Strand interface extends AwaitableProvider, but this particular
-     * implementation can provide await functionality directly.
-     *
-     * Implementations must favour await() over awaitable() when both are
-     * available to avoid a pointless performance hit.
-     */
-    public function awaitable() : Awaitable
-    {
-        return $this;
-    }
-
-    /**
-     * @param Strand $strand The strand to resume on completion.
-     * @param Api    $api    The kernel API.
-     */
-    public function await(Strand $strand, Api $api)
-    {
-        if ($this->state < StrandState::EXIT_SUCCESS) {
-            $this->waitingStrands[] = $strand;
-        } else {
-            $strand->resume();
-        }
-    }
-
-    private function run()
-    {
-        // This method intentionally minimises function calls for performance
-        // reasons at the expense of readability. It's nasty. Be gentle.
-
-        assert(
-            $this->state !== StrandState::RUNNING,
-            __METHOD__ . '() is not re-entrant'
+            'strand must be READY or SUSPENDED to start'
         );
 
         assert(
@@ -453,6 +279,174 @@ trait StrandTrait
         }
     }
 
+    /**
+     * Terminate execution of the strand.
+     *
+     * If the strand is suspended waiting on an asynchronous operation, that
+     * operation is cancelled.
+     *
+     * The call stack is not unwound, it is simply discarded.
+     */
+    public function terminate()
+    {
+        if ($this->state === StrandState::EXIT_TERMINATED) {
+            return;
+        }
+
+        assert(
+            $this->state < StrandState::EXIT_SUCCESS,
+            'strand can not be terminated after it has exited'
+        );
+
+        $this->current = null;
+        $this->state = StrandState::EXIT_TERMINATED;
+        $this->stack = [];
+
+        if ($this->terminator) {
+            ($this->terminator)($this);
+        }
+
+        if ($this->observer) {
+            try {
+                $this->observer->terminated($this);
+            } catch (Throwable $e) {
+                $this->kernel->triggerException(new StrandObserverFailedException(
+                    $this,
+                    $this->observer,
+                    $e
+                ));
+            } finally {
+                $this->observer = null;
+            }
+        }
+
+        if (!empty($this->waitingStrands)) {
+            $this->resumeWaitingStrands();
+        }
+    }
+
+    /**
+     * Resume execution of a suspended strand.
+     *
+     * @param mixed $value The value to send to the coroutine on the the top of the call stack.
+     */
+    public function resume($value = null)
+    {
+        // Ignore resumes after termination, not all asynchronous operations
+        // will have meaningful cancel operations and some may attempt to resume
+        // the strand after it has been terminated.
+        if ($this->state === StrandState::EXIT_TERMINATED) {
+            return;
+        }
+
+        assert(
+            $this->state === StrandState::RUNNING ||
+            $this->state === StrandState::SUSPENDED,
+            'strand must be suspended to resume'
+        );
+
+        $this->terminator = null;
+        $this->action = 'send';
+        $this->value = $value;
+
+        if ($this->state !== StrandState::RUNNING) {
+            $this->start();
+        }
+    }
+
+    /**
+     * Resume execution of a suspended strand with an error.
+     *
+     * @param Throwable $exception The exception to send to the coroutine on the top of the call stack.
+     */
+    public function throw(Throwable $exception)
+    {
+        // Ignore resumes after termination, not all asynchronous operations
+        // will have meaningful cancel operations and some may attempt to resume
+        // the strand after it has been terminated.
+        if ($this->state === StrandState::EXIT_TERMINATED) {
+            return;
+        }
+
+        assert(
+            $this->state === StrandState::RUNNING ||
+            $this->state === StrandState::SUSPENDED,
+            'strand must be suspended to resume'
+        );
+
+        $this->terminator = null;
+        $this->action = 'throw';
+        $this->value = $exception;
+
+        if ($this->state !== StrandState::RUNNING) {
+            $this->start();
+        }
+    }
+
+    /**
+     * Set the strand observer.
+     *
+     * @return null
+     */
+    public function setObserver(StrandObserver $observer = null)
+    {
+        assert(
+            $this->state < StrandState::EXIT_SUCCESS,
+            'observer can not be changed after strand has exited'
+        );
+
+        $this->observer = $observer;
+    }
+
+    /**
+     * Set the strand 'terminator'.
+     *
+     * The terminator is a function invoked when the strand is terminated. It is
+     * used by the kernel API to clean up any pending asynchronous operations.
+     *
+     * The terminator function is removed without being invoked when the strand
+     * is resumed.
+     */
+    public function setTerminator(callable $fn = null)
+    {
+        assert(
+            !$fn || !$this->terminator,
+            'only a single terminator can be set'
+        );
+
+        assert(
+            $this->state !== StrandState::EXIT_TERMINATED,
+            'terminator can not be attached to terminated strand'
+        );
+
+        $this->terminator = $fn;
+    }
+
+    /**
+     * The Strand interface extends AwaitableProvider, but this particular
+     * implementation can provide await functionality directly.
+     *
+     * Implementations must favour await() over awaitable() when both are
+     * available to avoid a pointless performance hit.
+     */
+    public function awaitable() : Awaitable
+    {
+        return $this;
+    }
+
+    /**
+     * @param Strand $strand The strand to resume on completion.
+     * @param Api    $api    The kernel API.
+     */
+    public function await(Strand $strand, Api $api)
+    {
+        if ($this->state < StrandState::EXIT_SUCCESS) {
+            $this->waitingStrands[] = $strand;
+        } else {
+            $strand->resume();
+        }
+    }
+
     private function resumeWaitingStrands()
     {
         try {
@@ -465,11 +459,6 @@ trait StrandTrait
     }
 
     /**
-     * @var int The strand Id.
-     */
-    private $id;
-
-    /**
      * @var Kernel The kernel.
      */
     private $kernel;
@@ -478,6 +467,11 @@ trait StrandTrait
      * @var Api The kernel API.
      */
     private $api;
+
+    /**
+     * @var int The strand Id.
+     */
+    private $id;
 
     /**
      * @var array<Generator> The call stack (except for the top element).
