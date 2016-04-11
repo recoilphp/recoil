@@ -401,6 +401,12 @@ describe(StrandTrait::class, function () {
         });
     });
 
+    describe('->hasExited()', function () {
+        it('returns false', function () {
+            expect($this->subject->mock()->hasExited())->to->be->false;
+        });
+    });
+
     describe('->awaitable()', function () {
         it('returns $this', function () {
             expect($this->subject->mock()->awaitable())->to->equal($this->subject->mock());
@@ -450,6 +456,10 @@ describe(StrandTrait::class, function () {
                 AssertionError::class,
                 'strand can not be terminated after it has exited'
             );
+        });
+
+        it('->hasExited() returns true', function () {
+            expect($this->subject->mock()->hasExited())->to->be->true;
         });
 
         it('->await() resumes the given strand immediately', function () {
@@ -504,6 +514,10 @@ describe(StrandTrait::class, function () {
             );
         });
 
+        it('->hasExited() returns true', function () {
+            expect($this->subject->mock()->hasExited())->to->be->true;
+        });
+
         it('->await() resumes the given strand immediately', function () {
             $strand = Phony::mock(Strand::class);
             $this->subject->mock()->await($strand->mock(), $this->api->mock());
@@ -548,6 +562,10 @@ describe(StrandTrait::class, function () {
 
         it('->terminate() does nothing', function () {
             $this->subject->mock()->terminate();
+        });
+
+        it('->hasExited() returns true', function () {
+            expect($this->subject->mock()->hasExited())->to->be->true;
         });
 
         it('->await() resumes the given strand immediately', function () {

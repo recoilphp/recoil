@@ -384,6 +384,14 @@ trait StrandTrait
     }
 
     /**
+     * Check if the strand has exited.
+     */
+    public function hasExited() : bool
+    {
+        return $this->state >= StrandState::EXIT_SUCCESS;
+    }
+
+    /**
      * Set the strand observer.
      *
      * @return null

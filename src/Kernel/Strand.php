@@ -60,6 +60,11 @@ interface Strand extends AwaitableProvider
     public function throw(Throwable $exception);
 
     /**
+     * Check if the strand has exited.
+     */
+    public function hasExited() : bool;
+
+    /**
      * Set the strand observer.
      *
      * @return null
