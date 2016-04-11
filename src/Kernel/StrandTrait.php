@@ -235,6 +235,11 @@ trait StrandTrait
                 goto action;
             }
 
+            // The strand was terminated cleanly ...
+            if ($this->state === StrandState::EXIT_TERMINATED) {
+                return;
+            }
+
             // No goto sent us back to the "action" label, this means the strand
             // itself (not just the coroutine) is suspended ...
             $this->state = StrandState::SUSPENDED;

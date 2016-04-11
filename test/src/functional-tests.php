@@ -17,13 +17,17 @@ function rit(string $description, callable $test)
         $result = $test();
 
         if ($result instanceof Generator) {
-            $this->kernel->execute($test);
+            $strand = $this->kernel->execute($test);
         }
 
         try {
             $this->kernel->wait();
         } catch (StrandException $e) {
             throw $e->getPrevious();
+        }
+
+        if ($strand) {
+            expect($strand->hasExited())->to->be->true;
         }
     });
 }
