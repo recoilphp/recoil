@@ -266,4 +266,36 @@ interface Api
         string $buffer,
         int $length = PHP_INT_MAX
     );
+
+    /**
+     * Monitor multiple streams, waiting until one or more becomes "ready" for
+     * reading or writing.
+     *
+     * This operation is directly analogous to {@see stream_select()}, except
+     * that it allows other strands to execute while waiting for the streams.
+     *
+     * A stream is considered ready for reading when a call to {@see fread()}
+     * will not block, and likewise ready for writing when {@see fwrite()} will
+     * not block.
+     *
+     * The calling strand is resumed with a 2-tuple containing arrays of the
+     * ready streams. This allows the result to be unpacked with {@see list()}.
+     *
+     * A given stream may be monitored by multiple strands simultaneously, but
+     * only one of the strands is resumed when the stream becomes ready. There
+     * is no guarantee which strand will be resumed.
+     *
+     * @param Strand             $strand  The strand executing the API call.
+     * @param array<stream>|null $read    Streams monitored until they become "readable" (null = none).
+     * @param array<stream>|null $write   Streams monitored until they become "writable" (null = none).
+     * @param float|null         $timeout The maximum amount of time to wait, in seconds (null = forever).
+     *
+     * @return null
+     */
+    public function select(
+        Strand $strand,
+        array $read = null,
+        array $write = null,
+        float $timeout = null
+    );
 }

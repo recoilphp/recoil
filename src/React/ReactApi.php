@@ -20,6 +20,30 @@ final class ReactApi implements Api
     public function __construct(LoopInterface $eventLoop)
     {
         $this->eventLoop = $eventLoop;
+
+        $this->onRead = function ($stream) {
+            $fd = (int) $stream;
+
+            assert(!empty($this->readers[$fd]));
+            foreach ($this->readers[$fd] as $context) {
+                break;
+            }
+
+            $this->detachSelectContext($context);
+            $context->strand->resume([[$stream], []]);
+        };
+
+        $this->onWrite = function ($stream) {
+            $fd = (int) $stream;
+
+            assert(!empty($this->writers[$fd]));
+            foreach ($this->writers[$fd] as $context) {
+                break;
+            }
+
+            $this->detachSelectContext($context);
+            $context->strand->resume([[], [$stream]]);
+        };
     }
 
     /**
@@ -164,6 +188,54 @@ final class ReactApi implements Api
     }
 
     /**
+     * Monitor multiple streams, waiting until one or more becomes "ready" for
+     * reading or writing.
+     *
+     * This operation is directly analogous to {@see stream_select()}, except
+     * that it allows other strands to execute while waiting for the streams.
+     *
+     * A stream is considered ready for reading when a call to {@see fread()}
+     * will not block, and likewise ready for writing when {@see fwrite()} will
+     * not block.
+     *
+     * The calling strand is resumed with a 2-tuple containing arrays of the
+     * ready streams. This allows the result to be unpacked with {@see list()}.
+     *
+     * A given stream may be monitored by multiple strands simultaneously, but
+     * only one of the strands is resumed when the stream becomes ready. There
+     * is no guarantee which strand will be resumed.
+     *
+     * @param Strand             $strand  The strand executing the API call.
+     * @param array<stream>|null $read    Streams monitored until they become "readable" (null = none).
+     * @param array<stream>|null $write   Streams monitored until they become "writable" (null = none).
+     * @param float|null         $timeout The maximum amount of time to wait, in seconds (null = forever).
+     *
+     * @return null
+     */
+    public function select(
+        Strand $strand,
+        array $read = null,
+        array $write = null,
+        float $timeout = null
+    ) {
+        $context = new class()
+ {
+     public $strand;
+     public $read;
+     public $write;
+     public $timeout;
+     public $timer;
+ };
+
+        $context->strand = $strand;
+        $context->read = $read;
+        $context->write = $write;
+        $context->timeout = $timeout;
+
+        $this->attachSelectContext($context);
+    }
+
+    /**
      * Get the event loop.
      *
      * The caller is resumed with the event loop used by this API.
@@ -175,10 +247,106 @@ final class ReactApi implements Api
         $strand->resume($this->eventLoop);
     }
 
+    private function attachSelectContext($context)
+    {
+        $id = $context->strand->id();
+
+        if ($context->read !== null) {
+            foreach ($context->read as $stream) {
+                $fd = (int) $stream;
+
+                if (empty($this->readers[$fd])) {
+                    $this->eventLoop->addReadStream($stream, $this->onRead);
+                }
+
+                $this->readers[$fd][$id] = $context;
+            }
+        }
+
+        if ($context->write !== null) {
+            foreach ($context->write as $stream) {
+                $fd = (int) $stream;
+
+                if (empty($this->writers[$fd])) {
+                    $this->eventLoop->addWriteStream($stream, $this->onWrite);
+                }
+
+                $this->writers[$fd][$id] = $context;
+            }
+        }
+
+        if ($context->timeout !== null) {
+            $context->timer = $this->addTimer(
+                $context->timeout,
+                function () use ($context) {
+                    $this->detachSelectContext($context);
+                    $context->stream->throw(new TimeoutException($context->timeout));
+                }
+            );
+        }
+    }
+
+    private function detachSelectContext($context)
+    {
+        $id = $context->strand->id();
+
+        if ($context->read !== null) {
+            foreach ($context->read as $stream) {
+                $fd = (int) $stream;
+
+                unset($this->readers[$fd][$id]);
+
+                if (empty($this->readers[$fd])) {
+                    $this->eventLoop->removeReadStream($stream);
+                }
+            }
+        }
+
+        if ($context->write !== null) {
+            foreach ($context->write as $stream) {
+                $fd = (int) $stream;
+
+                unset($this->writers[$fd][$id]);
+
+                if (empty($this->writers[$fd])) {
+                    $this->eventLoop->removeWriteStream($stream);
+                }
+            }
+        }
+
+        if ($context->timer) {
+            $context->timer->cancel();
+        }
+    }
+
     use ApiTrait;
 
     /**
      * @var LoopInterface The event loop.
      */
     private $eventLoop;
+
+    /**
+     * @var Closure The callback used for->addReadableStream().
+     */
+    private $onRead;
+
+    /**
+     * @var Closure The callback used for->addWrtiableStream().
+     */
+    private $onWrite;
+
+    /**
+     * @var array<int, array<int, object>> A map of file-descriptor to queue of
+     *                 select "contexts" describing the strand that is waiting
+     *                 on the stream to become readable.
+     */
+    private $readers = [];
+
+    /**
+     * @var array<int, array<int, object>> A map of file-descriptor to queue of
+     *                 select "contexts" describing the strand that is waiting
+     *                 on the stream to become writable.
+     */
+    private $writers = [];
 }
