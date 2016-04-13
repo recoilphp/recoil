@@ -8,6 +8,7 @@
         "react/promise": "^2"
     },
     "require-dev": {
+        "ext-posix": "*",
         "eloquent/phony": "dev-master",
         "fabpot/php-cs-fixer": "^1",
         "hamcrest/hamcrest-php": "^2.0",

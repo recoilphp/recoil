@@ -43,29 +43,22 @@ rit('returns an empty string at eof', function () {
     expect($content)->to->equal($this->content);
 });
 
-if (extension_loaded('posix')) {
-    rit('stops waiting for the stream when the strand is terminated', function () {
-        $temp = tempnam(sys_get_temp_dir(), 'recoil-test-fifo-');
-        unlink($temp);
-        posix_mkfifo($temp, 0644);
-        $stream = fopen($temp, 'w+'); // must be w+ (read/write) to prevent blocking
-        stream_set_read_buffer($stream, 0);
-        stream_set_blocking($stream, false);
+rit('stops waiting for the stream when the strand is terminated', function () {
+    $temp = tempnam(sys_get_temp_dir(), 'recoil-test-fifo-');
+    unlink($temp);
+    posix_mkfifo($temp, 0644);
+    $stream = fopen($temp, 'w+'); // must be w+ (read/write) to prevent blocking
+    stream_set_read_buffer($stream, 0);
+    stream_set_blocking($stream, false);
 
-        $strand = yield Recoil::execute(function () use ($stream) {
-            yield Recoil::read($stream);
-            assert(false, 'strand was not terminated');
-        });
-
-        yield;
-
-        $strand->terminate();
-
-        @unlink($temp);
+    $strand = yield Recoil::execute(function () use ($stream) {
+        yield Recoil::read($stream);
+        assert(false, 'strand was not terminated');
     });
-} else {
-    xit(
-        'stops waiting for the stream when the strand is terminated (requires posix extension)',
-        function () {}
-    );
-}
+
+    yield;
+
+    $strand->terminate();
+
+    @unlink($temp);
+});

@@ -5,6 +5,7 @@ declare (strict_types = 1); // @codeCoverageIgnore
 namespace Recoil\React;
 
 use React\EventLoop\LoopInterface;
+use Recoil\Exception\TimeoutException;
 use Recoil\Kernel\Api;
 use Recoil\Kernel\ApiTrait;
 use Recoil\Kernel\Strand;
@@ -218,6 +219,12 @@ final class ReactApi implements Api
         array $write = null,
         float $timeout = null
     ) {
+        if (empty($read) && empty($write)) {
+            $strand->resume([[], []]);
+
+            return;
+        }
+
         $context = new class()
  {
      public $strand;
@@ -226,30 +233,16 @@ final class ReactApi implements Api
      public $timeout;
      public $timer;
  };
-
         $context->strand = $strand;
         $context->read = $read;
         $context->write = $write;
         $context->timeout = $timeout;
 
-        $this->attachSelectContext($context);
-    }
-
-    /**
-     * Get the event loop.
-     *
-     * The caller is resumed with the event loop used by this API.
-     *
-     * @param Strand $strand The strand executing the API call.
-     */
-    public function eventLoop(Strand $strand)
-    {
-        $strand->resume($this->eventLoop);
-    }
-
-    private function attachSelectContext($context)
-    {
         $id = $context->strand->id();
+
+        $context->strand->setTerminator(function () use ($context) {
+            $this->detachSelectContext($context);
+        });
 
         if ($context->read !== null) {
             foreach ($context->read as $stream) {
@@ -276,14 +269,26 @@ final class ReactApi implements Api
         }
 
         if ($context->timeout !== null) {
-            $context->timer = $this->addTimer(
+            $context->timer = $this->eventLoop->addTimer(
                 $context->timeout,
                 function () use ($context) {
                     $this->detachSelectContext($context);
-                    $context->stream->throw(new TimeoutException($context->timeout));
+                    $context->strand->throw(new TimeoutException($context->timeout));
                 }
             );
         }
+    }
+
+    /**
+     * Get the event loop.
+     *
+     * The caller is resumed with the event loop used by this API.
+     *
+     * @param Strand $strand The strand executing the API call.
+     */
+    public function eventLoop(Strand $strand)
+    {
+        $strand->resume($this->eventLoop);
     }
 
     private function detachSelectContext($context)

@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "f8f72d6f141eb3c2fa2ad6b269340e53",
-    "content-hash": "780d6bff740b3819d07c37f89848a6e2",
+    "hash": "55987bb1877618cd6de16689723913b3",
+    "content-hash": "30529f81d326aafe6000551deb197138",
     "packages": [
         {
             "name": "icecave/repr",
@@ -104,16 +104,16 @@
         },
         {
             "name": "react/promise",
-            "version": "v2.2.2",
+            "version": "v2.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/reactphp/promise.git",
-                "reference": "3aacad8bf10c7d83e6fa2089d413529888c2bedf"
+                "reference": "f942da7b505d1a294284ab343d05df42d02ad6d9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/reactphp/promise/zipball/3aacad8bf10c7d83e6fa2089d413529888c2bedf",
-                "reference": "3aacad8bf10c7d83e6fa2089d413529888c2bedf",
+                "url": "https://api.github.com/repos/reactphp/promise/zipball/f942da7b505d1a294284ab343d05df42d02ad6d9",
+                "reference": "f942da7b505d1a294284ab343d05df42d02ad6d9",
                 "shasum": ""
             },
             "require": {
@@ -144,7 +144,7 @@
                 }
             ],
             "description": "A lightweight implementation of CommonJS Promises/A for PHP",
-            "time": "2016-02-26 19:09:02"
+            "time": "2016-03-31 13:10:33"
         }
     ],
     "packages-dev": [
@@ -154,12 +154,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/eloquent/phony.git",
-                "reference": "ff0d9257a20e039ce99364765d8e8043e5b72e94"
+                "reference": "35c3423fad8f4a757f2d1488803afe8c4bc2ad9e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/eloquent/phony/zipball/ff0d9257a20e039ce99364765d8e8043e5b72e94",
-                "reference": "ff0d9257a20e039ce99364765d8e8043e5b72e94",
+                "url": "https://api.github.com/repos/eloquent/phony/zipball/35c3423fad8f4a757f2d1488803afe8c4bc2ad9e",
+                "reference": "35c3423fad8f4a757f2d1488803afe8c4bc2ad9e",
                 "shasum": ""
             },
             "require": {
@@ -218,7 +218,7 @@
                 "stubbing",
                 "test"
             ],
-            "time": "2016-03-18 04:53:47"
+            "time": "2016-03-29 05:03:14"
         },
         {
             "name": "evenement/evenement",
@@ -1104,16 +1104,16 @@
         },
         {
             "name": "symfony/console",
-            "version": "v2.8.3",
+            "version": "v2.8.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/console.git",
-                "reference": "56cc5caf051189720b8de974e4746090aaa10d44"
+                "reference": "9a5aef5fc0d4eff86853d44202b02be8d5a20154"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/console/zipball/56cc5caf051189720b8de974e4746090aaa10d44",
-                "reference": "56cc5caf051189720b8de974e4746090aaa10d44",
+                "url": "https://api.github.com/repos/symfony/console/zipball/9a5aef5fc0d4eff86853d44202b02be8d5a20154",
+                "reference": "9a5aef5fc0d4eff86853d44202b02be8d5a20154",
                 "shasum": ""
             },
             "require": {
@@ -1160,20 +1160,20 @@
             ],
             "description": "Symfony Console Component",
             "homepage": "https://symfony.com",
-            "time": "2016-02-28 16:20:50"
+            "time": "2016-03-17 09:19:04"
         },
         {
             "name": "symfony/event-dispatcher",
-            "version": "v3.0.3",
+            "version": "v3.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/event-dispatcher.git",
-                "reference": "4dd5df31a28c0f82b41cb1e1599b74b5dcdbdafa"
+                "reference": "9002dcf018d884d294b1ef20a6f968efc1128f39"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/event-dispatcher/zipball/4dd5df31a28c0f82b41cb1e1599b74b5dcdbdafa",
-                "reference": "4dd5df31a28c0f82b41cb1e1599b74b5dcdbdafa",
+                "url": "https://api.github.com/repos/symfony/event-dispatcher/zipball/9002dcf018d884d294b1ef20a6f968efc1128f39",
+                "reference": "9002dcf018d884d294b1ef20a6f968efc1128f39",
                 "shasum": ""
             },
             "require": {
@@ -1220,20 +1220,20 @@
             ],
             "description": "Symfony EventDispatcher Component",
             "homepage": "https://symfony.com",
-            "time": "2016-01-27 05:14:46"
+            "time": "2016-03-10 10:34:12"
         },
         {
             "name": "symfony/filesystem",
-            "version": "v3.0.3",
+            "version": "v3.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/filesystem.git",
-                "reference": "23ae8f9648d0a7fe94a47c8e20e5bf37c489a451"
+                "reference": "f82499a459dcade2ea56df94cc58b19c8bde3d20"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/filesystem/zipball/23ae8f9648d0a7fe94a47c8e20e5bf37c489a451",
-                "reference": "23ae8f9648d0a7fe94a47c8e20e5bf37c489a451",
+                "url": "https://api.github.com/repos/symfony/filesystem/zipball/f82499a459dcade2ea56df94cc58b19c8bde3d20",
+                "reference": "f82499a459dcade2ea56df94cc58b19c8bde3d20",
                 "shasum": ""
             },
             "require": {
@@ -1269,20 +1269,20 @@
             ],
             "description": "Symfony Filesystem Component",
             "homepage": "https://symfony.com",
-            "time": "2016-02-23 15:16:06"
+            "time": "2016-03-27 10:24:39"
         },
         {
             "name": "symfony/finder",
-            "version": "v3.0.3",
+            "version": "v3.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/finder.git",
-                "reference": "623bda0abd9aa29e529c8e9c08b3b84171914723"
+                "reference": "c54e407b35bc098916704e9fd090da21da4c4f52"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/finder/zipball/623bda0abd9aa29e529c8e9c08b3b84171914723",
-                "reference": "623bda0abd9aa29e529c8e9c08b3b84171914723",
+                "url": "https://api.github.com/repos/symfony/finder/zipball/c54e407b35bc098916704e9fd090da21da4c4f52",
+                "reference": "c54e407b35bc098916704e9fd090da21da4c4f52",
                 "shasum": ""
             },
             "require": {
@@ -1318,7 +1318,7 @@
             ],
             "description": "Symfony Finder Component",
             "homepage": "https://symfony.com",
-            "time": "2016-01-27 05:14:46"
+            "time": "2016-03-10 11:13:05"
         },
         {
             "name": "symfony/polyfill-mbstring",
@@ -1381,16 +1381,16 @@
         },
         {
             "name": "symfony/process",
-            "version": "v3.0.3",
+            "version": "v3.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/process.git",
-                "reference": "dfecef47506179db2501430e732adbf3793099c8"
+                "reference": "e6f1f98bbd355d209a992bfff45e7edfbd4a0776"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/process/zipball/dfecef47506179db2501430e732adbf3793099c8",
-                "reference": "dfecef47506179db2501430e732adbf3793099c8",
+                "url": "https://api.github.com/repos/symfony/process/zipball/e6f1f98bbd355d209a992bfff45e7edfbd4a0776",
+                "reference": "e6f1f98bbd355d209a992bfff45e7edfbd4a0776",
                 "shasum": ""
             },
             "require": {
@@ -1426,20 +1426,20 @@
             ],
             "description": "Symfony Process Component",
             "homepage": "https://symfony.com",
-            "time": "2016-02-02 13:44:19"
+            "time": "2016-03-30 10:41:14"
         },
         {
             "name": "symfony/stopwatch",
-            "version": "v3.0.3",
+            "version": "v3.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/stopwatch.git",
-                "reference": "4a204804952ff267ace88cf499e0b4bb302a475e"
+                "reference": "6015187088421e9499d8f8316bdb396f8b806c06"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/stopwatch/zipball/4a204804952ff267ace88cf499e0b4bb302a475e",
-                "reference": "4a204804952ff267ace88cf499e0b4bb302a475e",
+                "url": "https://api.github.com/repos/symfony/stopwatch/zipball/6015187088421e9499d8f8316bdb396f8b806c06",
+                "reference": "6015187088421e9499d8f8316bdb396f8b806c06",
                 "shasum": ""
             },
             "require": {
@@ -1475,7 +1475,7 @@
             ],
             "description": "Symfony Stopwatch Component",
             "homepage": "https://symfony.com",
-            "time": "2016-01-03 15:35:16"
+            "time": "2016-03-04 07:55:57"
         }
     ],
     "aliases": [],
@@ -1489,5 +1489,7 @@
     "platform": {
         "php": "^7"
     },
-    "platform-dev": []
+    "platform-dev": {
+        "ext-posix": "*"
+    }
 }
