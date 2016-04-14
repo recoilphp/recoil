@@ -5,14 +5,7 @@ declare (strict_types = 1); // @codeCoverageIgnore
 namespace Recoil\React;
 
 use React\EventLoop\LoopInterface;
-use React\EventLoop\Timer\TimerInterface;
-use Recoil\Exception\TerminatedException;
-use Recoil\Exception\TimeoutException;
 use Recoil\Kernel\Api;
-use Recoil\Kernel\Awaitable;
-use Recoil\Kernel\Strand;
-use Recoil\Kernel\StrandObserver;
-use Throwable;
 
 /**
  * Please note that this code is not part of the public API. It may be
@@ -130,13 +123,13 @@ final class StreamQueue
 
     /**
      * @var array<int, array<callable>> A map of file-descriptor to FIFO queue
-     *                                  of read callbacks for that stream.
+     *                 of read callbacks for that stream.
      */
     public $reading = [];
 
     /**
      * @var array<int, array<callable>> A map of file-descriptor to FIFO queue
-     *                                  of write callbacks for that stream.
+     *                 of write callbacks for that stream.
      */
     public $writing = [];
 

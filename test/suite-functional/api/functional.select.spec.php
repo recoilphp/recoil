@@ -7,12 +7,10 @@ namespace Recoil;
 use Recoil\Exception\TimeoutException;
 
 beforeEach(function () {
-    $this->filename = tempnam(sys_get_temp_dir(), 'recoil-test-file-');
+    $this->filename = tempnam(sys_get_temp_dir(), 'recoil-test-fifo-');
     unlink($this->filename);
     posix_mkfifo($this->filename, 0644);
     $this->stream = fopen($this->filename, 'w+'); // must be w+ (read/write) to prevent blocking
-    stream_set_read_buffer($this->stream, 0);
-    stream_set_write_buffer($this->stream, 0);
     stream_set_blocking($this->stream, false);
 });
 

@@ -7,7 +7,6 @@ namespace Recoil;
 beforeEach(function () {
     $this->content = file_get_contents(__FILE__);
     $this->stream = fopen(__FILE__, 'r');
-    stream_set_read_buffer($this->stream, 0);
     stream_set_blocking($this->stream, false);
 });
 
@@ -24,21 +23,17 @@ rit('can be invoked by yielding a stream', function () {
 });
 
 rit('only reads up to the specified maximum length', function () {
-    expect(yield Recoil::read($this->stream, 16))->to->equal(substr($this->content,  0, 16));
-    expect(yield Recoil::read($this->stream, 16))->to->equal(substr($this->content, 16, 16));
-});
-
-rit('can be called with a length of zero', function () {
-    expect(yield Recoil::read($this->stream, 0))->to->equal('');
+    expect(yield Recoil::read($this->stream, 1, 16))->to->equal(substr($this->content,  0, 16));
+    expect(yield Recoil::read($this->stream, 1, 16))->to->equal(substr($this->content, 16, 16));
 });
 
 rit('returns an empty string at eof', function () {
     $content = '';
 
     do {
-        $buffer = yield Recoil::read($this->stream);
+        $buffer = yield Recoil::read($this->stream, 1, 16);
         $content .= $buffer;
-    } while ($buffer);
+    } while ($buffer != '');
 
     expect($content)->to->equal($this->content);
 });
@@ -48,7 +43,6 @@ rit('stops waiting for the stream when the strand is terminated', function () {
     unlink($temp);
     posix_mkfifo($temp, 0644);
     $stream = fopen($temp, 'w+'); // must be w+ (read/write) to prevent blocking
-    stream_set_read_buffer($stream, 0);
     stream_set_blocking($stream, false);
 
     $strand = yield Recoil::execute(function () use ($stream) {
@@ -61,4 +55,39 @@ rit('stops waiting for the stream when the strand is terminated', function () {
     $strand->terminate();
 
     @unlink($temp);
+});
+
+rit('synchronises access across multiple strands', function () {
+    $temp = tempnam(sys_get_temp_dir(), 'recoil-test-fifo-');
+    unlink($temp);
+    posix_mkfifo($temp, 0644);
+    $stream = fopen($temp, 'w+'); // must be w+ (read/write) to prevent blocking
+    stream_set_blocking($stream, false);
+
+    $buffer1 = '';
+    $buffer2 = '';
+
+    yield Recoil::execute(function () use ($stream, &$buffer1) {
+        $buffer1 = yield Recoil::read($stream, 4);
+    });
+
+    yield Recoil::execute(function () use ($stream, &$buffer2) {
+        $buffer2 = yield Recoil::read($stream, 4);
+    });
+
+    // write two bytes of data to the stream at a time and yield to allow
+    // the reading strands to execute. in order to verify that access is truly
+    // synchronised, we can not allow either strand to read their minimum buffer
+    // length (8)
+    fwrite($stream, '12');
+    yield;
+    fwrite($stream, '34');
+    yield;
+    fwrite($stream, '12');
+    yield;
+    fwrite($stream, '34');
+    yield;
+
+    expect($buffer1)->to->equal('1234');
+    expect($buffer2)->to->equal('1234');
 });
