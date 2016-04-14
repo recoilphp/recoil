@@ -363,6 +363,9 @@ trait ApiTrait
      * Write data to a stream resource, blocking the strand until the entire
      * buffer has been written.
      *
+     * Data is written until $length bytes have been written, or the entire
+     * buffer has been sent, at which point the calling strand is resumed.
+     *
      * If the stream is already being written to by another strand, no data is
      * written until the other strand's operation is complete.
      *
@@ -374,8 +377,14 @@ trait ApiTrait
      * @param Strand   $strand The strand executing the API call.
      * @param resource $stream A writable stream resource.
      * @param string   $buffer The data to write to the stream.
+     * @param int      $length The maximum number of bytes to write.
      *
      * @return null
      */
-    abstract public function write(Strand $strand, $stream, string $buffer);
+    abstract public function write(
+        Strand $strand,
+        $stream,
+        string $buffer,
+        int $length = PHP_INT_MAX
+    );
 }
