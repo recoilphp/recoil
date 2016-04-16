@@ -26,18 +26,18 @@ final class StreamQueue
 
         $this->read = function ($stream) {
             foreach ($this->reading[(int) $stream] as $callback) {
-                break;
-            }
+                $callback($stream);
 
-            $callback($stream);
+                return;
+            }
         };
 
         $this->write = function ($stream) {
             foreach ($this->writing[(int) $stream] as $callback) {
-                break;
-            }
+                $callback($stream);
 
-            $callback($stream);
+                return;
+            }
         };
     }
 
@@ -116,32 +116,37 @@ final class StreamQueue
     }
 
     /**
+     * @var LoopInterface The event loop.
+     */
+    private $eventLoop;
+
+    /**
      * @var int The ID of the next callback to be enqueued. Used as an index
      *          into the queue to allow fast removal upon completion.
      */
-    public $nextId = 1;
+    private $nextId = 1;
 
     /**
      * @var array<int, array<callable>> A map of file-descriptor to FIFO queue
      *                 of read callbacks for that stream.
      */
-    public $reading = [];
+    private $reading = [];
 
     /**
      * @var array<int, array<callable>> A map of file-descriptor to FIFO queue
      *                 of write callbacks for that stream.
      */
-    public $writing = [];
+    private $writing = [];
 
     /**
-     * @var Closure The underlying stream read handler that is registered with
-     *              the React event loop.
+     * @var callable The underlying stream read handler that is registered with
+     *               the React event loop.
      */
-    public $read;
+    private $read;
 
     /**
-     * @var Closure The underlying stream write handler that is registered with
-     *              the React event loop.
+     * @var callable The underlying stream write handler that is registered with
+     *               the React event loop.
      */
-    public $write;
+    private $write;
 }
