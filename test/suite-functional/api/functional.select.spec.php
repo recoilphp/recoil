@@ -74,6 +74,21 @@ context('when reading', function () {
                 expect($e->getMessage())->to->equal('The operation timed out after 0.05 second(s).');
             }
         });
+
+        rit('allows the strand to be terminated', function () {
+            $strand = yield Recoil::execute(function () use (&$count) {
+                yield Recoil::select([$this->stream], null, 0.05);
+                assert(false, 'strand was not terminated');
+            });
+
+            yield;
+
+            $strand->terminate();
+
+            // write to the stream to prevent the reading strand from blocking forever
+            // if termination doesn't work
+            fwrite($this->stream, 'a');
+        });
     });
 });
 
