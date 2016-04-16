@@ -109,7 +109,8 @@ describe(ApiTrait::class, function () {
 
                 $this->subject->read->calledWith(
                     $this->strand,
-                    $this->resource
+                    $this->resource,
+                    1
                 );
             });
 

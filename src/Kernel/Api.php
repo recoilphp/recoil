@@ -225,38 +225,56 @@ interface Api
     public function first(Strand $strand, ...$coroutines);
 
     /**
-     * Read data from a stream resource.
+     * Read data from a stream resource, blocking until a specified amount of
+     * data is available.
      *
-     * The calling strand is resumed with a string containing the data read from
-     * the stream, or with an empty string if the stream has reached EOF.
+     * Data is buffered until it's length falls between $minLength and
+     * $maxLength, or the stream reaches EOF. The calling strand is resumed with
+     * a string containing the buffered data.
      *
-     * A length of 0 (zero) may be used to block until the stream is ready for
-     * reading without consuming any data.
+     * $minLength and $maxLength may be equal to fill a fixed-size buffer.
+     *
+     * If the stream is already being read by another strand, no data is
+     * read until the other strand's operation is complete.
+     *
+     * Similarly, for the duration of the read, calls to {@see Api::select()}
+     * will not indicate that the stream is ready for reading.
      *
      * It is assumed that the stream is already configured as non-blocking.
      *
-     * @param Strand   $strand The strand executing the API call.
-     * @param resource $stream A readable stream resource.
-     * @param int      $length The maximum size of the buffer to return, in bytes.
+     * @param Strand   $strand    The strand executing the API call.
+     * @param resource $stream    A readable stream resource.
+     * @param int      $minLength The minimum number of bytes to read.
+     * @param int      $maxLength The maximum number of bytes to read.
      *
      * @return null
      */
-    public function read(Strand $strand, $stream, int $length = 8192);
+    public function read(
+        Strand $strand,
+        $stream,
+        int $minLength = PHP_INT_MAX,
+        int $maxLength = PHP_INT_MAX
+    );
 
     /**
-     * Write data to a stream resource.
+     * Write data to a stream resource, blocking the strand until the entire
+     * buffer has been written.
      *
-     * The calling strand is resumed with the number of bytes written.
+     * Data is written until $length bytes have been written, or the entire
+     * buffer has been sent, at which point the calling strand is resumed.
      *
-     * An empty buffer, or a length of 0 (zero) may be used to block until the
-     * stream is ready for writing without writing any data.
+     * If the stream is already being written to by another strand, no data is
+     * written until the other strand's operation is complete.
+     *
+     * Similarly, for the duration of the write, calls to {@see Api::select()}
+     * will not indicate that the stream is ready for writing.
      *
      * It is assumed that the stream is already configured as non-blocking.
      *
      * @param Strand   $strand The strand executing the API call.
      * @param resource $stream A writable stream resource.
      * @param string   $buffer The data to write to the stream.
-     * @param int      $length The number of bytes to write from the start of the buffer.
+     * @param int      $length The maximum number of bytes to write.
      *
      * @return null
      */
@@ -265,5 +283,46 @@ interface Api
         $stream,
         string $buffer,
         int $length = PHP_INT_MAX
+    );
+
+    /**
+     * Monitor multiple streams, waiting until one or more becomes "ready" for
+     * reading or writing.
+     *
+     * This operation is directly analogous to {@see stream_select()}, except
+     * that it allows other strands to execute while waiting for the streams.
+     *
+     * A stream is considered ready for reading when a call to {@see fread()}
+     * will not block, and likewise ready for writing when {@see fwrite()} will
+     * not block.
+     *
+     * The calling strand is resumed with a 2-tuple containing arrays of the
+     * ready streams. This allows the result to be unpacked with {@see list()}.
+     *
+     * A given stream may be monitored by multiple strands simultaneously, but
+     * only one of the strands is resumed when the stream becomes ready. There
+     * is no guarantee which strand will be resumed.
+     *
+     * Any stream that has an in-progress call to {@see Api::read()} or
+     * {@see Api::write()} will not be included in the resulting tuple until
+     * those operations are complete.
+     *
+     * If no streams become ready within the specified time, the calling strand
+     * is resumed with a {@see TimeoutException}.
+     *
+     * If no streams are provided, the calling strand is resumed immediately.
+     *
+     * @param Strand             $strand  The strand executing the API call.
+     * @param array<stream>|null $read    Streams monitored until they become "readable" (null = none).
+     * @param array<stream>|null $write   Streams monitored until they become "writable" (null = none).
+     * @param float|null         $timeout The maximum amount of time to wait, in seconds (null = forever).
+     *
+     * @return null
+     */
+    public function select(
+        Strand $strand,
+        array $read = null,
+        array $write = null,
+        float $timeout = null
     );
 }

@@ -39,7 +39,7 @@ trait ApiTrait
             if (\is_string($key)) {
                 $this->write($strand, $value, $key);
             } else {
-                $this->read($strand, $value);
+                $this->read($strand, $value, 1);
             }
         } elseif (\method_exists($value, 'then')) {
             $value->then(
@@ -328,38 +328,56 @@ trait ApiTrait
     abstract public function sleep(Strand $strand, float $seconds);
 
     /**
-     * Read data from a stream resource.
+     * Read data from a stream resource, blocking until a specified amount of
+     * data is available.
      *
-     * The calling strand is resumed with a string containing the data read from
-     * the stream, or with an empty string if the stream has reached EOF.
+     * Data is buffered until it's length falls between $minLength and
+     * $maxLength, or the stream reaches EOF. The calling strand is resumed with
+     * a string containing the buffered data.
      *
-     * A length of 0 (zero) may be used to block until the stream is ready for
-     * reading without consuming any data.
+     * $minLength and $maxLength may be equal to fill a fixed-size buffer.
+     *
+     * If the stream is already being read by another strand, no data is
+     * read until the other strand's operation is complete.
+     *
+     * Similarly, for the duration of the read, calls to {@see Api::select()}
+     * will not indicate that the stream is ready for reading.
      *
      * It is assumed that the stream is already configured as non-blocking.
      *
-     * @param Strand   $strand The strand executing the API call.
-     * @param resource $stream A readable stream resource.
-     * @param int      $length The maximum size of the buffer to return, in bytes.
+     * @param Strand   $strand    The strand executing the API call.
+     * @param resource $stream    A readable stream resource.
+     * @param int      $minLength The minimum number of bytes to read.
+     * @param int      $maxLength The maximum number of bytes to read.
      *
      * @return null
      */
-    abstract public function read(Strand $strand, $stream, int $length = 8192);
+    abstract public function read(
+        Strand $strand,
+        $stream,
+        int $minLength = 1,
+        int $maxLength = PHP_INT_MAX
+    );
 
     /**
-     * Write data to a stream resource.
+     * Write data to a stream resource, blocking the strand until the entire
+     * buffer has been written.
      *
-     * The calling strand is resumed with the number of bytes written.
+     * Data is written until $length bytes have been written, or the entire
+     * buffer has been sent, at which point the calling strand is resumed.
      *
-     * An empty buffer, or a length of 0 (zero) may be used to block until the
-     * stream is ready for writing without writing any data.
+     * If the stream is already being written to by another strand, no data is
+     * written until the other strand's operation is complete.
+     *
+     * Similarly, for the duration of the write, calls to {@see Api::select()}
+     * will not indicate that the stream is ready for writing.
      *
      * It is assumed that the stream is already configured as non-blocking.
      *
      * @param Strand   $strand The strand executing the API call.
      * @param resource $stream A writable stream resource.
      * @param string   $buffer The data to write to the stream.
-     * @param int      $length The number of bytes to write from the start of the buffer.
+     * @param int      $length The maximum number of bytes to write.
      *
      * @return null
      */
