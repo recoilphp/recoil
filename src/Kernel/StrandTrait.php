@@ -197,10 +197,17 @@ trait StrandTrait
                     $this->current = $produced;
                     goto next; // enter the new coroutine
                 } elseif ($produced instanceof ApiCall) {
-                    $this->api->{$produced->name}(
+                    $result = $this->api->{$produced->name}(
                         $this,
                         ...$produced->arguments
                     );
+
+                    if ($result instanceof Generator) {
+                        // "fast" functionless stack-push ...
+                        $this->stack[$this->depth++] = $this->current;
+                        $this->current = $result;
+                        goto next; // enter the new coroutine
+                    }
                 } elseif ($produced instanceof Awaitable) {
                     $produced->await(
                         $this,

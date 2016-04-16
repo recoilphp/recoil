@@ -263,6 +263,16 @@ describe(StrandTrait::class, function () {
                 $fn->never()->receivedException();
             });
 
+            it('dispatches kernel api calls implemented as coroutines', function () {
+                $this->api->{'<name>'}->generates()->returns('<result>');
+                $fn = Phony::stub();
+                $fn->generates([new ApiCall('<name>', [1, 2, 3])]);
+                ($this->initializeSubject)($fn);
+                $this->subject->mock()->start();
+
+                $fn->received('<result>');
+            });
+
             it('attaches the strand to awaitables', function () {
                 $awaitable = Phony::mock(Awaitable::class);
                 $fn = Phony::stub();
