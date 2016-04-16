@@ -4,12 +4,12 @@ declare (strict_types = 1); // @codeCoverageIgnore
 
 namespace Recoil\React;
 
+use ErrorException;
 use React\EventLoop\LoopInterface;
 use Recoil\Exception\TimeoutException;
 use Recoil\Kernel\Api;
 use Recoil\Kernel\ApiTrait;
 use Recoil\Kernel\Strand;
-use RuntimeException;
 
 /**
  * A kernel API based on the React event loop.
@@ -145,7 +145,14 @@ final class ReactApi implements Api
                 if ($chunk === false) {
                     // @codeCoverageIgnoreStart
                     $done();
-                    $strand->throw(new RuntimeException(\error_get_last()));
+                    $error = \error_get_last();
+                    $strand->throw(new ErrorException(
+                        $error['message'],
+                        $error['type'],
+                        1, // severity
+                        $error['file'],
+                        $error['line']
+                    ));
                     // @codeCoverageIgnoreEnd
                 } elseif ($chunk === '') {
                     $done();
@@ -216,7 +223,14 @@ final class ReactApi implements Api
                 if ($bytes === false) {
                     // @codeCoverageIgnoreStart
                     $done();
-                    $strand->throw(new RuntimeException(\error_get_last()));
+                    $error = \error_get_last();
+                    $strand->throw(new ErrorException(
+                        $error['message'],
+                        $error['type'],
+                        1, // severity
+                        $error['file'],
+                        $error['line']
+                    ));
                     // @codeCoverageIgnoreEnd
                 } elseif ($bytes === $length) {
                     $done();
@@ -376,4 +390,10 @@ final class ReactApi implements Api
      * @var LoopInterface The event loop.
      */
     private $eventLoop;
+
+    /**
+     * @var StreamQueue The stream queue, used to control sequential access
+     *                  to streams.
+     */
+    private $streamQueue;
 }
