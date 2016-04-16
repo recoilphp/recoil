@@ -39,7 +39,7 @@ trait ApiTrait
             if (\is_string($key)) {
                 $this->write($strand, $value, $key);
             } else {
-                $this->read($strand, $value);
+                $this->read($strand, $value, 1);
             }
         } elseif (\method_exists($value, 'then')) {
             $value->then(

@@ -9,6 +9,7 @@ use Recoil\Exception\TimeoutException;
 use Recoil\Kernel\Api;
 use Recoil\Kernel\ApiTrait;
 use Recoil\Kernel\Strand;
+use RuntimeException;
 
 /**
  * A kernel API based on the React event loop.
@@ -117,7 +118,7 @@ final class ReactApi implements Api
     public function read(
         Strand $strand,
         $stream,
-        int $minLength = 1,
+        int $minLength = PHP_INT_MAX,
         int $maxLength = PHP_INT_MAX
     ) {
         assert($minLength >= 1, 'minimum length must be at least one');
@@ -142,8 +143,10 @@ final class ReactApi implements Api
                 );
 
                 if ($chunk === false) {
+                    // @codeCoverageIgnoreStart
                     $done();
-                    $strand->throw(/* TODO */);
+                    $strand->throw(new RuntimeException(\error_get_last()));
+                    // @codeCoverageIgnoreEnd
                 } elseif ($chunk === '') {
                     $done();
                     $strand->resume($buffer);
@@ -211,8 +214,10 @@ final class ReactApi implements Api
                 $bytes = @\fwrite($stream, $buffer, $length);
 
                 if ($bytes === false) {
+                    // @codeCoverageIgnoreStart
                     $done();
-                    $strand->throw(/* TODO */);
+                    $strand->throw(new RuntimeException(\error_get_last()));
+                    // @codeCoverageIgnoreEnd
                 } elseif ($bytes === $length) {
                     $done();
                     $strand->resume();

@@ -14,12 +14,19 @@ afterEach(function () {
     fclose($this->stream);
 });
 
-rit('reads from the stream', function () {
+rit('reads the entire stream by default', function () {
     expect(yield Recoil::read($this->stream))->to->equal($this->content);
 });
 
 rit('can be invoked by yielding a stream', function () {
-    expect(yield $this->stream)->to->equal($this->content);
+    $buffer = '';
+
+    do {
+        $buf = yield $this->stream;
+        $buffer .= $buf;
+    } while ($buf !== '');
+
+    expect($buffer)->to->equal($this->content);
 });
 
 rit('only reads up to the specified maximum length', function () {
@@ -28,14 +35,8 @@ rit('only reads up to the specified maximum length', function () {
 });
 
 rit('returns an empty string at eof', function () {
-    $content = '';
-
-    do {
-        $buffer = yield Recoil::read($this->stream, 1, 16);
-        $content .= $buffer;
-    } while ($buffer != '');
-
-    expect($content)->to->equal($this->content);
+    yield Recoil::read($this->stream);
+    expect(yield Recoil::read($this->stream))->to->equal('');
 });
 
 rit('stops waiting for the stream when the strand is terminated', function () {

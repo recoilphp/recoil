@@ -252,7 +252,7 @@ interface Api
     public function read(
         Strand $strand,
         $stream,
-        int $minLength = 1,
+        int $minLength = PHP_INT_MAX,
         int $maxLength = PHP_INT_MAX
     );
 
