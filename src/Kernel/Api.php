@@ -29,7 +29,7 @@ interface Api
      *
      * The first element in $arguments must be the calling strand.
      *
-     * @return null
+     * @return Generator|null
      */
     public function __call(string $name, array $arguments);
 
@@ -49,7 +49,7 @@ interface Api
      * @param Strand $strand    The strand executing the API call.
      * @param mixed  $coroutine The coroutine to execute.
      *
-     * @return null
+     * @return Generator|null
      */
     public function execute(Strand $strand, $coroutine);
 
@@ -67,7 +67,7 @@ interface Api
      * @param Strand $strand    The strand executing the API call.
      * @param mixed  $coroutine The coroutine to execute.
      *
-     * @return null
+     * @return Generator|null
      */
     public function callback(Strand $strand, $coroutine);
 
@@ -76,7 +76,7 @@ interface Api
      *
      * @param Strand $strand The strand executing the API call.
      *
-     * @return null
+     * @return Generator|null
      */
     public function cooperate(Strand $strand);
 
@@ -86,7 +86,7 @@ interface Api
      * @param Strand $strand  The strand executing the API call.
      * @param float  $seconds The interval to wait.
      *
-     * @return null
+     * @return Generator|null
      */
     public function sleep(Strand $strand, float $seconds);
 
@@ -102,7 +102,7 @@ interface Api
      * @param float  $seconds   The interval to allow for execution.
      * @param mixed  $coroutine The coroutine to execute.
      *
-     * @return null
+     * @return Generator|null
      */
     public function timeout(Strand $strand, float $seconds, $coroutine);
 
@@ -111,7 +111,7 @@ interface Api
      *
      * @param Strand $strand The strand executing the API call.
      *
-     * @return null
+     * @return Generator|null
      */
     public function strand(Strand $strand);
 
@@ -125,7 +125,7 @@ interface Api
      * @param Strand        $strand The strand executing the API call.
      * @param callable|null $fn     A function invoked with the strand after it is suspended.
      *
-     * @return null
+     * @return Generator|null
      */
     public function suspend(Strand $strand, callable $fn = null);
 
@@ -134,7 +134,7 @@ interface Api
      *
      * @param Strand $strand The strand executing the API call.
      *
-     * @return null
+     * @return Generator|null
      */
     public function terminate(Strand $strand);
 
@@ -156,7 +156,7 @@ interface Api
      * @param Strand $strand         The strand executing the API call.
      * @param mixed  $coroutines,... The coroutines to execute.
      *
-     * @return null
+     * @return Generator|null
      */
     public function all(Strand $strand, ...$coroutines);
 
@@ -173,7 +173,7 @@ interface Api
      * @param Strand $strand         The strand executing the API call.
      * @param mixed  $coroutines,... The coroutines to execute.
      *
-     * @return null
+     * @return Generator|null
      */
     public function any(Strand $strand, ...$coroutines);
 
@@ -205,7 +205,7 @@ interface Api
      * @param int    $count          The required number of successful strands.
      * @param mixed  $coroutines,... The coroutines to execute.
      *
-     * @return null
+     * @return Generator|null
      */
     public function some(Strand $strand, int $count, ...$coroutines);
 
@@ -220,7 +220,7 @@ interface Api
      * @param Strand $strand         The strand executing the API call.
      * @param mixed  $coroutines,... The coroutines to execute.
      *
-     * @return null
+     * @return Generator|null
      */
     public function first(Strand $strand, ...$coroutines);
 
@@ -247,7 +247,7 @@ interface Api
      * @param int      $minLength The minimum number of bytes to read.
      * @param int      $maxLength The maximum number of bytes to read.
      *
-     * @return null
+     * @return Generator|null
      */
     public function read(
         Strand $strand,
@@ -276,7 +276,7 @@ interface Api
      * @param string   $buffer The data to write to the stream.
      * @param int      $length The maximum number of bytes to write.
      *
-     * @return null
+     * @return Generator|null
      */
     public function write(
         Strand $strand,
@@ -317,7 +317,7 @@ interface Api
      * @param array<stream>|null $write   Streams monitored until they become "writable" (null = none).
      * @param float|null         $timeout The maximum amount of time to wait, in seconds (null = forever).
      *
-     * @return null
+     * @return Generator|null
      */
     public function select(
         Strand $strand,
