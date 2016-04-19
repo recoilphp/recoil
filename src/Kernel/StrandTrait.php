@@ -7,6 +7,7 @@ namespace Recoil\Kernel;
 use Closure;
 use Generator;
 use InvalidArgumentException;
+use Recoil\Exception\TerminatedException;
 use Recoil\Kernel\Exception\StrandFailedException;
 use Recoil\Kernel\Exception\StrandObserverFailedException;
 use Throwable;
@@ -147,6 +148,7 @@ trait StrandTrait
             // Otherwise the strand exits with a failure ...
             $this->current = null;
             $this->state = StrandState::EXIT_FAIL;
+            $this->result = $e;
 
             // If there is an observer, it 'intercepts' the error from the
             // kernel ...
@@ -171,8 +173,12 @@ trait StrandTrait
                 ));
             }
 
-            if (!empty($this->waitingStrands)) {
-                $this->resumeWaitingStrands();
+            try {
+                foreach ($this->strands as $strand) {
+                    $strand->resume($this->result);
+                }
+            } finally {
+                $this->strands = [];
             }
 
             // This strand has now exited ...
@@ -270,6 +276,7 @@ trait StrandTrait
         } else {
             $this->current = null;
             $this->state = StrandState::EXIT_SUCCESS;
+            $this->result = $produced;
 
             if ($this->observer) {
                 try {
@@ -285,8 +292,12 @@ trait StrandTrait
                 }
             }
 
-            if (!empty($this->waitingStrands)) {
-                $this->resumeWaitingStrands();
+            try {
+                foreach ($this->strands as $strand) {
+                    $strand->resume($this->result);
+                }
+            } finally {
+                $this->strands = [];
             }
         }
     }
@@ -332,8 +343,13 @@ trait StrandTrait
             }
         }
 
-        if (!empty($this->waitingStrands)) {
-            $this->resumeWaitingStrands();
+        try {
+            $exception = new TerminatedException($this);
+            foreach ($this->strands as $strand) {
+                $strand->throw($exception);
+            }
+        } finally {
+            $this->strands = [];
         }
     }
 
@@ -461,20 +477,13 @@ trait StrandTrait
     public function await(Strand $strand, Api $api)
     {
         if ($this->state < StrandState::EXIT_SUCCESS) {
-            $this->waitingStrands[] = $strand;
+            $this->strands[] = $strand;
+        } elseif ($this->state === StrandState::EXIT_SUCCESS) {
+            $strand->resume($this->result);
+        } elseif ($this->state === StrandState::EXIT_FAIL) {
+            $strand->throw($this->result);
         } else {
-            $strand->resume();
-        }
-    }
-
-    private function resumeWaitingStrands()
-    {
-        try {
-            foreach ($this->waitingStrands as $strand) {
-                $strand->resume();
-            }
-        } finally {
-            $this->waitingStrands = [];
+            $strand->throw(new TerminatedException($this));
         }
     }
 
@@ -514,6 +523,12 @@ trait StrandTrait
     private $observer;
 
     /**
+     * @var mixed The result of the strand's entry point coroutine, or the
+     *            exception it threw.
+     */
+    private $result;
+
+    /**
      * @var callable|null A callable invoked when the strand is terminated.
      */
     private $terminator;
@@ -521,7 +536,7 @@ trait StrandTrait
     /**
      * @var array<Strand> Strands to resume when this strand exits.
      */
-    private $waitingStrands = [];
+    private $strands = [];
 
     /**
      * @var int The current state of the strand.
