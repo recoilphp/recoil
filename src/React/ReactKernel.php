@@ -254,6 +254,11 @@ final class ReactKernel implements Kernel
      */
     public function throw(Throwable $exception, Strand $strand = null)
     {
+        assert(
+            $strand !== null && $strand->kernel() === $this,
+            'kernel can only handle exceptions from its own strands'
+        );
+
         // Ignore exceptions indicating termination if they originate
         // within the same strand ...
         if (
