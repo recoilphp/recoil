@@ -43,8 +43,11 @@ final class StrandWaitSome implements Awaitable, Listener
      */
     public function await(Listener $listener, Api $api)
     {
+        if ($listener instanceof Strand) {
+            $listener->setTerminator([$this, 'cancel']);
+        }
+
         $this->listener = $listener;
-        $this->listener->setTerminator([$this, 'cancel']);
 
         foreach ($this->substrands as $substrand) {
             $substrand->setPrimaryListener($this);
