@@ -11,6 +11,7 @@ use Recoil\Kernel\Awaitable;
 use Recoil\Kernel\AwaitableProvider;
 use Recoil\Kernel\CoroutineProvider;
 use Recoil\Kernel\Strand;
+use Recoil\Kernel\Resumable;
 
 rit('can invoke generator as coroutine', function () {
     $result = yield (function () {
@@ -52,9 +53,9 @@ rit('can invoke awaitable provider', function () {
      {
          return new class implements Awaitable
  {
-     public function await(Strand $strand, Api $api)
+     public function await(Resumable $resumable, Api $api)
      {
-         $strand->resume('<ok>');
+         $resumable->resume('<ok>');
      }
  };
      }
@@ -66,9 +67,9 @@ rit('can invoke awaitable provider', function () {
 rit('can invoke awaitable', function () {
     $result = yield new class implements Awaitable
  {
-     public function await(Strand $strand, Api $api)
+     public function await(Resumable $resumable, Api $api)
      {
-         $strand->resume('<ok>');
+         $resumable->resume('<ok>');
      }
  };
 
@@ -83,9 +84,9 @@ rit('prefers await() to awaitable()', function () {
         assert(false, 'awaitable() was called');
      }
 
-     public function await(Strand $strand, Api $api)
+     public function await(Resumable $resumable, Api $api)
      {
-         $strand->resume('<ok>');
+         $resumable->resume('<ok>');
      }
  };
 

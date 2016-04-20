@@ -174,11 +174,11 @@ trait StrandTrait
             }
 
             try {
-                foreach ($this->strands as $strand) {
-                    $strand->throw($this->result);
+                foreach ($this->resumables as $resumable) {
+                    $resumable->throw($this->result);
                 }
             } finally {
-                $this->strands = [];
+                $this->resumables = [];
             }
 
             // This strand has now exited ...
@@ -293,11 +293,11 @@ trait StrandTrait
             }
 
             try {
-                foreach ($this->strands as $strand) {
-                    $strand->resume($this->result);
+                foreach ($this->resumables as $resumable) {
+                    $resumable->resume($this->result);
                 }
             } finally {
-                $this->strands = [];
+                $this->resumables = [];
             }
         }
     }
@@ -323,6 +323,7 @@ trait StrandTrait
 
         $this->current = null;
         $this->state = StrandState::EXIT_TERMINATED;
+        $this->result = new TerminatedException($this);
         $this->stack = [];
 
         if ($this->terminator) {
@@ -344,12 +345,11 @@ trait StrandTrait
         }
 
         try {
-            $exception = new TerminatedException($this);
-            foreach ($this->strands as $strand) {
-                $strand->throw($exception);
+            foreach ($this->resumables as $resumable) {
+                $resumable->throw($this->result);
             }
         } finally {
-            $this->strands = [];
+            $this->resumables = [];
         }
     }
 
@@ -471,19 +471,21 @@ trait StrandTrait
     }
 
     /**
-     * @param Strand $strand The strand to resume on completion.
-     * @param Api    $api    The kernel API.
+     * Attach a resumable to be notified when this strand exits.
+     *
+     * @param Resumable $resumable The object to resume when the strand exits.
+     * @param Api       $api       The API implementation for the current kernel.
+     *
+     * @return null
      */
-    public function await(Strand $strand, Api $api)
+    public function await(Resumable $resumable, Api $api)
     {
         if ($this->state < StrandState::EXIT_SUCCESS) {
-            $this->strands[] = $strand;
+            $this->resumables[] = $resumable;
         } elseif ($this->state === StrandState::EXIT_SUCCESS) {
-            $strand->resume($this->result);
-        } elseif ($this->state === StrandState::EXIT_FAIL) {
-            $strand->throw($this->result);
+            $resumable->resume($this->result);
         } else {
-            $strand->throw(new TerminatedException($this));
+            $resumable->throw($this->result);
         }
     }
 
@@ -534,9 +536,9 @@ trait StrandTrait
     private $terminator;
 
     /**
-     * @var array<Strand> Strands to resume when this strand exits.
+     * @var array<Resumable> Objects to resume when this strand exists.
      */
-    private $strands = [];
+    private $resumables = [];
 
     /**
      * @var int The current state of the strand.

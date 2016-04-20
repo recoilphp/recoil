@@ -12,10 +12,10 @@ interface Awaitable
     /**
      * Perform the work.
      *
-     * @param Strand $strand The strand to resume on completion.
-     * @param Api    $api    The kernel API.
+     * @param Resumable $resumable The object to resume when the work is complete.
+     * @param Api       $api       The API implementation for the current kernel.
      *
      * @return null
      */
-    public function await(Strand $strand, Api $api);
+    public function await(Resumable $resumable, Api $api);
 }

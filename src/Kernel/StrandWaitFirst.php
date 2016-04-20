@@ -20,13 +20,13 @@ final class StrandWaitFirst implements Awaitable, StrandObserver
     /**
      * Perform the work.
      *
-     * @param Strand $strand The strand to resume on completion.
-     * @param Api    $api    The kernel API.
+     * @param Resumable $resumable The object to resume when the work is complete.
+     * @param Api       $api       The API implementation for the current kernel.
      */
-    public function await(Strand $strand, Api $api)
+    public function await(Resumable $resumable, Api $api)
     {
-        $this->strand = $strand;
-        $this->strand->setTerminator([$this, 'cancel']);
+        $this->resumable = $resumable;
+        $this->resumable->setTerminator([$this, 'cancel']);
 
         foreach ($this->substrands as $substrand) {
             $substrand->setObserver($this);
@@ -51,7 +51,7 @@ final class StrandWaitFirst implements Awaitable, StrandObserver
         }
 
         $this->substrands = [];
-        $this->strand->resume($value);
+        $this->resumable->resume($value);
     }
 
     /**
@@ -72,7 +72,7 @@ final class StrandWaitFirst implements Awaitable, StrandObserver
         }
 
         $this->substrands = [];
-        $this->strand->throw($exception);
+        $this->resumable->throw($exception);
     }
 
     /**
@@ -97,9 +97,9 @@ final class StrandWaitFirst implements Awaitable, StrandObserver
     }
 
     /**
-     * @var Strand|null The strand to resume.
+     * @var Resumable|null The object to resume upon completion.
      */
-    private $strand;
+    private $resumable;
 
     /**
      * @var array<Strand> The strands to wait for.
