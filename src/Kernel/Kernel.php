@@ -7,7 +7,7 @@ namespace Recoil\Kernel;
 use Recoil\Kernel\Exception\StrandException;
 use Throwable;
 
-interface Kernel
+interface Kernel extends Listener
 {
     /**
      * Execute a coroutine on a new strand.
@@ -29,7 +29,7 @@ interface Kernel
      * must be taken to avoid deadlocks.
      *
      * @return bool            False if the kernel was stopped with {@see Kernel::stop()}; otherwise, true.
-     * @throws StrandException A strand or strand observer has failure was not handled by the exception handler.
+     * @throws StrandException A strand failure was not handled by the exception handler.
      */
     public function wait() : bool;
 
@@ -47,7 +47,7 @@ interface Kernel
      * @throws Throwable              The exception thrown by the strand, if failed.
      * @throws TerminatedException    The strand has been terminated.
      * @throws KernelStoppedException Execution was stopped with {@see Kernel::stop()}.
-     * @throws StrandException        A strand or strand observer has failure was not handled by the exception handler.
+     * @throws StrandException        A strand failure was not handled by the exception handler.
      */
     public function waitForStrand(Strand $strand);
 
@@ -70,7 +70,7 @@ interface Kernel
      * @throws Throwable              The exception produced by the coroutine, if any.
      * @throws TerminatedException    The strand has been terminated.
      * @throws KernelStoppedException Execution was stopped with {@see Kernel::stop()}.
-     * @throws StrandException        A strand or strand observer has failure was not handled by the exception handler.
+     * @throws StrandException        A strand failure was not handled by the exception handler.
      */
     public function waitFor($coroutine);
 
@@ -91,8 +91,8 @@ interface Kernel
      * Set the exception handler.
      *
      * The exception handler is invoked whenever an exception propagates to the
-     * top of a strand's call-stack, or when a strand observer throws an
-     * exception.
+     * top of a strand's call-stack, or when a strand's priamry listener throws
+     * an exception.
      *
      * The exception handler function must accept a single parameter of type
      * {@see StrandException} and return a boolean indicating whether or not the
@@ -108,16 +108,4 @@ interface Kernel
      * @return null
      */
     public function setExceptionHandler(callable $fn = null);
-
-    /**
-     * Notify the kernel of a strand or strand observer failure.
-     *
-     * @access private
-     *
-     * This method is used by the strand implementation and should not be called
-     * by the user.
-     *
-     * @return null
-     */
-    public function triggerException(StrandException $exception);
 }

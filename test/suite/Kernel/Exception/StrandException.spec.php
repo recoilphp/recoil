@@ -8,14 +8,14 @@ use Eloquent\Phony\Phony;
 use Error;
 use Recoil\Kernel\Strand;
 
-describe(StrandFailedException::class, function () {
+describe(StrandException::class, function () {
 
     beforeEach(function () {
         $this->strand = Phony::mock(Strand::class);
         $this->strand->id->returns(123);
         $this->previous = new Error('<message>');
 
-        $this->subject = new StrandFailedException(
+        $this->subject = new StrandException(
             $this->strand->mock(),
             $this->previous
         );
@@ -23,7 +23,7 @@ describe(StrandFailedException::class, function () {
 
     it('produces a useful message', function () {
         expect($this->subject->getMessage())->to->equal(
-            'Strand #123 failed: Error (<message>).'
+            'Unhandled exception in strand #123: Error (<message>).'
         );
     });
 

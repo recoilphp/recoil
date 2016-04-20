@@ -12,7 +12,7 @@ use Recoil\Kernel\Exception\KernelStoppedException;
 use Recoil\Kernel\Exception\StrandException;
 use Recoil\Kernel\Kernel;
 use Recoil\Kernel\Strand;
-use Recoil\Kernel\StrandObserver;
+use Recoil\Kernel\Listener;
 use RuntimeException;
 use Throwable;
 
@@ -35,7 +35,7 @@ final class ReactKernel implements Kernel
      * @return mixed               The return value of the coroutine.
      * @throws Throwable           The exception produced by the coroutine, if any.
      * @throws TerminatedException The strand has been terminated.
-     * @throws StrandException A strand or strand observer has failure was not handled by the exception handler.
+     * @throws StrandException A strand failure was not handled by the exception handler.
      */
     public static function start($coroutine, LoopInterface $eventLoop = null)
     {
@@ -86,7 +86,7 @@ final class ReactKernel implements Kernel
      * must be taken to avoid deadlocks.
      *
      * @return bool            False if the kernel was stopped with {@see Kernel::stop()}; otherwise, true.
-     * @throws StrandException A strand or strand observer has failure was not handled by the exception handler.
+     * @throws StrandException A strand failure was not handled by the exception handler.
      */
     public function wait() : bool
     {
@@ -118,7 +118,7 @@ final class ReactKernel implements Kernel
      * @throws Throwable              The exception thrown by the strand, if failed.
      * @throws TerminatedException    The strand has been terminated.
      * @throws KernelStoppedException Execution was stopped with {@see Kernel::stop()}.
-     * @throws StrandException        A strand or strand observer has failure was not handled by the exception handler.
+     * @throws StrandException        A strand failure was not handled by the exception handler.
      */
     public function waitForStrand(Strand $strand)
     {
@@ -126,37 +126,30 @@ final class ReactKernel implements Kernel
             throw $this->fatalException;
         }
 
-        $observer = new class implements StrandObserver
+        $listener = new class implements Listener
         {
             public $eventLoop;
             public $pending = true;
             public $value;
             public $exception;
 
-            public function success(Strand $strand, $value)
+            public function resume($value = null, Strand $strand = null)
             {
                 $this->pending = false;
                 $this->value = $value;
                 $this->eventLoop->stop();
             }
 
-            public function failure(Strand $strand, Throwable $exception)
+            public function throw(Throwable $exception, Strand $strand = null)
             {
                 $this->pending = false;
                 $this->exception = $exception;
                 $this->eventLoop->stop();
             }
-
-            public function terminated(Strand $strand)
-            {
-                $this->pending = false;
-                $this->exception = new TerminatedException($strand);
-                $this->eventLoop->stop();
-            }
         };
 
-        $observer->eventLoop = $this->eventLoop;
-        $strand->setObserver($observer);
+        $listener->eventLoop = $this->eventLoop;
+        $strand->setPrimaryListener($listener);
 
         $this->isRunning = true;
 
@@ -168,13 +161,13 @@ final class ReactKernel implements Kernel
             } elseif (!$this->isRunning) {
                 throw new KernelStoppedException();
             }
-        } while ($observer->pending);
+        } while ($listener->pending);
 
-        if ($observer->exception) {
-            throw $observer->exception;
+        if ($listener->exception) {
+            throw $listener->exception;
         }
 
-        return $observer->value;
+        return $listener->value;
     }
 
     /**
@@ -196,7 +189,7 @@ final class ReactKernel implements Kernel
      * @throws Throwable              The exception produced by the coroutine, if any.
      * @throws TerminatedException    The strand has been terminated.
      * @throws KernelStoppedException Execution was stopped with {@see Kernel::stop()}.
-     * @throws StrandException        A strand or strand observer has failure was not handled by the exception handler.
+     * @throws StrandException        A strand failure was not handled by the exception handler.
      */
     public function waitFor($coroutine)
     {
@@ -224,8 +217,8 @@ final class ReactKernel implements Kernel
      * Set the exception handler.
      *
      * The exception handler is invoked whenever an exception propagates to the
-     * top of a strand's call-stack, or when a strand observer throws an
-     * exception.
+     * top of a strand's call-stack, or when a strand's priamry listener throws
+     * an exception.
      *
      * The exception handler function must accept a single parameter of type
      * {@see StrandException} and return a boolean indicating whether or not the
@@ -244,19 +237,31 @@ final class ReactKernel implements Kernel
     }
 
     /**
-     * Notify the kernel of a strand or strand observer failure.
+     * Send the result of a successful operation.
      *
-     * @access private
-     *
-     * This method is used by the strand implementation and should not be called
-     * by the user.
+     * @param mixed       $value  The operation result.
+     * @param Strand|null $strand The strand that that is the source of the result, if any.
      */
-    public function triggerException(StrandException $exception)
+    public function resume($value = null, Strand $strand = null)
     {
-        assert(
-            $this->fatalException === null,
-            'an exception has already been triggered'
-        );
+    }
+
+    /**
+     * Send the result of an un successful operation.
+     *
+     * @param Throwable   $exception The operation result.
+     * @param Strand|null $strand    The strand that that is the source of the result, if any.
+     */
+    public function throw(Throwable $exception, Strand $strand = null)
+    {
+        // Ignore exceptions indicating termination if they originate
+        // within the same strand ...
+        if (
+            $exception instanceof TerminatedException &&
+            $strand === $exception->strand()
+        ) {
+            return;
+        }
 
         if (
             $this->exceptionHandler &&
@@ -265,7 +270,12 @@ final class ReactKernel implements Kernel
             return;
         }
 
-        $this->fatalException = $exception;
+        assert(
+            $this->fatalException === null,
+            'an exception has already been triggered'
+        );
+
+        $this->fatalException = new StrandException($strand, $exception);
         $this->eventLoop->stop();
     }
 

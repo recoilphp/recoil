@@ -5,7 +5,6 @@ declare (strict_types = 1); // @codeCoverageIgnore
 namespace Recoil\Kernel;
 
 use Eloquent\Phony\Phony;
-use Recoil\Exception\TerminatedException;
 use Throwable;
 
 describe(StrandWaitFirst::class, function () {
@@ -35,42 +34,30 @@ describe(StrandWaitFirst::class, function () {
     describe('->await()', function () {
         it('resumes the strand when any substrand succeeds', function () {
             $this->strand->setTerminator->calledWith([$this->subject, 'cancel']);
-            $this->substrand1->setObserver->calledWith($this->subject);
-            $this->substrand2->setObserver->calledWith($this->subject);
+            $this->substrand1->setPrimaryListener->calledWith($this->subject);
+            $this->substrand2->setPrimaryListener->calledWith($this->subject);
 
-            $this->subject->success($this->substrand1->mock(), '<one>');
+            $this->subject->resume('<one>', $this->substrand1->mock());
 
             $this->strand->resume->calledWith('<one>');
         });
 
         it('resumes the strand with an exception when any substrand fails', function () {
             $exception = Phony::mock(Throwable::class);
-            $this->subject->failure($this->substrand1->mock(), $exception->mock());
+            $this->subject->throw($exception->mock(), $this->substrand1->mock());
 
             Phony::inOrder(
-                $this->substrand2->setObserver->calledWith(null),
+                $this->substrand2->setPrimaryListener->calledWith(null),
                 $this->substrand2->terminate->called(),
                 $this->strand->throw->calledWith($exception)
             );
         });
 
-        it('resumes the strand with an exception when any substrand is terminated', function () {
-            $this->subject->terminated($this->substrand1->mock());
-
-            Phony::inOrder(
-                $this->substrand2->setObserver->calledWith(null),
-                $this->substrand2->terminate->called(),
-                $this->strand->throw->calledWith(
-                    new TerminatedException($this->substrand1->mock())
-                )
-            );
-        });
-
         it('terminates unused substrands', function () {
-            $this->subject->success($this->substrand1->mock(), '<one>');
+            $this->subject->resume('<one>', $this->substrand1->mock());
 
             Phony::inOrder(
-                $this->substrand2->setObserver->calledWith(null),
+                $this->substrand2->setPrimaryListener->calledWith(null),
                 $this->substrand2->terminate->called(),
                 $this->strand->resume->called()
             );
@@ -82,25 +69,25 @@ describe(StrandWaitFirst::class, function () {
             $this->subject->cancel();
 
             Phony::inOrder(
-                $this->substrand1->setObserver->calledWith(null),
+                $this->substrand1->setPrimaryListener->calledWith(null),
                 $this->substrand1->terminate->called()
             );
 
             Phony::inOrder(
-                $this->substrand2->setObserver->calledWith(null),
+                $this->substrand2->setPrimaryListener->calledWith(null),
                 $this->substrand2->terminate->called()
             );
         });
 
         it('does not terminate strands twice', function () {
-            $this->subject->success($this->substrand1->mock(), '<one>');
+            $this->subject->resume('<one>', $this->substrand1->mock());
 
             $this->subject->cancel();
 
-            $this->substrand1->setObserver->never()->calledWith(null);
+            $this->substrand1->setPrimaryListener->never()->calledWith(null);
             $this->substrand1->terminate->never()->called();
 
-            $this->substrand2->setObserver->once()->calledWith(null);
+            $this->substrand2->setPrimaryListener->once()->calledWith(null);
             $this->substrand2->terminate->once()->called();
         });
     });

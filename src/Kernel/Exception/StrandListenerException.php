@@ -4,26 +4,29 @@ declare (strict_types = 1); // @codeCoverageIgnore
 
 namespace Recoil\Kernel\Exception;
 
+use Recoil\Kernel\Listener;
 use Recoil\Kernel\Strand;
 use RuntimeException;
 use Throwable;
 
 /**
- * An exception has propagated to the top of a strand's call-stack.
+ * An exception was thrown by a listener while a strand is exiting.
  */
-class StrandFailedException extends RuntimeException implements StrandException
+class StrandListenerException extends RuntimeException
 {
     /**
-     * @param Strand    $strand    The failed strand.
-     * @param Throwable $exception The exception that caused the failure.
+     * @param Strand    $strand    The exited strand.
+     * @param Throwable $exception The exception thrown by the listener.
      */
-    public function __construct(Strand $strand, Throwable $previous)
-    {
+    public function __construct(
+        Strand $strand,
+        Throwable $previous
+    ) {
         $this->strand = $strand;
 
         parent::__construct(
             sprintf(
-                'Strand #%d failed: %s (%s).',
+                'Unhandled exception in listener for strand #%d: %s (%s).',
                 $strand->id(),
                 get_class($previous),
                 $previous->getMessage()
@@ -34,7 +37,7 @@ class StrandFailedException extends RuntimeException implements StrandException
     }
 
     /**
-     * Get the failed strand.
+     * Get the exited strand.
      */
     public function strand() : Strand
     {
@@ -42,7 +45,7 @@ class StrandFailedException extends RuntimeException implements StrandException
     }
 
     /**
-     * @var Strand The failed strand.
+     * @var Strand The exited strand.
      */
     private $strand;
 }

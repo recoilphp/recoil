@@ -122,7 +122,7 @@ describe(ReactApi::class, function () {
 
             $this->kernel->execute->calledWith('<coroutine>');
 
-            $this->substrand->setObserver->calledWith(
+            $this->substrand->setPrimaryListener->calledWith(
                 IsInstanceOf::anInstanceOf(StrandTimeout::class)
             );
         });

@@ -10,8 +10,7 @@ use Exception;
 use Generator;
 use InvalidArgumentException;
 use Recoil\Exception\TerminatedException;
-use Recoil\Kernel\Exception\StrandFailedException;
-use Recoil\Kernel\Exception\StrandObserverFailedException;
+use Recoil\Kernel\Exception\StrandListenerException;
 use Throwable;
 
 describe(StrandTrait::class, function () {
@@ -33,10 +32,10 @@ describe(StrandTrait::class, function () {
 
         ($this->initializeSubject)();
 
-        $this->observer = Phony::mock(StrandObserver::class);
+        $this->primaryListener = Phony::mock(Listener::class);
 
-        $this->waiter1 = Phony::mock(Strand::class);
-        $this->waiter2 = Phony::mock(Strand::class);
+        $this->listener1 = Phony::mock(Strand::class);
+        $this->listener2 = Phony::mock(Strand::class);
     });
 
     describe('->__construct()', function () {
@@ -117,45 +116,45 @@ describe(StrandTrait::class, function () {
             });
 
             context('when the top of the call-stack is reached', function () {
-                it('notifies the observer', function () {
+                it('notifies the primary listener', function () {
                     ($this->initializeSubject)(
                         Phony::stub()->generates()->returns('<result>')
                     );
-                    $this->subject->mock()->setObserver($this->observer->mock());
+                    $this->subject->mock()->setPrimaryListener($this->primaryListener->mock());
                     $this->subject->mock()->start();
 
-                    $this->observer->success->calledWith($this->subject, '<result>');
+                    $this->primaryListener->resume->calledWith('<result>', $this->subject);
                 });
 
-                it('triggers an exception on the kernel when the observer throws', function () {
+                it('notifies the kernel when a listener throws', function () {
                     $exception = new Exception('<exception>');
-                    $this->observer->success->throws($exception);
+                    $this->primaryListener->resume->throws($exception);
 
                     ($this->initializeSubject)(
                         Phony::stub()->generates()->returns()
                     );
-                    $this->subject->mock()->setObserver($this->observer->mock());
+                    $this->subject->mock()->setPrimaryListener($this->primaryListener->mock());
                     $this->subject->mock()->start();
 
-                    $this->kernel->triggerException->calledWith(
-                        new StrandObserverFailedException(
+                    $this->kernel->throw->calledWith(
+                        new StrandListenerException(
                             $this->subject->mock(),
-                            $this->observer->mock(),
                             $exception
-                        )
+                        ),
+                        $this->subject
                     );
                 });
 
-                it('resumes waiting strands', function () {
+                it('notifies secondary listeners', function () {
                     ($this->initializeSubject)(
                         Phony::stub()->generates()->returns('<result>')
                     );
-                    $this->subject->mock()->await($this->waiter1->mock(), $this->api->mock());
-                    $this->subject->mock()->await($this->waiter2->mock(), $this->api->mock());
+                    $this->subject->mock()->await($this->listener1->mock(), $this->api->mock());
+                    $this->subject->mock()->await($this->listener2->mock(), $this->api->mock());
                     $this->subject->mock()->start();
 
-                    $this->waiter1->resume->calledWith('<result>');
-                    $this->waiter2->resume->calledWith('<result>');
+                    $this->listener1->resume->calledWith('<result>', $this->subject);
+                    $this->listener2->resume->calledWith('<result>', $this->subject);
                 });
             });
         });
@@ -176,52 +175,37 @@ describe(StrandTrait::class, function () {
             });
 
             context('when the top of the call-stack is reached', function () {
-                it('triggers an exception on the kernel when there is no observer', function () {
+                it('notifies the primary listener', function () {
                     $exception = new Exception('<exception>');
                     ($this->initializeSubject)(
                         Phony::stub()->generates()->throws($exception)
                     );
+                    $this->subject->mock()->setPrimaryListener($this->primaryListener->mock());
                     $this->subject->mock()->start();
 
-                    $this->kernel->triggerException->calledWith(
-                        new StrandFailedException(
-                            $this->subject->mock(),
-                            $exception
-                        )
+                    $this->primaryListener->throw->calledWith(
+                        $exception,
+                        $this->subject
                     );
                 });
 
-                it('notifies the observer', function () {
-                    $exception = new Exception('<exception>');
-                    ($this->initializeSubject)(
-                        Phony::stub()->generates()->throws($exception)
-                    );
-                    $this->subject->mock()->setObserver($this->observer->mock());
-                    $this->subject->mock()->start();
-
-                    $this->observer->failure->calledWith(
-                        $this->subject,
-                        $exception
-                    );
-                });
-
-                it('triggers an exception on the kernel when an observer throws', function () {
-                    $observerException = new Exception('<observer-exception>');
-                    $this->observer->failure->throws($observerException);
+                it('notifies the kernel when a listener throws', function () {
+                    $listenerException = new Exception('<listener-exception>');
+                    $this->primaryListener->throw->throws($listenerException);
                     $strandException = new Exception('<exception>');
 
                     ($this->initializeSubject)(
                         Phony::stub()->generates()->throws($strandException)
                     );
-                    $this->subject->mock()->setObserver($this->observer->mock());
+                    $this->subject->mock()->setPrimaryListener($this->primaryListener->mock());
                     $this->subject->mock()->start();
 
-                    $this->kernel->triggerException->calledWith(
-                        new StrandObserverFailedException(
+                    $this->kernel->throw->calledWith(
+                        new StrandListenerException(
                             $this->subject->mock(),
-                            $this->observer->mock(),
-                            $observerException
-                        )
+                            $listenerException
+                        ),
+                        $this->subject
                     );
                 });
 
@@ -231,12 +215,12 @@ describe(StrandTrait::class, function () {
                     ($this->initializeSubject)(
                         Phony::stub()->generates()->throws($exception)
                     );
-                    $this->subject->mock()->await($this->waiter1->mock(), $this->api->mock());
-                    $this->subject->mock()->await($this->waiter2->mock(), $this->api->mock());
+                    $this->subject->mock()->await($this->listener1->mock(), $this->api->mock());
+                    $this->subject->mock()->await($this->listener2->mock(), $this->api->mock());
                     $this->subject->mock()->start();
 
-                    $this->waiter1->throw->calledWith($exception);
-                    $this->waiter2->throw->calledWith($exception);
+                    $this->listener1->throw->calledWith($exception, $this->subject);
+                    $this->listener2->throw->calledWith($exception, $this->subject);
                 });
             });
         });
@@ -380,35 +364,38 @@ describe(StrandTrait::class, function () {
             $fn->once()->calledWith($this->subject);
         });
 
-        it('notifies the observer', function () {
-            $this->subject->mock()->setObserver($this->observer->mock());
+        it('notifies the primary listener', function () {
+            $this->subject->mock()->setPrimaryListener($this->primaryListener->mock());
             $this->subject->mock()->terminate();
 
-            $this->observer->terminated->once()->calledWith($this->subject);
+            $this->primaryListener->throw->once()->calledWith(
+                new TerminatedException($this->subject->mock()),
+                $this->subject
+            );
         });
 
         it('resumes waiting strands', function () {
-            $this->subject->mock()->await($this->waiter1->mock(), $this->api->mock());
-            $this->subject->mock()->await($this->waiter2->mock(), $this->api->mock());
+            $this->subject->mock()->await($this->listener1->mock(), $this->api->mock());
+            $this->subject->mock()->await($this->listener2->mock(), $this->api->mock());
             $this->subject->mock()->terminate();
 
             $exception = new TerminatedException($this->subject->mock());
-            $this->waiter1->throw->calledWith($exception);
-            $this->waiter2->throw->calledWith($exception);
+            $this->listener1->throw->calledWith($exception, $this->subject);
+            $this->listener2->throw->calledWith($exception, $this->subject);
         });
 
-        it('triggers an exception on the kernel when an observer throws', function () {
-            $exception = new Exception('<observer-exception>');
-            $this->observer->terminated->throws($exception);
-            $this->subject->mock()->setObserver($this->observer->mock());
+        it('notifies the kernel when a listener throws', function () {
+            $exception = new Exception('<listener-exception>');
+            $this->primaryListener->throw->throws($exception);
+            $this->subject->mock()->setPrimaryListener($this->primaryListener->mock());
             $this->subject->mock()->terminate();
 
-            $this->kernel->triggerException->calledWith(
-                new StrandObserverFailedException(
+            $this->kernel->throw->calledWith(
+                new StrandListenerException(
                     $this->subject->mock(),
-                    $this->observer->mock(),
                     $exception
-                )
+                ),
+                $this->subject
             );
         });
     });

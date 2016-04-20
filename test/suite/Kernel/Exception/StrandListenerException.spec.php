@@ -6,36 +6,30 @@ namespace Recoil\Kernel\Exception;
 
 use Eloquent\Phony\Phony;
 use Error;
+use Recoil\Kernel\Listener;
 use Recoil\Kernel\Strand;
-use Recoil\Kernel\StrandObserver;
 
-describe(StrandObserverFailedException::class, function () {
+describe(StrandListenerException::class, function () {
 
     beforeEach(function () {
         $this->strand = Phony::mock(Strand::class);
         $this->strand->id->returns(123);
-        $this->observer = Phony::mock(StrandObserver::class);
         $this->previous = new Error('<message>');
 
-        $this->subject = new StrandObserverFailedException(
+        $this->subject = new StrandListenerException(
             $this->strand->mock(),
-            $this->observer->mock(),
             $this->previous
         );
     });
 
     it('produces a useful message', function () {
         expect($this->subject->getMessage())->to->equal(
-            'Strand #123 failed in observer ' . get_class($this->observer->mock()) . ': Error (<message>).'
+            'Unhandled exception in listener for strand #123: Error (<message>).'
         );
     });
 
     it('exposes the exited strand', function () {
         expect($this->subject->strand())->to->equal($this->strand->mock());
-    });
-
-    it('exposes the offending observer', function () {
-        expect($this->subject->observer())->to->equal($this->observer->mock());
     });
 
     it('exposes the previous exception', function () {

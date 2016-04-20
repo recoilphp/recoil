@@ -6,7 +6,7 @@ namespace Recoil\Kernel;
 
 use Throwable;
 
-interface Strand extends Resumable, AwaitableProvider
+interface Strand extends Listener, AwaitableProvider
 {
     /**
      * Get the strand's ID.
@@ -67,11 +67,13 @@ interface Strand extends Resumable, AwaitableProvider
     public function hasExited() : bool;
 
     /**
-     * Set the strand observer.
+     * Set the primary listener.
+     *
+     * If $listener is null, the primary listener is set to the strand's kernel.
      *
      * @return null
      */
-    public function setObserver(StrandObserver $observer = null);
+    public function setPrimaryListener(Listener $listener = null);
 
     /**
      * Set the strand 'terminator'.

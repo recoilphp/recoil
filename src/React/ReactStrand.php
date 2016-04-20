@@ -23,7 +23,7 @@ final class ReactStrand implements Strand, Awaitable, PromisorInterface
     {
         if (!$this->promise) {
             $deferred = new Deferred();
-            $this->setObserver(new DeferredResolver($deferred));
+            $this->setPrimaryListener(new DeferredAdaptor($deferred));
             $this->promise = $deferred->promise();
         }
 

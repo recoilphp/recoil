@@ -6,13 +6,11 @@ namespace Recoil\React;
 
 use React\EventLoop\LoopInterface;
 use React\EventLoop\Timer\TimerInterface;
-use Recoil\Exception\TerminatedException;
 use Recoil\Exception\TimeoutException;
 use Recoil\Kernel\Api;
 use Recoil\Kernel\Awaitable;
-use Recoil\Kernel\Resumable;
+use Recoil\Kernel\Listener;
 use Recoil\Kernel\Strand;
-use Recoil\Kernel\StrandObserver;
 use Throwable;
 
 /**
@@ -23,7 +21,7 @@ use Throwable;
  *
  * React timer based implementation of Api::timeout().
  */
-final class StrandTimeout implements Awaitable, StrandObserver
+final class StrandTimeout implements Awaitable, Listener
 {
     public function __construct(
         LoopInterface $eventLoop,
@@ -36,66 +34,54 @@ final class StrandTimeout implements Awaitable, StrandObserver
     }
 
     /**
-     * Perform the work.
+     * Attach a listener to this object.
      *
-     * @param Resumable $resumable The object to resume when the work is complete.
-     * @param Api       $api       The API implementation for the current kernel.
+     * @param Listener $listener The object to resume when the work is complete.
+     * @param Api      $api      The API implementation for the current kernel.
+     *
+     * @return null
      */
-    public function await(Resumable $resumable, Api $api)
+    public function await(Listener $listener, Api $api)
     {
         $this->timer = $this->eventLoop->addTimer(
             $this->timeout,
             [$this, 'timeout']
         );
 
-        $this->resumable = $resumable;
-        $this->resumable->setTerminator([$this, 'cancel']);
+        $this->listener = $listener;
+        $this->listener->setTerminator([$this, 'cancel']);
 
-        $this->substrand->setObserver($this);
+        $this->substrand->setPrimaryListener($this);
     }
 
     /**
-     * A strand exited successfully.
+     * Send the result of a successful operation.
      *
-     * @param Strand $strand The strand.
-     * @param mixed  $value  The result of the strand's entry point coroutine.
+     * @param mixed       $value  The operation result.
+     * @param Strand|null $strand The strand that that is the source of the result, if any.
      */
-    public function success(Strand $strand, $value)
+    public function resume($value = null, Strand $strand = null)
     {
         assert($this->substrand === $strand, 'unknown strand');
 
         $this->substrand = null;
         $this->timer->cancel();
-        $this->resumable->resume($value);
+        $this->listener->resume($value);
     }
 
     /**
-     * A strand exited with a failure due to an uncaught exception.
+     * Send the result of an un successful operation.
      *
-     * @param Strand    $strand    The strand.
-     * @param Throwable $exception The exception.
+     * @param Throwable   $exception The operation result.
+     * @param Strand|null $strand    The strand that that is the source of the result, if any.
      */
-    public function failure(Strand $strand, Throwable $exception)
+    public function throw(Throwable $exception, Strand $strand = null)
     {
         assert($this->substrand === $strand, 'unknown strand');
 
         $this->substrand = null;
         $this->timer->cancel();
-        $this->resumable->throw($exception);
-    }
-
-    /**
-     * A strand exited because it was terminated.
-     *
-     * @param Strand $strand The strand.
-     */
-    public function terminated(Strand $strand)
-    {
-        assert($this->substrand === $strand, 'unknown strand');
-
-        $this->substrand = null;
-        $this->timer->cancel();
-        $this->resumable->throw(new TerminatedException($strand));
+        $this->listener->throw($exception);
     }
 
     /**
@@ -105,7 +91,7 @@ final class StrandTimeout implements Awaitable, StrandObserver
     {
         if ($this->substrand) {
             $this->timer->cancel();
-            $this->substrand->setObserver(null);
+            $this->substrand->setPrimaryListener(null);
             $this->substrand->terminate();
         }
     }
@@ -117,10 +103,10 @@ final class StrandTimeout implements Awaitable, StrandObserver
     public function timeout()
     {
         if ($this->substrand) {
-            $this->substrand->setObserver(null);
+            $this->substrand->setPrimaryListener(null);
             $this->substrand->terminate();
 
-            $this->resumable->throw(new TimeoutException($this->timeout));
+            $this->listener->throw(new TimeoutException($this->timeout));
         }
     }
 
@@ -140,9 +126,9 @@ final class StrandTimeout implements Awaitable, StrandObserver
     private $timer;
 
     /**
-     * @var Resumable|null The object to resume upon completion.
+     * @var Listener|null The object to notify upon completion.
      */
-    private $resumable;
+    private $listener;
 
     /**
      * @var Strand|null The strand to wait for.
