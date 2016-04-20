@@ -49,7 +49,7 @@ interface Strand extends Listener, AwaitableProvider
      *
      * @return null
      */
-    public function resume($value = null, Strand $strand = null);
+    public function send($value = null, Strand $strand = null);
 
     /**
      * Resume execution of a suspended strand with an error.

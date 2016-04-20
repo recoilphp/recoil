@@ -38,16 +38,16 @@ describe(StrandWaitAny::class, function () {
             $this->substrand1->setPrimaryListener->calledWith($this->subject);
             $this->substrand2->setPrimaryListener->calledWith($this->subject);
 
-            $this->subject->resume('<one>', $this->substrand1->mock());
+            $this->subject->send('<one>', $this->substrand1->mock());
 
-            $this->strand->resume->calledWith('<one>');
+            $this->strand->send->calledWith('<one>');
         });
 
         it('resumes the strand with an exception when all substrands fail', function () {
             $exception2 = Phony::mock(Throwable::class);
             $this->subject->throw($exception2->mock(), $this->substrand2->mock());
 
-            $this->strand->resume->never()->called();
+            $this->strand->send->never()->called();
             $this->strand->throw->never()->called();
 
             $exception1 = Phony::mock(Throwable::class);
@@ -64,12 +64,12 @@ describe(StrandWaitAny::class, function () {
         });
 
         it('terminates unused substrands', function () {
-            $this->subject->resume('<one>', $this->substrand1->mock());
+            $this->subject->send('<one>', $this->substrand1->mock());
 
             Phony::inOrder(
                 $this->substrand2->setPrimaryListener->calledWith(null),
                 $this->substrand2->terminate->called(),
-                $this->strand->resume->called()
+                $this->strand->send->called()
             );
         });
     });

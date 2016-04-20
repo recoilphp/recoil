@@ -37,14 +37,14 @@ describe(StrandWaitAll::class, function () {
             $this->substrand1->setPrimaryListener->calledWith($this->subject);
             $this->substrand2->setPrimaryListener->calledWith($this->subject);
 
-            $this->subject->resume('<two>', $this->substrand2->mock());
+            $this->subject->send('<two>', $this->substrand2->mock());
 
-            $this->strand->resume->never()->called();
+            $this->strand->send->never()->called();
             $this->strand->throw->never()->called();
 
-            $this->subject->resume('<one>', $this->substrand1->mock());
+            $this->subject->send('<one>', $this->substrand1->mock());
 
-            $this->strand->resume->calledWith(
+            $this->strand->send->calledWith(
                 [
                     1 => '<two>',
                     0 => '<one>',
@@ -73,7 +73,7 @@ describe(StrandWaitAll::class, function () {
 
     describe('->cancel()', function () {
         it('only terminates the remaining substrands', function () {
-            $this->subject->resume('<one>', $this->substrand1->mock());
+            $this->subject->send('<one>', $this->substrand1->mock());
 
             $this->subject->cancel();
 

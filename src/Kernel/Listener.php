@@ -18,10 +18,8 @@ interface Listener
      * @param Strand|null $strand The strand that that is the source of the result, if any.
      *
      * @return null
-     *
-     * @todo rename to send
      */
-    public function resume($value = null, Strand $strand = null);
+    public function send($value = null, Strand $strand = null);
 
     /**
      * Send the result of an un successful operation.

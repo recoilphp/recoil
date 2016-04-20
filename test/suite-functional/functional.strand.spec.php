@@ -55,7 +55,7 @@ rit('can invoke awaitable provider', function () {
  {
      public function await(Listener $listener, Api $api)
      {
-         $listener->resume('<ok>');
+         $listener->send('<ok>');
      }
  };
      }
@@ -69,7 +69,7 @@ rit('can invoke awaitable', function () {
  {
      public function await(Listener $listener, Api $api)
      {
-         $listener->resume('<ok>');
+         $listener->send('<ok>');
      }
  };
 
@@ -86,7 +86,7 @@ rit('prefers await() to awaitable()', function () {
 
      public function await(Listener $listener, Api $api)
      {
-         $listener->resume('<ok>');
+         $listener->send('<ok>');
      }
  };
 

@@ -220,7 +220,7 @@ trait StrandTrait
                     );
                 }
 
-                // If action is already set, it means that resume() or throw()
+                // If action is already set, it means that send() or throw()
                 // has already been called above, jump directly to the next
                 // action ...
                 if ($this->action) {
@@ -268,10 +268,10 @@ trait StrandTrait
 
             // Notify all listeners ...
             try {
-                $this->primaryListener->resume($produced, $this);
+                $this->primaryListener->send($produced, $this);
 
                 foreach ($this->listeners as $listener) {
-                    $listener->resume($produced, $this);
+                    $listener->send($produced, $this);
                 }
 
             // Notify the kernel if any of the listeners fail ...
@@ -341,7 +341,7 @@ trait StrandTrait
      * @param mixed       $value  The value to send to the coroutine on the the top of the call stack.
      * @param Strand|null $strand The strand that resumed this one, if any.
      */
-    public function resume($value = null, Strand $strand = null)
+    public function send($value = null, Strand $strand = null)
     {
         // Ignore resumes after termination, not all asynchronous operations
         // will have meaningful cancel operations and some may attempt to resume
@@ -469,7 +469,7 @@ trait StrandTrait
         if ($this->state < StrandState::EXIT_SUCCESS) {
             $this->listeners[] = $listener;
         } elseif ($this->state === StrandState::EXIT_SUCCESS) {
-            $listener->resume($this->result);
+            $listener->send($this->result);
         } else {
             $listener->throw($this->result);
         }

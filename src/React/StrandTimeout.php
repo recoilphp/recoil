@@ -60,13 +60,13 @@ final class StrandTimeout implements Awaitable, Listener
      * @param mixed       $value  The operation result.
      * @param Strand|null $strand The strand that that is the source of the result, if any.
      */
-    public function resume($value = null, Strand $strand = null)
+    public function send($value = null, Strand $strand = null)
     {
         assert($this->substrand === $strand, 'unknown strand');
 
         $this->substrand = null;
         $this->timer->cancel();
-        $this->listener->resume($value);
+        $this->listener->send($value);
     }
 
     /**

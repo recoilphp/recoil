@@ -48,13 +48,13 @@ describe(StrandTimeout::class, function () {
             $this->strand->setTerminator->calledWith([$this->subject, 'cancel']);
             $this->substrand->setPrimaryListener->calledWith($this->subject);
 
-            $this->strand->resume->never()->called();
+            $this->strand->send->never()->called();
             $this->strand->throw->never()->called();
 
-            $this->subject->resume('<ok>', $this->substrand->mock());
+            $this->subject->send('<ok>', $this->substrand->mock());
 
             $this->timer->cancel->called();
-            $this->strand->resume->calledWith('<ok>');
+            $this->strand->send->calledWith('<ok>');
         });
 
         it('resumes the strand with an exception when the substrand fails', function () {
@@ -85,7 +85,7 @@ describe(StrandTimeout::class, function () {
         });
 
         it('doesn\'t terminate the substrand if it has exited', function () {
-            $this->subject->resume('<ok>', $this->substrand->mock());
+            $this->subject->send('<ok>', $this->substrand->mock());
             $this->subject->cancel();
 
             $this->substrand->setPrimaryListener->never()->calledWith(null);

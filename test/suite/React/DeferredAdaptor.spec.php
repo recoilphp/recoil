@@ -22,7 +22,7 @@ describe(DeferredAdaptor::class, function () {
     });
 
     it('resolves the deferred when a strand succeeds', function () {
-        $this->subject->resume(
+        $this->subject->send(
             '<value>',
             $this->strand->mock()
         );

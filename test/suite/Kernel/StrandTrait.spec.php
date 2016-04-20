@@ -123,12 +123,12 @@ describe(StrandTrait::class, function () {
                     $this->subject->mock()->setPrimaryListener($this->primaryListener->mock());
                     $this->subject->mock()->start();
 
-                    $this->primaryListener->resume->calledWith('<result>', $this->subject);
+                    $this->primaryListener->send->calledWith('<result>', $this->subject);
                 });
 
                 it('notifies the kernel when a listener throws', function () {
                     $exception = new Exception('<exception>');
-                    $this->primaryListener->resume->throws($exception);
+                    $this->primaryListener->send->throws($exception);
 
                     ($this->initializeSubject)(
                         Phony::stub()->generates()->returns()
@@ -153,8 +153,8 @@ describe(StrandTrait::class, function () {
                     $this->subject->mock()->await($this->listener2->mock(), $this->api->mock());
                     $this->subject->mock()->start();
 
-                    $this->listener1->resume->calledWith('<result>', $this->subject);
-                    $this->listener2->resume->calledWith('<result>', $this->subject);
+                    $this->listener1->send->calledWith('<result>', $this->subject);
+                    $this->listener2->send->calledWith('<result>', $this->subject);
                 });
             });
         });
@@ -305,14 +305,14 @@ describe(StrandTrait::class, function () {
         });
     });
 
-    describe('->resume()', function () {
+    describe('->send()', function () {
         it('sends the value to the coroutine', function () {
             $fn = Phony::stub();
             $fn->generates([null]);
             ($this->initializeSubject)($fn);
             $this->subject->mock()->start();
 
-            $this->subject->mock()->resume('<result>');
+            $this->subject->mock()->send('<result>');
             $fn->received('<result>');
         });
 
@@ -320,7 +320,7 @@ describe(StrandTrait::class, function () {
             $fn = Phony::stub();
             $fn->generates([null]);
             $this->api->dispatch->does(function () {
-                $this->subject->mock()->resume('<result>');
+                $this->subject->mock()->send('<result>');
             });
             ($this->initializeSubject)($fn);
             $this->subject->mock()->start();
@@ -429,9 +429,9 @@ describe(StrandTrait::class, function () {
             );
         });
 
-        it('->resume() fails', function () {
+        it('->send() fails', function () {
             expect(function () {
-                $this->subject->mock()->resume('<result>');
+                $this->subject->mock()->send('<result>');
             })->to->throw(
                 AssertionError::class,
                 'strand must be suspended to resume'
@@ -464,7 +464,7 @@ describe(StrandTrait::class, function () {
         it('->await() resumes the given strand immediately', function () {
             $strand = Phony::mock(Strand::class);
             $this->subject->mock()->await($strand->mock(), $this->api->mock());
-            $strand->resume->calledWith('<result>');
+            $strand->send->calledWith('<result>');
         });
     });
 
@@ -485,9 +485,9 @@ describe(StrandTrait::class, function () {
             );
         });
 
-        it('->resume() fails', function () {
+        it('->send() fails', function () {
             expect(function () {
-                $this->subject->mock()->resume('<result>');
+                $this->subject->mock()->send('<result>');
             })->to->throw(
                 AssertionError::class,
                 'strand must be suspended to resume'
@@ -534,13 +534,13 @@ describe(StrandTrait::class, function () {
             $this->api->noInteraction();
         });
 
-        it('->resume() does nothing', function () {
+        it('->send() does nothing', function () {
             $fn = Phony::stub();
             $fn->generates([null]);
             ($this->initializeSubject)($fn);
             $this->subject->mock()->start();
             $this->subject->mock()->terminate();
-            $this->subject->mock()->resume('<result>');
+            $this->subject->mock()->send('<result>');
 
             $fn->never()->received();
             $fn->never()->receivedException();

@@ -44,7 +44,7 @@ trait ApiTrait
         } elseif (\method_exists($value, 'then')) {
             $value->then(
                 static function ($result) use ($strand) {
-                    $strand->resume($result);
+                    $strand->send($result);
                 },
                 static function ($reason) use ($strand) {
                     if ($reason instanceof Throwable) {
@@ -105,7 +105,7 @@ trait ApiTrait
      */
     public function execute(Strand $strand, $coroutine)
     {
-        $strand->resume(
+        $strand->send(
             $strand->kernel()->execute($coroutine)
         );
     }
@@ -128,7 +128,7 @@ trait ApiTrait
     {
         $kernel = $strand->kernel();
 
-        $strand->resume(
+        $strand->send(
             static function () use ($kernel, $coroutine) {
                 $kernel->execute($coroutine);
             }
@@ -144,7 +144,7 @@ trait ApiTrait
      */
     public function strand(Strand $strand)
     {
-        $strand->resume($strand);
+        $strand->send($strand);
     }
 
     /**

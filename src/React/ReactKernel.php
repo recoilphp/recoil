@@ -133,7 +133,7 @@ final class ReactKernel implements Kernel
             public $value;
             public $exception;
 
-            public function resume($value = null, Strand $strand = null)
+            public function send($value = null, Strand $strand = null)
             {
                 $this->pending = false;
                 $this->value = $value;
@@ -242,7 +242,7 @@ final class ReactKernel implements Kernel
      * @param mixed       $value  The operation result.
      * @param Strand|null $strand The strand that that is the source of the result, if any.
      */
-    public function resume($value = null, Strand $strand = null)
+    public function send($value = null, Strand $strand = null)
     {
     }
 
