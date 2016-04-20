@@ -175,7 +175,7 @@ trait StrandTrait
 
             try {
                 foreach ($this->strands as $strand) {
-                    $strand->resume($this->result);
+                    $strand->throw($this->result);
                 }
             } finally {
                 $this->strands = [];

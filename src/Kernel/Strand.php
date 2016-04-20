@@ -6,7 +6,7 @@ namespace Recoil\Kernel;
 
 use Throwable;
 
-interface Strand extends AwaitableProvider
+interface Strand extends Resumable, AwaitableProvider
 {
     /**
      * Get the strand's ID.

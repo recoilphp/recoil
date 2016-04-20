@@ -9,6 +9,7 @@ use Eloquent\Phony\Phony;
 use Exception;
 use Generator;
 use InvalidArgumentException;
+use Recoil\Exception\TerminatedException;
 use Recoil\Kernel\Exception\StrandFailedException;
 use Recoil\Kernel\Exception\StrandObserverFailedException;
 use Throwable;
@@ -153,8 +154,8 @@ describe(StrandTrait::class, function () {
                     $this->subject->mock()->await($this->waiter2->mock(), $this->api->mock());
                     $this->subject->mock()->start();
 
-                    $this->waiter1->resume->calledWith();
-                    $this->waiter2->resume->calledWith();
+                    $this->waiter1->resume->calledWith('<result>');
+                    $this->waiter2->resume->calledWith('<result>');
                 });
             });
         });
@@ -234,8 +235,8 @@ describe(StrandTrait::class, function () {
                     $this->subject->mock()->await($this->waiter2->mock(), $this->api->mock());
                     $this->subject->mock()->start();
 
-                    $this->waiter1->resume->calledWith();
-                    $this->waiter2->resume->calledWith();
+                    $this->waiter1->throw->calledWith($exception);
+                    $this->waiter2->throw->calledWith($exception);
                 });
             });
         });
@@ -391,8 +392,9 @@ describe(StrandTrait::class, function () {
             $this->subject->mock()->await($this->waiter2->mock(), $this->api->mock());
             $this->subject->mock()->terminate();
 
-            $this->waiter1->resume->calledWith();
-            $this->waiter2->resume->calledWith();
+            $exception = new TerminatedException($this->subject->mock());
+            $this->waiter1->throw->calledWith($exception);
+            $this->waiter2->throw->calledWith($exception);
         });
 
         it('triggers an exception on the kernel when an observer throws', function () {
@@ -426,7 +428,7 @@ describe(StrandTrait::class, function () {
     context('when the strand has succeeded', function () {
         beforeEach(function () {
             ($this->initializeSubject)(
-                Phony::stub()->generates()->returns()
+                Phony::stub()->generates()->returns('<result>')
             );
             $this->subject->mock()->start();
         });
@@ -475,7 +477,7 @@ describe(StrandTrait::class, function () {
         it('->await() resumes the given strand immediately', function () {
             $strand = Phony::mock(Strand::class);
             $this->subject->mock()->await($strand->mock(), $this->api->mock());
-            $strand->resume->calledWith();
+            $strand->resume->calledWith('<result>');
         });
     });
 
@@ -531,7 +533,7 @@ describe(StrandTrait::class, function () {
         it('->await() resumes the given strand immediately', function () {
             $strand = Phony::mock(Strand::class);
             $this->subject->mock()->await($strand->mock(), $this->api->mock());
-            $strand->resume->calledWith();
+            $strand->throw->calledWith(new Exception('<exception>'));
         });
     });
 
@@ -581,7 +583,9 @@ describe(StrandTrait::class, function () {
         it('->await() resumes the given strand immediately', function () {
             $strand = Phony::mock(Strand::class);
             $this->subject->mock()->await($strand->mock(), $this->api->mock());
-            $strand->resume->calledWith();
+            $strand->throw->calledWith(
+                new TerminatedException($this->subject->mock())
+            );
         });
     });
 
