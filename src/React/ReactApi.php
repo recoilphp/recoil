@@ -36,7 +36,7 @@ final class ReactApi implements Api
     {
         $this->eventLoop->futureTick(
             static function () use ($strand) {
-                $strand->resume();
+                $strand->send();
             }
         );
     }
@@ -53,7 +53,7 @@ final class ReactApi implements Api
             $timer = $this->eventLoop->addTimer(
                 $seconds,
                 static function () use ($strand) {
-                    $strand->resume();
+                    $strand->send();
                 }
             );
 
@@ -65,7 +65,7 @@ final class ReactApi implements Api
         } else {
             $this->eventLoop->futureTick(
                 static function () use ($strand) {
-                    $strand->resume();
+                    $strand->send();
                 }
             );
         }
@@ -156,14 +156,14 @@ final class ReactApi implements Api
                     // @codeCoverageIgnoreEnd
                 } elseif ($chunk === '') {
                     $done();
-                    $strand->resume($buffer);
+                    $strand->send($buffer);
                 } else {
                     $buffer .= $chunk;
                     $length = \strlen($chunk);
 
                     if ($length >= $minLength || $length === $maxLength) {
                         $done();
-                        $strand->resume($buffer);
+                        $strand->send($buffer);
                     } else {
                         $minLength -= $length;
                         $maxLength -= $length;
@@ -234,7 +234,7 @@ final class ReactApi implements Api
                     // @codeCoverageIgnoreEnd
                 } elseif ($bytes === $length) {
                     $done();
-                    $strand->resume();
+                    $strand->send();
                 } else {
                     $length -= $bytes;
                     $buffer = \substr($buffer, $bytes);
@@ -286,7 +286,7 @@ final class ReactApi implements Api
         float $timeout = null
     ) {
         if (empty($read) && empty($write)) {
-            $strand->resume([[], []]);
+            $strand->send([[], []]);
 
             return;
         }
@@ -319,7 +319,7 @@ final class ReactApi implements Api
                             $context->timer->cancel();
                         }
 
-                        $context->strand->resume([[$stream], []]);
+                        $context->strand->send([[$stream], []]);
                     }
                 );
             }
@@ -338,7 +338,7 @@ final class ReactApi implements Api
                             $context->timer->cancel();
                         }
 
-                        $context->strand->resume([[], [$stream]]);
+                        $context->strand->send([[], [$stream]]);
                     }
                 );
             }
@@ -379,7 +379,7 @@ final class ReactApi implements Api
      */
     public function eventLoop(Strand $strand)
     {
-        $strand->resume($this->eventLoop);
+        $strand->send($this->eventLoop);
     }
 
     use ApiTrait;

@@ -4,13 +4,12 @@ declare (strict_types = 1); // @codeCoverageIgnore
 
 namespace Recoil\Kernel;
 
-use Recoil\Exception\TerminatedException;
 use Throwable;
 
 /**
  * Implementation of Api::first().
  */
-final class StrandWaitFirst implements Awaitable, StrandObserver
+final class StrandWaitFirst implements Awaitable, Listener
 {
     public function __construct(Strand ...$substrands)
     {
@@ -18,71 +17,66 @@ final class StrandWaitFirst implements Awaitable, StrandObserver
     }
 
     /**
-     * Perform the work.
+     * Attach a listener to this object.
      *
-     * @param Strand $strand The strand to resume on completion.
-     * @param Api    $api    The kernel API.
+     * @param Listener $listener The object to resume when the work is complete.
+     * @param Api      $api      The API implementation for the current kernel.
      */
-    public function await(Strand $strand, Api $api)
+    public function await(Listener $listener, Api $api)
     {
-        $this->strand = $strand;
-        $this->strand->setTerminator([$this, 'cancel']);
+        if ($listener instanceof Strand) {
+            $listener->setTerminator([$this, 'cancel']);
+        }
+
+        $this->listener = $listener;
 
         foreach ($this->substrands as $substrand) {
-            $substrand->setObserver($this);
+            $substrand->setPrimaryListener($this);
         }
     }
 
     /**
-     * A strand exited successfully.
+     * Send the result of a successful operation.
      *
-     * @param Strand $strand The strand.
-     * @param mixed  $value  The result of the strand's entry point coroutine.
+     * @param mixed       $value  The operation result.
+     * @param Strand|null $strand The strand that that is the source of the result, if any.
      */
-    public function success(Strand $strand, $value)
+    public function send($value = null, Strand $strand = null)
     {
+        assert($strand instanceof Strand, 'strand cannot be null');
         assert(in_array($strand, $this->substrands, true), 'unknown strand');
 
         foreach ($this->substrands as $s) {
             if ($s !== $strand) {
-                $s->setObserver(null);
+                $s->setPrimaryListener(null);
                 $s->terminate();
             }
         }
 
         $this->substrands = [];
-        $this->strand->resume($value);
+        $this->listener->send($value);
     }
 
     /**
-     * A strand exited with a failure due to an uncaught exception.
+     * Send the result of an un successful operation.
      *
-     * @param Strand    $strand    The strand.
-     * @param Throwable $exception The exception.
+     * @param Throwable   $exception The operation result.
+     * @param Strand|null $strand    The strand that that is the source of the result, if any.
      */
-    public function failure(Strand $strand, Throwable $exception)
+    public function throw(Throwable $exception, Strand $strand = null)
     {
+        assert($strand instanceof Strand, 'strand cannot be null');
         assert(in_array($strand, $this->substrands, true), 'unknown strand');
 
         foreach ($this->substrands as $s) {
             if ($s !== $strand) {
-                $s->setObserver(null);
+                $s->setPrimaryListener(null);
                 $s->terminate();
             }
         }
 
         $this->substrands = [];
-        $this->strand->throw($exception);
-    }
-
-    /**
-     * A strand exited because it was terminated.
-     *
-     * @param Strand $strand The strand.
-     */
-    public function terminated(Strand $strand)
-    {
-        $this->failure($strand, new TerminatedException($strand));
+        $this->listener->throw($exception);
     }
 
     /**
@@ -91,15 +85,15 @@ final class StrandWaitFirst implements Awaitable, StrandObserver
     public function cancel()
     {
         foreach ($this->substrands as $strand) {
-            $strand->setObserver(null);
+            $strand->setPrimaryListener(null);
             $strand->terminate();
         }
     }
 
     /**
-     * @var Strand|null The strand to resume.
+     * @var Listener|null The object to notify upon completion.
      */
-    private $strand;
+    private $listener;
 
     /**
      * @var array<Strand> The strands to wait for.

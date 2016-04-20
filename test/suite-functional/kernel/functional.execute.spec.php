@@ -10,6 +10,7 @@ use Recoil\Kernel\Api;
 use Recoil\Kernel\Awaitable;
 use Recoil\Kernel\AwaitableProvider;
 use Recoil\Kernel\CoroutineProvider;
+use Recoil\Kernel\Listener;
 use Recoil\Kernel\Strand;
 
 it('accepts a generator object', function () {
@@ -70,7 +71,7 @@ it('accepts an awaitable provider', function () {
      {
          return new class implements Awaitable
  {
-     public function await(Strand $strand, Api $api)
+     public function await(Listener $listener, Api $api)
      {
          echo '<ok>';
      }
@@ -86,7 +87,7 @@ it('accepts an awaitable provider', function () {
 it('accepts an awaitable', function () {
     $this->kernel->execute(new class implements Awaitable
  {
-     public function await(Strand $strand, Api $api)
+     public function await(Listener $listener, Api $api)
      {
          echo '<ok>';
      }

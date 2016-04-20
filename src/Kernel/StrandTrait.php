@@ -7,8 +7,8 @@ namespace Recoil\Kernel;
 use Closure;
 use Generator;
 use InvalidArgumentException;
-use Recoil\Kernel\Exception\StrandFailedException;
-use Recoil\Kernel\Exception\StrandObserverFailedException;
+use Recoil\Exception\TerminatedException;
+use Recoil\Kernel\Exception\StrandListenerException;
 use Throwable;
 
 /**
@@ -29,6 +29,7 @@ trait StrandTrait
         $entryPoint
     ) {
         $this->kernel = $kernel;
+        $this->primaryListener = $kernel;
         $this->api = $api;
         $this->id = $id;
 
@@ -147,32 +148,25 @@ trait StrandTrait
             // Otherwise the strand exits with a failure ...
             $this->current = null;
             $this->state = StrandState::EXIT_FAIL;
+            $this->result = $e;
 
-            // If there is an observer, it 'intercepts' the error from the
-            // kernel ...
-            if ($this->observer) {
-                try {
-                    $this->observer->failure($this, $e);
-                } catch (Throwable $e) {
-                    $this->kernel->triggerException(new StrandObserverFailedException(
-                        $this,
-                        $this->observer,
-                        $e
-                    ));
-                } finally {
-                    $this->observer = null;
+            // Notify all listeners ...
+            try {
+                $this->primaryListener->throw($e, $this);
+
+                foreach ($this->listeners as $listener) {
+                    $listener->throw($e, $this);
                 }
 
-            // The kernel is notified of the failure if there is no observer ...
-            } else {
-                $this->kernel->triggerException(new StrandFailedException(
-                    $this,
-                    $e
-                ));
-            }
-
-            if (!empty($this->waitingStrands)) {
-                $this->resumeWaitingStrands();
+            // Notify the kernel if any of the listeners fail ...
+            } catch (Throwable $e) {
+                $this->kernel->throw(
+                    new StrandListenerException($this, $e),
+                    $this
+                );
+            } finally {
+                $this->primaryListener = null;
+                $this->listeners = [];
             }
 
             // This strand has now exited ...
@@ -226,7 +220,7 @@ trait StrandTrait
                     );
                 }
 
-                // If action is already set, it means that resume() or throw()
+                // If action is already set, it means that send() or throw()
                 // has already been called above, jump directly to the next
                 // action ...
                 if ($this->action) {
@@ -266,27 +260,29 @@ trait StrandTrait
             goto action;
 
         // The current coroutine has exited cleanly and there are no coroutines
-        // above it on the call-stack. Notify the observer of the success ...
+        // above it on the call-stack ...
         } else {
             $this->current = null;
             $this->state = StrandState::EXIT_SUCCESS;
+            $this->result = $produced;
 
-            if ($this->observer) {
-                try {
-                    $this->observer->success($this, $produced);
-                } catch (Throwable $e) {
-                    $this->kernel->triggerException(new StrandObserverFailedException(
-                        $this,
-                        $this->observer,
-                        $e
-                    ));
-                } finally {
-                    $this->observer = null;
+            // Notify all listeners ...
+            try {
+                $this->primaryListener->send($produced, $this);
+
+                foreach ($this->listeners as $listener) {
+                    $listener->send($produced, $this);
                 }
-            }
 
-            if (!empty($this->waitingStrands)) {
-                $this->resumeWaitingStrands();
+            // Notify the kernel if any of the listeners fail ...
+            } catch (Throwable $e) {
+                $this->kernel->throw(
+                    new StrandListenerException($this, $e),
+                    $this
+                );
+            } finally {
+                $this->primaryListener = null;
+                $this->listeners = [];
             }
         }
     }
@@ -312,37 +308,40 @@ trait StrandTrait
 
         $this->current = null;
         $this->state = StrandState::EXIT_TERMINATED;
+        $this->result = new TerminatedException($this);
         $this->stack = [];
 
         if ($this->terminator) {
             ($this->terminator)($this);
         }
 
-        if ($this->observer) {
-            try {
-                $this->observer->terminated($this);
-            } catch (Throwable $e) {
-                $this->kernel->triggerException(new StrandObserverFailedException(
-                    $this,
-                    $this->observer,
-                    $e
-                ));
-            } finally {
-                $this->observer = null;
-            }
-        }
+        // Notify all listeners ...
+        try {
+            $this->primaryListener->throw($this->result, $this);
 
-        if (!empty($this->waitingStrands)) {
-            $this->resumeWaitingStrands();
+            foreach ($this->listeners as $listener) {
+                $listener->throw($this->result, $this);
+            }
+
+        // Notify the kernel if any of the listeners fail ...
+        } catch (Throwable $e) {
+            $this->kernel->throw(
+                new StrandListenerException($this, $e),
+                $this
+            );
+        } finally {
+            $this->primaryListener = null;
+            $this->listeners = [];
         }
     }
 
     /**
      * Resume execution of a suspended strand.
      *
-     * @param mixed $value The value to send to the coroutine on the the top of the call stack.
+     * @param mixed       $value  The value to send to the coroutine on the the top of the call stack.
+     * @param Strand|null $strand The strand that resumed this one, if any.
      */
-    public function resume($value = null)
+    public function send($value = null, Strand $strand = null)
     {
         // Ignore resumes after termination, not all asynchronous operations
         // will have meaningful cancel operations and some may attempt to resume
@@ -369,9 +368,10 @@ trait StrandTrait
     /**
      * Resume execution of a suspended strand with an error.
      *
-     * @param Throwable $exception The exception to send to the coroutine on the top of the call stack.
+     * @param Throwable   $exception The exception to send to the coroutine on the top of the call stack.
+     * @param Strand|null $strand    The strand that resumed this one, if any.
      */
-    public function throw(Throwable $exception)
+    public function throw(Throwable $exception, Strand $strand = null)
     {
         // Ignore resumes after termination, not all asynchronous operations
         // will have meaningful cancel operations and some may attempt to resume
@@ -404,18 +404,20 @@ trait StrandTrait
     }
 
     /**
-     * Set the strand observer.
+     * Set the primary listener.
+     *
+     * If $listener is null, the primary listener is set to the strand's kernel.
      *
      * @return null
      */
-    public function setObserver(StrandObserver $observer = null)
+    public function setPrimaryListener(Listener $listener = null)
     {
         assert(
             $this->state < StrandState::EXIT_SUCCESS,
-            'observer can not be changed after strand has exited'
+            'primary listener can not be set after strand has exited'
         );
 
-        $this->observer = $observer;
+        $this->primaryListener = $listener ?? $this->kernel;
     }
 
     /**
@@ -455,26 +457,21 @@ trait StrandTrait
     }
 
     /**
-     * @param Strand $strand The strand to resume on completion.
-     * @param Api    $api    The kernel API.
+     * Attach a listener to this object.
+     *
+     * @param Listener $listener The object to resume when the work is complete.
+     * @param Api      $api      The API implementation for the current kernel.
+     *
+     * @return null
      */
-    public function await(Strand $strand, Api $api)
+    public function await(Listener $listener, Api $api)
     {
         if ($this->state < StrandState::EXIT_SUCCESS) {
-            $this->waitingStrands[] = $strand;
+            $this->listeners[] = $listener;
+        } elseif ($this->state === StrandState::EXIT_SUCCESS) {
+            $listener->send($this->result);
         } else {
-            $strand->resume();
-        }
-    }
-
-    private function resumeWaitingStrands()
-    {
-        try {
-            foreach ($this->waitingStrands as $strand) {
-                $strand->resume();
-            }
-        } finally {
-            $this->waitingStrands = [];
+            $listener->throw($this->result);
         }
     }
 
@@ -509,9 +506,14 @@ trait StrandTrait
     private $current;
 
     /**
-     * @var StrandObserver|null The strand observer.
+     * @var Listener|null The strand's primary listener.
      */
-    private $observer;
+    private $primaryListener;
+
+    /**
+     * @var array<Listener> Objects to notify when this strand exits.
+     */
+    private $listeners = [];
 
     /**
      * @var callable|null A callable invoked when the strand is terminated.
@@ -519,14 +521,15 @@ trait StrandTrait
     private $terminator;
 
     /**
-     * @var array<Strand> Strands to resume when this strand exits.
-     */
-    private $waitingStrands = [];
-
-    /**
      * @var int The current state of the strand.
      */
     private $state = StrandState::READY;
+
+    /**
+     * @var mixed The result of the strand's entry point coroutine, or the
+     *            exception it threw.
+     */
+    private $result;
 
     /**
      * @var string|null The next action to perform on the current coroutine ('send' or 'throw').

@@ -5,17 +5,17 @@ declare (strict_types = 1); // @codeCoverageIgnore
 namespace Recoil\Kernel;
 
 /**
- * An object that can be yielded from a coroutine to perform work.
+ * An awaitable unit of work that can notify listeners upon completion.
  */
 interface Awaitable
 {
     /**
-     * Perform the work.
+     * Attach a listener to this object.
      *
-     * @param Strand $strand The strand to resume on completion.
-     * @param Api    $api    The kernel API.
+     * @param Listener $listener The object to resume when the work is complete.
+     * @param Api      $api      The API implementation for the current kernel.
      *
      * @return null
      */
-    public function await(Strand $strand, Api $api);
+    public function await(Listener $listener, Api $api);
 }

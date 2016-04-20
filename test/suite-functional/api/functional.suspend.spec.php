@@ -24,7 +24,7 @@ rit('suspends the calling strand', function () {
 rit('passes the strand to the given callback', function () {
     $expected = yield Recoil::strand();
     $strand = yield Recoil::suspend(function ($strand) {
-        $strand->resume($strand);
+        $strand->send($strand);
     });
 
     expect($strand)->to->equal($expected);

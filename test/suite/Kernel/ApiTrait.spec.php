@@ -154,7 +154,7 @@ describe(ApiTrait::class, function () {
 
             it('resumes the strand when resolved', function () {
                 ($this->resolve)('<result>');
-                $this->strand->resume->calledWith('<result>');
+                $this->strand->send->calledWith('<result>');
             });
 
             it('resumes the strand with an exception when rejected', function () {
@@ -242,7 +242,7 @@ describe(ApiTrait::class, function () {
         });
 
         it('resumes the strand with the substrand', function () {
-            $this->strand->resume->calledWith($this->substrand1);
+            $this->strand->send->calledWith($this->substrand1);
         });
     });
 
@@ -253,7 +253,7 @@ describe(ApiTrait::class, function () {
                 '<coroutine>'
             );
 
-            $fn = $this->strand->resume->calledWith('~')->argument();
+            $fn = $this->strand->send->calledWith('~')->argument();
             expect($fn)->to->satisfy('is_callable');
 
             $this->kernel->execute->never()->called();
@@ -270,7 +270,7 @@ describe(ApiTrait::class, function () {
                 $this->strand->mock()
             );
 
-            $this->strand->resume->calledWith($this->strand);
+            $this->strand->send->calledWith($this->strand);
         });
     });
 
@@ -318,10 +318,10 @@ describe(ApiTrait::class, function () {
             $this->kernel->execute->calledWith('<b>');
 
             Phony::inOrder(
-                $call1 = $this->substrand1->setObserver->calledWith(
+                $call1 = $this->substrand1->setPrimaryListener->calledWith(
                     IsInstanceOf::anInstanceOf(StrandWaitAll::class)
                 ),
-                $call2 = $this->substrand2->setObserver->calledWith(
+                $call2 = $this->substrand2->setPrimaryListener->calledWith(
                     IsInstanceOf::anInstanceOf(StrandWaitAll::class)
                 )
             );
@@ -342,10 +342,10 @@ describe(ApiTrait::class, function () {
             $this->kernel->execute->calledWith('<b>');
 
             Phony::inOrder(
-                $call1 = $this->substrand1->setObserver->calledWith(
+                $call1 = $this->substrand1->setPrimaryListener->calledWith(
                     IsInstanceOf::anInstanceOf(StrandWaitAny::class)
                 ),
-                $call2 = $this->substrand2->setObserver->calledWith(
+                $call2 = $this->substrand2->setPrimaryListener->calledWith(
                     IsInstanceOf::anInstanceOf(StrandWaitAny::class)
                 )
             );
@@ -367,10 +367,10 @@ describe(ApiTrait::class, function () {
             $this->kernel->execute->calledWith('<b>');
 
             Phony::inOrder(
-                $call1 = $this->substrand1->setObserver->calledWith(
+                $call1 = $this->substrand1->setPrimaryListener->calledWith(
                     IsInstanceOf::anInstanceOf(StrandWaitSome::class)
                 ),
-                $call2 = $this->substrand2->setObserver->calledWith(
+                $call2 = $this->substrand2->setPrimaryListener->calledWith(
                     IsInstanceOf::anInstanceOf(StrandWaitSome::class)
                 )
             );
@@ -424,10 +424,10 @@ describe(ApiTrait::class, function () {
             $this->kernel->execute->calledWith('<b>');
 
             Phony::inOrder(
-                $call1 = $this->substrand1->setObserver->calledWith(
+                $call1 = $this->substrand1->setPrimaryListener->calledWith(
                     IsInstanceOf::anInstanceOf(StrandWaitFirst::class)
                 ),
-                $call2 = $this->substrand2->setObserver->calledWith(
+                $call2 = $this->substrand2->setPrimaryListener->calledWith(
                     IsInstanceOf::anInstanceOf(StrandWaitFirst::class)
                 )
             );
