@@ -48,8 +48,11 @@ final class StrandTimeout implements Awaitable, Listener
             [$this, 'timeout']
         );
 
+        if ($listener instanceof Strand) {
+            $listener->setTerminator([$this, 'cancel']);
+        }
+
         $this->listener = $listener;
-        $this->listener->setTerminator([$this, 'cancel']);
 
         $this->substrand->setPrimaryListener($this);
     }
