@@ -5,7 +5,6 @@ declare (strict_types = 1); // @codeCoverageIgnore
 namespace Recoil\React;
 
 use React\EventLoop\LoopInterface;
-use Recoil\Kernel\Api;
 
 /**
  * Please note that this code is not part of the public API. It may be

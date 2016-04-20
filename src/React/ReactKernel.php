@@ -11,9 +11,8 @@ use Recoil\Kernel\Api;
 use Recoil\Kernel\Exception\KernelStoppedException;
 use Recoil\Kernel\Exception\StrandException;
 use Recoil\Kernel\Kernel;
-use Recoil\Kernel\Strand;
 use Recoil\Kernel\Listener;
-use RuntimeException;
+use Recoil\Kernel\Strand;
 use Throwable;
 
 /**
