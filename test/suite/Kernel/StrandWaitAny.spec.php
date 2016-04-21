@@ -67,7 +67,7 @@ describe(StrandWaitAny::class, function () {
             $this->subject->send('<one>', $this->substrand1->mock());
 
             Phony::inOrder(
-                $this->substrand2->setPrimaryListener->calledWith(null),
+                $this->substrand2->clearPrimaryListener->called(),
                 $this->substrand2->terminate->called(),
                 $this->strand->send->called()
             );
@@ -85,7 +85,7 @@ describe(StrandWaitAny::class, function () {
             $this->substrand1->terminate->never()->called();
 
             Phony::inOrder(
-                $this->substrand2->setPrimaryListener->calledWith(null),
+                $this->substrand2->clearPrimaryListener->called(),
                 $this->substrand2->terminate->called()
             );
         });

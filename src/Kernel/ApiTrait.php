@@ -175,6 +175,28 @@ trait ApiTrait
     }
 
     /**
+     * Take ownership of a strand, wait for it to exit and propagate its result
+     * to the calling strand.
+     *
+     * If the calling strand is terminated, the substrand is also terminated.
+     *
+     * The calling strand is resumed with the return value or exception of the
+     * substrand upon exit.
+     *
+     * @param Strand $strand    The strand executing the API call.
+     * @param Strand $substrand The strand to monitor.
+     */
+    public function adopt(Strand $strand, Strand $substrand)
+    {
+        $strand->setTerminator(function () use ($substrand) {
+            $substrand->clearPrimaryListener();
+            $substrand->terminate();
+        });
+
+        $substrand->setPrimaryListener($strand);
+    }
+
+    /**
      * Execute multiple coroutines on new strands and wait for them all to exit.
      *
      * If any one of the strands fails, all remaining strands are terminated and

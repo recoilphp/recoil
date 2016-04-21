@@ -8,6 +8,7 @@ use Closure;
 use Generator;
 use InvalidArgumentException;
 use Recoil\Exception\TerminatedException;
+use Recoil\Kernel\Exception\PrimaryListenerRemovedException;
 use Recoil\Kernel\Exception\StrandListenerException;
 use Throwable;
 
@@ -406,18 +407,38 @@ trait StrandTrait
     /**
      * Set the primary listener.
      *
-     * If $listener is null, the primary listener is set to the strand's kernel.
+     * If the current primary listener is not the kernel, it is notified with
+     * a {@see PrimaryListenerRemovedException}.
      *
      * @return null
      */
-    public function setPrimaryListener(Listener $listener = null)
+    public function setPrimaryListener(Listener $listener)
     {
-        assert(
-            $this->state < StrandState::EXIT_SUCCESS,
-            'primary listener can not be set after strand has exited'
-        );
+        if ($this->state < StrandState::EXIT_SUCCESS) {
+            $previous = $this->primaryListener;
+            $this->primaryListener = $listener;
 
-        $this->primaryListener = $listener ?? $this->kernel;
+            if ($previous !== $this->kernel) {
+                $previous->throw(
+                    new PrimaryListenerRemovedException($previous, $this),
+                    $this
+                );
+            }
+        } elseif ($this->state === StrandState::EXIT_SUCCESS) {
+            $listener->send($this->result, $this);
+        } else {
+            $listener->throw($this->result, $this);
+        }
+    }
+
+    /**
+     * Set the primary listener to the kernel.
+     *
+     * The current primary listener not notified.
+     */
+    public function clearPrimaryListener()
+    {
+        $this->primaryListener = $this->kernel;
     }
 
     /**
@@ -469,9 +490,9 @@ trait StrandTrait
         if ($this->state < StrandState::EXIT_SUCCESS) {
             $this->listeners[] = $listener;
         } elseif ($this->state === StrandState::EXIT_SUCCESS) {
-            $listener->send($this->result);
+            $listener->send($this->result, $this);
         } else {
-            $listener->throw($this->result);
+            $listener->throw($this->result, $this);
         }
     }
 

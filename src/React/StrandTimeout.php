@@ -94,7 +94,7 @@ final class StrandTimeout implements Awaitable, Listener
     {
         if ($this->substrand) {
             $this->timer->cancel();
-            $this->substrand->setPrimaryListener(null);
+            $this->substrand->clearPrimaryListener();
             $this->substrand->terminate();
         }
     }
@@ -106,7 +106,7 @@ final class StrandTimeout implements Awaitable, Listener
     public function timeout()
     {
         if ($this->substrand) {
-            $this->substrand->setPrimaryListener(null);
+            $this->substrand->clearPrimaryListener();
             $this->substrand->terminate();
 
             $this->listener->throw(new TimeoutException($this->timeout));
