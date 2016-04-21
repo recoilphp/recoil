@@ -81,6 +81,8 @@ interface Strand extends Listener, AwaitableProvider
      * Set the primary listener to the kernel.
      *
      * The current primary listener not notified.
+     *
+     * @return null
      */
     public function clearPrimaryListener();
 
