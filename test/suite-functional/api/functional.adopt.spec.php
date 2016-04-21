@@ -31,14 +31,16 @@ rit('resumes the calling strand on failure', function () {
 });
 
 rit('terminates the substrand if the calling strand is terminated', function () {
-    $strand = yield Recoil::execute(function () {
-        $substrand = yield Recoil::execute(function () {
-            yield;
-            assert(false, 'strand was not terminated');
-        });
+    $substrand = yield Recoil::execute(function () {
+        yield;
+        assert(false, 'strand was not terminated');
+    });
 
+    $strand = yield Recoil::execute(function () use ($substrand) {
         yield Recoil::adopt($substrand);
     });
+
+    yield;
 
     $strand->terminate();
 });

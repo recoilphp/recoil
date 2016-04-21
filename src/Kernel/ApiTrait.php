@@ -189,6 +189,7 @@ trait ApiTrait
     public function adopt(Strand $strand, Strand $substrand)
     {
         $strand->setTerminator(function () use ($substrand) {
+            $substrand->clearPrimaryListener();
             $substrand->terminate();
         });
 
