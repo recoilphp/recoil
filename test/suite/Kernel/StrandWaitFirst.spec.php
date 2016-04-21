@@ -47,7 +47,7 @@ describe(StrandWaitFirst::class, function () {
             $this->subject->throw($exception->mock(), $this->substrand1->mock());
 
             Phony::inOrder(
-                $this->substrand2->setPrimaryListener->calledWith(null),
+                $this->substrand2->clearPrimaryListener->called(),
                 $this->substrand2->terminate->called(),
                 $this->strand->throw->calledWith($exception)
             );
@@ -57,7 +57,7 @@ describe(StrandWaitFirst::class, function () {
             $this->subject->send('<one>', $this->substrand1->mock());
 
             Phony::inOrder(
-                $this->substrand2->setPrimaryListener->calledWith(null),
+                $this->substrand2->clearPrimaryListener->called(),
                 $this->substrand2->terminate->called(),
                 $this->strand->send->called()
             );
@@ -69,12 +69,12 @@ describe(StrandWaitFirst::class, function () {
             $this->subject->cancel();
 
             Phony::inOrder(
-                $this->substrand1->setPrimaryListener->calledWith(null),
+                $this->substrand1->clearPrimaryListener->called(),
                 $this->substrand1->terminate->called()
             );
 
             Phony::inOrder(
-                $this->substrand2->setPrimaryListener->calledWith(null),
+                $this->substrand2->clearPrimaryListener->called(),
                 $this->substrand2->terminate->called()
             );
         });
@@ -84,10 +84,10 @@ describe(StrandWaitFirst::class, function () {
 
             $this->subject->cancel();
 
-            $this->substrand1->setPrimaryListener->never()->calledWith(null);
+            $this->substrand1->clearPrimaryListener->never()->called();
             $this->substrand1->terminate->never()->called();
 
-            $this->substrand2->setPrimaryListener->once()->calledWith(null);
+            $this->substrand2->clearPrimaryListener->once()->called();
             $this->substrand2->terminate->once()->called();
         });
     });

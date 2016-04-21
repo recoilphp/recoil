@@ -79,7 +79,7 @@ describe(StrandTimeout::class, function () {
             $this->subject->cancel();
 
             Phony::inOrder(
-                $this->substrand->setPrimaryListener->calledWith(null),
+                $this->substrand->clearPrimaryListener->called(),
                 $this->substrand->terminate->called()
             );
         });

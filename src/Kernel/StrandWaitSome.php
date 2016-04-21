@@ -72,7 +72,7 @@ final class StrandWaitSome implements Awaitable, Listener
 
         if (0 === --$this->count) {
             foreach ($this->substrands as $s) {
-                $s->setPrimaryListener(null);
+                $s->clearPrimaryListener();
                 $s->terminate();
             }
 
@@ -98,7 +98,7 @@ final class StrandWaitSome implements Awaitable, Listener
 
         if ($this->count > count($this->substrands)) {
             foreach ($this->substrands as $s) {
-                $s->setPrimaryListener(null);
+                $s->clearPrimaryListener();
                 $s->terminate();
             }
 
@@ -114,7 +114,7 @@ final class StrandWaitSome implements Awaitable, Listener
     public function cancel()
     {
         foreach ($this->substrands as $strand) {
-            $strand->setPrimaryListener(null);
+            $strand->clearPrimaryListener();
             $strand->terminate();
         }
     }

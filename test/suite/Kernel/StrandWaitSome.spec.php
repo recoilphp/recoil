@@ -77,7 +77,7 @@ describe(StrandWaitSome::class, function () {
             $this->subject->throw($exception1->mock(), $this->substrand1->mock());
 
             Phony::inOrder(
-                $this->substrand3->setPrimaryListener->calledWith(null),
+                $this->substrand3->clearPrimaryListener->called(),
                 $this->substrand3->terminate->called(),
                 $this->strand->throw->calledWith(
                     new CompositeException(
@@ -97,7 +97,7 @@ describe(StrandWaitSome::class, function () {
             $this->subject->send('<one>', $this->substrand1->mock());
 
             Phony::inOrder(
-                $this->substrand3->setPrimaryListener->calledWith(null),
+                $this->substrand3->clearPrimaryListener->called(),
                 $this->substrand3->terminate->called(),
                 $this->strand->send->called()
             );
@@ -114,12 +114,12 @@ describe(StrandWaitSome::class, function () {
             $this->substrand1->terminate->never()->called();
 
             Phony::inOrder(
-                $this->substrand2->setPrimaryListener->calledWith(null),
+                $this->substrand2->clearPrimaryListener->called(),
                 $this->substrand2->terminate->called()
             );
 
             Phony::inOrder(
-                $this->substrand3->setPrimaryListener->calledWith(null),
+                $this->substrand3->clearPrimaryListener->called(),
                 $this->substrand3->terminate->called()
             );
         });

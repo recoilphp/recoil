@@ -4,6 +4,7 @@ declare (strict_types = 1); // @codeCoverageIgnore
 
 namespace Recoil\Kernel;
 
+use Recoil\Kernel\Exception\PrimaryListenerRemovedException;
 use Throwable;
 
 interface Strand extends Listener, AwaitableProvider
@@ -69,11 +70,19 @@ interface Strand extends Listener, AwaitableProvider
     /**
      * Set the primary listener.
      *
-     * If $listener is null, the primary listener is set to the strand's kernel.
+     * If the current primary listener is not the kernel, it is notified with
+     * a {@see PrimaryListenerRemovedException}.
      *
      * @return null
      */
-    public function setPrimaryListener(Listener $listener = null);
+    public function setPrimaryListener(Listener $listener);
+
+    /**
+     * Set the primary listener to the kernel.
+     *
+     * The current primary listener not notified.
+     */
+    public function clearPrimaryListener();
 
     /**
      * Set the strand 'terminator'.

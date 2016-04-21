@@ -10,6 +10,7 @@ use Exception;
 use Generator;
 use InvalidArgumentException;
 use Recoil\Exception\TerminatedException;
+use Recoil\Kernel\Exception\PrimaryListenerRemovedException;
 use Recoil\Kernel\Exception\StrandListenerException;
 use Throwable;
 
@@ -34,8 +35,8 @@ describe(StrandTrait::class, function () {
 
         $this->primaryListener = Phony::mock(Listener::class);
 
-        $this->listener1 = Phony::mock(Strand::class);
-        $this->listener2 = Phony::mock(Strand::class);
+        $this->listener1 = Phony::mock(Listener::class);
+        $this->listener2 = Phony::mock(Listener::class);
     });
 
     describe('->__construct()', function () {
@@ -126,6 +127,16 @@ describe(StrandTrait::class, function () {
                     $this->primaryListener->send->calledWith('<result>', $this->subject);
                 });
 
+                it('notifies the primary listener when set afterwards', function () {
+                    ($this->initializeSubject)(
+                        Phony::stub()->generates()->returns('<result>')
+                    );
+                    $this->subject->mock()->start();
+                    $this->subject->mock()->setPrimaryListener($this->primaryListener->mock());
+
+                    $this->primaryListener->send->calledWith('<result>', $this->subject);
+                });
+
                 it('notifies the kernel when a listener throws', function () {
                     $exception = new Exception('<exception>');
                     $this->primaryListener->send->throws($exception);
@@ -182,6 +193,20 @@ describe(StrandTrait::class, function () {
                     );
                     $this->subject->mock()->setPrimaryListener($this->primaryListener->mock());
                     $this->subject->mock()->start();
+
+                    $this->primaryListener->throw->calledWith(
+                        $exception,
+                        $this->subject
+                    );
+                });
+
+                it('notifies the primary listener when set afterwards', function () {
+                    $exception = new Exception('<exception>');
+                    ($this->initializeSubject)(
+                        Phony::stub()->generates()->throws($exception)
+                    );
+                    $this->subject->mock()->start();
+                    $this->subject->mock()->setPrimaryListener($this->primaryListener->mock());
 
                     $this->primaryListener->throw->calledWith(
                         $exception,
@@ -374,6 +399,16 @@ describe(StrandTrait::class, function () {
             );
         });
 
+        it('notifies the primary listener when set afterwards', function () {
+            $this->subject->mock()->terminate();
+            $this->subject->mock()->setPrimaryListener($this->primaryListener->mock());
+
+            $this->primaryListener->throw->once()->calledWith(
+                new TerminatedException($this->subject->mock()),
+                $this->subject
+            );
+        });
+
         it('resumes waiting strands', function () {
             $this->subject->mock()->await($this->listener1->mock(), $this->api->mock());
             $this->subject->mock()->await($this->listener2->mock(), $this->api->mock());
@@ -409,6 +444,25 @@ describe(StrandTrait::class, function () {
     describe('->awaitable()', function () {
         it('returns $this', function () {
             expect($this->subject->mock()->awaitable())->to->equal($this->subject->mock());
+        });
+    });
+
+    describe('->setPrimaryListener()', function () {
+        it('notifies the previous listener with an exception', function () {
+            $this->subject->mock()->setPrimaryListener($this->listener1->mock());
+            $this->subject->mock()->setPrimaryListener($this->listener2->mock());
+            $this->listener1->throw->calledWith(
+                new PrimaryListenerRemovedException(
+                    $this->listener1->mock(),
+                    $this->subject->mock()
+                ),
+                $this->subject->mock()
+            );
+        });
+
+        it('does not notify the kernel when removed', function () {
+            $this->subject->mock()->setPrimaryListener($this->listener1->mock());
+            $this->kernel->throw->never()->called();
         });
     });
 
@@ -464,7 +518,7 @@ describe(StrandTrait::class, function () {
         it('->await() resumes the given strand immediately', function () {
             $strand = Phony::mock(Strand::class);
             $this->subject->mock()->await($strand->mock(), $this->api->mock());
-            $strand->send->calledWith('<result>');
+            $strand->send->calledWith('<result>', $this->subject->mock());
         });
     });
 
@@ -520,7 +574,7 @@ describe(StrandTrait::class, function () {
         it('->await() resumes the given strand immediately', function () {
             $strand = Phony::mock(Strand::class);
             $this->subject->mock()->await($strand->mock(), $this->api->mock());
-            $strand->throw->calledWith(new Exception('<exception>'));
+            $strand->throw->calledWith(new Exception('<exception>'), $this->subject->mock());
         });
     });
 
@@ -571,7 +625,8 @@ describe(StrandTrait::class, function () {
             $strand = Phony::mock(Strand::class);
             $this->subject->mock()->await($strand->mock(), $this->api->mock());
             $strand->throw->calledWith(
-                new TerminatedException($this->subject->mock())
+                new TerminatedException($this->subject->mock()),
+                $this->subject->mock()
             );
         });
     });
