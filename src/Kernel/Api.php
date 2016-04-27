@@ -65,7 +65,7 @@ interface Api
      * The calling strand is resumed with the callback.
      *
      * @param Strand $strand    The strand executing the API call.
-     * @param mixed  $coroutine The coroutine to execute.
+     * @param callable  $coroutine The coroutine to execute.
      *
      * @return Generator|null
      */
