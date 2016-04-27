@@ -248,9 +248,11 @@ describe(ApiTrait::class, function () {
 
     describe('->callback()', function () {
         it('resumes the strand with a callback that executes the coroutine', function () {
+            $coroutine = Phony::stub()->returns('<result>');
+
             $this->subject->mock()->callback(
                 $this->strand->mock(),
-                '<coroutine>'
+                $coroutine
             );
 
             $fn = $this->strand->send->calledWith('~')->argument();
@@ -258,9 +260,10 @@ describe(ApiTrait::class, function () {
 
             $this->kernel->execute->never()->called();
 
-            $fn();
+            $fn(1, 2, 3);
 
-            $this->kernel->execute->calledWith('<coroutine>');
+            $coroutine->calledWith(1, 2, 3);
+            $this->kernel->execute->calledWith('<result>');
         });
     });
 

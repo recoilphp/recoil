@@ -59,8 +59,8 @@ interface Api
      * This operation can be used to integrate the kernel with callback-based
      * asynchronous code.
      *
-     * The coroutine can be any generator object, a generator function, or any
-     * other value supported by {@see Api::dispatch()}.
+     * Any arguments passed to the callback function are forwarded to the
+     * coroutine.
      *
      * The calling strand is resumed with the callback.
      *
@@ -69,7 +69,7 @@ interface Api
      *
      * @return Generator|null
      */
-    public function callback(Strand $strand, $coroutine);
+    public function callback(Strand $strand, callable $coroutine);
 
     /**
      * Allow other strands to execute before resuming the calling strand.

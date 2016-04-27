@@ -9,15 +9,15 @@ use Recoil\Kernel\Strand;
 rit('creates a callback that runs a coroutine in a new strand', function () {
     ob_start();
 
-    $fn = yield Recoil::callback(function () {
-        echo 'c';
+    $fn = yield Recoil::callback(function ($argument) {
+        echo $argument;
 
         return;
         yield;
     });
 
     echo 'a';
-    $fn();
+    $fn('c');
     echo 'b';
 
     yield;

@@ -116,21 +116,21 @@ trait ApiTrait
      * This operation can be used to integrate the kernel with callback-based
      * asynchronous code.
      *
-     * The coroutine can be any generator object, a generator function, or any
-     * other value supported by {@see Api::dispatch()}.
+     * Any arguments passed to the callback function are forwarded to the
+     * coroutine.
      *
      * The calling strand is resumed with the callback.
      *
      * @param Strand $strand    The strand executing the API call.
      * @param mixed  $coroutine The coroutine to execute.
      */
-    public function callback(Strand $strand, $coroutine)
+    public function callback(Strand $strand, callable $coroutine)
     {
         $kernel = $strand->kernel();
 
         $strand->send(
-            static function () use ($kernel, $coroutine) {
-                $kernel->execute($coroutine);
+            static function (...$arguments) use ($kernel, $coroutine) {
+                $kernel->execute($coroutine(...$arguments));
             }
         );
     }
