@@ -121,8 +121,8 @@ trait ApiTrait
      *
      * The calling strand is resumed with the callback.
      *
-     * @param Strand $strand    The strand executing the API call.
-     * @param callable  $coroutine The coroutine to execute.
+     * @param Strand   $strand    The strand executing the API call.
+     * @param callable $coroutine The coroutine to execute.
      */
     public function callback(Strand $strand, callable $coroutine)
     {
