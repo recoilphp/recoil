@@ -144,7 +144,7 @@ describe(ApiTrait::class, function () {
                 list($this->resolve, $this->reject) = $this->thennable->then->calledWith(
                     '~',
                     '~'
-                )->arguments()->all();
+                )->firstCall()->arguments()->all();
 
                 expect($this->resolve)->to->satisfy('is_callable');
                 expect($this->reject)->to->satisfy('is_callable');
@@ -186,7 +186,7 @@ describe(ApiTrait::class, function () {
             });
 
             it('cancels the thennable when the strand is terminated', function () {
-                $terminator = $this->strand->setTerminator->calledWith('~')->argument();
+                $terminator = $this->strand->setTerminator->calledWith('~')->firstCall()->argument();
                 expect($terminator)->to->satisfy('is_callable');
                 $this->thennable->cancel->never()->called();
                 $terminator();
@@ -255,7 +255,7 @@ describe(ApiTrait::class, function () {
                 $coroutine
             );
 
-            $fn = $this->strand->send->calledWith('~')->argument();
+            $fn = $this->strand->send->calledWith('~')->firstCall()->argument();
             expect($fn)->to->satisfy('is_callable');
 
             $this->kernel->execute->never()->called();
@@ -323,10 +323,10 @@ describe(ApiTrait::class, function () {
             Phony::inOrder(
                 $call1 = $this->substrand1->setPrimaryListener->calledWith(
                     IsInstanceOf::anInstanceOf(StrandWaitAll::class)
-                ),
+                )->firstCall(),
                 $call2 = $this->substrand2->setPrimaryListener->calledWith(
                     IsInstanceOf::anInstanceOf(StrandWaitAll::class)
-                )
+                )->firstCall()
             );
 
             expect($call1->argument())->to->equal($call2->argument());
@@ -347,10 +347,10 @@ describe(ApiTrait::class, function () {
             Phony::inOrder(
                 $call1 = $this->substrand1->setPrimaryListener->calledWith(
                     IsInstanceOf::anInstanceOf(StrandWaitAny::class)
-                ),
+                )->firstCall(),
                 $call2 = $this->substrand2->setPrimaryListener->calledWith(
                     IsInstanceOf::anInstanceOf(StrandWaitAny::class)
-                )
+                )->firstCall()
             );
 
             expect($call1->argument())->to->equal($call2->argument());
@@ -372,10 +372,10 @@ describe(ApiTrait::class, function () {
             Phony::inOrder(
                 $call1 = $this->substrand1->setPrimaryListener->calledWith(
                     IsInstanceOf::anInstanceOf(StrandWaitSome::class)
-                ),
+                )->firstCall(),
                 $call2 = $this->substrand2->setPrimaryListener->calledWith(
                     IsInstanceOf::anInstanceOf(StrandWaitSome::class)
-                )
+                )->firstCall()
             );
 
             expect($call1->argument()->count())->to->equal(1);
@@ -429,10 +429,10 @@ describe(ApiTrait::class, function () {
             Phony::inOrder(
                 $call1 = $this->substrand1->setPrimaryListener->calledWith(
                     IsInstanceOf::anInstanceOf(StrandWaitFirst::class)
-                ),
+                )->firstCall(),
                 $call2 = $this->substrand2->setPrimaryListener->calledWith(
                     IsInstanceOf::anInstanceOf(StrandWaitFirst::class)
-                )
+                )->firstCall()
             );
 
             expect($call1->argument())->to->equal($call2->argument());

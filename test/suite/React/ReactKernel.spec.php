@@ -64,7 +64,7 @@ describe(ReactKernel::class, function () {
             $strand = $this->subject->execute('<coroutine>');
             expect($strand)->to->be->an->instanceof(ReactStrand::class);
 
-            $fn = $this->eventLoop->futureTick->calledWith('~')->argument();
+            $fn = $this->eventLoop->futureTick->calledWith('~')->firstCall()->argument();
             expect($fn)->to->satisfy('is_callable');
 
             $this->api->noInteraction();

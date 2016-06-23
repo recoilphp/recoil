@@ -46,8 +46,8 @@ describe(StrandTrait::class, function () {
             $this->subject->mock()->start();
 
             $this->api->dispatch->calledWith($this->subject, '<key>', '<value>');
-            $fn->never()->received();
-            $fn->never()->receivedException();
+            $fn->generated()->never()->received();
+            $fn->generated()->never()->receivedException();
         });
 
         it('accepts a generator function', function () {
@@ -57,8 +57,8 @@ describe(StrandTrait::class, function () {
             $this->subject->mock()->start();
 
             $this->api->dispatch->calledWith($this->subject, '<key>', '<value>');
-            $fn->never()->received();
-            $fn->never()->receivedException();
+            $fn->generated()->never()->received();
+            $fn->generated()->never()->receivedException();
         });
 
         it('accepts a coroutine provider', function () {
@@ -113,7 +113,7 @@ describe(StrandTrait::class, function () {
                 ($this->initializeSubject)($fn);
                 $this->subject->mock()->start();
 
-                $fn->received('<result>');
+                $fn->generated()->received('<result>');
             });
 
             context('when the top of the call-stack is reached', function () {
@@ -182,7 +182,7 @@ describe(StrandTrait::class, function () {
 
                 ($this->initializeSubject)($fn);
                 $this->subject->mock()->start();
-                $fn->receivedException($exception);
+                $fn->generated()->receivedException($exception);
             });
 
             context('when the top of the call-stack is reached', function () {
@@ -259,7 +259,7 @@ describe(StrandTrait::class, function () {
                 ($this->initializeSubject)($fn);
                 $this->subject->mock()->start();
 
-                $fn->received('<result>');
+                $fn->generated()->received('<result>');
             });
 
             it('dispatches kernel api calls', function () {
@@ -269,8 +269,8 @@ describe(StrandTrait::class, function () {
                 $this->subject->mock()->start();
 
                 $this->api->{'<name>'}->calledWith($this->subject, 1, 2, 3);
-                $fn->never()->received();
-                $fn->never()->receivedException();
+                $fn->generated()->never()->received();
+                $fn->generated()->never()->receivedException();
             });
 
             it('dispatches kernel api calls implemented as coroutines', function () {
@@ -280,7 +280,7 @@ describe(StrandTrait::class, function () {
                 ($this->initializeSubject)($fn);
                 $this->subject->mock()->start();
 
-                $fn->received('<result>');
+                $fn->generated()->received('<result>');
             });
 
             it('attaches the strand to awaitables', function () {
@@ -291,8 +291,8 @@ describe(StrandTrait::class, function () {
                 $this->subject->mock()->start();
 
                 $awaitable->await->calledWith($this->subject, $this->api);
-                $fn->never()->received();
-                $fn->never()->receivedException();
+                $fn->generated()->never()->received();
+                $fn->generated()->never()->receivedException();
             });
 
             it('attaches the strand to awaitables from awaitable providers', function () {
@@ -305,8 +305,8 @@ describe(StrandTrait::class, function () {
                 $this->subject->mock()->start();
 
                 $awaitable->await->calledWith($this->subject, $this->api);
-                $fn->never()->received();
-                $fn->never()->receivedException();
+                $fn->generated()->never()->received();
+                $fn->generated()->never()->receivedException();
             });
 
             it('forwards other values to the api for dispatch', function () {
@@ -325,7 +325,7 @@ describe(StrandTrait::class, function () {
                 ($this->initializeSubject)($fn);
                 $this->subject->mock()->start();
 
-                $fn->receivedException($exception);
+                $fn->generated()->receivedException($exception);
             });
         });
     });
@@ -338,7 +338,7 @@ describe(StrandTrait::class, function () {
             $this->subject->mock()->start();
 
             $this->subject->mock()->send('<result>');
-            $fn->received('<result>');
+            $fn->generated()->received('<result>');
         });
 
         it('can be invoked from inside ->start()', function () {
@@ -350,7 +350,7 @@ describe(StrandTrait::class, function () {
             ($this->initializeSubject)($fn);
             $this->subject->mock()->start();
 
-            $fn->received('<result>');
+            $fn->generated()->received('<result>');
         });
     });
 
@@ -363,7 +363,7 @@ describe(StrandTrait::class, function () {
             $exception = Phony::mock(Throwable::class);
             $this->subject->mock()->throw($exception->mock());
 
-            $fn->receivedException($exception);
+            $fn->generated()->receivedException($exception);
         });
 
         it('can be invoked from inside ->start()', function () {
@@ -376,7 +376,7 @@ describe(StrandTrait::class, function () {
             ($this->initializeSubject)($fn);
             $this->subject->mock()->start();
 
-            $fn->receivedException($exception);
+            $fn->generated()->receivedException($exception);
         });
     });
 
@@ -596,8 +596,8 @@ describe(StrandTrait::class, function () {
             $this->subject->mock()->terminate();
             $this->subject->mock()->send('<result>');
 
-            $fn->never()->received();
-            $fn->never()->receivedException();
+            $fn->generated()->never()->received();
+            $fn->generated()->never()->receivedException();
         });
 
         it('->throw() does nothing', function () {
@@ -609,8 +609,8 @@ describe(StrandTrait::class, function () {
             $exception = Phony::mock(Throwable::class);
             $this->subject->mock()->throw($exception->mock());
 
-            $fn->never()->received();
-            $fn->never()->receivedException();
+            $fn->generated()->never()->received();
+            $fn->generated()->never()->receivedException();
         });
 
         it('->terminate() does nothing', function () {

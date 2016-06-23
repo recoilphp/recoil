@@ -51,7 +51,7 @@ describe(StreamQueue::class, function () {
                 $this->subject->read($this->readStream, $spy2);
 
                 // Capture the function that is registered with the event loop ...
-                $fn = $this->eventLoop->addReadStream->called()->argument(1);
+                $fn = $this->eventLoop->addReadStream->called()->firstCall()->argument(1);
                 $fn($this->readStream);
 
                 $spy1->calledWith($this->readStream);
@@ -66,7 +66,7 @@ describe(StreamQueue::class, function () {
                 $this->subject->read($this->readStream, $spy2);
 
                 // Capture the function that is registered with the event loop ...
-                $fn = $this->eventLoop->addReadStream->called()->argument(1);
+                $fn = $this->eventLoop->addReadStream->called()->firstCall()->argument(1);
                 $fn($this->readStream);
                 $fn($this->readStream);
 
@@ -84,7 +84,7 @@ describe(StreamQueue::class, function () {
                 $done();
 
                 // Capture the function that is registered with the event loop ...
-                $fn = $this->eventLoop->addReadStream->called()->argument(1);
+                $fn = $this->eventLoop->addReadStream->called()->firstCall()->argument(1);
                 $fn($this->readStream);
 
                 $spy1->never()->called();
@@ -125,7 +125,7 @@ describe(StreamQueue::class, function () {
                 $this->subject->write($this->writeStream, $spy2);
 
                 // Capture the function that is registered with the event loop ...
-                $fn = $this->eventLoop->addWriteStream->called()->argument(1);
+                $fn = $this->eventLoop->addWriteStream->called()->firstCall()->argument(1);
                 $fn($this->writeStream);
 
                 $spy1->calledWith($this->writeStream);
@@ -140,7 +140,7 @@ describe(StreamQueue::class, function () {
                 $this->subject->write($this->writeStream, $spy2);
 
                 // Capture the function that is registered with the event loop ...
-                $fn = $this->eventLoop->addWriteStream->called()->argument(1);
+                $fn = $this->eventLoop->addWriteStream->called()->firstCall()->argument(1);
                 $fn($this->writeStream);
                 $fn($this->writeStream);
 
@@ -158,7 +158,7 @@ describe(StreamQueue::class, function () {
                 $done();
 
                 // Capture the function that is registered with the event loop ...
-                $fn = $this->eventLoop->addWriteStream->called()->argument(1);
+                $fn = $this->eventLoop->addWriteStream->called()->firstCall()->argument(1);
                 $fn($this->writeStream);
 
                 $spy1->never()->called();

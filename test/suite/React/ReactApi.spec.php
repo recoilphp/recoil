@@ -35,7 +35,7 @@ describe(ReactApi::class, function () {
                 $this->strand->mock()
             );
 
-            $fn = $this->eventLoop->futureTick->calledWith('~')->argument();
+            $fn = $this->eventLoop->futureTick->calledWith('~')->firstCall()->argument();
             expect($fn)->to->satisfy('is_callable');
 
             $this->strand->noInteraction();
@@ -53,7 +53,7 @@ describe(ReactApi::class, function () {
                 10.5
             );
 
-            $fn = $this->eventLoop->addTimer->calledWith(10.5, '~')->argument(1);
+            $fn = $this->eventLoop->addTimer->calledWith(10.5, '~')->firstCall()->argument(1);
             expect($fn)->to->satisfy('is_callable');
 
             $this->strand->send->never()->called();
@@ -69,7 +69,7 @@ describe(ReactApi::class, function () {
                 10.5
             );
 
-            $cancel = $this->strand->setTerminator->called()->argument();
+            $cancel = $this->strand->setTerminator->called()->firstCall()->argument();
             expect($cancel)->to->satisfy('is_callable');
 
             $this->timer->cancel->never()->called();
@@ -83,7 +83,7 @@ describe(ReactApi::class, function () {
                 0
             );
 
-            $fn = $this->eventLoop->futureTick->calledWith('~')->argument();
+            $fn = $this->eventLoop->futureTick->calledWith('~')->firstCall()->argument();
             expect($fn)->to->satisfy('is_callable');
 
             $this->strand->noInteraction();
@@ -100,7 +100,7 @@ describe(ReactApi::class, function () {
                 -1
             );
 
-            $fn = $this->eventLoop->futureTick->calledWith('~')->argument();
+            $fn = $this->eventLoop->futureTick->calledWith('~')->firstCall()->argument();
             expect($fn)->to->satisfy('is_callable');
 
             $this->strand->noInteraction();
