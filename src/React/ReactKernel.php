@@ -216,7 +216,7 @@ final class ReactKernel implements Kernel
      * Set the exception handler.
      *
      * The exception handler is invoked whenever an exception propagates to the
-     * top of a strand's call-stack, or when a strand's priamry listener throws
+     * top of a strand's call-stack, or when a strand's primary listener throws
      * an exception.
      *
      * The exception handler function must accept a single parameter of type
