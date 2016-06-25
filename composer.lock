@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "b1f4e0bf99642c5f492372324dd02f5a",
-    "content-hash": "057f8e9eb41e8f0c2812907c190a044f",
+    "hash": "3e4de8a3e34c7d7f7b58ae7020dc89f0",
+    "content-hash": "a6d17da08111b9267da7ae36e455c551",
     "packages": [
         {
             "name": "icecave/repr",
@@ -269,7 +269,7 @@
             "time": "2012-11-02 14:49:47"
         },
         {
-            "name": "fabpot/php-cs-fixer",
+            "name": "friendsofphp/php-cs-fixer",
             "version": "v1.11.4",
             "source": {
                 "type": "git",
@@ -320,7 +320,6 @@
                 }
             ],
             "description": "A tool to automatically fix PHP code style",
-            "abandoned": "friendsofphp/php-cs-fixer",
             "time": "2016-06-07 07:51:27"
         },
         {
