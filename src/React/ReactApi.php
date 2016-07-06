@@ -292,14 +292,14 @@ final class ReactApi implements Api
         }
 
         $context = new class()
- {
-     public $strand;
-     public $read;
-     public $write;
-     public $timeout;
-     public $timer;
-     public $done = [];
- };
+        {
+            public $strand;
+            public $read;
+            public $write;
+            public $timeout;
+            public $timer;
+            public $done = [];
+        };
 
         $context->strand = $strand;
         $context->read = $read;

@@ -48,16 +48,16 @@ it('does not accept regular functions', function () {
 });
 
 it('accepts a coroutine provider', function () {
-    $this->kernel->execute(new class implements CoroutineProvider
- {
-     public function coroutine() : Generator
-     {
-         echo '<ok>';
+    $this->kernel->execute(new class() implements CoroutineProvider
+    {
+        public function coroutine() : Generator
+        {
+            echo '<ok>';
 
-         return;
-         yield;
-     }
- });
+            return;
+            yield;
+        }
+    });
 
     ob_start();
     $this->kernel->wait();
@@ -65,19 +65,19 @@ it('accepts a coroutine provider', function () {
 });
 
 it('accepts an awaitable provider', function () {
-    $this->kernel->execute(new class implements AwaitableProvider
- {
-     public function awaitable() : Awaitable
-     {
-         return new class implements Awaitable
- {
-     public function await(Listener $listener, Api $api)
-     {
-         echo '<ok>';
-     }
- };
-     }
- });
+    $this->kernel->execute(new class() implements AwaitableProvider
+    {
+        public function awaitable() : Awaitable
+        {
+            return new class() implements Awaitable
+            {
+                public function await(Listener $listener, Api $api)
+                {
+                    echo '<ok>';
+                }
+            };
+        }
+    });
 
     ob_start();
     $this->kernel->wait();
@@ -85,13 +85,13 @@ it('accepts an awaitable provider', function () {
 });
 
 it('accepts an awaitable', function () {
-    $this->kernel->execute(new class implements Awaitable
- {
-     public function await(Listener $listener, Api $api)
-     {
-         echo '<ok>';
-     }
- });
+    $this->kernel->execute(new class() implements Awaitable
+    {
+        public function await(Listener $listener, Api $api)
+        {
+            echo '<ok>';
+        }
+    });
 
     ob_start();
     $this->kernel->wait();

@@ -10,8 +10,8 @@ use Recoil\Kernel\Api;
 use Recoil\Kernel\Awaitable;
 use Recoil\Kernel\AwaitableProvider;
 use Recoil\Kernel\CoroutineProvider;
-use Recoil\Kernel\Strand;
 use Recoil\Kernel\Listener;
+use Recoil\Kernel\Strand;
 
 rit('can invoke generator as coroutine', function () {
     $result = yield (function () {
@@ -34,61 +34,61 @@ rit('can invoke generator as coroutine with yield from', function () {
 });
 
 rit('can invoke coroutine provider', function () {
-    $result = yield new class implements CoroutineProvider
- {
-     public function coroutine() : Generator
-     {
-         return '<ok>';
-         yield;
-     }
- };
+    $result = yield new class() implements CoroutineProvider
+    {
+        public function coroutine() : Generator
+        {
+            return '<ok>';
+            yield;
+        }
+    };
 
     expect($result)->to->equal('<ok>');
 });
 
 rit('can invoke awaitable provider', function () {
-    $result = yield new class implements AwaitableProvider
- {
-     public function awaitable() : Awaitable
-     {
-         return new class implements Awaitable
- {
-     public function await(Listener $listener, Api $api)
-     {
-         $listener->send('<ok>');
-     }
- };
-     }
- };
+    $result = yield new class() implements AwaitableProvider
+    {
+        public function awaitable() : Awaitable
+        {
+            return new class() implements Awaitable
+            {
+                public function await(Listener $listener, Api $api)
+                {
+                    $listener->send('<ok>');
+                }
+            };
+        }
+    };
 
     expect($result)->to->equal('<ok>');
 });
 
 rit('can invoke awaitable', function () {
-    $result = yield new class implements Awaitable
- {
-     public function await(Listener $listener, Api $api)
-     {
-         $listener->send('<ok>');
-     }
- };
+    $result = yield new class() implements Awaitable
+    {
+        public function await(Listener $listener, Api $api)
+        {
+            $listener->send('<ok>');
+        }
+    };
 
     expect($result)->to->equal('<ok>');
 });
 
 rit('prefers await() to awaitable()', function () {
-    $result = yield new class implements AwaitableProvider, Awaitable
- {
-     public function awaitable() : Awaitable
-     {
-        assert(false, 'awaitable() was called');
-     }
+    $result = yield new class() implements AwaitableProvider, Awaitable
+    {
+        public function awaitable() : Awaitable
+        {
+            assert(false, 'awaitable() was called');
+        }
 
-     public function await(Listener $listener, Api $api)
-     {
-         $listener->send('<ok>');
-     }
- };
+        public function await(Listener $listener, Api $api)
+        {
+            $listener->send('<ok>');
+        }
+    };
 
     expect($result)->to->equal('<ok>');
 });

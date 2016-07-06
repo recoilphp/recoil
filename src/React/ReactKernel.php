@@ -34,7 +34,7 @@ final class ReactKernel implements Kernel
      * @return mixed               The return value of the coroutine.
      * @throws Throwable           The exception produced by the coroutine, if any.
      * @throws TerminatedException The strand has been terminated.
-     * @throws StrandException A strand failure was not handled by the exception handler.
+     * @throws StrandException     A strand failure was not handled by the exception handler.
      */
     public static function start($coroutine, LoopInterface $eventLoop = null)
     {
@@ -125,7 +125,7 @@ final class ReactKernel implements Kernel
             throw $this->fatalException;
         }
 
-        $listener = new class implements Listener
+        $listener = new class() implements Listener
         {
             public $eventLoop;
             public $pending = true;
