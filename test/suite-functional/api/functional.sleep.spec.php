@@ -19,3 +19,7 @@ rit('can be invoked by yielding a number', function () {
 
     expect($diff)->to->be->within(0.01, 0.03);
 });
+
+xit('does not delay the kernel when a sleeping strand is terminated', function () {
+
+});

@@ -18,6 +18,8 @@ function rit(string $description, callable $test)
 
         if ($result instanceof Generator) {
             $strand = $this->kernel->execute($test);
+        } else {
+            $strand = null;
         }
 
         try {

@@ -91,7 +91,10 @@ trait StrandTrait
 
         assert(
             $this->state === StrandState::READY ||
-            $this->state === StrandState::SUSPENDED,
+            (
+                $this->state === StrandState::SUSPENDED &&
+                $this->action !== null
+            ),
             'strand must be READY or SUSPENDED to start'
         );
 
