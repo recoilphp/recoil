@@ -301,14 +301,9 @@ trait StrandTrait
      */
     public function terminate()
     {
-        if ($this->state === StrandState::EXIT_TERMINATED) {
+        if ($this->state >= StrandState::EXIT_SUCCESS) {
             return;
         }
-
-        assert(
-            $this->state < StrandState::EXIT_SUCCESS,
-            'strand can not be terminated after it has exited'
-        );
 
         $this->current = null;
         $this->state = StrandState::EXIT_TERMINATED;

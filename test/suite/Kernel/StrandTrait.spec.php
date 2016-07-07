@@ -502,13 +502,8 @@ describe(StrandTrait::class, function () {
             );
         });
 
-        it('->terminate() fails', function () {
-            expect(function () {
-                $this->subject->mock()->terminate();
-            })->to->throw(
-                AssertionError::class,
-                'strand can not be terminated after it has exited'
-            );
+        it('->terminate() does nothing', function () {
+            $this->subject->mock()->terminate();
         });
 
         it('->hasExited() returns true', function () {
@@ -558,13 +553,8 @@ describe(StrandTrait::class, function () {
             );
         });
 
-        it('->terminate() fails', function () {
-            expect(function () {
-                $this->subject->mock()->terminate();
-            })->to->throw(
-                AssertionError::class,
-                'strand can not be terminated after it has exited'
-            );
+        it('->terminate() does nothing', function () {
+            $this->subject->mock()->terminate();
         });
 
         it('->hasExited() returns true', function () {
