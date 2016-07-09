@@ -313,27 +313,55 @@ describe(ApiTrait::class, function () {
         it('links both strands', function () {
             $this->subject->mock()->link(
                 $this->strand->mock(),
+                $this->substrand1->mock(),
+                $this->substrand2->mock()
+            );
+
+            Phony::inOrder(
+                $this->substrand1->link->calledWith($this->substrand2),
+                $this->substrand2->link->calledWith($this->substrand1),
+                $this->strand->send->called()
+            );
+        });
+
+        it('uses the current strand second strand is not provided', function () {
+            $this->subject->mock()->link(
+                $this->strand->mock(),
                 $this->substrand1->mock()
             );
 
             Phony::inOrder(
-                $this->strand->link->calledWith($this->substrand1),
                 $this->substrand1->link->calledWith($this->strand),
+                $this->strand->link->calledWith($this->substrand1),
                 $this->strand->send->called()
             );
         });
     });
 
     describe('->unlink()', function () {
-        it('unlinks both strands', function () {
+        it('links both strands', function () {
+            $this->subject->mock()->unlink(
+                $this->strand->mock(),
+                $this->substrand1->mock(),
+                $this->substrand2->mock()
+            );
+
+            Phony::inOrder(
+                $this->substrand1->unlink->calledWith($this->substrand2),
+                $this->substrand2->unlink->calledWith($this->substrand1),
+                $this->strand->send->called()
+            );
+        });
+
+        it('uses the current strand second strand is not provided', function () {
             $this->subject->mock()->unlink(
                 $this->strand->mock(),
                 $this->substrand1->mock()
             );
 
             Phony::inOrder(
-                $this->strand->unlink->calledWith($this->substrand1),
                 $this->substrand1->unlink->calledWith($this->strand),
+                $this->strand->unlink->calledWith($this->substrand1),
                 $this->strand->send->called()
             );
         });

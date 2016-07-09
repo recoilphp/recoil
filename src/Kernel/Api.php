@@ -139,26 +139,36 @@ interface Api
     public function terminate(Strand $strand);
 
     /**
-     * Create a bi-directional link from this strand to another.
+     * Create a bi-directional link between two strands.
      *
      * If either strand exits, the other is terminated.
      *
-     * @param Strand $strand The strand executing the API call.
-     * @param Strand $other  The strand to link.
+     * @param Strand      $strand  The strand executing the API call.
+     * @param Strand      $strandA The first strand to link.
+     * @param Strand|null $strandB The first strand to link (null = calling strand).
      *
      * @return Generator|null
      */
-    public function link(Strand $strand, Strand $other);
+    public function link(
+        Strand $strand,
+        Strand $strandA,
+        Strand $strandB = null
+    );
 
     /**
      * Break a previously established bi-directional link between strands.
      *
-     * @param Strand $strand The strand executing the API call.
-     * @param Strand $other  The strand to unlink.
+     * @param Strand      $strand  The strand executing the API call.
+     * @param Strand      $strandA The first strand to unlink.
+     * @param Strand|null $strandB The first strand to unlink (null = calling strand).
      *
      * @return Generator|null
      */
-    public function unlink(Strand $strand, Strand $other);
+    public function unlink(
+        Strand $strand,
+        Strand $strandA,
+        Strand $strandB = null
+    );
 
     /**
      * Take ownership of a strand, wait for it to exit and propagate its result

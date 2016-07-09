@@ -175,34 +175,52 @@ trait ApiTrait
     }
 
     /**
-     * Create a bi-directional link from this strand to another.
+     * Create a bi-directional link between two strands.
      *
      * If either strand exits, the other is terminated.
      *
-     * @param Strand $strand The strand executing the API call.
-     * @param Strand $other  The strand to link.
+     * @param Strand      $strand  The strand executing the API call.
+     * @param Strand      $strandA The first strand to link.
+     * @param Strand|null $strandB The first strand to link (null = calling strand).
      *
      * @return Generator|null
      */
-    public function link(Strand $strand, Strand $other)
-    {
-        $strand->link($other);
-        $other->link($strand);
+    public function link(
+        Strand $strand,
+        Strand $strandA,
+        Strand $strandB = null
+    ) {
+        if ($strandB === null) {
+            $strandB = $strand;
+        }
+
+        $strandA->link($strandB);
+        $strandB->link($strandA);
+
         $strand->send();
     }
 
     /**
      * Break a previously established bi-directional link between strands.
      *
-     * @param Strand $strand The strand executing the API call.
-     * @param Strand $other  The strand to unlink.
+     * @param Strand      $strand  The strand executing the API call.
+     * @param Strand      $strandA The first strand to unlink.
+     * @param Strand|null $strandB The first strand to unlink (null = calling strand).
      *
      * @return Generator|null
      */
-    public function unlink(Strand $strand, Strand $other)
-    {
-        $strand->unlink($other);
-        $other->unlink($strand);
+    public function unlink(
+        Strand $strand,
+        Strand $strandA,
+        Strand $strandB = null
+    ) {
+        if ($strandB === null) {
+            $strandB = $strand;
+        }
+
+        $strandA->unlink($strandB);
+        $strandB->unlink($strandA);
+
         $strand->send();
     }
 
