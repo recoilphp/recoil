@@ -10,6 +10,7 @@ use InvalidArgumentException;
 use Recoil\Exception\TerminatedException;
 use Recoil\Kernel\Exception\PrimaryListenerRemovedException;
 use Recoil\Kernel\Exception\StrandListenerException;
+use SplObjectStorage;
 use Throwable;
 
 /**
@@ -173,6 +174,18 @@ trait StrandTrait
                 $this->listeners = [];
             }
 
+            // Terminate linked strands ...
+            if ($this->linkedStrands !== null) {
+                try {
+                    foreach ($this->linkedStrands as $strand) {
+                        $strand->unlink($this);
+                        $strand->terminate();
+                    }
+                } finally {
+                    $this->linkedStrands = null;
+                }
+            }
+
             // This strand has now exited ...
             return;
         }
@@ -288,6 +301,18 @@ trait StrandTrait
                 $this->primaryListener = null;
                 $this->listeners = [];
             }
+
+            // Terminate linked strands ...
+            if ($this->linkedStrands !== null) {
+                try {
+                    foreach ($this->linkedStrands as $strand) {
+                        $strand->unlink($this);
+                        $strand->terminate();
+                    }
+                } finally {
+                    $this->linkedStrands = null;
+                }
+            }
         }
     }
 
@@ -331,6 +356,18 @@ trait StrandTrait
         } finally {
             $this->primaryListener = null;
             $this->listeners = [];
+        }
+
+        // Terminate linked strands ...
+        if ($this->linkedStrands !== null) {
+            try {
+                foreach ($this->linkedStrands as $strand) {
+                    $strand->unlink($this);
+                    $strand->terminate();
+                }
+            } finally {
+                $this->linkedStrands = null;
+            }
         }
     }
 
@@ -432,7 +469,7 @@ trait StrandTrait
     /**
      * Set the primary listener to the kernel.
      *
-     * The current primary listener not notified.
+     * The current primary listener is not notified.
      */
     public function clearPrimaryListener()
     {
@@ -495,6 +532,32 @@ trait StrandTrait
     }
 
     /**
+     * Create a uni-directional link to another strand.
+     *
+     * If this strand exits, any linked strands are terminated.
+     *
+     * @return null
+     */
+    public function link(Strand $strand)
+    {
+        if ($this->linkedStrands === null) {
+            $this->linkedStrands = new SplObjectStorage();
+        }
+
+        $this->linkedStrands->attach($strand);
+    }
+
+    /**
+     * Break a previously created uni-directional link to another strand.
+     *
+     * @return null
+     */
+    public function unlink(Strand $strand)
+    {
+        $this->linkedStrands->detach($strand);
+    }
+
+    /**
      * @var Kernel The kernel.
      */
     private $kernel;
@@ -538,6 +601,12 @@ trait StrandTrait
      * @var callable|null A callable invoked when the strand is terminated.
      */
     private $terminator;
+
+    /**
+     * @var SplObjectStorage<Strand>|null Strands to terminate when this strand
+     *                                    is terminated.
+     */
+    private $linkedStrands;
 
     /**
      * @var int The current state of the strand.

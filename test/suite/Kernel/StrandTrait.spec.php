@@ -37,6 +37,9 @@ describe(StrandTrait::class, function () {
 
         $this->listener1 = Phony::mock(Listener::class);
         $this->listener2 = Phony::mock(Listener::class);
+
+        $this->strand1 = Phony::mock(Strand::class);
+        $this->strand2 = Phony::mock(Strand::class);
     });
 
     describe('->__construct()', function () {
@@ -167,6 +170,38 @@ describe(StrandTrait::class, function () {
                     $this->listener1->send->calledWith('<result>', $this->subject);
                     $this->listener2->send->calledWith('<result>', $this->subject);
                 });
+
+                it('terminates linked strands', function () {
+                    ($this->initializeSubject)(
+                        Phony::stub()->generates()->returns('<result>')
+                    );
+
+                    $this->subject->mock()->link($this->strand1->mock());
+                    $this->subject->mock()->link($this->strand2->mock());
+                    $this->subject->mock()->start();
+
+                    Phony::inOrder(
+                        $this->strand1->unlink->calledWith($this->subject),
+                        $this->strand1->terminate->called()
+                    );
+
+                    Phony::inOrder(
+                        $this->strand2->unlink->calledWith($this->subject),
+                        $this->strand2->terminate->called()
+                    );
+                });
+
+                it('does not terminate unlinked strands', function () {
+                    ($this->initializeSubject)(
+                        Phony::stub()->generates()->returns('<result>')
+                    );
+
+                    $this->subject->mock()->link($this->strand1->mock());
+                    $this->subject->mock()->unlink($this->strand1->mock());
+                    $this->subject->mock()->start();
+
+                    $this->strand1->terminate->never()->called();
+                });
             });
         });
 
@@ -236,7 +271,6 @@ describe(StrandTrait::class, function () {
 
                 it('resumes waiting strands', function () {
                     $exception = new Exception('<exception>');
-
                     ($this->initializeSubject)(
                         Phony::stub()->generates()->throws($exception)
                     );
@@ -246,6 +280,40 @@ describe(StrandTrait::class, function () {
 
                     $this->listener1->throw->calledWith($exception, $this->subject);
                     $this->listener2->throw->calledWith($exception, $this->subject);
+                });
+
+                it('terminates linked strands', function () {
+                    $exception = new Exception('<exception>');
+                    ($this->initializeSubject)(
+                        Phony::stub()->generates()->throws($exception)
+                    );
+
+                    $this->subject->mock()->link($this->strand1->mock());
+                    $this->subject->mock()->link($this->strand2->mock());
+                    $this->subject->mock()->start();
+
+                    Phony::inOrder(
+                        $this->strand1->unlink->calledWith($this->subject),
+                        $this->strand1->terminate->called()
+                    );
+
+                    Phony::inOrder(
+                        $this->strand2->unlink->calledWith($this->subject),
+                        $this->strand2->terminate->called()
+                    );
+                });
+
+                it('does not terminate unlinked strands', function () {
+                    $exception = new Exception('<exception>');
+                    ($this->initializeSubject)(
+                        Phony::stub()->generates()->throws($exception)
+                    );
+
+                    $this->subject->mock()->link($this->strand1->mock());
+                    $this->subject->mock()->unlink($this->strand1->mock());
+                    $this->subject->mock()->start();
+
+                    $this->strand1->terminate->never()->called();
                 });
             });
         });
@@ -432,6 +500,30 @@ describe(StrandTrait::class, function () {
                 ),
                 $this->subject
             );
+        });
+
+        it('terminates linked strands', function () {
+            $this->subject->mock()->link($this->strand1->mock());
+            $this->subject->mock()->link($this->strand2->mock());
+            $this->subject->mock()->terminate();
+
+            Phony::inOrder(
+                $this->strand1->unlink->calledWith($this->subject),
+                $this->strand1->terminate->called()
+            );
+
+            Phony::inOrder(
+                $this->strand2->unlink->calledWith($this->subject),
+                $this->strand2->terminate->called()
+            );
+        });
+
+        it('does not terminate unlinked strands', function () {
+            $this->subject->mock()->link($this->strand1->mock());
+            $this->subject->mock()->unlink($this->strand1->mock());
+            $this->subject->mock()->terminate();
+
+            $this->strand1->terminate->never()->called();
         });
     });
 

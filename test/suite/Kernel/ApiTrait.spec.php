@@ -309,6 +309,36 @@ describe(ApiTrait::class, function () {
         });
     });
 
+    describe('->link()', function () {
+        it('links both strands', function () {
+            $this->subject->mock()->link(
+                $this->strand->mock(),
+                $this->substrand1->mock()
+            );
+
+            Phony::inOrder(
+                $this->strand->link->calledWith($this->substrand1),
+                $this->substrand1->link->calledWith($this->strand),
+                $this->strand->send->called()
+            );
+        });
+    });
+
+    describe('->unlink()', function () {
+        it('unlinks both strands', function () {
+            $this->subject->mock()->unlink(
+                $this->strand->mock(),
+                $this->substrand1->mock()
+            );
+
+            Phony::inOrder(
+                $this->strand->unlink->calledWith($this->substrand1),
+                $this->substrand1->unlink->calledWith($this->strand),
+                $this->strand->send->called()
+            );
+        });
+    });
+
     describe('->all()', function () {
         it('attaches a StrandWaitAll instance to the substrands', function () {
             $this->subject->mock()->all(
