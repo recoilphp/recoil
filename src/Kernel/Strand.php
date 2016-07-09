@@ -21,7 +21,7 @@ interface Strand extends Listener, AwaitableProvider
     /**
      * @return Kernel The kernel on which the strand is executing.
      */
-    public function kernel();
+    public function kernel() : Kernel;
 
     /**
      * Start the strand.

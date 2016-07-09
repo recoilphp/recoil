@@ -71,7 +71,7 @@ trait StrandTrait
     /**
      * @return Kernel The kernel on which the strand is executing.
      */
-    public function kernel()
+    public function kernel() : Kernel
     {
         return $this->kernel;
     }
