@@ -80,7 +80,7 @@ interface Strand extends Listener, AwaitableProvider
     /**
      * Set the primary listener to the kernel.
      *
-     * The current primary listener not notified.
+     * The current primary listener is not notified.
      *
      * @return null
      */
@@ -98,4 +98,20 @@ interface Strand extends Listener, AwaitableProvider
      * @return null
      */
     public function setTerminator(callable $fn = null);
+
+    /**
+     * Create a uni-directional link to another strand.
+     *
+     * If this strand exits, any linked strands are terminated.
+     *
+     * @return null
+     */
+    public function link(Strand $strand);
+
+    /**
+     * Break a previously created uni-directional link to another strand.
+     *
+     * @return null
+     */
+    public function unlink(Strand $strand);
 }
