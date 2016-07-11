@@ -1,5 +1,35 @@
 # Changelog
 
+## 0.5.0 (2016-07-11)
+
+**UPGRADE WITH CAUTION**
+
+This is the first release that requires PHP 7. The internals have been rewritten
+from the ground up. Some features available in previous releases are no longer
+available as substitute functionality has not yet been added.
+
+There are far too many changes to list here individually, however much of the
+kernel API remains the same.
+
+- **[BC]** Channels and streams have been removed from the core package.
+- **[BC]** `Recoil::run()` has been removed (see `ReactKernel::start()`).
+
+Kernel API changes:
+
+- **[BC]** `kernel()` has been removed.
+- **[BC]** `eventLoop()` is only available when using `ReactKernel`.
+- **[BC]** `return_()` has been removed, as generators can return values in PHP 7.
+- **[BC]** `throw_()` has been removed.
+- **[BC]** `finally_()` has been removed.
+- **[BC]** `noop()` has been removed.
+- **[BC]** `stop()` has been removed.
+- **[BC]** `select()` now operates on PHP streams, rather than strands.
+- **[NEW]** Added `read()` and `write()`
+- **[NEW]** Added `callback()`
+- **[NEW]** Added `link()` and `unlink()`
+- **[NEW]** Added `adopt()`
+- **[NEW]** Added `any()`, `some()` and `first()`
+
 ## 0.4.0 (2016-03-06)
 
 This is the final release that will operate with PHP 5. In an effort to work

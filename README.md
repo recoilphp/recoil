@@ -7,11 +7,7 @@
 
     composer require recoil/recoil
 
-> Please note this branch contains an implementation of Recoil that requires PHP 7. Notably absent are stream and
-channel implementations which will instead be provided as seperate packages.
-
-> Recoil [v0.4.0](https://github.com/recoilphp/recoil/releases/tag/0.4.0) is the most recent (and final) version that
-works with PHP 5.
+Recoil requires PHP 7. For a version that works with PHP 5, please see the [0.4.0 release](https://github.com/recoilphp/recoil/releases/tag/0.4.0).
 
 ## Overview
 
