@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.1 (2016-07-12)
+
+- **[NEW]** Added a second callback parameter to `suspend()` API method which is invoked when a suspended strand is terminated.
+
 ## 0.5.0 (2016-07-11)
 
 **UPGRADE WITH CAUTION**
