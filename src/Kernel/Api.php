@@ -122,12 +122,17 @@ interface Api
      * This operation is typically used to integrate coroutines with other forms
      * of asynchronous code.
      *
-     * @param Strand        $strand The strand executing the API call.
-     * @param callable|null $fn     A function invoked with the strand after it is suspended.
+     * @param Strand        $strand      The strand executing the API call.
+     * @param callable|null $suspendFn   A function invoked with the strand after it is suspended.
+     * @param callable|null $terminateFn A function invoked if the strand is terminated while suspended.
      *
      * @return Generator|null
      */
-    public function suspend(Strand $strand, callable $fn = null);
+    public function suspend(
+        Strand $strand,
+        callable $suspendFn = null,
+        callable $terminateFn = null
+    );
 
     /**
      * Terminate the calling strand.

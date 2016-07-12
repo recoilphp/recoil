@@ -29,3 +29,19 @@ rit('passes the strand to the given callback', function () {
 
     expect($strand)->to->equal($expected);
 });
+
+rit('invokes the terminate callback if the strand is terminated', function () {
+    $strand = yield Recoil::execute(function () {
+        $expected = yield Recoil::strand();
+        yield Recoil::suspend(
+            null,
+            function ($strand) use ($expected) {
+                expect($strand)->to->equal($expected);
+            }
+        );
+        assert(false, 'strand was not terminated');
+    });
+
+    yield;
+    $strand->terminate();
+});

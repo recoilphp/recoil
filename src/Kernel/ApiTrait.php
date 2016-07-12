@@ -157,10 +157,16 @@ trait ApiTrait
      * @param Strand        $strand The strand executing the API call.
      * @param callable|null $fn     A function invoked with the strand after it is suspended.
      */
-    public function suspend(Strand $strand, callable $fn = null)
-    {
-        if ($fn) {
-            $fn($strand);
+    public function suspend(
+        Strand $strand,
+        callable $suspendFn = null,
+        callable $terminateFn = null
+    ) {
+        if ($terminateFn) {
+            $strand->setTerminator($terminateFn);
+        }
+        if ($suspendFn) {
+            $suspendFn($strand);
         }
     }
 

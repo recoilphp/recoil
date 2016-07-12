@@ -297,6 +297,19 @@ describe(ApiTrait::class, function () {
             $fn->calledWith($this->strand);
             $this->strand->noInteraction();
         });
+
+        it('sets the terminator callback, if provided', function () {
+            $fn = Phony::spy();
+
+            $this->subject->mock()->suspend(
+                $this->strand->mock(),
+                null,
+                $fn
+            );
+
+            $fn->never()->called();
+            $this->strand->setTerminator($fn);
+        });
     });
 
     describe('->terminate()', function () {
