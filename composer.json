@@ -9,7 +9,7 @@
     },
     "require-dev": {
         "ext-posix": "*",
-        "eloquent/phony": "^0.11",
+        "eloquent/phony": "^0.12",
         "friendsofphp/php-cs-fixer": "^1",
         "hamcrest/hamcrest-php": "^2.0",
         "peridot-php/leo": "dev-php7",
