@@ -308,7 +308,7 @@ describe(ApiTrait::class, function () {
             );
 
             $fn->never()->called();
-            $this->strand->setTerminator($fn);
+            $this->strand->setTerminator->calledWith($fn);
         });
     });
 
