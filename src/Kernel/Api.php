@@ -6,6 +6,7 @@ namespace Recoil\Kernel;
 
 use Recoil\Exception\CompositeException;
 use Recoil\Exception\TimeoutException;
+use Throwable;
 
 interface Api
 {
@@ -132,6 +133,42 @@ interface Api
         Strand $strand,
         callable $suspendFn = null,
         callable $terminateFn = null
+    );
+
+    /**
+     * Resume execution of a suspended strand on the next "tick".
+     *
+     * This causes the suspended strand's blocking suspend() call to return
+     * $value.
+     *
+     * @param Strand $strand    The strand executing the API call.
+     * @param Strand $suspended The suspended strand.
+     * @param mixed  $value     The value to pass to the resumed strand.
+     *
+     * @return Generator|null
+     */
+    public function resume(
+        Strand $strand,
+        Strand $suspended,
+        $value = null
+    );
+
+    /**
+     * Resume execution of a suspended strand with an error on the next "tick".
+     *
+     * This causes the suspended strand's blocking suspend() call to throw
+     * $exception.
+     *
+     * @param Strand    $strand    The strand executing the API call.
+     * @param Strand    $suspended The suspended strand.
+     * @param Throwable $exception The exception to pass to the resumed strand.
+     *
+     * @return Generator|null
+     */
+    public function throw(
+        Strand $strand,
+        Strand $suspended,
+        Throwable $exception
     );
 
     /**

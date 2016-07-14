@@ -10,6 +10,7 @@ use Recoil\Exception\TimeoutException;
 use Recoil\Kernel\Api;
 use Recoil\Kernel\ApiTrait;
 use Recoil\Kernel\Strand;
+use Throwable;
 
 /**
  * A kernel API based on the React event loop.
@@ -88,6 +89,58 @@ final class ReactApi implements Api
         $substrand = $strand->kernel()->execute($coroutine);
 
         (new StrandTimeout($this->eventLoop, $seconds, $substrand))->await($strand, $this);
+    }
+
+    /**
+     * Resume execution of a suspended strand.
+     *
+     * This causes the suspended strand's blocking suspend() call to return
+     * $value.
+     *
+     * @param Strand $strand    The strand executing the API call.
+     * @param Strand $suspended The suspended strand.
+     * @param mixed  $value     The value to pass to the resumed strand.
+     *
+     * @return Generator|null
+     */
+    public function resume(
+        Strand $strand,
+        Strand $suspended,
+        $value = null
+    ) {
+        $this->eventLoop->futureTick(
+            function () use ($strand, $suspended, $value) {
+                $suspended->send($value, $strand);
+            }
+        );
+
+        $strand->send();
+    }
+
+    /**
+     * Resume execution of a suspended strand with an error.
+     *
+     * This causes the suspended strand's blocking suspend() call to throw
+     * $exception.
+     *
+     * @param Strand    $strand    The strand executing the API call.
+     * @param Strand    $suspended The suspended strand.
+     * @param Throwable $exception The exception to pass to the resumed strand.
+     *
+     * @return Generator|null
+     */
+    public function throw(
+        Strand $strand,
+        Strand $suspended,
+        Throwable $exception
+    ) {
+        $this->eventLoop->futureTick(
+            function () use ($strand, $suspended, $exception) {
+                $suspended->throw($exception, $strand);
+            }
+        );
+
+        $strand->send();
     }
 
     /**
