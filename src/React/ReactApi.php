@@ -97,6 +97,9 @@ final class ReactApi implements Api
      * This causes the suspended strand's blocking suspend() call to return
      * $value.
      *
+     * The implementation must delay execution of the resumed strand until the
+     * next 'tick' of the kernel.
+     *
      * @param Strand $strand    The strand executing the API call.
      * @param Strand $suspended The suspended strand.
      * @param mixed  $value     The value to pass to the resumed strand.
@@ -122,6 +125,9 @@ final class ReactApi implements Api
      *
      * This causes the suspended strand's blocking suspend() call to throw
      * $exception.
+     *
+     * The implementation must delay execution of the resumed strand until the
+     * next 'tick' of the kernel.
      *
      * @param Strand    $strand    The strand executing the API call.
      * @param Strand    $suspended The suspended strand.

@@ -136,10 +136,13 @@ interface Api
     );
 
     /**
-     * Resume execution of a suspended strand on the next "tick".
+     * Resume execution of a suspended strand.
      *
      * This causes the suspended strand's blocking suspend() call to return
      * $value.
+     *
+     * The implementation must delay execution of the resumed strand until the
+     * next 'tick' of the kernel.
      *
      * @param Strand $strand    The strand executing the API call.
      * @param Strand $suspended The suspended strand.
@@ -154,10 +157,13 @@ interface Api
     );
 
     /**
-     * Resume execution of a suspended strand with an error on the next "tick".
+     * Resume execution of a suspended strand with an error.
      *
      * This causes the suspended strand's blocking suspend() call to throw
      * $exception.
+     *
+     * The implementation must delay execution of the resumed strand until the
+     * next 'tick' of the kernel.
      *
      * @param Strand    $strand    The strand executing the API call.
      * @param Strand    $suspended The suspended strand.
