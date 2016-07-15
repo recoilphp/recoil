@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.2 (2016-07-15)
+
+- **[NEW]** Added `Api::resume()` and `throw()` to resume one strand from within another.
+
 ## 0.5.1 (2016-07-12)
 
 - **[NEW]** Added a second callback parameter to `suspend()` API method which is invoked when a suspended strand is terminated.
