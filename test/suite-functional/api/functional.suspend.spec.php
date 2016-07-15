@@ -59,10 +59,6 @@ rit('can be resumed', function () {
 
     yield Recoil::resume($strand);
 
-    expect($resumed)->to->be->false;
-
-    yield; // yield again to allow the other strand to resume
-
     expect($resumed)->to->be->true;
 });
 

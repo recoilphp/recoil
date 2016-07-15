@@ -25,7 +25,7 @@ ReactKernel::start(function () {
         // Perform some work, possibly asynchronously, and then resume the
         // strand. The value used to the resume the strand is returned by the
         // suspend call.
-        $strand->resume('The strand was resumed!');
+        $strand->send('The strand was resumed!');
     });
 
     echo $value . PHP_EOL;

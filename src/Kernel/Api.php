@@ -141,8 +141,8 @@ interface Api
      * This causes the suspended strand's blocking suspend() call to return
      * $value.
      *
-     * The implementation must delay execution of the resumed strand until the
-     * next 'tick' of the kernel.
+     * The implementation must resume the suspended strand before resuming the
+     * calling strand.
      *
      * @param Strand $strand    The strand executing the API call.
      * @param Strand $suspended The suspended strand.
@@ -162,8 +162,8 @@ interface Api
      * This causes the suspended strand's blocking suspend() call to throw
      * $exception.
      *
-     * The implementation must delay execution of the resumed strand until the
-     * next 'tick' of the kernel.
+     * The implementation must resume the suspended strand before resuming the
+     * calling strand.
      *
      * @param Strand    $strand    The strand executing the API call.
      * @param Strand    $suspended The suspended strand.
