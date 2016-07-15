@@ -21,13 +21,13 @@ describe(StrandWaitFirst::class, function () {
         $this->substrand2->id->returns(2);
 
         $this->subject = new StrandWaitFirst(
-            $this->substrand1->mock(),
-            $this->substrand2->mock()
+            $this->substrand1->get(),
+            $this->substrand2->get()
         );
 
         $this->subject->await(
-            $this->strand->mock(),
-            $this->api->mock()
+            $this->strand->get(),
+            $this->api->get()
         );
     });
 
@@ -37,14 +37,14 @@ describe(StrandWaitFirst::class, function () {
             $this->substrand1->setPrimaryListener->calledWith($this->subject);
             $this->substrand2->setPrimaryListener->calledWith($this->subject);
 
-            $this->subject->send('<one>', $this->substrand1->mock());
+            $this->subject->send('<one>', $this->substrand1->get());
 
             $this->strand->send->calledWith('<one>');
         });
 
         it('resumes the strand with an exception when any substrand fails', function () {
             $exception = Phony::mock(Throwable::class);
-            $this->subject->throw($exception->mock(), $this->substrand1->mock());
+            $this->subject->throw($exception->get(), $this->substrand1->get());
 
             Phony::inOrder(
                 $this->substrand2->clearPrimaryListener->called(),
@@ -54,7 +54,7 @@ describe(StrandWaitFirst::class, function () {
         });
 
         it('terminates unused substrands', function () {
-            $this->subject->send('<one>', $this->substrand1->mock());
+            $this->subject->send('<one>', $this->substrand1->get());
 
             Phony::inOrder(
                 $this->substrand2->clearPrimaryListener->called(),
@@ -80,7 +80,7 @@ describe(StrandWaitFirst::class, function () {
         });
 
         it('does not terminate strands twice', function () {
-            $this->subject->send('<one>', $this->substrand1->mock());
+            $this->subject->send('<one>', $this->substrand1->get());
 
             $this->subject->cancel();
 

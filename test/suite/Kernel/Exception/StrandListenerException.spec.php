@@ -17,7 +17,7 @@ describe(StrandListenerException::class, function () {
         $this->previous = new Error('<message>');
 
         $this->subject = new StrandListenerException(
-            $this->strand->mock(),
+            $this->strand->get(),
             $this->previous
         );
     });
@@ -29,7 +29,7 @@ describe(StrandListenerException::class, function () {
     });
 
     it('exposes the exited strand', function () {
-        expect($this->subject->strand())->to->equal($this->strand->mock());
+        expect($this->subject->strand())->to->equal($this->strand->get());
     });
 
     it('exposes the previous exception', function () {

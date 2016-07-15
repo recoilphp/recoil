@@ -33,8 +33,8 @@ describe(ApiTrait::class, function () {
     describe('->dispatch()', function () {
 
         it('performs ->cooperate() when $value is null', function () {
-            $this->subject->mock()->dispatch(
-                $this->strand->mock(),
+            $this->subject->get()->dispatch(
+                $this->strand->get(),
                 0, // current generator key
                 null
             );
@@ -44,8 +44,8 @@ describe(ApiTrait::class, function () {
         });
 
         it('performs ->sleep($value) when $value is an integer', function () {
-            $this->subject->mock()->dispatch(
-                $this->strand->mock(),
+            $this->subject->get()->dispatch(
+                $this->strand->get(),
                 0, // current generator key
                 10
             );
@@ -59,8 +59,8 @@ describe(ApiTrait::class, function () {
         });
 
         it('performs ->sleep($value) when $value is a float', function () {
-            $this->subject->mock()->dispatch(
-                $this->strand->mock(),
+            $this->subject->get()->dispatch(
+                $this->strand->get(),
                 0, // current generator key
                 10.5
             );
@@ -76,8 +76,8 @@ describe(ApiTrait::class, function () {
         it('performs ->all(...$value) when $value is an array', function () {
             $this->subject->all->returns(null);
 
-            $this->subject->mock()->dispatch(
-                $this->strand->mock(),
+            $this->subject->get()->dispatch(
+                $this->strand->get(),
                 0, // current generator key
                 ['<a>', '<b>']
             );
@@ -101,8 +101,8 @@ describe(ApiTrait::class, function () {
             });
 
             it('reads from the stream if $key is an integer (the default)', function () {
-                $this->subject->mock()->dispatch(
-                    $this->strand->mock(),
+                $this->subject->get()->dispatch(
+                    $this->strand->get(),
                     123,
                     $this->resource
                 );
@@ -115,8 +115,8 @@ describe(ApiTrait::class, function () {
             });
 
             it('writes to the stream if $key is a string', function () {
-                $this->subject->mock()->dispatch(
-                    $this->strand->mock(),
+                $this->subject->get()->dispatch(
+                    $this->strand->get(),
                     '<buffer>',
                     $this->resource
                 );
@@ -135,10 +135,10 @@ describe(ApiTrait::class, function () {
                     ['function then' => null]
                 );
 
-                $this->subject->mock()->dispatch(
-                    $this->strand->mock(),
+                $this->subject->get()->dispatch(
+                    $this->strand->get(),
                     0, // current generator key
-                    $this->thennable->mock()
+                    $this->thennable->get()
                 );
 
                 list($this->resolve, $this->reject) = $this->thennable->then->calledWith(
@@ -159,7 +159,7 @@ describe(ApiTrait::class, function () {
 
             it('resumes the strand with an exception when rejected', function () {
                 $exception = Phony::mock(Throwable::class);
-                ($this->reject)($exception->mock());
+                ($this->reject)($exception->get());
                 $this->strand->throw->calledWith($exception);
             });
 
@@ -178,10 +178,10 @@ describe(ApiTrait::class, function () {
                     ]
                 );
 
-                $this->subject->mock()->dispatch(
-                    $this->strand->mock(),
+                $this->subject->get()->dispatch(
+                    $this->strand->get(),
                     0, // current generator key
-                    $this->thennable->mock()
+                    $this->thennable->get()
                 );
             });
 
@@ -195,8 +195,8 @@ describe(ApiTrait::class, function () {
         });
 
         it('resumes the strand with an exception if $value is not actionable', function () {
-            $this->subject->mock()->dispatch(
-                $this->strand->mock(),
+            $this->subject->get()->dispatch(
+                $this->strand->get(),
                 123, // current generator key
                 '<string>'
             );
@@ -211,8 +211,8 @@ describe(ApiTrait::class, function () {
 
     describe('->__call()', function () {
         it('resumes the strand with an exception', function () {
-            $this->subject->mock()->unknown(
-                $this->strand->mock()
+            $this->subject->get()->unknown(
+                $this->strand->get()
             );
 
             $this->strand->throw->calledWith(
@@ -224,15 +224,15 @@ describe(ApiTrait::class, function () {
 
         it('throws when no strand is passed', function () {
             expect(function () {
-                $this->subject->mock()->unknown();
+                $this->subject->get()->unknown();
             })->to->throw(TypeError::class);
         });
     });
 
     describe('->execute()', function () {
         beforeEach(function () {
-            $this->subject->mock()->execute(
-                $this->strand->mock(),
+            $this->subject->get()->execute(
+                $this->strand->get(),
                 '<coroutine>'
             );
         });
@@ -250,8 +250,8 @@ describe(ApiTrait::class, function () {
         it('resumes the strand with a callback that executes the coroutine', function () {
             $coroutine = Phony::stub()->returns('<result>');
 
-            $this->subject->mock()->callback(
-                $this->strand->mock(),
+            $this->subject->get()->callback(
+                $this->strand->get(),
                 $coroutine
             );
 
@@ -269,8 +269,8 @@ describe(ApiTrait::class, function () {
 
     describe('->strand()', function () {
         it('resumes the strand with itself', function () {
-            $this->subject->mock()->strand(
-                $this->strand->mock()
+            $this->subject->get()->strand(
+                $this->strand->get()
             );
 
             $this->strand->send->calledWith($this->strand);
@@ -279,8 +279,8 @@ describe(ApiTrait::class, function () {
 
     describe('->suspend()', function () {
         it('does not resume the strand', function () {
-            $this->subject->mock()->suspend(
-                $this->strand->mock()
+            $this->subject->get()->suspend(
+                $this->strand->get()
             );
 
             $this->strand->noInteraction();
@@ -289,8 +289,8 @@ describe(ApiTrait::class, function () {
         it('passes the strand to the callback parameter, if provided', function () {
             $fn = Phony::spy();
 
-            $this->subject->mock()->suspend(
-                $this->strand->mock(),
+            $this->subject->get()->suspend(
+                $this->strand->get(),
                 $fn
             );
 
@@ -301,8 +301,8 @@ describe(ApiTrait::class, function () {
         it('sets the terminator callback, if provided', function () {
             $fn = Phony::spy();
 
-            $this->subject->mock()->suspend(
-                $this->strand->mock(),
+            $this->subject->get()->suspend(
+                $this->strand->get(),
                 null,
                 $fn
             );
@@ -314,8 +314,8 @@ describe(ApiTrait::class, function () {
 
     describe('->terminate()', function () {
         it('terminates the strand', function () {
-            $this->subject->mock()->terminate(
-                $this->strand->mock()
+            $this->subject->get()->terminate(
+                $this->strand->get()
             );
 
             $this->strand->terminate->called();
@@ -324,10 +324,10 @@ describe(ApiTrait::class, function () {
 
     describe('->link()', function () {
         it('links both strands', function () {
-            $this->subject->mock()->link(
-                $this->strand->mock(),
-                $this->substrand1->mock(),
-                $this->substrand2->mock()
+            $this->subject->get()->link(
+                $this->strand->get(),
+                $this->substrand1->get(),
+                $this->substrand2->get()
             );
 
             Phony::inOrder(
@@ -338,9 +338,9 @@ describe(ApiTrait::class, function () {
         });
 
         it('uses the current strand second strand is not provided', function () {
-            $this->subject->mock()->link(
-                $this->strand->mock(),
-                $this->substrand1->mock()
+            $this->subject->get()->link(
+                $this->strand->get(),
+                $this->substrand1->get()
             );
 
             Phony::inOrder(
@@ -353,10 +353,10 @@ describe(ApiTrait::class, function () {
 
     describe('->unlink()', function () {
         it('links both strands', function () {
-            $this->subject->mock()->unlink(
-                $this->strand->mock(),
-                $this->substrand1->mock(),
-                $this->substrand2->mock()
+            $this->subject->get()->unlink(
+                $this->strand->get(),
+                $this->substrand1->get(),
+                $this->substrand2->get()
             );
 
             Phony::inOrder(
@@ -367,9 +367,9 @@ describe(ApiTrait::class, function () {
         });
 
         it('uses the current strand second strand is not provided', function () {
-            $this->subject->mock()->unlink(
-                $this->strand->mock(),
-                $this->substrand1->mock()
+            $this->subject->get()->unlink(
+                $this->strand->get(),
+                $this->substrand1->get()
             );
 
             Phony::inOrder(
@@ -382,8 +382,8 @@ describe(ApiTrait::class, function () {
 
     describe('->all()', function () {
         it('attaches a StrandWaitAll instance to the substrands', function () {
-            $this->subject->mock()->all(
-                $this->strand->mock(),
+            $this->subject->get()->all(
+                $this->strand->get(),
                 '<a>',
                 '<b>'
             );
@@ -406,8 +406,8 @@ describe(ApiTrait::class, function () {
 
     describe('->any()', function () {
         it('attaches a StrandWaitAny instance to the substrands', function () {
-            $this->subject->mock()->any(
-                $this->strand->mock(),
+            $this->subject->get()->any(
+                $this->strand->get(),
                 '<a>',
                 '<b>'
             );
@@ -430,8 +430,8 @@ describe(ApiTrait::class, function () {
 
     describe('->some()', function () {
         it('attaches a StrandWaitSome instance to the substrands', function () {
-            $this->subject->mock()->some(
-                $this->strand->mock(),
+            $this->subject->get()->some(
+                $this->strand->get(),
                 1,
                 '<a>',
                 '<b>'
@@ -456,8 +456,8 @@ describe(ApiTrait::class, function () {
         });
 
         it('resumes the strand with an exception if the count is less than one', function () {
-            $this->subject->mock()->some(
-                $this->strand->mock(),
+            $this->subject->get()->some(
+                $this->strand->get(),
                 0,
                 '<a>',
                 '<b>'
@@ -471,8 +471,8 @@ describe(ApiTrait::class, function () {
         });
 
         it('resumes the strand with an exception if the count is greater than the number of substrands', function () {
-            $this->subject->mock()->some(
-                $this->strand->mock(),
+            $this->subject->get()->some(
+                $this->strand->get(),
                 3,
                 '<a>',
                 '<b>'
@@ -488,8 +488,8 @@ describe(ApiTrait::class, function () {
 
     describe('->first()', function () {
         it('attaches a StrandWaitFirst instance to the substrands', function () {
-            $this->subject->mock()->first(
-                $this->strand->mock(),
+            $this->subject->get()->first(
+                $this->strand->get(),
                 '<a>',
                 '<b>'
             );

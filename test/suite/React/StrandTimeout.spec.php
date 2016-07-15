@@ -18,21 +18,21 @@ describe(StrandTimeout::class, function () {
         $this->api = Phony::mock(Api::class);
         $this->timer = Phony::mock(TimerInterface::class);
         $this->loop = Phony::mock(LoopInterface::class);
-        $this->loop->addTimer->returns($this->timer->mock());
+        $this->loop->addTimer->returns($this->timer->get());
         $this->strand = Phony::mock(Strand::class);
 
         $this->substrand = Phony::mock(Strand::class);
         $this->substrand->id->returns(1);
 
         $this->subject = new StrandTimeout(
-            $this->loop->mock(),
+            $this->loop->get(),
             20.5,
-            $this->substrand->mock()
+            $this->substrand->get()
         );
 
         $this->subject->await(
-            $this->strand->mock(),
-            $this->api->mock()
+            $this->strand->get(),
+            $this->api->get()
         );
     });
 
@@ -51,7 +51,7 @@ describe(StrandTimeout::class, function () {
             $this->strand->send->never()->called();
             $this->strand->throw->never()->called();
 
-            $this->subject->send('<ok>', $this->substrand->mock());
+            $this->subject->send('<ok>', $this->substrand->get());
 
             $this->timer->cancel->called();
             $this->strand->send->calledWith('<ok>');
@@ -59,7 +59,7 @@ describe(StrandTimeout::class, function () {
 
         it('resumes the strand with an exception when the substrand fails', function () {
             $exception = Phony::mock(Throwable::class);
-            $this->subject->throw($exception->mock(), $this->substrand->mock());
+            $this->subject->throw($exception->get(), $this->substrand->get());
 
             $this->timer->cancel->called();
             $this->strand->throw->calledWith($exception);
@@ -85,7 +85,7 @@ describe(StrandTimeout::class, function () {
         });
 
         it('doesn\'t terminate the substrand if it has exited', function () {
-            $this->subject->send('<ok>', $this->substrand->mock());
+            $this->subject->send('<ok>', $this->substrand->get());
             $this->subject->cancel();
 
             $this->substrand->setPrimaryListener->never()->calledWith(null);

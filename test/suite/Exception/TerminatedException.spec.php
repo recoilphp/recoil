@@ -13,7 +13,7 @@ describe(TerminatedException::class, function () {
         $this->strand = Phony::mock(Strand::class);
         $this->strand->id->returns(123);
 
-        $this->subject = new TerminatedException($this->strand->mock());
+        $this->subject = new TerminatedException($this->strand->get());
     });
 
     it('produces a useful message', function () {
@@ -21,7 +21,7 @@ describe(TerminatedException::class, function () {
     });
 
     it('exposes the terminated strand', function () {
-        expect($this->subject->strand())->to->equal($this->strand->mock());
+        expect($this->subject->strand())->to->equal($this->strand->get());
     });
 
 });

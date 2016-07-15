@@ -16,8 +16,8 @@ describe(PrimaryListenerRemovedException::class, function () {
         $this->strand->id->returns(123);
 
         $this->subject = new PrimaryListenerRemovedException(
-            $this->listener->mock(),
-            $this->strand->mock()
+            $this->listener->get(),
+            $this->strand->get()
         );
     });
 
@@ -28,11 +28,11 @@ describe(PrimaryListenerRemovedException::class, function () {
     });
 
     it('exposes the listener', function () {
-        expect($this->subject->listener())->to->equal($this->listener->mock());
+        expect($this->subject->listener())->to->equal($this->listener->get());
     });
 
     it('exposes the strand', function () {
-        expect($this->subject->strand())->to->equal($this->strand->mock());
+        expect($this->subject->strand())->to->equal($this->strand->get());
     });
 
 });

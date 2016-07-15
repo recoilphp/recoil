@@ -21,13 +21,13 @@ describe(StrandWaitAll::class, function () {
         $this->substrand2->id->returns(2);
 
         $this->subject = new StrandWaitAll(
-            $this->substrand1->mock(),
-            $this->substrand2->mock()
+            $this->substrand1->get(),
+            $this->substrand2->get()
         );
 
         $this->subject->await(
-            $this->strand->mock(),
-            $this->api->mock()
+            $this->strand->get(),
+            $this->api->get()
         );
     });
 
@@ -37,12 +37,12 @@ describe(StrandWaitAll::class, function () {
             $this->substrand1->setPrimaryListener->calledWith($this->subject);
             $this->substrand2->setPrimaryListener->calledWith($this->subject);
 
-            $this->subject->send('<two>', $this->substrand2->mock());
+            $this->subject->send('<two>', $this->substrand2->get());
 
             $this->strand->send->never()->called();
             $this->strand->throw->never()->called();
 
-            $this->subject->send('<one>', $this->substrand1->mock());
+            $this->subject->send('<one>', $this->substrand1->get());
 
             $this->strand->send->calledWith(
                 [
@@ -54,14 +54,14 @@ describe(StrandWaitAll::class, function () {
 
         it('resumes the strand with an exception when any substrand fails', function () {
             $exception = Phony::mock(Throwable::class);
-            $this->subject->throw($exception->mock(), $this->substrand1->mock());
+            $this->subject->throw($exception->get(), $this->substrand1->get());
 
             $this->strand->throw->calledWith($exception);
         });
 
         it('terminates unused substrands', function () {
             $exception = Phony::mock(Throwable::class);
-            $this->subject->throw($exception->mock(), $this->substrand1->mock());
+            $this->subject->throw($exception->get(), $this->substrand1->get());
 
             Phony::inOrder(
                 $this->substrand2->clearPrimaryListener->called(),
@@ -73,7 +73,7 @@ describe(StrandWaitAll::class, function () {
 
     describe('->cancel()', function () {
         it('only terminates the remaining substrands', function () {
-            $this->subject->send('<one>', $this->substrand1->mock());
+            $this->subject->send('<one>', $this->substrand1->get());
 
             $this->subject->cancel();
 

@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "88e9e0d3079edebecbf058d85590f847",
-    "content-hash": "78b7bdeaead3fc4d3d15d84489a4c899",
+    "hash": "05674147212f517fd97d264785e4a18c",
+    "content-hash": "6c29a77a70dc1a97338adb9d55e6b433",
     "packages": [
         {
             "name": "icecave/repr",
@@ -150,16 +150,16 @@
     "packages-dev": [
         {
             "name": "eloquent/phony",
-            "version": "0.12.0",
+            "version": "0.13.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/eloquent/phony.git",
-                "reference": "13158b5913dc3f57376620a19e58eb9a9350971a"
+                "reference": "ea774976ab2764c5dcb5f10c84090aa63af52b29"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/eloquent/phony/zipball/13158b5913dc3f57376620a19e58eb9a9350971a",
-                "reference": "13158b5913dc3f57376620a19e58eb9a9350971a",
+                "url": "https://api.github.com/repos/eloquent/phony/zipball/ea774976ab2764c5dcb5f10c84090aa63af52b29",
+                "reference": "ea774976ab2764c5dcb5f10c84090aa63af52b29",
                 "shasum": ""
             },
             "require": {
@@ -221,7 +221,7 @@
                 "stubbing",
                 "test"
             ],
-            "time": "2016-07-13 03:42:43"
+            "time": "2016-07-15 00:20:07"
         },
         {
             "name": "evenement/evenement",

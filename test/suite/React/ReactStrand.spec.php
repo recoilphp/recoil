@@ -19,8 +19,8 @@ describe(ReactStrand::class, function () {
 
     it('resolves the promise when the strand succeeds', function () {
         $this->subject = new ReactStrand(
-            $this->kernel->mock(),
-            $this->api->mock(),
+            $this->kernel->get(),
+            $this->api->get(),
             1,
             function () {
                 return '<value>';
@@ -42,11 +42,11 @@ describe(ReactStrand::class, function () {
         $exception = Phony::mock(Throwable::class);
 
         $this->subject = new ReactStrand(
-            $this->kernel->mock(),
-            $this->api->mock(),
+            $this->kernel->get(),
+            $this->api->get(),
             1,
             function () use ($exception) {
-                throw $exception->mock();
+                throw $exception->get();
                 yield;
             }
         );
@@ -63,8 +63,8 @@ describe(ReactStrand::class, function () {
 
     it('rejects the promise when the strand is terminated', function () {
         $this->subject = new ReactStrand(
-            $this->kernel->mock(),
-            $this->api->mock(),
+            $this->kernel->get(),
+            $this->api->get(),
             1,
             '<coroutine>'
         );

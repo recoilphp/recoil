@@ -10,8 +10,8 @@ use Throwable;
 describe(CompositeException::class, function () {
 
     it('accepts multiple previous exceptions', function () {
-        $exception1 = Phony::mock(Throwable::class)->mock();
-        $exception2 = Phony::mock(Throwable::class)->mock();
+        $exception1 = Phony::mock(Throwable::class)->get();
+        $exception2 = Phony::mock(Throwable::class)->get();
 
         $exceptions = [
             1 => $exception1,

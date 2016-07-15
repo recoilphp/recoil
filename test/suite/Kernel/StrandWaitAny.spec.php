@@ -22,13 +22,13 @@ describe(StrandWaitAny::class, function () {
         $this->substrand2->id->returns(2);
 
         $this->subject = new StrandWaitAny(
-            $this->substrand1->mock(),
-            $this->substrand2->mock()
+            $this->substrand1->get(),
+            $this->substrand2->get()
         );
 
         $this->subject->await(
-            $this->strand->mock(),
-            $this->api->mock()
+            $this->strand->get(),
+            $this->api->get()
         );
     });
 
@@ -38,33 +38,33 @@ describe(StrandWaitAny::class, function () {
             $this->substrand1->setPrimaryListener->calledWith($this->subject);
             $this->substrand2->setPrimaryListener->calledWith($this->subject);
 
-            $this->subject->send('<one>', $this->substrand1->mock());
+            $this->subject->send('<one>', $this->substrand1->get());
 
             $this->strand->send->calledWith('<one>');
         });
 
         it('resumes the strand with an exception when all substrands fail', function () {
             $exception2 = Phony::mock(Throwable::class);
-            $this->subject->throw($exception2->mock(), $this->substrand2->mock());
+            $this->subject->throw($exception2->get(), $this->substrand2->get());
 
             $this->strand->send->never()->called();
             $this->strand->throw->never()->called();
 
             $exception1 = Phony::mock(Throwable::class);
-            $this->subject->throw($exception1->mock(), $this->substrand1->mock());
+            $this->subject->throw($exception1->get(), $this->substrand1->get());
 
             $this->strand->throw->calledWith(
                 new CompositeException(
                     [
-                        1 => $exception2->mock(),
-                        0 => $exception1->mock(),
+                        1 => $exception2->get(),
+                        0 => $exception1->get(),
                     ]
                 )
             );
         });
 
         it('terminates unused substrands', function () {
-            $this->subject->send('<one>', $this->substrand1->mock());
+            $this->subject->send('<one>', $this->substrand1->get());
 
             Phony::inOrder(
                 $this->substrand2->clearPrimaryListener->called(),
@@ -77,7 +77,7 @@ describe(StrandWaitAny::class, function () {
     describe('->cancel()', function () {
         it('only terminates the remaining substrands', function () {
             $exception = Phony::mock(Throwable::class);
-            $this->subject->throw($exception->mock(), $this->substrand1->mock());
+            $this->subject->throw($exception->get(), $this->substrand1->get());
 
             $this->subject->cancel();
 

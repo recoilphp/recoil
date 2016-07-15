@@ -19,8 +19,8 @@ describe(ReactKernel::class, function () {
         $this->api = Phony::mock(Api::class);
 
         $this->subject = new ReactKernel(
-            $this->eventLoop->mock(),
-            $this->api->mock()
+            $this->eventLoop->get(),
+            $this->api->get()
         );
     });
 
@@ -93,7 +93,7 @@ describe(ReactKernel::class, function () {
         });
 
         it('causes wait() to return', function () {
-            $exception = Phony::mock(Throwable::class)->mock();
+            $exception = Phony::mock(Throwable::class)->get();
             $this->eventLoop->run->does(function () use ($exception) {
                 $this->subject->stop();
             });

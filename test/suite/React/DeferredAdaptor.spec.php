@@ -17,14 +17,14 @@ describe(DeferredAdaptor::class, function () {
         $this->strand->id->returns(1);
 
         $this->subject = new DeferredAdaptor(
-            $this->deferred->mock()
+            $this->deferred->get()
         );
     });
 
     it('resolves the deferred when a strand succeeds', function () {
         $this->subject->send(
             '<value>',
-            $this->strand->mock()
+            $this->strand->get()
         );
 
         $this->deferred->resolve->calledWith('<value>');
@@ -34,8 +34,8 @@ describe(DeferredAdaptor::class, function () {
         $exception = Phony::mock(Throwable::class);
 
         $this->subject->throw(
-            $exception->mock(),
-            $this->strand->mock()
+            $exception->get(),
+            $this->strand->get()
         );
 
         $this->deferred->reject->calledWith($exception);

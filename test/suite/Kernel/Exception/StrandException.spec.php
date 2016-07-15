@@ -16,7 +16,7 @@ describe(StrandException::class, function () {
         $this->previous = new Error('<message>');
 
         $this->subject = new StrandException(
-            $this->strand->mock(),
+            $this->strand->get(),
             $this->previous
         );
     });
@@ -28,7 +28,7 @@ describe(StrandException::class, function () {
     });
 
     it('exposes the failed strand', function () {
-        expect($this->subject->strand())->to->equal($this->strand->mock());
+        expect($this->subject->strand())->to->equal($this->strand->get());
     });
 
     it('exposes the previous exception', function () {

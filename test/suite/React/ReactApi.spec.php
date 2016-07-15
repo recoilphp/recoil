@@ -17,7 +17,7 @@ describe(ReactApi::class, function () {
     beforeEach(function () {
         $this->eventLoop = Phony::mock(LoopInterface::class);
         $this->timer = Phony::mock(TimerInterface::class);
-        $this->eventLoop->addTimer->returns($this->timer->mock());
+        $this->eventLoop->addTimer->returns($this->timer->get());
 
         $this->kernel = Phony::mock(Kernel::class);
 
@@ -27,13 +27,13 @@ describe(ReactApi::class, function () {
         $this->substrand = Phony::mock(Strand::class);
         $this->kernel->execute->returns($this->substrand);
 
-        $this->subject = new ReactApi($this->eventLoop->mock());
+        $this->subject = new ReactApi($this->eventLoop->get());
     });
 
     describe('->cooperate()', function () {
         it('resumes the strand on a future tick', function () {
             $this->subject->cooperate(
-                $this->strand->mock()
+                $this->strand->get()
             );
 
             $fn = $this->eventLoop->futureTick->calledWith('~')->firstCall()->argument();
@@ -50,7 +50,7 @@ describe(ReactApi::class, function () {
     describe('->sleep()', function () {
         it('resumes the strand with a timer', function () {
             $this->subject->sleep(
-                $this->strand->mock(),
+                $this->strand->get(),
                 10.5
             );
 
@@ -66,7 +66,7 @@ describe(ReactApi::class, function () {
 
         it('cancels the timer if the strand is terminated', function () {
             $this->subject->sleep(
-                $this->strand->mock(),
+                $this->strand->get(),
                 10.5
             );
 
@@ -80,7 +80,7 @@ describe(ReactApi::class, function () {
 
         it('uses future tick instead of a timer when passed zero seconds', function () {
             $this->subject->sleep(
-                $this->strand->mock(),
+                $this->strand->get(),
                 0
             );
 
@@ -97,7 +97,7 @@ describe(ReactApi::class, function () {
 
         it('uses future tick instead of a timer when passed negative seconds', function () {
             $this->subject->sleep(
-                $this->strand->mock(),
+                $this->strand->get(),
                 -1
             );
 
@@ -116,7 +116,7 @@ describe(ReactApi::class, function () {
     describe('->timeout()', function () {
         it('attaches a StrandTimeout instance to the substrand', function () {
             $this->subject->timeout(
-                $this->strand->mock(),
+                $this->strand->get(),
                 10.5,
                 '<coroutine>'
             );
@@ -132,8 +132,8 @@ describe(ReactApi::class, function () {
     describe('->resume()', function () {
         it('resumes the suspend strand on the next tick', function () {
             $this->subject->resume(
-                $this->strand->mock(),
-                $this->substrand->mock(),
+                $this->strand->get(),
+                $this->substrand->get(),
                 '<value>'
             );
 
@@ -146,14 +146,14 @@ describe(ReactApi::class, function () {
 
             $this->substrand->send->calledWith(
                 '<value>',
-                $this->strand->mock()
+                $this->strand->get()
             );
         });
 
         it('resumes the calling strand immediately', function () {
             $this->subject->resume(
-                $this->strand->mock(),
-                $this->substrand->mock(),
+                $this->strand->get(),
+                $this->substrand->get(),
                 '<value>'
             );
 
@@ -166,11 +166,11 @@ describe(ReactApi::class, function () {
 
     describe('->throw()', function () {
         it('resumes the suspend strand on the next tick', function () {
-            $exception = Phony::mock(Throwable::class)->mock();
+            $exception = Phony::mock(Throwable::class)->get();
 
             $this->subject->throw(
-                $this->strand->mock(),
-                $this->substrand->mock(),
+                $this->strand->get(),
+                $this->substrand->get(),
                 $exception
             );
 
@@ -183,15 +183,15 @@ describe(ReactApi::class, function () {
 
             $this->substrand->throw->calledWith(
                 $exception,
-                $this->strand->mock()
+                $this->strand->get()
             );
         });
 
         it('resumes the calling strand immediately', function () {
             $this->subject->throw(
-                $this->strand->mock(),
-                $this->substrand->mock(),
-                Phony::mock(Throwable::class)->mock()
+                $this->strand->get(),
+                $this->substrand->get(),
+                Phony::mock(Throwable::class)->get()
             );
 
             Phony::inOrder(
@@ -204,7 +204,7 @@ describe(ReactApi::class, function () {
     describe('->eventLoop()', function () {
         it('resumes the strand with the internal event loop', function () {
             $this->subject->eventLoop(
-                $this->strand->mock()
+                $this->strand->get()
             );
 
             $this->strand->send->calledWith($this->eventLoop);

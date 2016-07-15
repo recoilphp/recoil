@@ -15,7 +15,7 @@ describe(StreamQueue::class, function () {
         $this->writeStream = tmpfile();
 
         $this->subject = new StreamQueue(
-            $this->eventLoop->mock()
+            $this->eventLoop->get()
         );
     });
 
