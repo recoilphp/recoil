@@ -10,7 +10,6 @@ use React\EventLoop\LoopInterface;
 use React\EventLoop\Timer\TimerInterface;
 use Recoil\Kernel\Kernel;
 use Recoil\Kernel\Strand;
-use Throwable;
 
 describe(ReactApi::class, function () {
 
@@ -125,78 +124,6 @@ describe(ReactApi::class, function () {
 
             $this->substrand->setPrimaryListener->calledWith(
                 IsInstanceOf::anInstanceOf(StrandTimeout::class)
-            );
-        });
-    });
-
-    describe('->resume()', function () {
-        it('resumes the suspend strand on the next tick', function () {
-            $this->subject->resume(
-                $this->strand->get(),
-                $this->substrand->get(),
-                '<value>'
-            );
-
-            $fn = $this->eventLoop->futureTick->calledWith('~')->firstCall()->argument();
-            expect($fn)->to->satisfy('is_callable');
-
-            $this->substrand->noInteraction();
-
-            $fn();
-
-            $this->substrand->send->calledWith(
-                '<value>',
-                $this->strand->get()
-            );
-        });
-
-        it('resumes the calling strand immediately', function () {
-            $this->subject->resume(
-                $this->strand->get(),
-                $this->substrand->get(),
-                '<value>'
-            );
-
-            Phony::inOrder(
-                $this->eventLoop->futureTick->called(),
-                $this->strand->send->calledWith()
-            );
-        });
-    });
-
-    describe('->throw()', function () {
-        it('resumes the suspend strand on the next tick', function () {
-            $exception = Phony::mock(Throwable::class)->get();
-
-            $this->subject->throw(
-                $this->strand->get(),
-                $this->substrand->get(),
-                $exception
-            );
-
-            $fn = $this->eventLoop->futureTick->calledWith('~')->firstCall()->argument();
-            expect($fn)->to->satisfy('is_callable');
-
-            $this->substrand->noInteraction();
-
-            $fn();
-
-            $this->substrand->throw->calledWith(
-                $exception,
-                $this->strand->get()
-            );
-        });
-
-        it('resumes the calling strand immediately', function () {
-            $this->subject->throw(
-                $this->strand->get(),
-                $this->substrand->get(),
-                Phony::mock(Throwable::class)->get()
-            );
-
-            Phony::inOrder(
-                $this->eventLoop->futureTick->called(),
-                $this->strand->send->calledWith()
             );
         });
     });
