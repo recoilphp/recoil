@@ -25,4 +25,4 @@ composer.lock: composer.json
 	composer update
 
 src/%.php: FORCE
-	@php -l $@
+	@php -l $@ > /dev/null
