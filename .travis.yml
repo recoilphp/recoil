@@ -1,6 +1,8 @@
 sudo: false
 language: php
-php: '7.0'
+php:
+- '7.0'
+- nightly
 before_install:
 - phpenv config-rm xdebug.ini
 - composer config --global github-oauth.github.com $GITHUB_TOKEN
