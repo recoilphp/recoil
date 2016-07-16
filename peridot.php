@@ -9,10 +9,6 @@ use Peridot\Reporter\CodeCoverageReporters;
 
 require __DIR__ . '/vendor/autoload.php';
 
-error_reporting(-1);
-ini_set('zend.assertions', '1');
-ini_set('assert.exception', '1');
-
 return function (EventEmitterInterface $emitter) {
     (new CodeCoverageReporters($emitter))->register();
 

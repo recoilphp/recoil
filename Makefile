@@ -1,8 +1,8 @@
 test: deps
-	vendor/bin/peridot
+	php -c test/etc/php.ini vendor/bin/peridot
 
 coverage: deps
-	phpdbg -qrr vendor/bin/peridot --reporter html-code-coverage --code-coverage-path=artifacts/tests/coverage
+	phpdbg -c test/etc/php.ini -qrr vendor/bin/peridot --reporter html-code-coverage --code-coverage-path=artifacts/tests/coverage
 
 lint: $(shell find src)
 	composer validate
@@ -14,7 +14,7 @@ prepare: deps lint coverage
 	travis lint
 
 ci: lint
-	phpdbg -qrr vendor/bin/peridot --reporter clover-code-coverage --code-coverage-path=artifacts/tests/coverage/clover.xml
+	phpdbg -c test/etc/php.ini -qrr vendor/bin/peridot --reporter clover-code-coverage --code-coverage-path=artifacts/tests/coverage/clover.xml
 
 .PHONY: FORCE test coverage lint deps prepare ci
 
