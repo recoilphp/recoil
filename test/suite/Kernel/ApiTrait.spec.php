@@ -6,11 +6,11 @@ namespace Recoil\Kernel;
 
 use BadMethodCallException;
 use Eloquent\Phony\Phony;
+use Error;
 use Hamcrest\Core\IsInstanceOf;
 use InvalidArgumentException;
 use Recoil\Exception\RejectedException;
 use Throwable;
-use TypeError;
 use UnexpectedValueException;
 
 describe(ApiTrait::class, function () {
@@ -223,9 +223,12 @@ describe(ApiTrait::class, function () {
         });
 
         it('throws when no strand is passed', function () {
-            expect(function () {
+            try {
                 $this->subject->get()->unknown();
-            })->to->throw(TypeError::class);
+                assert(false, 'expected exception was not thrown');
+            } catch (Error $e) {
+                // okay
+            }
         });
     });
 

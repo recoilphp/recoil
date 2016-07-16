@@ -34,15 +34,15 @@ describe(ReactKernel::class, function () {
         });
 
         it('propagates uncaught exceptions', function () {
-            expect(function () {
+            try {
                 ReactKernel::start(function () {
                     throw new Exception('<exception>');
                     yield;
                 });
-            })->to->throw(
-                Exception::class,
-                '<exception>'
-            );
+                assert(false, 'expected exception was not thrown');
+            } catch (Exception $e) {
+                expect($e->getMessage())->to->equal('<exception>');
+            }
         });
 
         it('uses the given event loop', function () {

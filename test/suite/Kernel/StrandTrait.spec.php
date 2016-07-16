@@ -74,12 +74,12 @@ describe(StrandTrait::class, function () {
         });
 
         it('throws when passed a regular function', function () {
-            expect(function () {
+            try {
                 ($this->initializeSubject)(function () {});
-            })->to->throw(
-                InvalidArgumentException::class,
-                'Callable must return a generator.'
-            );
+                assert(false, 'expected exception was not thrown');
+            } catch (InvalidArgumentException $e) {
+                expect($e->getMessage())->to->equal('Callable must return a generator.');
+            }
         });
 
         it('dispatches other types via the kernel api', function () {
@@ -567,31 +567,31 @@ describe(StrandTrait::class, function () {
         });
 
         it('->start() fails', function () {
-            expect(function () {
+            try {
                 $this->subject->get()->start();
-            })->to->throw(
-                AssertionError::class,
-                'strand must be READY or SUSPENDED to start'
-            );
+                assert(false, 'expected exception was not thrown');
+            } catch (AssertionError $e) {
+                expect($e->getMessage())->to->equal('strand must be READY or SUSPENDED to start');
+            }
         });
 
         it('->send() fails', function () {
-            expect(function () {
+            try {
                 $this->subject->get()->send('<result>');
-            })->to->throw(
-                AssertionError::class,
-                'strand must be suspended to resume'
-            );
+                assert(false, 'expected exception was not thrown');
+            } catch (AssertionError $e) {
+                expect($e->getMessage())->to->equal('strand must be suspended to resume');
+            }
         });
 
         it('->throw() fails', function () {
-            expect(function () {
+            try {
                 $exception = Phony::mock(Throwable::class);
                 $this->subject->get()->throw($exception->get());
-            })->to->throw(
-                AssertionError::class,
-                'strand must be suspended to resume'
-            );
+                assert(false, 'expected exception was not thrown');
+            } catch (AssertionError $e) {
+                expect($e->getMessage())->to->equal('strand must be suspended to resume');
+            }
         });
 
         it('->terminate() does nothing', function () {
@@ -618,31 +618,31 @@ describe(StrandTrait::class, function () {
         });
 
         it('->start() fails', function () {
-            expect(function () {
+            try {
                 $this->subject->get()->start();
-            })->to->throw(
-                AssertionError::class,
-                'strand must be READY or SUSPENDED to start'
-            );
+                assert(false, 'expected exception was not thrown');
+            } catch (AssertionError $e) {
+                expect($e->getMessage())->to->equal('strand must be READY or SUSPENDED to start');
+            }
         });
 
         it('->send() fails', function () {
-            expect(function () {
+            try {
                 $this->subject->get()->send('<result>');
-            })->to->throw(
-                AssertionError::class,
-                'strand must be suspended to resume'
-            );
+                assert(false, 'expected exception was not thrown');
+            } catch (AssertionError $e) {
+                expect($e->getMessage())->to->equal('strand must be suspended to resume');
+            }
         });
 
         it('->throw() fails', function () {
-            expect(function () {
+            try {
                 $exception = Phony::mock(Throwable::class);
                 $this->subject->get()->throw($exception->get());
-            })->to->throw(
-                AssertionError::class,
-                'strand must be suspended to resume'
-            );
+                assert(false, 'expected exception was not thrown');
+            } catch (AssertionError $e) {
+                expect($e->getMessage())->to->equal('strand must be suspended to resume');
+            }
         });
 
         it('->terminate() does nothing', function () {

@@ -53,12 +53,12 @@ describe('->waitForStrand()', function () {
             yield;
         });
 
-        expect(function () use ($strand) {
+        try {
             $this->kernel->waitForStrand($strand);
-        })->to->throw(
-            Exception::class,
-            '<exception>'
-        );
+            assert(false, 'expected exception was not thrown');
+        } catch (Exception $e) {
+            expect($e->getMessage())->to->equal('<exception>');
+        }
     });
 
     it('executes all strands', function () {
@@ -154,15 +154,15 @@ describe('->waitFor()', function () {
     });
 
     it('propagates uncaught exceptions', function () {
-        expect(function () {
+        try {
             $this->kernel->waitFor(function () {
                 throw new Exception('<exception>');
                 yield;
             });
-        })->to->throw(
-            Exception::class,
-            '<exception>'
-        );
+            assert(false, 'expected exception was not thrown');
+        } catch (Exception $e) {
+            expect($e->getMessage())->to->equal('<exception>');
+        }
     });
 
     it('executes all strands', function () {
