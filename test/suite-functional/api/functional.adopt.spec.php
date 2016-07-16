@@ -26,7 +26,7 @@ rit('resumes the calling strand on failure', function () {
         yield Recoil::adopt($substrand);
         assert(false, 'expected exception was not thrown');
     } catch (Exception $e) {
-        expect($e)->to->equal($exception);
+        assert($e === $exception);
     }
 });
 

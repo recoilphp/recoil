@@ -21,7 +21,7 @@ describe(CompositeException::class, function () {
         $exception = new CompositeException($exceptions);
 
         expect($exception->getMessage())->to->equal('Multiple exceptions occurred.');
-        expect($exception->exceptions())->to->equal($exceptions);
+        assert($exception->exceptions() === $exceptions);
     });
 
 });

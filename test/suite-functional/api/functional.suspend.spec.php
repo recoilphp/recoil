@@ -116,6 +116,6 @@ context('when resumed with an error', function () {
         $expected = new Exception('<exception>');
         yield Recoil::throw($strand, $expected);
 
-        expect($exception)->to->equal($expected);
+        assert($exception === $expected);
     });
 });
