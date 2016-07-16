@@ -11,4 +11,4 @@ script: make ci
 after_script: bash <(curl -s https://codecov.io/bash)
 env:
   global:
-    secure: "g0uexghpfxjO1pVYCBqj/P957zCZQT1v5naWgzDtu5n2Sh1WoW00K4+jOYJ4bbIm+1O8wbzzlyOuYZMMz0xXLVzuOdoMwMhfcnI+pE/dpa4J/vs1RFqoLh4HuNx9oPErNODdmWIkeC1SpcuBeYZfYxEL6UJIWbZZq3a9BIslx88="
+    secure: bGBzw+mOfhC/3/VY5+okKwOD8FfliC1JQ/9JiR8ZYk0YxeuSAwj8u8Bm++NbtKe41rANCrd5GztYpTlZb3R3/7tbbD3PlREsrh0X6qZckiRTvgJ8hT2kpBl4J1IDrLFG+MyBD6VGAC4oPtR0yRz4oe0vjSHyduycBahHaWLe6Pw=
