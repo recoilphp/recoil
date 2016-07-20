@@ -195,18 +195,6 @@ trait StrandTrait
                 goto continue_iterating_generator;
             }
 
-            // DEBUG
-            $e->__recoilTrace[] = '------';
-            $e->__recoilTrace = array_merge($e->__recoilTrace, $e->__originalTrace);
-            // foreach ($e->getTrace() as $index => $frame) {
-            //     if ($index >= $e->__breakAt) {
-            //         unset($frame['args']);
-            //         // $e->__recoilTrace[] = '<nugget>';
-            //         break;
-            //     }
-            // }
-            // DEBUG
-
             // Otherwise the strand exits with a failure ...
             $this->current = null;
             $this->state = StrandState::EXIT_FAIL;

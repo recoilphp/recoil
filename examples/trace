@@ -37,23 +37,23 @@ function fail()
 }
 
 function main() {
-    // try {
+    try {
         ReactKernel::start(outer());
-    // } catch (Throwable $e) {
-    //     if (isset($e->__recoilTrace)) {
-    //         echo $e->getMessage() . PHP_EOL;
-    //         echo $e->getFile() . ':' . $e->getLine() . PHP_EOL;
-    //
-    //         foreach ($e->__recoilTrace as $frame) {
-    //             if (isset($frame['args'])) {
-    //                 unset($frame['args']);
-    //             }
-    //             print_r($frame);
-    //         }
-    //     } else {
-    //         throw $e;
-    //     }
-    // }
+    } catch (Throwable $e) {
+        if (isset($e->__recoilTrace)) {
+            echo $e->getMessage() . PHP_EOL;
+            echo $e->getFile() . ':' . $e->getLine() . PHP_EOL;
+
+            foreach ($e->__recoilTrace as $frame) {
+                if (isset($frame['args'])) {
+                    unset($frame['args']);
+                }
+                print_r($frame);
+            }
+        } else {
+            throw $e;
+        }
+    }
 }
 
 main();
