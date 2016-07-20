@@ -8,6 +8,7 @@ use Closure;
 use Generator;
 use InvalidArgumentException;
 use Recoil\Exception\TerminatedException;
+use Recoil\Kernel\Debug\Trace;
 use Recoil\Kernel\Exception\PrimaryListenerRemovedException;
 use Recoil\Kernel\Exception\StrandListenerException;
 use SplObjectStorage;
@@ -137,6 +138,12 @@ trait StrandTrait
 
             if ($this->current->valid()) {
                 $produced = $this->current->current();
+
+                if ($produced instanceof Trace) {
+                    $this->current->__recoilYieldAt = $produced;
+                    $produced = $produced->value;
+                    unset($this->current->__recoilYieldAt->value);
+                }
             } else {
                 $produced = $this->current->getReturn();
                 goto generator_returned;
@@ -144,20 +151,61 @@ trait StrandTrait
 
         // This block catches exceptions produced by the coroutine itself ...
         } catch (Throwable $e) {
-
             // If there is a calling coroutine on the call-stack the exception
             // is propagated up the stack ...
+
             if ($this->depth) {
                 // "fast" functionless stack-pop ...
                 $current = &$this->stack[--$this->depth];
                 $this->current = $current;
                 $current = null;
 
+                // IF DEBUG
+                if (!isset($e->__recoilTrace)) {
+                    $e->__originalTrace = $e->getTrace();
+                    $e->__recoilTrace = [];
+
+                    foreach ($e->__originalTrace as $index => $frame) {
+                        if (($frame['file'] ?? '') === __FILE__) {
+                            break;
+                        }
+
+                        $e->__recoilTrace[] = $frame;
+                        unset($e->__originalTrace[$index]);
+                    }
+                }
+
+                if (isset($this->current->__recoilYieldAt)) {
+                    $frame = &$e->__recoilTrace[count($e->__recoilTrace) - 1];
+                    $frame['file'] = $this->current->__recoilYieldAt->file;
+                    $frame['line'] = $this->current->__recoilYieldAt->line;
+                    $e->__recoilTrace[] = [
+                        'function' => $this->current->__recoilYieldAt->function
+                    ];
+                } else {
+                    $e->__recoilTrace[] = [
+                        'function' => '<untraced yield>'
+                    ];
+                }
+                // IF DEBUG
+
                 $this->action = 'throw';
                 $this->value = $e;
                 $this->state = StrandState::RUNNING;
                 goto continue_iterating_generator;
             }
+
+            // DEBUG
+            $e->__recoilTrace[] = '------';
+            $e->__recoilTrace = array_merge($e->__recoilTrace, $e->__originalTrace);
+            // foreach ($e->getTrace() as $index => $frame) {
+            //     if ($index >= $e->__breakAt) {
+            //         unset($frame['args']);
+            //         // $e->__recoilTrace[] = '<nugget>';
+            //         break;
+            //     }
+            // }
+            // DEBUG
 
             // Otherwise the strand exits with a failure ...
             $this->current = null;

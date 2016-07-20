@@ -1,0 +1,59 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types = 1);
+
+require __DIR__ . '/../vendor/autoload.php';
+
+use Recoil\Kernel\Debug\Trace;
+use Recoil\React\ReactKernel;
+
+function outer()
+{
+    yield new Trace(middle(), __FUNCTION__, __FILE__, __LINE__);
+}
+
+function middle()
+{
+    yield new Trace(inner(), __FUNCTION__, __FILE__, __LINE__);
+}
+
+function inner()
+{
+    func_that_calls_fail();
+
+    return;
+    yield;
+}
+
+function func_that_calls_fail()
+{
+    fail();
+}
+
+function fail()
+{
+    throw new Exception('OH SHIT!');
+}
+
+function main() {
+    // try {
+        ReactKernel::start(outer());
+    // } catch (Throwable $e) {
+    //     if (isset($e->__recoilTrace)) {
+    //         echo $e->getMessage() . PHP_EOL;
+    //         echo $e->getFile() . ':' . $e->getLine() . PHP_EOL;
+    //
+    //         foreach ($e->__recoilTrace as $frame) {
+    //             if (isset($frame['args'])) {
+    //                 unset($frame['args']);
+    //             }
+    //             print_r($frame);
+    //         }
+    //     } else {
+    //         throw $e;
+    //     }
+    // }
+}
+
+main();
