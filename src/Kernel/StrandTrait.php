@@ -253,7 +253,7 @@ trait StrandTrait
             // If action is already set, it means that send() or throw()
             // has already been called above, jump directly to the next
             // action ...
-            if ($this->action) {
+            if ($this->state === StrandState::READY) {
                 $this->state = StrandState::RUNNING;
                 goto continue_iterating_generator;
             }
@@ -417,6 +417,8 @@ trait StrandTrait
 
         if ($this->state === StrandState::SUSPENDED_INACTIVE) {
             $this->start();
+        } else {
+            $this->state = StrandState::READY;
         }
     }
 
@@ -447,6 +449,8 @@ trait StrandTrait
 
         if ($this->state === StrandState::SUSPENDED_INACTIVE) {
             $this->start();
+        } else {
+            $this->state = StrandState::READY;
         }
     }
 
