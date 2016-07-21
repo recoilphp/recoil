@@ -571,7 +571,7 @@ describe(StrandTrait::class, function () {
                 $this->subject->get()->start();
                 assert(false, 'expected exception was not thrown');
             } catch (AssertionError $e) {
-                expect($e->getMessage())->to->equal('strand must be READY or SUSPENDED to start');
+                expect($e->getMessage())->to->equal('strand must be READY or SUSPENDED_INACTIVE to start');
             }
         });
 
@@ -622,7 +622,7 @@ describe(StrandTrait::class, function () {
                 $this->subject->get()->start();
                 assert(false, 'expected exception was not thrown');
             } catch (AssertionError $e) {
-                expect($e->getMessage())->to->equal('strand must be READY or SUSPENDED to start');
+                expect($e->getMessage())->to->equal('strand must be READY or SUSPENDED_INACTIVE to start');
             }
         });
 
