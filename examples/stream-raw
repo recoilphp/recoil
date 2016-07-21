@@ -19,11 +19,7 @@ ReactKernel::start(function () {
     stream_set_read_buffer($fp, 0);
 
     $buffer = "<line 1>\n<line 2>\n";
-
-    while ($buffer) {
-        $bytes = yield Recoil::write($fp, $buffer);
-        $buffer = substr($buffer, $bytes);
-    }
+    yield Recoil::write($fp, $buffer);
 
     fseek($fp, 0);
 
