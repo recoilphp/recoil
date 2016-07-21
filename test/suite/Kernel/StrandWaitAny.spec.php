@@ -40,7 +40,7 @@ describe(StrandWaitAny::class, function () {
 
             $this->subject->send('<one>', $this->substrand1->get());
 
-            $this->strand->send->calledWith('<one>');
+            $this->strand->send->calledWith('<one>', $this->substrand1->get());
         });
 
         it('resumes the strand with an exception when all substrands fail', function () {

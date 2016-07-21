@@ -56,7 +56,7 @@ describe(StrandWaitAll::class, function () {
             $exception = Phony::mock(Throwable::class);
             $this->subject->throw($exception->get(), $this->substrand1->get());
 
-            $this->strand->throw->calledWith($exception);
+            $this->strand->throw->calledWith($exception, $this->substrand1->get());
         });
 
         it('terminates unused substrands', function () {

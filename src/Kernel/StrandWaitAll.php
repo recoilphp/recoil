@@ -77,7 +77,7 @@ final class StrandWaitAll implements Awaitable, Listener
         }
 
         $this->substrands = [];
-        $this->listener->throw($exception);
+        $this->listener->throw($exception, $strand);
     }
 
     /**

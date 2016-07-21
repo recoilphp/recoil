@@ -39,7 +39,7 @@ describe(StrandWaitFirst::class, function () {
 
             $this->subject->send('<one>', $this->substrand1->get());
 
-            $this->strand->send->calledWith('<one>');
+            $this->strand->send->calledWith('<one>', $this->substrand1->get());
         });
 
         it('resumes the strand with an exception when any substrand fails', function () {
@@ -49,7 +49,7 @@ describe(StrandWaitFirst::class, function () {
             Phony::inOrder(
                 $this->substrand2->clearPrimaryListener->called(),
                 $this->substrand2->terminate->called(),
-                $this->strand->throw->calledWith($exception)
+                $this->strand->throw->calledWith($exception, $this->substrand1->get())
             );
         });
 

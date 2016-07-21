@@ -57,7 +57,7 @@ final class StrandWaitAny implements Awaitable, Listener
         }
 
         $this->substrands = [];
-        $this->listener->send($value);
+        $this->listener->send($value, $strand);
     }
 
     /**

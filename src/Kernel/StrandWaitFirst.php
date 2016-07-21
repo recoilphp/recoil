@@ -54,7 +54,7 @@ final class StrandWaitFirst implements Awaitable, Listener
         }
 
         $this->substrands = [];
-        $this->listener->send($value);
+        $this->listener->send($value, $strand);
     }
 
     /**
@@ -76,7 +76,7 @@ final class StrandWaitFirst implements Awaitable, Listener
         }
 
         $this->substrands = [];
-        $this->listener->throw($exception);
+        $this->listener->throw($exception, $strand);
     }
 
     /**
