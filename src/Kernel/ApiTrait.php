@@ -56,7 +56,9 @@ trait ApiTrait
             );
 
             if (\method_exists($value, 'cancel')) {
-                $strand->setTerminator([$value, 'cancel']);
+                $strand->setTerminator(function () use ($value) {
+                    $value->cancel();
+                });
             }
         } else {
             $strand->throw(
@@ -66,7 +68,8 @@ trait ApiTrait
                     . ', '
                     . Repr::repr($value)
                     . ') does not describe any known operation.'
-                )
+                ),
+                $strand
             );
         }
     }
@@ -82,7 +85,8 @@ trait ApiTrait
             $strand->throw(
                 new BadMethodCallException(
                     'The API does not implement an operation named "' . $name . '".'
-                )
+                ),
+                $strand
             );
         })($name, ...$arguments);
     }
@@ -106,7 +110,8 @@ trait ApiTrait
     public function execute(Strand $strand, $coroutine)
     {
         $strand->send(
-            $strand->kernel()->execute($coroutine)
+            $strand->kernel()->execute($coroutine),
+            $strand
         );
     }
 
@@ -131,7 +136,8 @@ trait ApiTrait
         $strand->send(
             static function (...$arguments) use ($kernel, $coroutine) {
                 $kernel->execute($coroutine(...$arguments));
-            }
+            },
+            $strand
         );
     }
 
@@ -144,7 +150,7 @@ trait ApiTrait
      */
     public function strand(Strand $strand)
     {
-        $strand->send($strand);
+        $strand->send($strand, $strand);
     }
 
     /**
@@ -177,8 +183,8 @@ trait ApiTrait
      * This causes the suspended strand's blocking suspend() call to return
      * $value.
      *
-     * The implementation must resume the suspended strand before resuming the
-     * calling strand.
+     * The suspended strand is not guaranteed to resume execution before this
+     * operation resumes the calling strand.
      *
      * @param Strand $strand    The strand executing the API call.
      * @param Strand $suspended The suspended strand.
@@ -192,7 +198,7 @@ trait ApiTrait
         $value = null
     ) {
         $suspended->send($value, $strand);
-        $strand->send();
+        $strand->send(null, $strand);
     }
 
     /**
@@ -201,8 +207,8 @@ trait ApiTrait
      * This causes the suspended strand's blocking suspend() call to throw
      * $exception.
      *
-     * The implementation must resume the suspended strand before resuming the
-     * calling strand.
+     * The suspended strand is not guaranteed to resume execution before this
+     * operation resumes the calling strand.
      *
      * @param Strand    $strand    The strand executing the API call.
      * @param Strand    $suspended The suspended strand.
@@ -216,7 +222,7 @@ trait ApiTrait
         Throwable $exception
     ) {
         $suspended->throw($exception, $strand);
-        $strand->send();
+        $strand->send(null, $strand);
     }
 
     /**
@@ -252,7 +258,7 @@ trait ApiTrait
         $strandA->link($strandB);
         $strandB->link($strandA);
 
-        $strand->send();
+        $strand->send(null, $strand);
     }
 
     /**
@@ -276,7 +282,7 @@ trait ApiTrait
         $strandA->unlink($strandB);
         $strandB->unlink($strandA);
 
-        $strand->send();
+        $strand->send(null, $strand);
     }
 
     /**
@@ -396,7 +402,8 @@ trait ApiTrait
                     . ' coroutines, count must be between 1 and '
                     . $max
                     . ', inclusive.'
-                )
+                ),
+                $strand
             );
 
             return;

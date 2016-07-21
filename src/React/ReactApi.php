@@ -36,7 +36,7 @@ final class ReactApi implements Api
     {
         $this->eventLoop->futureTick(
             static function () use ($strand) {
-                $strand->send();
+                $strand->send(null, $strand);
             }
         );
     }
@@ -53,7 +53,7 @@ final class ReactApi implements Api
             $timer = $this->eventLoop->addTimer(
                 $seconds,
                 static function () use ($strand) {
-                    $strand->send();
+                    $strand->send(null, $strand);
                 }
             );
 
@@ -65,7 +65,7 @@ final class ReactApi implements Api
         } else {
             $this->eventLoop->futureTick(
                 static function () use ($strand) {
-                    $strand->send();
+                    $strand->send(null, $strand);
                 }
             );
         }
@@ -146,24 +146,27 @@ final class ReactApi implements Api
                     // @codeCoverageIgnoreStart
                     $done();
                     $error = \error_get_last();
-                    $strand->throw(new ErrorException(
-                        $error['message'],
-                        $error['type'],
-                        1, // severity
-                        $error['file'],
-                        $error['line']
-                    ));
+                    $strand->throw(
+                        new ErrorException(
+                            $error['message'],
+                            $error['type'],
+                            1, // severity
+                            $error['file'],
+                            $error['line']
+                        ),
+                        $strand
+                    );
                     // @codeCoverageIgnoreEnd
                 } elseif ($chunk === '') {
                     $done();
-                    $strand->send($buffer);
+                    $strand->send($buffer, $strand);
                 } else {
                     $buffer .= $chunk;
                     $length = \strlen($chunk);
 
                     if ($length >= $minLength || $length === $maxLength) {
                         $done();
-                        $strand->send($buffer);
+                        $strand->send($buffer, $strand);
                     } else {
                         $minLength -= $length;
                         $maxLength -= $length;
@@ -224,17 +227,20 @@ final class ReactApi implements Api
                     // @codeCoverageIgnoreStart
                     $done();
                     $error = \error_get_last();
-                    $strand->throw(new ErrorException(
-                        $error['message'],
-                        $error['type'],
-                        1, // severity
-                        $error['file'],
-                        $error['line']
-                    ));
+                    $strand->throw(
+                        new ErrorException(
+                            $error['message'],
+                            $error['type'],
+                            1, // severity
+                            $error['file'],
+                            $error['line']
+                        ),
+                        $strand
+                    );
                     // @codeCoverageIgnoreEnd
                 } elseif ($bytes === $length) {
                     $done();
-                    $strand->send();
+                    $strand->send(null, $strand);
                 } else {
                     $length -= $bytes;
                     $buffer = \substr($buffer, $bytes);
@@ -286,7 +292,7 @@ final class ReactApi implements Api
         float $timeout = null
     ) {
         if (empty($read) && empty($write)) {
-            $strand->send([[], []]);
+            $strand->send([[], []], $strand);
 
             return;
         }
@@ -319,7 +325,7 @@ final class ReactApi implements Api
                             $context->timer->cancel();
                         }
 
-                        $context->strand->send([[$stream], []]);
+                        $context->strand->send([[$stream], []], $context->strand);
                     }
                 );
             }
@@ -338,7 +344,7 @@ final class ReactApi implements Api
                             $context->timer->cancel();
                         }
 
-                        $context->strand->send([[], [$stream]]);
+                        $context->strand->send([[], [$stream]], $context->strand);
                     }
                 );
             }
@@ -363,7 +369,8 @@ final class ReactApi implements Api
                     }
 
                     $context->strand->throw(
-                        new TimeoutException($context->timeout)
+                        new TimeoutException($context->timeout),
+                        $context->strand
                     );
                 }
             );
@@ -379,7 +386,7 @@ final class ReactApi implements Api
      */
     public function eventLoop(Strand $strand)
     {
-        $strand->send($this->eventLoop);
+        $strand->send($this->eventLoop, $strand);
     }
 
     use ApiTrait;

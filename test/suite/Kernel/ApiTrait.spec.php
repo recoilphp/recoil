@@ -204,7 +204,8 @@ describe(ApiTrait::class, function () {
             $this->strand->throw->calledWith(
                 new UnexpectedValueException(
                     'The yielded pair (123, "<string>") does not describe any known operation.'
-                )
+                ),
+                $this->strand
             );
         });
     });
@@ -218,7 +219,8 @@ describe(ApiTrait::class, function () {
             $this->strand->throw->calledWith(
                 new BadMethodCallException(
                     'The API does not implement an operation named "unknown".'
-                )
+                ),
+                $this->strand
             );
         });
 
@@ -245,7 +247,10 @@ describe(ApiTrait::class, function () {
         });
 
         it('resumes the strand with the substrand', function () {
-            $this->strand->send->calledWith($this->substrand1);
+            $this->strand->send->calledWith(
+                $this->substrand1,
+                $this->strand
+            );
         });
     });
 
@@ -258,7 +263,13 @@ describe(ApiTrait::class, function () {
                 $coroutine
             );
 
-            $fn = $this->strand->send->calledWith('~')->firstCall()->argument();
+            $fn = $this
+                ->strand
+                ->send
+                ->calledWith('~', $this->strand)
+                ->firstCall()
+                ->argument();
+
             expect($fn)->to->satisfy('is_callable');
 
             $this->kernel->execute->never()->called();
@@ -276,7 +287,7 @@ describe(ApiTrait::class, function () {
                 $this->strand->get()
             );
 
-            $this->strand->send->calledWith($this->strand);
+            $this->strand->send->calledWith($this->strand, $this->strand);
         });
     });
 
@@ -325,7 +336,7 @@ describe(ApiTrait::class, function () {
 
             Phony::inOrder(
                 $this->substrand1->send->calledWith('<value>', $this->strand),
-                $this->strand->send->calledWith()
+                $this->strand->send->calledWith(null, $this->strand)
             );
         });
     });
@@ -342,7 +353,7 @@ describe(ApiTrait::class, function () {
 
             Phony::inOrder(
                 $this->substrand1->throw->calledWith($exception, $this->strand),
-                $this->strand->send->calledWith()
+                $this->strand->send->calledWith(null, $this->strand)
             );
         });
     });
@@ -501,7 +512,8 @@ describe(ApiTrait::class, function () {
             $this->strand->throw->calledWith(
                 new InvalidArgumentException(
                     'Can not wait for 0 coroutines, count must be between 1 and 2, inclusive.'
-                )
+                ),
+                $this->strand
             );
         });
 
@@ -516,7 +528,8 @@ describe(ApiTrait::class, function () {
             $this->strand->throw->calledWith(
                 new InvalidArgumentException(
                     'Can not wait for 3 coroutines, count must be between 1 and 2, inclusive.'
-                )
+                ),
+                $this->strand
             );
         });
     });
