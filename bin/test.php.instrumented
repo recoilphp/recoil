@@ -1,13 +1,14 @@
 <?php
-declare(strict_types = 1);
+
+declare (strict_types = 1);
 
 namespace Foo;
 
 require __DIR__ . '/../vendor/autoload.php';
 
 use Generator as Chump;
-use Recoil\Recoil;
 use Recoil\React\ReactKernel;
+use Recoil\Recoil;
 
 /**
  * @recoil-coroutine

@@ -4,13 +4,16 @@ declare(strict_types = 1);
 
 require __DIR__ . '/../vendor/autoload.php';
 
-use PhpParser\ParserFactory;
-use Recoil\Dev\Instrumentor;
+use Recoil\Dev\InstrumentedStream;
 
-$parser = (new ParserFactory)->create(ParserFactory::ONLY_PHP7);
-$instrumentor = new Instrumentor($parser);
+InstrumentedStream::install();
 
 $source = __DIR__ . '/test.php';
 $target = $source . '.instrumented';
-file_put_contents($target, $instrumentor->instrument(file_get_contents($source)));
+
+file_put_contents(
+    $target,
+    file_get_contents(InstrumentedStream::PREFIX . $source)
+);
+
 system("diff -u '$source' '$target'");

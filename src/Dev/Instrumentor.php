@@ -16,6 +16,9 @@ use PhpParser\NodeVisitorAbstract;
 use PhpParser\Parser;
 use PhpParser\ParserFactory;
 
+/**
+ * Instruments PHP code to allow the production of a per-strand stack trace.
+ */
 final class Instrumentor extends NodeVisitorAbstract
 {
     public function __construct()
@@ -39,6 +42,13 @@ final class Instrumentor extends NodeVisitorAbstract
         $this->traverser->addVisitor($this);
     }
 
+    /**
+     * Instrument the given source code and return the instrumented code.
+     *
+     * In order for a function to be identified as a Recoil coroutine it must
+     * have a return type hint that resolves to the \Generator class, and a
+     * "@recoil-coroutine" annotation in its documentation block.
+     */
     public function instrument(string $source) : string
     {
         $this->position = 0;
@@ -48,10 +58,8 @@ final class Instrumentor extends NodeVisitorAbstract
         $ast = $this->parser->parse($source);
         $this->traverser->traverse($ast);
 
-        // echo (new \PhpParser\NodeDumper())->dump($ast) . PHP_EOL;
-
         try {
-            return $this->output . substr($this->input, $this->position);
+            return $this->output . \substr($this->input, $this->position);
         } finally {
             $this->input = '';
             $this->output = '';
@@ -63,17 +71,20 @@ final class Instrumentor extends NodeVisitorAbstract
      */
     public function enterNode(Node $node)
     {
-        if (!$this->isCoroutine($node)) {
-            return;
+        if ($this->isCoroutine($node)) {
+            $this->instrumentCoroutine($node);
         }
+    }
 
+    private function instrumentCoroutine(FunctionLike $node)
+    {
         foreach ($node->getStmts() as $stmt) {
             if ($stmt instanceof Yield_) {
                 if ($stmt->value === null) {
                     $start = $stmt->getAttribute('startFilePos');
                     $end   = $stmt->getAttribute('endFilePos');
 
-                    $this->output .= substr(
+                    $this->output .= \substr(
                         $this->input,
                         $this->position,
                         $end - $this->position + 1
@@ -84,14 +95,14 @@ final class Instrumentor extends NodeVisitorAbstract
                     $start = $stmt->value->getAttribute('startFilePos');
                     $end   = $stmt->value->getAttribute('endFilePos');
 
-                    $this->output .= substr(
+                    $this->output .= \substr(
                         $this->input,
                         $this->position,
                         $start - $this->position
                     );
 
                     $this->output .= 'new \Recoil\Dev\Trace\TraceYield(__FILE__, __LINE__, ';
-                    $this->output .= substr($this->input, $start, $end - $start + 1);
+                    $this->output .= \substr($this->input, $start, $end - $start + 1);
                     $this->output .= ')';
                     $this->position = $end + 1;
                 }
@@ -100,14 +111,14 @@ final class Instrumentor extends NodeVisitorAbstract
                 $start = $stmt->expr->getAttribute('startFilePos');
                 $end   = $stmt->expr->getAttribute('endFilePos');
 
-                $this->output .= substr(
+                $this->output .= \substr(
                     $this->input,
                     $this->position,
                     $start - $this->position
                 );
 
                 $this->output .= 'new \Recoil\Dev\Trace\TraceYieldFrom(__FILE__, __LINE__, ';
-                $this->output .= substr($this->input, $start, $end - $start + 1);
+                $this->output .= \substr($this->input, $start, $end - $start + 1);
                 $this->output .= ')';
                 $this->position = $end + 1;
             }
@@ -139,9 +150,29 @@ final class Instrumentor extends NodeVisitorAbstract
         return true;
     }
 
+    /**
+     * @var Parser The PHP parser.
+     */
     private $parser;
+
+    /**
+     * @var NodeTraverser The object that traverses the AST.
+     */
     private $traverser;
+
+    /**
+     * @var string The original PHP source code.
+     */
     private $input;
+
+    /**
+     * @var string The instrumented PHP code.
+     */
     private $output;
+
+    /**
+     * @var int An index intot he original source code indicating the code that
+     *          has already been processed.
+     */
     private $position;
 }
