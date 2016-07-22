@@ -6,27 +6,61 @@ namespace Foo;
 
 require __DIR__ . '/../vendor/autoload.php';
 
+use Throwable;
 use Generator as Chump;
 use Recoil\React\ReactKernel;
 use Recoil\Recoil;
 
+
 /**
  * @recoil-coroutine
  */
-function coro() : \Generator
+function outer() : Chump
 {
-    echo 'Sleeping... ';
-    yield new \Recoil\Dev\Trace\TraceYield(__FILE__, __LINE__, Recoil::sleep(1));
+    yield \Recoil\Dev\Trace\Trace::coroutine('/Users/james/dev/git/recoilphp/recoil/bin/test.php', 18, __METHOD__);yield \Recoil\Dev\Trace\Trace::yield('/Users/james/dev/git/recoilphp/recoil/bin/test.php', __LINE__, middle());
 }
 
 /**
  * @recoil-coroutine
  */
-function foo() : Chump
+function middle() : \Generator
 {
-    yield new \Recoil\Dev\Trace\TraceYield(__FILE__, __LINE__);
-    yield from new \Recoil\Dev\Trace\TraceYieldFrom(__FILE__, __LINE__, coro());
-    echo 'DONE', PHP_EOL;
+    yield \Recoil\Dev\Trace\Trace::coroutine('/Users/james/dev/git/recoilphp/recoil/bin/test.php', 26, __METHOD__);yield from inner();
 }
 
-ReactKernel::start(foo());
+/**
+ * @recoil-coroutine
+ */
+function inner() : \Generator
+{
+    yield \Recoil\Dev\Trace\Trace::coroutine('/Users/james/dev/git/recoilphp/recoil/bin/test.php', 34, __METHOD__);fail();
+    return;
+    yield \Recoil\Dev\Trace\Trace::yield('/Users/james/dev/git/recoilphp/recoil/bin/test.php', __LINE__);
+}
+
+function fail()
+{
+    throw new \Exception('<OH SHIT>');
+}
+
+/**
+ * @recoil-coroutine
+ */
+function x() : \Generator
+{
+}
+
+try {
+    ReactKernel::start(outer());
+} catch (Throwable $e) {
+    echo get_class($e), ': ', $e->getMessage(), PHP_EOL;
+    echo 'Exception thrown on: ', $e->getFile(), ':', $e->getLine(), PHP_EOL;
+    foreach ($e->getTrace() as $frame) {
+        echo '---------------------------------------', PHP_EOL;
+        foreach ($frame as $key => $value) {
+            if ($key !== 'args') {
+                printf('%-10s: %s' . PHP_EOL, $key, $value);
+            }
+        }
+    }
+}

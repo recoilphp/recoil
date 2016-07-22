@@ -56,7 +56,7 @@ final class InstrumentedStream
         }
 
         try {
-            $source = $this->instrumentor->instrument($source);
+            $source = $this->instrumentor->instrument($source, $path);
         } catch (Error $e) {
             // ignore
         }

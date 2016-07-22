@@ -15,9 +15,11 @@ use PhpParser\NodeVisitor\NameResolver;
 use PhpParser\NodeVisitorAbstract;
 use PhpParser\Parser;
 use PhpParser\ParserFactory;
+use Recoil\Dev\Trace\Trace;
 
 /**
- * Instruments PHP code to allow the production of a per-strand stack trace.
+ * Instruments PHP code to provide additional debugging / trace information to
+ * the Recoil kernel.
  */
 final class Instrumentor extends NodeVisitorAbstract
 {
@@ -45,15 +47,17 @@ final class Instrumentor extends NodeVisitorAbstract
     /**
      * Instrument the given source code and return the instrumented code.
      *
-     * In order for a function to be identified as a Recoil coroutine it must
-     * have a return type hint that resolves to the \Generator class, and a
-     * "@recoil-coroutine" annotation in its documentation block.
+     * @param string      $source   The original source code.
+     * @param string|null $filename The original filename (null = unknown).
+     *
+     * @return string The instrumented code.
      */
-    public function instrument(string $source) : string
+    public function instrument(string $source, string $filename = null) : string
     {
-        $this->position = 0;
         $this->input = $source;
         $this->output = '';
+        $this->position = 0;
+        $this->filename = $filename === null ? '__FILE__' : var_export($filename, true);
 
         $ast = $this->parser->parse($source);
         $this->traverser->traverse($ast);
@@ -67,64 +71,47 @@ final class Instrumentor extends NodeVisitorAbstract
     }
 
     /**
-     * @access private
+     * Add instrumentation to a coroutine.
      */
-    public function enterNode(Node $node)
-    {
-        if ($this->isCoroutine($node)) {
-            $this->instrumentCoroutine($node);
-        }
-    }
-
     private function instrumentCoroutine(FunctionLike $node)
     {
-        foreach ($node->getStmts() as $stmt) {
-            if ($stmt instanceof Yield_) {
-                if ($stmt->value === null) {
-                    $start = $stmt->getAttribute('startFilePos');
-                    $end   = $stmt->getAttribute('endFilePos');
+        $lineNumber = $node->getAttribute('startLine') ?: '__LINE__';
+        $statements = $node->getStmts();
 
-                    $this->output .= \substr(
-                        $this->input,
-                        $this->position,
-                        $end - $this->position + 1
-                    );
-                    $this->output .= ' new \Recoil\Dev\Trace\TraceYield(__FILE__, __LINE__)';
-                    $this->position = $end + 1;
+        // Insert a 'call trace' at the first statement of the coroutine ...
+        $this->consume($statements[0]->getAttribute('startFilePos'));
+        $this->output .= 'yield \\' . Trace::class . '::coroutine(' . $this->filename . ', ' . $lineNumber . ', __METHOD__);';
+
+        // Search all statements for yields and insert 'yield traces' ...
+        foreach ($statements as $statement) {
+            if ($statement instanceof Yield_) {
+                // This yield has no value (i.e. "yield;") ...
+                if ($statement->value === null) {
+                    $this->consume($statement->getAttribute('endFilePos') + 1);
+                    $this->output .= ' \\' . Trace::class . '::yield(' . $this->filename . ', __LINE__)';
+
+                // This yield has a value (i.e. "yield $x;" - it may also have a
+                // key. In this case we wrap the value in the trace call ...
                 } else {
-                    $start = $stmt->value->getAttribute('startFilePos');
-                    $end   = $stmt->value->getAttribute('endFilePos');
-
-                    $this->output .= \substr(
-                        $this->input,
-                        $this->position,
-                        $start - $this->position
-                    );
-
-                    $this->output .= 'new \Recoil\Dev\Trace\TraceYield(__FILE__, __LINE__, ';
-                    $this->output .= \substr($this->input, $start, $end - $start + 1);
+                    $this->consume($statement->value->getAttribute('startFilePos'));
+                    $this->output .= '\\' . Trace::class . '::yield(' . $this->filename . ', __LINE__, ';
+                    $this->consume($statement->value->getAttribute('endFilePos') + 1);
                     $this->output .= ')';
-                    $this->position = $end + 1;
                 }
-            } elseif ($stmt instanceof YieldFrom) {
-                // exit;
-                $start = $stmt->expr->getAttribute('startFilePos');
-                $end   = $stmt->expr->getAttribute('endFilePos');
-
-                $this->output .= \substr(
-                    $this->input,
-                    $this->position,
-                    $start - $this->position
-                );
-
-                $this->output .= 'new \Recoil\Dev\Trace\TraceYieldFrom(__FILE__, __LINE__, ';
-                $this->output .= \substr($this->input, $start, $end - $start + 1);
-                $this->output .= ')';
-                $this->position = $end + 1;
             }
         }
     }
 
+    /**
+     * Check if an AST node represents a function that is a coroutine.
+     *
+     * A function is considered a coroutine if it meets all of the following
+     * criteria:
+     *
+     *  - Has a return type hint that resolves to \Generator.
+     *  - Is annotated with @recoil-coroutine.
+     *  - Has at least one statement (generators MUST have a yield in the body).
+     */
     private function isCoroutine(Node $node) : bool
     {
         if (!$node instanceof FunctionLike) {
@@ -147,7 +134,33 @@ final class Instrumentor extends NodeVisitorAbstract
             return false;
         }
 
+        if (empty($node->getStmts())) {
+            return false;
+        }
+
         return true;
+    }
+
+    /**
+     * Include original source code from the current position up until the given
+     * position.
+     */
+    private function consume(int $position)
+    {
+        $this->output .= \substr($this->input, $this->position, $position - $this->position);
+        $this->position = $position;
+    }
+
+    /**
+     * Visit the given node.
+     *
+     * @access private
+     */
+    public function enterNode(Node $node)
+    {
+        if ($this->isCoroutine($node)) {
+            $this->instrumentCoroutine($node);
+        }
     }
 
     /**
@@ -171,8 +184,14 @@ final class Instrumentor extends NodeVisitorAbstract
     private $output;
 
     /**
-     * @var int An index intot he original source code indicating the code that
+     * @var int An index into the original source code indicating the code that
      *          has already been processed.
      */
     private $position;
+
+    /**
+     * @var string A snippet of PHP code that resolves to the filename being
+     *             instrumented.
+     */
+    private $filename;
 }
