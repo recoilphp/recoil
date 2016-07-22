@@ -17,8 +17,8 @@ final class InstrumentedStream
     /**
      * Install the stream wrapper, if it has not already been installed.
      *
-     * @param Instrumentor $instrumentor The instrumentor to use to instrument
-     *                                   the code (null = default).
+     * @param Instrumentor|null $instrumentor The instrumentor to use to
+     *                                        instrument the code (null = default).
      */
     public static function install(Instrumentor $instrumentor = null)
     {
@@ -35,9 +35,10 @@ final class InstrumentedStream
     /**
      * Create a stream wrapper instance.
      *
-     * @param Instrumentor $instrumentor The instrumentor to use to instrument
-     *                                   the code (null = use the one provided
-     *                                   when the stream wrapper was installed).
+     * @param Instrumentor|null $instrumentor The instrumentor to use to
+     *                                        instrument the code (null = use
+     *                                        the one provided when the stream
+     *                                        wrapper was installed).
      */
     public function __construct(Instrumentor $instrumentor = null)
     {

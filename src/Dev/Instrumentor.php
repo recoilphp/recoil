@@ -133,11 +133,7 @@ final class Instrumentor extends NodeVisitorAbstract
             return false;
         }
 
-        if (empty($node->getStmts())) {
-            return false;
-        }
-
-        return true;
+        return !empty($node->getStmts());
     }
 
     /**
