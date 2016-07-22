@@ -6,11 +6,10 @@ namespace Foo;
 
 require __DIR__ . '/../vendor/autoload.php';
 
-use Throwable;
 use Generator as Chump;
 use Recoil\React\ReactKernel;
 use Recoil\Recoil;
-
+use Throwable;
 
 /**
  * @recoil-coroutine
@@ -34,6 +33,7 @@ function middle() : \Generator
 function inner() : \Generator
 {
     fail();
+
     return;
     yield;
 }

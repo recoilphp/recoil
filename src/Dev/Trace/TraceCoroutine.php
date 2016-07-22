@@ -4,8 +4,6 @@ declare (strict_types = 1); // @codeCoverageIgnore
 
 namespace Recoil\Dev\Trace;
 
-use IteratorAggregate;
-
 /**
  * Provides information about a coroutine when first executed.
  */

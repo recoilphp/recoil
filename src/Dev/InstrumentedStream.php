@@ -14,6 +14,12 @@ final class InstrumentedStream
     const SCHEME = 'recoil-dev';
     const PREFIX = self::SCHEME . '://';
 
+    /**
+     * Install the stream wrapper, if it has not already been installed.
+     *
+     * @param Instrumentor $instrumentor The instrumentor to use to instrument
+     *                                   the code (null = default).
+     */
     public static function install(Instrumentor $instrumentor = null)
     {
         if (self::$defaultInstrumentor === null) {
@@ -26,6 +32,13 @@ final class InstrumentedStream
         }
     }
 
+    /**
+     * Create a stream wrapper instance.
+     *
+     * @param Instrumentor $instrumentor The instrumentor to use to instrument
+     *                                   the code (null = use the one provided
+     *                                   when the stream wrapper was installed).
+     */
     public function __construct(Instrumentor $instrumentor = null)
     {
         $this->instrumentor = $instrumentor
@@ -33,6 +46,9 @@ final class InstrumentedStream
             ?: new Instrumentor();
     }
 
+    /**
+     * Extract the original path from an instrumented stream URI.
+     */
     public static function extractPath(string $path) : string
     {
         return \preg_replace(
@@ -42,13 +58,21 @@ final class InstrumentedStream
         );
     }
 
-    public function stream_open($path, $mode, $options = 0, &$opened_path = null)
-    {
+    /**
+     * Open the stream.
+     */
+    public function stream_open(
+        string $path,
+        string $mode,
+        int $options = 0,
+        string &$openedPath = null
+    ) : bool {
         if ($mode[0] !== 'r') {
             return false;
         }
 
         $path = self::extractPath($path);
+        $openedPath = $path;
         $source = file_get_contents($path);
 
         if ($source === false) {
@@ -76,34 +100,66 @@ final class InstrumentedStream
         return true;
     }
 
-    public function stream_read($count)
+    /**
+     * Read from the stream.
+     */
+    public function stream_read(int $count) : string
     {
         return fread($this->stream, $count);
     }
 
-    public function stream_close()
+    /**
+     * Close the stream.
+     */
+    public function stream_close() : bool
     {
-        fclose($this->stream);
+        return fclose($this->stream);
     }
 
-    public function stream_eof()
+    /**
+     * Check if the stream has reached EOF.
+     */
+    public function stream_eof() : bool
     {
         return feof($this->stream);
     }
 
+    /**
+     * Perform a stat() operation on the stream.
+     *
+     * @return array|bool
+     */
     public function stream_stat()
     {
         return fstat($this->stream);
     }
 
-    public static function url_stat($path, $flags)
+    /**
+     * Perform a stat() operation on a specific path.
+     *
+     * @return array|bool
+     */
+    public static function url_stat(string $path, int $flags)
     {
         $path = self::extractPath($path);
 
         return @stat($path);
     }
 
+    /**
+     * @var Instrumentor|null The default instrumentor for instances fo the
+     *                        stream wrapper.
+     */
     private static $defaultInstrumentor;
+
+    /**
+     * @var Instrumentor The actual instrumentor to use for this instance.
+     */
     private $instrumentor;
+
+    /**
+     * @var resource|null The underlying stream object, null unless stream_open()
+     *                    has been called successfully.
+     */
     private $stream;
 }

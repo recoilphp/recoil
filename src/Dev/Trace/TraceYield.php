@@ -4,8 +4,6 @@ declare (strict_types = 1); // @codeCoverageIgnore
 
 namespace Recoil\Dev\Trace;
 
-use Recoil\Dev\InstrumentedStream;
-
 /**
  * Provides information about a yield statement inside a coroutine.
  */

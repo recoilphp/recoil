@@ -7,7 +7,6 @@ namespace Recoil\Dev;
 use PhpParser\Lexer;
 use PhpParser\Node;
 use PhpParser\Node\Expr\Yield_;
-use PhpParser\Node\Expr\YieldFrom;
 use PhpParser\Node\FunctionLike;
 use PhpParser\Node\Name\FullyQualified;
 use PhpParser\NodeTraverser;

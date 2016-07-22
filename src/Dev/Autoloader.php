@@ -19,6 +19,9 @@ final class Autoloader
         $this->excludePattern = '/^(Composer|PhpParser|' . preg_quote(__NAMESPACE__, '/') . ')\\\\/';
     }
 
+    /**
+     * Register the autoloader before all existing autoloaders.
+     */
     public function register() : bool
     {
         InstrumentedStream::install();
@@ -27,6 +30,9 @@ final class Autoloader
         return true;
     }
 
+    /**
+     * Unregister the autoloader.
+     */
     public function unregister() : bool
     {
         spl_autoload_unregister([$this, 'loadClass']);
@@ -34,6 +40,11 @@ final class Autoloader
         return true;
     }
 
+    /**
+     * Load a class.
+     *
+     * This loader will not load any classes that are not instrumented.
+     */
     public function loadClass(string $className)
     {
         if (preg_match($this->excludePattern, $className)) {
@@ -55,4 +66,10 @@ final class Autoloader
      * @var ClassLoader The underlying Composer autoloader.
      */
     private $composerLoader;
+
+    /**
+     * @var string A regex pattern matching class names which are not to be
+     *             instrumented.
+     */
+    private $excludePattern;
 }

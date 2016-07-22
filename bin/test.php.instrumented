@@ -6,18 +6,17 @@ namespace Foo;
 
 require __DIR__ . '/../vendor/autoload.php';
 
-use Throwable;
 use Generator as Chump;
 use Recoil\React\ReactKernel;
 use Recoil\Recoil;
-
+use Throwable;
 
 /**
  * @recoil-coroutine
  */
 function outer() : Chump
 {
-    yield \Recoil\Dev\Trace\Trace::coroutine('/Users/james/dev/git/recoilphp/recoil/bin/test.php', 18, __METHOD__);yield \Recoil\Dev\Trace\Trace::yield('/Users/james/dev/git/recoilphp/recoil/bin/test.php', __LINE__, middle());
+    yield \Recoil\Dev\Trace\Trace::coroutine('/Users/james/dev/git/recoilphp/recoil/bin/test.php', 17, __METHOD__);yield \Recoil\Dev\Trace\Trace::yield('/Users/james/dev/git/recoilphp/recoil/bin/test.php', __LINE__, middle());
 }
 
 /**
@@ -25,7 +24,7 @@ function outer() : Chump
  */
 function middle() : \Generator
 {
-    yield \Recoil\Dev\Trace\Trace::coroutine('/Users/james/dev/git/recoilphp/recoil/bin/test.php', 26, __METHOD__);yield from inner();
+    yield \Recoil\Dev\Trace\Trace::coroutine('/Users/james/dev/git/recoilphp/recoil/bin/test.php', 25, __METHOD__);yield from inner();
 }
 
 /**
@@ -33,7 +32,8 @@ function middle() : \Generator
  */
 function inner() : \Generator
 {
-    yield \Recoil\Dev\Trace\Trace::coroutine('/Users/james/dev/git/recoilphp/recoil/bin/test.php', 34, __METHOD__);fail();
+    yield \Recoil\Dev\Trace\Trace::coroutine('/Users/james/dev/git/recoilphp/recoil/bin/test.php', 33, __METHOD__);fail();
+
     return;
     yield \Recoil\Dev\Trace\Trace::yield('/Users/james/dev/git/recoilphp/recoil/bin/test.php', __LINE__);
 }
