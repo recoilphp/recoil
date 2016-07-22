@@ -7,7 +7,6 @@ namespace Recoil\Kernel;
 use Closure;
 use Generator;
 use InvalidArgumentException;
-use Recoil\Dev\Trace\Trace;
 use Recoil\Exception\TerminatedException;
 use Recoil\Kernel\Exception\PrimaryListenerRemovedException;
 use Recoil\Kernel\Exception\StrandListenerException;
@@ -138,7 +137,6 @@ trait StrandTrait
 
             if ($this->current->valid()) {
                 $produced = $this->current->current();
-                assert($this->trace($produced));
             } else {
                 $produced = $this->current->getReturn();
                 goto generator_returned;
@@ -146,7 +144,6 @@ trait StrandTrait
 
         // This block catches exceptions produced by the coroutine itself ...
         } catch (Throwable $e) {
-
             // If there is a calling coroutine on the call-stack the exception
             // is propagated up the stack ...
             if ($this->depth) {
@@ -165,39 +162,8 @@ trait StrandTrait
             $this->current = null;
             $this->state = StrandState::EXIT_FAIL;
             $this->result = $e;
+            $this->finalize('throw');
 
-            // Notify all listeners ...
-            try {
-                $this->primaryListener->throw($e, $this);
-
-                foreach ($this->listeners as $listener) {
-                    $listener->throw($e, $this);
-                }
-
-            // Notify the kernel if any of the listeners fail ...
-            } catch (Throwable $e) {
-                $this->kernel->throw(
-                    new StrandListenerException($this, $e),
-                    $this
-                );
-            } finally {
-                $this->primaryListener = null;
-                $this->listeners = [];
-            }
-
-            // Terminate linked strands ...
-            if ($this->linkedStrands !== null) {
-                try {
-                    foreach ($this->linkedStrands as $strand) {
-                        $strand->unlink($this);
-                        $strand->terminate();
-                    }
-                } finally {
-                    $this->linkedStrands = null;
-                }
-            }
-
-            // This strand has now exited ...
             return;
         }
 
@@ -304,37 +270,7 @@ trait StrandTrait
         $this->current = null;
         $this->state = StrandState::EXIT_SUCCESS;
         $this->result = $produced;
-
-        // Notify all listeners ...
-        try {
-            $this->primaryListener->send($produced, $this);
-
-            foreach ($this->listeners as $listener) {
-                $listener->send($produced, $this);
-            }
-
-        // Notify the kernel if any of the listeners fail ...
-        } catch (Throwable $e) {
-            $this->kernel->throw(
-                new StrandListenerException($this, $e),
-                $this
-            );
-        } finally {
-            $this->primaryListener = null;
-            $this->listeners = [];
-        }
-
-        // Terminate linked strands ...
-        if ($this->linkedStrands !== null) {
-            try {
-                foreach ($this->linkedStrands as $strand) {
-                    $strand->unlink($this);
-                    $strand->terminate();
-                }
-            } finally {
-                $this->linkedStrands = null;
-            }
-        }
+        $this->finalize('send');
     }
 
     /**
@@ -360,36 +296,7 @@ trait StrandTrait
             ($this->terminator)($this);
         }
 
-        // Notify all listeners ...
-        try {
-            $this->primaryListener->throw($this->result, $this);
-
-            foreach ($this->listeners as $listener) {
-                $listener->throw($this->result, $this);
-            }
-
-        // Notify the kernel if any of the listeners fail ...
-        } catch (Throwable $e) {
-            $this->kernel->throw(
-                new StrandListenerException($this, $e),
-                $this
-            );
-        } finally {
-            $this->primaryListener = null;
-            $this->listeners = [];
-        }
-
-        // Terminate linked strands ...
-        if ($this->linkedStrands !== null) {
-            try {
-                foreach ($this->linkedStrands as $strand) {
-                    $strand->unlink($this);
-                    $strand->terminate();
-                }
-            } finally {
-                $this->linkedStrands = null;
-            }
-        }
+        $this->finalize('throw');
     }
 
     /**
@@ -586,13 +493,40 @@ trait StrandTrait
         }
     }
 
-    private function trace(&$produced) : bool
+    /**
+     * Finalize the strand by notifying any listeners of the exit and
+     * terminating any linked strands.
+     */
+    private function finalize(string $action)
     {
-        if ($produced instanceof Trace) {
-            $produced = $produced->unwrap();
+        try {
+            $this->primaryListener->{$action}($this->result, $this);
+
+            foreach ($this->listeners as $listener) {
+                $listener->{$action}($this->result, $this);
+            }
+
+        // Notify the kernel if any of the listeners fail ...
+        } catch (Throwable $e) {
+            $this->kernel->throw(
+                new StrandListenerException($this, $e),
+                $this
+            );
+        } finally {
+            $this->primaryListener = null;
+            $this->listeners = [];
         }
 
-        return true;
+        if ($this->linkedStrands !== null) {
+            try {
+                foreach ($this->linkedStrands as $strand) {
+                    $strand->unlink($this);
+                    $strand->terminate();
+                }
+            } finally {
+                $this->linkedStrands = null;
+            }
+        }
     }
 
     /**
