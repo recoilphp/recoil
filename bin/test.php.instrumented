@@ -24,7 +24,7 @@ function outer() : Chump
  */
 function middle() : \Generator
 {
-    yield \Recoil\Dev\Trace\Trace::coroutine('/Users/james/dev/git/recoilphp/recoil/bin/test.php', 25, __METHOD__);yield from inner();
+    yield \Recoil\Dev\Trace\Trace::coroutine('/Users/james/dev/git/recoilphp/recoil/bin/test.php', 25, __METHOD__);yield \Recoil\Dev\Trace\Trace::yield('/Users/james/dev/git/recoilphp/recoil/bin/test.php', __LINE__, inner());
 }
 
 /**
@@ -32,10 +32,16 @@ function middle() : \Generator
  */
 function inner() : \Generator
 {
-    yield \Recoil\Dev\Trace\Trace::coroutine('/Users/james/dev/git/recoilphp/recoil/bin/test.php', 33, __METHOD__);fail();
+    yield \Recoil\Dev\Trace\Trace::coroutine('/Users/james/dev/git/recoilphp/recoil/bin/test.php', 33, __METHOD__);yield from failer();
+}
 
-    return;
-    yield \Recoil\Dev\Trace\Trace::yield('/Users/james/dev/git/recoilphp/recoil/bin/test.php', __LINE__);
+/**
+ * @recoil-coroutine
+ */
+function failer() : Chump
+{
+    yield \Recoil\Dev\Trace\Trace::coroutine('/Users/james/dev/git/recoilphp/recoil/bin/test.php', 41, __METHOD__);yield \Recoil\Dev\Trace\Trace::yield('/Users/james/dev/git/recoilphp/recoil/bin/test.php', __LINE__);
+    fail();
 }
 
 function fail()

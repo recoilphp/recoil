@@ -24,7 +24,7 @@ function outer() : Chump
  */
 function middle() : \Generator
 {
-    yield from inner();
+    yield inner();
 }
 
 /**
@@ -32,10 +32,16 @@ function middle() : \Generator
  */
 function inner() : \Generator
 {
-    fail();
+    yield from failer();
+}
 
-    return;
+/**
+ * @recoil-coroutine
+ */
+function failer() : Chump
+{
     yield;
+    fail();
 }
 
 function fail()
