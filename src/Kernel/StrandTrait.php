@@ -82,10 +82,10 @@ trait StrandTrait
      */
     public function start()
     {
-        ///////////////////////////////////////////////////////////////////////////
-        // This method intentionally sacrifices readability in order to keep     //
-        // the number of function calls to a minimum for the sake of perforance. //
-        ///////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+        // This method intentionally sacrifices readability in order to keep      //
+        // the number of function calls to a minimum for the sake of performance. //
+        ////////////////////////////////////////////////////////////////////////////
 
         // The strand has exited already. This can occur if it is terminated
         // immediately after being scheduled for execution ...
