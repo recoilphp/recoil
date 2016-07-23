@@ -557,7 +557,7 @@ trait StrandTrait
     private function updateTrace(Throwable $exception)
     {
         // Ignore any exceptions that have already been seen ...
-        if (isset($exception->__seen__)) {
+        if (isset($exception->__recoilOriginalTrace__)) {
             return;
         }
 
@@ -630,7 +630,7 @@ trait StrandTrait
         // Preserve the original PHP stack trace on the exception, as it may
         // still be useful. The presence of this property also indicate that
         // this exception has already been processed ...
-        $exception->__seen__ = true;
+        $exception->__recoilOriginalTrace__ = $originalTrace;
 
         // Replace the exception's trace proprety with the strand stack trace ...
         $property = $reflector->getProperty('trace');
