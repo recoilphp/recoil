@@ -713,4 +713,17 @@ describe(StrandTrait::class, function () {
         });
     });
 
+    describe('->link()', function () {
+        it('can be called if strands are already linked', function () {
+            $this->subject->get()->link($this->strand1->get());
+            $this->subject->get()->link($this->strand1->get());
+        });
+    });
+
+    describe('->unlink()', function () {
+        it('can be called if strands are not already linked', function () {
+            $this->subject->get()->unlink($this->strand1->get());
+        });
+    });
+
 });

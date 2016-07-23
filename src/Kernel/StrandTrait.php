@@ -579,7 +579,9 @@ trait StrandTrait
      */
     public function unlink(Strand $strand)
     {
-        $this->linkedStrands->detach($strand);
+        if ($this->linkedStrands !== null) {
+            $this->linkedStrands->detach($strand);
+        }
     }
 
     /**
