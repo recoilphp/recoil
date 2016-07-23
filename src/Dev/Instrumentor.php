@@ -15,7 +15,6 @@ use PhpParser\NodeVisitorAbstract;
 use PhpParser\Parser;
 use PhpParser\ParserFactory;
 use Recoil\Dev\Trace\CoroutineTrace;
-use Recoil\Dev\Trace\Trace;
 use Recoil\Dev\Trace\YieldTrace;
 
 /**

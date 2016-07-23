@@ -561,12 +561,6 @@ trait StrandTrait
             return;
         }
 
-        $previous = $exception->getPrevious();
-
-        if ($previous) {
-            $this->updateTrace($previous);
-        }
-
         $reflector = new ReflectionClass($exception);
 
         // We can't update the stack trace if the property doesn't exist. Nor

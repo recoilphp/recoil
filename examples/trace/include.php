@@ -1,11 +1,8 @@
-#!/usr/bin/env php
 <?php
 
 declare (strict_types = 1);
 
 namespace Foo;
-
-require __DIR__ . '/../vendor/autoload.php';
 
 use Generator as Chump;
 use Recoil\React\ReactKernel;
@@ -17,7 +14,7 @@ use Throwable;
  */
 function outer(int $value) : Chump
 {
-    yield new \Recoil\Dev\Trace\CoroutineTrace('/Users/james/dev/git/recoilphp/recoil/bin/test.php', __FUNCTION__, \func_get_args());yield new \Recoil\Dev\Trace\YieldTrace(__LINE__, middle($value + 1));
+    yield middle($value + 1);
 }
 
 /**
@@ -25,8 +22,8 @@ function outer(int $value) : Chump
  */
 function middle(int $value) : \Generator
 {
-    yield new \Recoil\Dev\Trace\CoroutineTrace('/Users/james/dev/git/recoilphp/recoil/bin/test.php', __FUNCTION__, \func_get_args());yield new \Recoil\Dev\Trace\YieldTrace(__LINE__, 1);
-    yield new \Recoil\Dev\Trace\YieldTrace(__LINE__, inner($value + 1));
+    yield 1;
+    yield inner($value + 1);
 }
 
 /**
@@ -34,7 +31,7 @@ function middle(int $value) : \Generator
  */
 function inner(int $value) : \Generator
 {
-    yield new \Recoil\Dev\Trace\CoroutineTrace('/Users/james/dev/git/recoilphp/recoil/bin/test.php', __FUNCTION__, \func_get_args());yield from failer($value + 1);
+    yield from failer($value + 1);
 }
 
 /**
@@ -42,7 +39,7 @@ function inner(int $value) : \Generator
  */
 function failer(int $value) : Chump
 {
-    yield new \Recoil\Dev\Trace\CoroutineTrace('/Users/james/dev/git/recoilphp/recoil/bin/test.php', __FUNCTION__, \func_get_args());yield new \Recoil\Dev\Trace\YieldTrace(__LINE__);
+    yield;
     fail($value + 1);
 }
 
