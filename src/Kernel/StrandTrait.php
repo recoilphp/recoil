@@ -107,10 +107,9 @@ trait StrandTrait
 
         // Execute the next "tick" of the current coroutine ...
         try {
-            // If $this->action is set, we are resuming the generator. The
-            // action and the associated $this->value variable are set before
-            // jumping to the "resume_generator" label, or by calling send() or
-            // throw() ...
+            // If action is set, we are resuming the generator. The action and
+            // the associated value variable must be set before jumping to the
+            // "resume_generator" label, or by calling send() or throw() ...
             if ($this->action) {
                 resume_generator:
                 assert($this->current instanceof Generator, 'call-stack must not be empty');
