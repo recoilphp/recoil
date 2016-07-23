@@ -82,7 +82,7 @@ trait StrandTrait
      */
     public function start()
     {
-        // This method intentionally minimises function calls for performance
+        // This method intentionally minimizes function calls for performance
         // reasons at the expense of readability. It's nasty. Be gentle.
 
         // Strand was terminated before it was even started ...
@@ -111,166 +111,156 @@ trait StrandTrait
             // Send the current coroutine data via a 'send' or 'throw'. These
             // actions are configured by the resume and throw methods ...
             if ($this->action) {
-                continue_iterating_generator:
+                resume_generator:
                 assert(
                     $this->state === StrandState::RUNNING,
                     'strand cannot not perform action unless it is running'
                 );
 
                 assert(
-                    $this->action === 'send' ||
-                    $this->action === 'throw',
-                    'the "continue_iterating_generator" label requires an action and value'
+                    $this->action === 'send' || $this->action === 'throw',
+                    'the "resume_generator" label requires an action of "send" or "throw"'
+                );
+
+                assert(
+                    $this->action === 'send' || $this->value instanceof Throwable,
+                    'the "resume_generator" label requires a throwable when the action is "throw"'
                 );
 
                 $this->current->{$this->action}($this->value);
                 $this->action = $this->value = null;
             }
 
-            // If the generator is valid (has futher iterations to perform) then
-            // it has been suspended with a yield, otherwise it has returned ...
-            start_iterating_generator:
+            start_generator:
             assert(
                 $this->state === StrandState::RUNNING,
                 'strand cannot not perform action unless it is running'
             );
 
+            // If the generator is valid it has futher iterations to perform,
+            // therefore it has yielded, rather than returned ...
             if ($this->current->valid()) {
                 $produced = $this->current->current();
-            } else {
-                $produced = $this->current->getReturn();
-                goto generator_returned;
-            }
+                $this->state = StrandState::SUSPENDED_ACTIVE;
 
-        // This block catches exceptions produced by the coroutine itself ...
-        } catch (Throwable $e) {
-            // If there is a calling coroutine on the call-stack the exception
-            // is propagated up the stack ...
-            if ($this->depth) {
-                // "fast" functionless stack-pop ...
-                $current = &$this->stack[--$this->depth];
-                $this->current = $current;
-                $current = null;
+                try {
+                    // Another generated was yielded, push it onto the call
+                    // stack and execute it ...
+                    if ($produced instanceof Generator) {
+                        // "fast" functionless stack-push ...
+                        $this->stack[$this->depth++] = $this->current;
+                        $this->current = $produced;
+                        $this->state = StrandState::RUNNING;
+                        goto start_generator;
 
-                $this->action = 'throw';
-                $this->value = $e;
-                $this->state = StrandState::RUNNING;
-                goto continue_iterating_generator;
-            }
+                    // A coroutine provided was yielded. Extract the coroutine
+                    // then push it onto the call stack and execute it ...
+                    } elseif ($produced instanceof CoroutineProvider) {
+                        // The coroutine is extracted from the provider before the
+                        // stack push is begun in case coroutine() throws ...
+                        $produced = $produced->coroutine();
 
-            // Otherwise the strand exits with a failure ...
-            $this->current = null;
-            $this->state = StrandState::EXIT_FAIL;
-            $this->result = $e;
-            $this->finalize('throw');
+                        // "fast" functionless stack-push ...
+                        $this->stack[$this->depth++] = $this->current;
+                        $this->current = $produced;
+                        $this->state = StrandState::RUNNING;
+                        goto start_generator;
 
-            return;
-        }
+                    // An API call was made through the Recoil static facade ...
+                    } elseif ($produced instanceof ApiCall) {
+                        $produced = $this->api->{$produced->name}(
+                            $this,
+                            ...$produced->arguments
+                        );
 
-        // Handle the key and value produced by a suspended coroutine ...
-        $this->state = StrandState::SUSPENDED_ACTIVE;
+                        // The API call is implemented as a generator coroutine,
+                        // push it onto the call stack and execute it ...
+                        if ($produced instanceof Generator) {
+                            // "fast" functionless stack-push ...
+                            $this->stack[$this->depth++] = $this->current;
+                            $this->current = $produced;
+                            $this->state = StrandState::RUNNING;
+                            goto start_generator;
+                        }
 
-        try {
-            if ($produced instanceof Generator) {
-                // "fast" functionless stack-push ...
-                $this->stack[$this->depth++] = $this->current;
-                $this->current = $produced;
-                $this->state = StrandState::RUNNING;
-                goto start_iterating_generator; // enter the new coroutine
-            } elseif ($produced instanceof CoroutineProvider) {
-                // The coroutine is extracted from the providor before the
-                // stack push is begun in case coroutine() throws ...
-                $produced = $produced->coroutine();
+                    // A generic awaitable object was yielded ...
+                    } elseif ($produced instanceof Awaitable) {
+                        $produced->await($this, $this->api);
 
-                // "fast" functionless stack-push ...
-                $this->stack[$this->depth++] = $this->current;
-                $this->current = $produced;
-                $this->state = StrandState::RUNNING;
-                goto start_iterating_generator; // enter the new coroutine
-            } elseif ($produced instanceof ApiCall) {
-                $result = $this->api->{$produced->name}(
-                    $this,
-                    ...$produced->arguments
-                );
+                    // An awaitable provider was yeilded ...
+                    } elseif ($produced instanceof AwaitableProvider) {
+                        $produced->awaitable()->await($this, $this->api);
 
-                if ($result instanceof Generator) {
-                    // "fast" functionless stack-push ...
-                    $this->stack[$this->depth++] = $this->current;
-                    $this->current = $result;
+                    // Some unidentified value was yielded, allow the API to
+                    // dispatch the operation as it sees fit ...
+                    } else {
+                        $this->api->dispatch(
+                            $this,
+                            $this->current->key(),
+                            $produced
+                        );
+                    }
+
+                // An exception occurred as a result of the yielded value. This
+                // exception is not propagated up the call stack, but rather
+                // sent back to the current coroutine (i.e., the one that yielded
+                // the value) ...
+                } catch (Throwable $e) {
+                    $this->action = 'throw';
+                    $this->value = $e;
                     $this->state = StrandState::RUNNING;
-                    goto start_iterating_generator; // enter the new coroutine
+                    goto resume_generator;
                 }
-            } elseif ($produced instanceof Awaitable) {
-                $produced->await(
-                    $this,
-                    $this->api
-                );
-            } elseif ($produced instanceof AwaitableProvider) {
-                $produced->awaitable()->await(
-                    $this,
-                    $this->api
-                );
-            } else {
-                $this->api->dispatch(
-                    $this,
-                    $this->current->key(),
-                    $produced
-                );
+
+                // The strand has been set back to the READY state. This means
+                // that send() or throw() was called while handling the yielded
+                // value. Resume the current coroutine immediately ...
+                if ($this->state === StrandState::READY) {
+                    $this->state = StrandState::RUNNING;
+                    goto resume_generator;
+
+                // Otherwise, if the strand was not terminated while handling
+                // the yielded value, it is now fully suspended ...
+                } elseif ($this->state !== StrandState::EXIT_TERMINATED) {
+                    $this->state = StrandState::SUSPENDED_INACTIVE;
+                }
+
+                // There is nothing left to do until send() or throw() is called
+                // in the future ...
+                return;
             }
 
-            // If action is already set, it means that send() or throw()
-            // has already been called above, jump directly to the next
-            // action ...
-            if ($this->state === StrandState::READY) {
-                $this->state = StrandState::RUNNING;
-                goto continue_iterating_generator;
-            }
+            // The generator has completed iteration and returned a value ...
+            $this->action = 'send';
+            $this->value = $this->current->getReturn();
 
-        // This block catches exceptions that occur inside the kernel API,
-        // awaitables, coroutine providers, etc. The caller is resumed with
-        // the exception ...
+            // Prepare the state in case the stack is empty ...
+            $this->state = StrandState::EXIT_SUCCESS;
+
+        // An exception was thrown during the execution of the generator ...
         } catch (Throwable $e) {
             $this->action = 'throw';
             $this->value = $e;
-            $this->state = StrandState::RUNNING;
-            goto continue_iterating_generator;
+
+            // Prepare the state in case the stack is empty ...
+            $this->state = StrandState::EXIT_FAIL;
         }
 
-        // The strand was terminated cleanly ...
-        if ($this->state === StrandState::EXIT_TERMINATED) {
-            return;
-        }
-
-        // No goto sent us back to the "continue_iterating_generator" label,
-        // this means the strand itself (not just the coroutine) is suspended ...
-        $this->state = StrandState::SUSPENDED_INACTIVE;
-
-        return;
-
-        // The generator has returned (reached the end of generation) ...
-        generator_returned:
-
-        // There is a calling coroutine on the stack, so the current coroutine
-        // is popped and the parent is resumed with the return value ...
+        // The current coroutine has ended, either by returning or throwing. If
+        // there is a function above it on the call stack, we pop the current
+        // coroutine from the stack and resume the parent ...
         if ($this->depth) {
             // "fast" functionless stack-pop ...
             $current = &$this->stack[--$this->depth];
             $this->current = $current;
             $current = null;
 
-            // Define next action ...
-            $this->action = 'send';
-            $this->value = $produced;
             $this->state = StrandState::RUNNING;
-            goto continue_iterating_generator;
+            goto resume_generator;
         }
 
-        // The current coroutine has exited cleanly and there are no coroutines
-        // above it on the call-stack ...
-        $this->current = null;
-        $this->state = StrandState::EXIT_SUCCESS;
-        $this->result = $produced;
-        $this->finalize('send');
+        // Otherwise the call stack is empty, the strand has exited ...
+        return $this->finalize();
     }
 
     /**
@@ -287,16 +277,16 @@ trait StrandTrait
             return;
         }
 
-        $this->current = null;
-        $this->state = StrandState::EXIT_TERMINATED;
-        $this->result = new TerminatedException($this);
         $this->stack = [];
+        $this->action = 'throw';
+        $this->value = new TerminatedException($this);
+        $this->state = StrandState::EXIT_TERMINATED;
 
         if ($this->terminator) {
             ($this->terminator)($this);
         }
 
-        $this->finalize('throw');
+        $this->finalize();
     }
 
     /**
@@ -392,9 +382,9 @@ trait StrandTrait
                 );
             }
         } elseif ($this->state === StrandState::EXIT_SUCCESS) {
-            $listener->send($this->result, $this);
+            $listener->send($this->value, $this);
         } else {
-            $listener->throw($this->result, $this);
+            $listener->throw($this->value, $this);
         }
     }
 
@@ -459,9 +449,9 @@ trait StrandTrait
         if ($this->state < StrandState::EXIT_SUCCESS) {
             $this->listeners[] = $listener;
         } elseif ($this->state === StrandState::EXIT_SUCCESS) {
-            $listener->send($this->result, $this);
+            $listener->send($this->value, $this);
         } else {
-            $listener->throw($this->result, $this);
+            $listener->throw($this->value, $this);
         }
     }
 
@@ -497,13 +487,15 @@ trait StrandTrait
      * Finalize the strand by notifying any listeners of the exit and
      * terminating any linked strands.
      */
-    private function finalize(string $action)
+    private function finalize()
     {
+        $this->current = null;
+
         try {
-            $this->primaryListener->{$action}($this->result, $this);
+            $this->primaryListener->{$this->action}($this->value, $this);
 
             foreach ($this->listeners as $listener) {
-                $listener->{$action}($this->result, $this);
+                $listener->{$this->action}($this->value, $this);
             }
 
         // Notify the kernel if any of the listeners fail ...
@@ -586,18 +578,14 @@ trait StrandTrait
     private $state = StrandState::READY;
 
     /**
-     * @var mixed The result of the strand's entry point coroutine, or the
-     *            exception it threw.
-     */
-    private $result;
-
-    /**
      * @var string|null The next action to perform on the current coroutine ('send' or 'throw').
      */
     private $action;
 
     /**
-     * @var mixed The value or exception to send or throw on the next tick.
+     * @var mixed The value or exception to send or throw on the next tick or
+     *            the result of the strand's entry point coroutine if the strand
+     *            has exited.
      */
     private $value;
 }
