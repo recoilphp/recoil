@@ -5,11 +5,17 @@ declare (strict_types = 1); // @codeCoverageIgnore
 namespace Recoil\Kernel;
 
 use Closure;
+use Error;
+use Exception;
 use Generator;
 use InvalidArgumentException;
+use Recoil\Dev\Trace\CoroutineTrace;
+use Recoil\Dev\Trace\Trace;
+use Recoil\Dev\Trace\YieldTrace;
 use Recoil\Exception\TerminatedException;
 use Recoil\Kernel\Exception\PrimaryListenerRemovedException;
 use Recoil\Kernel\Exception\StrandListenerException;
+use ReflectionClass;
 use SplObjectStorage;
 use Throwable;
 
@@ -112,7 +118,7 @@ trait StrandTrait
             // "resume_generator" label, or by calling send() or throw() ...
             if ($this->action) {
                 resume_generator:
-                assert($this->current instanceof Generator, 'call-stack must not be empty');
+                assert($this->current instanceof Generator, 'call stack must not be empty');
                 assert($this->state === StrandState::RUNNING, 'strand state must be RUNNING');
                 assert($this->action === 'send' || $this->action === 'throw', 'action must be "send" or "throw"');
                 assert($this->action !== 'throw' || $this->value instanceof Throwable, 'value must be throwable');
@@ -122,9 +128,9 @@ trait StrandTrait
             }
 
             // The "start_generator" is jumped to when a new generator has been
-            // pushed onto the call-stack ...
+            // pushed onto the call stack ...
             start_generator:
-            assert($this->current instanceof Generator, 'call-stack must not be empty');
+            assert($this->current instanceof Generator, 'call stack must not be empty');
             assert($this->state === StrandState::RUNNING, 'strand state must be RUNNING');
 
             // If the generator is "valid" it has futher iterations to perform,
@@ -132,6 +138,21 @@ trait StrandTrait
             if ($this->current->valid()) {
                 $produced = $this->current->current();
                 $this->state = StrandState::SUSPENDED_ACTIVE;
+
+                // Trace the yielded value. This function is responsible for
+                // maintaining information about the strand's call stack when
+                // using instrumented code. It is performed inside an assertion
+                // so that the call is optimized out completely when running in
+                // production.
+                //
+                // The trace operation may resume the strand, in which case we
+                // jump back to "resume_generator" immediately. There's no way
+                // to include the 'goto' inside the assertion, so this incurs
+                // the minimal overhead of an integer comparison on each yield ...
+                assert(!$produced instanceof Trace || $this->trace($produced) || true);
+                if ($this->state === StrandState::RUNNING) {
+                    goto resume_generator;
+                }
 
                 try {
                     // Another generated was yielded, push it onto the call
@@ -196,6 +217,12 @@ trait StrandTrait
                 // sent back to the current coroutine (i.e., the one that yielded
                 // the value) ...
                 } catch (Throwable $e) {
+                    // Update the exception's stack trace based on trace data
+                    // on the strand's call stack. This is done inside an
+                    // assertion so that the call is optimized out completed
+                    // when running in production ...
+                    assert($this->updateTrace($e) || true);
+
                     $this->action = 'throw';
                     $this->value = $e;
                     $this->state = StrandState::RUNNING;
@@ -238,6 +265,12 @@ trait StrandTrait
             $current = &$this->stack[--$this->depth];
             $this->current = $current;
             $current = null;
+
+            // Update the exception's stack trace based on trace data
+            // on the strand's call stack. This is done inside an
+            // assertion so that the call is optimized out completed
+            // when running in production ...
+            assert($this->action !== 'throw' || $this->updateTrace($this->value) || true);
 
             $this->state = StrandState::RUNNING;
             goto resume_generator;
@@ -499,6 +532,110 @@ trait StrandTrait
                 $this->linkedStrands = null;
             }
         }
+    }
+
+    /**
+     * Record information produced by instrumented code.
+     */
+    private function trace(&$produced)
+    {
+        if ($produced instanceof CoroutineTrace) {
+            $this->current->coroutineTrace = $produced;
+            $this->action = 'send';
+            $this->value = null;
+            $this->state = StrandState::RUNNING;
+        } elseif ($produced instanceof YieldTrace) {
+            $this->current->yieldTrace = $produced;
+            $produced = $produced->value();
+        }
+    }
+
+    /**
+     * Modify an exceptions stack trace so that it reflects the strand's call
+     * stack, rather than the native PHP call stack.
+     */
+    private function updateTrace(Throwable $exception)
+    {
+        // Ignore any exceptions that have already been seen ...
+        if (isset($exception->__recoilOriginalTrace__)) {
+            return;
+        }
+
+        $previous = $exception->getPrevious();
+
+        if ($previous) {
+            $this->updateTrace($previous);
+        }
+
+        $reflector = new ReflectionClass($exception);
+
+        // We can't update the stack trace if the property doesn't exist. Nor
+        // can we mark the exception as seen if there is a magic __set method ...
+        if (
+            !$reflector->hasProperty('trace') ||
+            $reflector->hasMethod('__set')
+        ) {
+            return;
+        }
+
+        $strandTrace = [];
+        $strandTraceSize = 0;
+        $originalTrace = $exception->getTrace();
+
+        // Keep the original trace up until we find the internal strand code ...
+        foreach ($originalTrace as $frame) {
+            $file = $frame['file'] ?? '';
+
+            if ($file === __FILE__) {
+                break;
+            }
+
+            ++$strandTraceSize;
+            $strandTrace[] = $frame;
+        }
+
+        // Traverse backwards through the strand's call stack to synthesize
+        // stack frames ...
+        $stackIndex = $this->depth;
+        $generator = $this->current;
+
+        do {
+            $coroutineTrace = $generator->coroutineTrace ?? null;
+            $yieldTrace = $generator->yieldTrace ?? null;
+
+            // If this coroutine has a "yield trace", that tells us the position
+            // that the function in the previous stack frame was called ...
+            if ($yieldTrace) {
+                $frame = &$strandTrace[$strandTraceSize - 1];
+                $frame['file'] = $yieldTrace->file;
+                $frame['line'] = $yieldTrace->line;
+            }
+
+            // If this coroutine has a "coroutine trace", that gives us
+            // information about the coroutine itself ...
+            if ($coroutineTrace) {
+                // @todo object, args, class, type, etc
+                $strandTrace[] = ['function' => $coroutineTrace->function];
+
+            // The coroutine was not instrumented, but we still need to inject
+            // a stack frame to represent it ...
+            } else {
+                $strandTrace[] = ['function' => '<coroutine not instrumented>'];
+            }
+
+            ++$strandTraceSize;
+            $generator = $this->stack[--$stackIndex] ?? null;
+        } while ($generator);
+
+        // Preserve the original PHP stack trace on the exception, as it may
+        // still be useful. The presence of this property also indicate that
+        // this exception has already been processed ...
+        $exception->__recoilOriginalTrace__ = $originalTrace;
+
+        // Replace the exception's trace proprety with the strand stack trace ...
+        $property = $reflector->getProperty('trace');
+        $property->setAccessible(true);
+        $property->setValue($exception, $strandTrace);
     }
 
     /**
