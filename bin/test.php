@@ -15,50 +15,44 @@ use Throwable;
 /**
  * @recoil-coroutine
  */
-function outer() : Chump
+function outer(int $value) : Chump
 {
-    yield middle();
+    yield middle($value + 1);
 }
 
 /**
  * @recoil-coroutine
  */
-function middle() : \Generator
+function middle(int $value) : \Generator
 {
-    yield inner();
+    yield 1;
+    yield inner($value + 1);
 }
 
 /**
  * @recoil-coroutine
  */
-function inner() : \Generator
+function inner(int $value) : \Generator
 {
-    yield from failer();
+    yield from failer($value + 1);
 }
 
 /**
  * @recoil-coroutine
  */
-function failer() : Chump
+function failer(int $value) : Chump
 {
     yield;
-    fail();
+    fail($value + 1);
 }
 
-function fail()
+function fail(int $value)
 {
     throw new \Exception('<OH SHIT>');
 }
 
-/**
- * @recoil-coroutine
- */
-function x() : \Generator
-{
-}
-
 // try {
-    ReactKernel::start(outer());
+    ReactKernel::start(outer(100));
 // } catch (Throwable $e) {
 //     echo get_class($e), ': ', $e->getMessage(), PHP_EOL;
 //     echo 'Exception thrown on: ', $e->getFile(), ':', $e->getLine(), PHP_EOL;

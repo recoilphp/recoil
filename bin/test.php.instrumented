@@ -15,50 +15,44 @@ use Throwable;
 /**
  * @recoil-coroutine
  */
-function outer() : Chump
+function outer(int $value) : Chump
 {
-    yield \Recoil\Dev\Trace\Trace::coroutine('/Users/james/dev/git/recoilphp/recoil/bin/test.php', 18, __METHOD__);yield \Recoil\Dev\Trace\Trace::yield('/Users/james/dev/git/recoilphp/recoil/bin/test.php', __LINE__, middle());
+    yield new \Recoil\Dev\Trace\CoroutineTrace('/Users/james/dev/git/recoilphp/recoil/bin/test.php', __FUNCTION__, \func_get_args());yield new \Recoil\Dev\Trace\YieldTrace(__LINE__, middle($value + 1));
 }
 
 /**
  * @recoil-coroutine
  */
-function middle() : \Generator
+function middle(int $value) : \Generator
 {
-    yield \Recoil\Dev\Trace\Trace::coroutine('/Users/james/dev/git/recoilphp/recoil/bin/test.php', 26, __METHOD__);yield \Recoil\Dev\Trace\Trace::yield('/Users/james/dev/git/recoilphp/recoil/bin/test.php', __LINE__, inner());
+    yield new \Recoil\Dev\Trace\CoroutineTrace('/Users/james/dev/git/recoilphp/recoil/bin/test.php', __FUNCTION__, \func_get_args());yield new \Recoil\Dev\Trace\YieldTrace(__LINE__, 1);
+    yield new \Recoil\Dev\Trace\YieldTrace(__LINE__, inner($value + 1));
 }
 
 /**
  * @recoil-coroutine
  */
-function inner() : \Generator
+function inner(int $value) : \Generator
 {
-    yield \Recoil\Dev\Trace\Trace::coroutine('/Users/james/dev/git/recoilphp/recoil/bin/test.php', 34, __METHOD__);yield from failer();
+    yield new \Recoil\Dev\Trace\CoroutineTrace('/Users/james/dev/git/recoilphp/recoil/bin/test.php', __FUNCTION__, \func_get_args());yield from failer($value + 1);
 }
 
 /**
  * @recoil-coroutine
  */
-function failer() : Chump
+function failer(int $value) : Chump
 {
-    yield \Recoil\Dev\Trace\Trace::coroutine('/Users/james/dev/git/recoilphp/recoil/bin/test.php', 42, __METHOD__);yield \Recoil\Dev\Trace\Trace::yield('/Users/james/dev/git/recoilphp/recoil/bin/test.php', __LINE__);
-    fail();
+    yield new \Recoil\Dev\Trace\CoroutineTrace('/Users/james/dev/git/recoilphp/recoil/bin/test.php', __FUNCTION__, \func_get_args());yield new \Recoil\Dev\Trace\YieldTrace(__LINE__);
+    fail($value + 1);
 }
 
-function fail()
+function fail(int $value)
 {
     throw new \Exception('<OH SHIT>');
 }
 
-/**
- * @recoil-coroutine
- */
-function x() : \Generator
-{
-}
-
 // try {
-    ReactKernel::start(outer());
+    ReactKernel::start(outer(100));
 // } catch (Throwable $e) {
 //     echo get_class($e), ': ', $e->getMessage(), PHP_EOL;
 //     echo 'Exception thrown on: ', $e->getFile(), ':', $e->getLine(), PHP_EOL;

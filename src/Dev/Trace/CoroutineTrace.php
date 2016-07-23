@@ -7,22 +7,35 @@ namespace Recoil\Dev\Trace;
 /**
  * Provides information about a coroutine when first executed.
  */
-final class CoroutineTrace extends Trace
+final class CoroutineTrace implements Trace
 {
+    /**
+     * @var string The filename.
+     */
+    public $file;
+
     /**
      * @var string The name of the coroutine function.
      */
     public $function;
 
     /**
-     * @param string $file     The file containing the coroutine.
-     * @param int    $line     The line number of coroutine definition.
-     * @param string $function The name of the coroutine function.
+     * @var array
      */
-    public function __construct(string $file, int $line, string $function)
-    {
+    public $arguments;
+
+    /**
+     * @param string $file      The file containing the coroutine that yielded.
+     * @param string $function  The name of the coroutine function.
+     * @param array  $arguments The arguments to the coroutine.
+     */
+    public function __construct(
+        string $file,
+        string $function,
+        array $arguments
+    ) {
         $this->file = $file;
-        $this->line = $line;
         $this->function = $function;
+        $this->arguments = $arguments;
     }
 }

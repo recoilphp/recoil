@@ -7,16 +7,19 @@ namespace Recoil\Dev\Trace;
 /**
  * Provides information about a yield statement inside a coroutine.
  */
-final class YieldTrace extends Trace
+final class YieldTrace implements Trace
 {
     /**
-     * @param string $file  The file containing the coroutine that yielded.
-     * @param int    $line  The line number of the yielded value.
-     * @param mixed  $value The yielded value.
+     * @var int The line number.
      */
-    public function __construct(string $file, int $line, $value = null)
+    public $line;
+
+    /**
+     * @param int   $line  The line number of the yielded value.
+     * @param mixed $value The yielded value.
+     */
+    public function __construct(int $line, $value = null)
     {
-        $this->file = $file;
         $this->line = $line;
         $this->value = $value;
     }

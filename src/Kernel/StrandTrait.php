@@ -601,24 +601,20 @@ trait StrandTrait
 
         do {
             $coroutineTrace = $generator->coroutineTrace ?? null;
-            $yieldTrace = $generator->yieldTrace ?? null;
 
-            // If this coroutine has a "yield trace", that tells us the position
-            // that the function in the previous stack frame was called ...
-            if ($yieldTrace) {
-                $strandTrace[$strandTraceSize - 1]['file'] = $yieldTrace->file;
-                $strandTrace[$strandTraceSize - 1]['line'] = $yieldTrace->line;
-            } else {
-                $strandTrace[$strandTraceSize - 1]['file'] = 'Unknown';
-                $strandTrace[$strandTraceSize - 1]['line'] = 0;
-            }
-
-            // If this coroutine has a "coroutine trace", that gives us
-            // information about the coroutine itself ...
+            // If the coroutine trace is present, this function has been
+            // instrumented. Extract the function name for use in this stack
+            // frame, and the file name to update the call location for the
+            // previous stack frame ...
             if ($coroutineTrace) {
-                // @todo object, args, class, type, etc
+                // Update the previous stack frame's call location ...
+                $strandTrace[$strandTraceSize - 1]['line'] = $generator->yieldTrace->line;
+                $strandTrace[$strandTraceSize - 1]['file'] = $coroutineTrace->file;
+
                 $strandTrace[] = [
+                    // @todo object, class, type, etc
                     'function' => $coroutineTrace->function,
+                    'args' => $coroutineTrace->arguments,
                     'file' => 'Unknown',
                     'line' => 0,
                 ];

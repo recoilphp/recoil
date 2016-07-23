@@ -14,7 +14,9 @@ use PhpParser\NodeVisitor\NameResolver;
 use PhpParser\NodeVisitorAbstract;
 use PhpParser\Parser;
 use PhpParser\ParserFactory;
+use Recoil\Dev\Trace\CoroutineTrace;
 use Recoil\Dev\Trace\Trace;
+use Recoil\Dev\Trace\YieldTrace;
 
 /**
  * Instruments PHP code to provide additional debugging / trace information to
@@ -74,12 +76,11 @@ final class Instrumentor extends NodeVisitorAbstract
      */
     private function instrumentCoroutine(FunctionLike $node)
     {
-        $lineNumber = $node->getAttribute('startLine') ?: '__LINE__';
         $statements = $node->getStmts();
 
         // Insert a 'call trace' at the first statement of the coroutine ...
         $this->consume($statements[0]->getAttribute('startFilePos'));
-        $this->output .= 'yield \\' . Trace::class . '::coroutine(' . $this->filename . ', ' . $lineNumber . ', __METHOD__);';
+        $this->output .= 'yield new \\' . CoroutineTrace::class . '(' . $this->filename . ', __FUNCTION__, \func_get_args());';
 
         // Search all statements for yields and insert 'yield traces' ...
         foreach ($statements as $statement) {
@@ -87,13 +88,13 @@ final class Instrumentor extends NodeVisitorAbstract
                 // This yield has no value (i.e. "yield;") ...
                 if ($statement->value === null) {
                     $this->consume($statement->getAttribute('endFilePos') + 1);
-                    $this->output .= ' \\' . Trace::class . '::yield(' . $this->filename . ', __LINE__)';
+                    $this->output .= ' new \\' . YieldTrace::class . '(__LINE__)';
 
                 // This yield has a value (i.e. "yield $x;" - it may also have a
                 // key. In this case we wrap the value in the trace call ...
                 } else {
                     $this->consume($statement->value->getAttribute('startFilePos'));
-                    $this->output .= '\\' . Trace::class . '::yield(' . $this->filename . ', __LINE__, ';
+                    $this->output .= 'new \\' . YieldTrace::class . '(__LINE__, ';
                     $this->consume($statement->value->getAttribute('endFilePos') + 1);
                     $this->output .= ')';
                 }
