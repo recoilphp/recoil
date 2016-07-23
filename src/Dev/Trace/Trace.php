@@ -21,9 +21,9 @@ abstract class Trace
      * @param int    $line     The line number of coroutine definition.
      * @param string $function The name of the coroutine function.
      */
-    public static function coroutine(string $file, int $line, string $function) : TraceCoroutine
+    public static function coroutine(string $file, int $line, string $function) : CoroutineTrace
     {
-        return new TraceCoroutine($file, $line, $function);
+        return new CoroutineTrace($file, $line, $function);
     }
 
     /**
@@ -31,8 +31,8 @@ abstract class Trace
      * @param int    $line  The line number of the yielded value.
      * @param mixed  $value The yielded value.
      */
-    public static function yield(string $file, int $line, $value = null) : TraceYield
+    public static function yield(string $file, int $line, $value = null) : YieldTrace
     {
-        return new TraceYield($file, $line, $value);
+        return new YieldTrace($file, $line, $value);
     }
 }

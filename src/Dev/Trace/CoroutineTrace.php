@@ -7,7 +7,7 @@ namespace Recoil\Dev\Trace;
 /**
  * Provides information about a coroutine when first executed.
  */
-final class TraceCoroutine extends Trace
+final class CoroutineTrace extends Trace
 {
     /**
      * @var string The name of the coroutine function.

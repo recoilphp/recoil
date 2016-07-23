@@ -7,7 +7,7 @@ namespace Recoil\Dev\Trace;
 /**
  * Provides information about a yield statement inside a coroutine.
  */
-final class TraceYield extends Trace
+final class YieldTrace extends Trace
 {
     /**
      * @param string $file  The file containing the coroutine that yielded.
