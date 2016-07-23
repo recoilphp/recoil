@@ -82,62 +82,53 @@ trait StrandTrait
      */
     public function start()
     {
-        // This method intentionally minimizes function calls for performance
-        // reasons at the expense of readability. It's nasty. Be gentle.
+        ///////////////////////////////////////////////////////////////////////////
+        // This method intentionally sacrifices readability in order to keep     //
+        // the number of function calls to a minimum for the sake of perforance. //
+        ///////////////////////////////////////////////////////////////////////////
 
-        // Strand was terminated before it was even started ...
-        if ($this->state === StrandState::EXIT_TERMINATED) {
+        // The strand has exited already. This can occur if it is terminated
+        // immediately after being scheduled for execution ...
+        if ($this->state === StrandState::EXITED) {
             return;
         }
 
         assert(
-            $this->state === StrandState::READY ||
-            (
-                $this->state === StrandState::SUSPENDED_INACTIVE &&
-                $this->action !== null
-            ),
-            'strand must be READY or SUSPENDED_INACTIVE to start'
+            $this->state === StrandState::READY || $this->state === StrandState::SUSPENDED_INACTIVE,
+            'strand state must be READY or SUSPENDED_INACTIVE to start'
         );
 
         assert(
-            $this->current instanceof Generator,
-            'strand cannot run with empty call stack / invalid generator'
+            $this->state !== StrandState::SUSPENDED_INACTIVE || $this->action !== null,
+            'value must be set to start when SUSPENDED_INACTIVE'
         );
 
         $this->state = StrandState::RUNNING;
 
         // Execute the next "tick" of the current coroutine ...
         try {
-            // Send the current coroutine data via a 'send' or 'throw'. These
-            // actions are configured by the resume and throw methods ...
+            // If $this->action is set, we are resuming the generator. The
+            // action and the associated $this->value variable are set before
+            // jumping to the "resume_generator" label, or by calling send() or
+            // throw() ...
             if ($this->action) {
                 resume_generator:
-                assert(
-                    $this->state === StrandState::RUNNING,
-                    'strand cannot not perform action unless it is running'
-                );
-
-                assert(
-                    $this->action === 'send' || $this->action === 'throw',
-                    'the "resume_generator" label requires an action of "send" or "throw"'
-                );
-
-                assert(
-                    $this->action === 'send' || $this->value instanceof Throwable,
-                    'the "resume_generator" label requires a throwable when the action is "throw"'
-                );
+                assert($this->current instanceof Generator, 'call-stack must not be empty');
+                assert($this->state === StrandState::RUNNING, 'strand state must be RUNNING');
+                assert($this->action === 'send' || $this->action === 'throw', 'action must be "send" or "throw"');
+                assert($this->action !== 'throw' || $this->value instanceof Throwable, 'value must be throwable');
 
                 $this->current->{$this->action}($this->value);
                 $this->action = $this->value = null;
             }
 
+            // The "start_generator" is jumped to when a new generator has been
+            // pushed onto the call-stack ...
             start_generator:
-            assert(
-                $this->state === StrandState::RUNNING,
-                'strand cannot not perform action unless it is running'
-            );
+            assert($this->current instanceof Generator, 'call-stack must not be empty');
+            assert($this->state === StrandState::RUNNING, 'strand state must be RUNNING');
 
-            // If the generator is valid it has futher iterations to perform,
+            // If the generator is "valid" it has futher iterations to perform,
             // therefore it has yielded, rather than returned ...
             if ($this->current->valid()) {
                 $produced = $this->current->current();
@@ -212,42 +203,36 @@ trait StrandTrait
                     goto resume_generator;
                 }
 
-                // The strand has been set back to the READY state. This means
-                // that send() or throw() was called while handling the yielded
-                // value. Resume the current coroutine immediately ...
+                // The strand has alraedy been set back to the READY state. This
+                // means that send() or throw() was called while handling the
+                // yielded value. Resume the current coroutine immediately ...
                 if ($this->state === StrandState::READY) {
                     $this->state = StrandState::RUNNING;
                     goto resume_generator;
 
                 // Otherwise, if the strand was not terminated while handling
-                // the yielded value, it is now fully suspended ...
-                } elseif ($this->state !== StrandState::EXIT_TERMINATED) {
+                // the yielded value, it is now fully suspended. No further
+                // action will be performed until send() or throw() is called ...
+                } elseif ($this->state !== StrandState::EXITED) {
                     $this->state = StrandState::SUSPENDED_INACTIVE;
                 }
 
-                // There is nothing left to do until send() or throw() is called
-                // in the future ...
                 return;
             }
 
-            // The generator has completed iteration and returned a value ...
+            // The generator is not "valid", and has therefore returned a value
+            // (which may be null) ...
             $this->action = 'send';
             $this->value = $this->current->getReturn();
-
-            // Prepare the state in case the stack is empty ...
-            $this->state = StrandState::EXIT_SUCCESS;
 
         // An exception was thrown during the execution of the generator ...
         } catch (Throwable $e) {
             $this->action = 'throw';
             $this->value = $e;
-
-            // Prepare the state in case the stack is empty ...
-            $this->state = StrandState::EXIT_FAIL;
         }
 
         // The current coroutine has ended, either by returning or throwing. If
-        // there is a function above it on the call stack, we pop the current
+        // there is a coroutine above it on the call stack, we pop the current
         // coroutine from the stack and resume the parent ...
         if ($this->depth) {
             // "fast" functionless stack-pop ...
@@ -260,7 +245,7 @@ trait StrandTrait
         }
 
         // Otherwise the call stack is empty, the strand has exited ...
-        return $this->finalize();
+        return $this->exit();
     }
 
     /**
@@ -273,20 +258,19 @@ trait StrandTrait
      */
     public function terminate()
     {
-        if ($this->state >= StrandState::EXIT_SUCCESS) {
+        if ($this->state === StrandState::EXITED) {
             return;
         }
 
         $this->stack = [];
         $this->action = 'throw';
         $this->value = new TerminatedException($this);
-        $this->state = StrandState::EXIT_TERMINATED;
 
         if ($this->terminator) {
             ($this->terminator)($this);
         }
 
-        $this->finalize();
+        $this->exit();
     }
 
     /**
@@ -297,10 +281,10 @@ trait StrandTrait
      */
     public function send($value = null, Strand $strand = null)
     {
-        // Ignore resumes after termination, not all asynchronous operations
-        // will have meaningful cancel operations and some may attempt to resume
-        // the strand after it has been terminated.
-        if ($this->state === StrandState::EXIT_TERMINATED) {
+        // Ignore resumes after exit, not all asynchronous operations will have
+        // meaningful cancel operations and some may attempt to resume the
+        // strand after it has been terminated.
+        if ($this->state === StrandState::EXITED) {
             return;
         }
 
@@ -329,10 +313,10 @@ trait StrandTrait
      */
     public function throw(Throwable $exception, Strand $strand = null)
     {
-        // Ignore resumes after termination, not all asynchronous operations
-        // will have meaningful cancel operations and some may attempt to resume
-        // the strand after it has been terminated.
-        if ($this->state === StrandState::EXIT_TERMINATED) {
+        // Ignore resumes after exit, not all asynchronous operations will have
+        // meaningful cancel operations and some may attempt to resume the
+        // strand after it has been terminated.
+        if ($this->state === StrandState::EXITED) {
             return;
         }
 
@@ -358,7 +342,7 @@ trait StrandTrait
      */
     public function hasExited() : bool
     {
-        return $this->state >= StrandState::EXIT_SUCCESS;
+        return $this->state === StrandState::EXITED;
     }
 
     /**
@@ -371,7 +355,9 @@ trait StrandTrait
      */
     public function setPrimaryListener(Listener $listener)
     {
-        if ($this->state < StrandState::EXIT_SUCCESS) {
+        if ($this->state === StrandState::EXITED) {
+            $listener->{$this->action}($this->value, $this);
+        } else {
             $previous = $this->primaryListener;
             $this->primaryListener = $listener;
 
@@ -381,10 +367,6 @@ trait StrandTrait
                     $this
                 );
             }
-        } elseif ($this->state === StrandState::EXIT_SUCCESS) {
-            $listener->send($this->value, $this);
-        } else {
-            $listener->throw($this->value, $this);
         }
     }
 
@@ -446,12 +428,10 @@ trait StrandTrait
      */
     public function await(Listener $listener, Api $api)
     {
-        if ($this->state < StrandState::EXIT_SUCCESS) {
-            $this->listeners[] = $listener;
-        } elseif ($this->state === StrandState::EXIT_SUCCESS) {
-            $listener->send($this->value, $this);
+        if ($this->state === StrandState::EXITED) {
+            $listener->{$this->action}($this->value, $this);
         } else {
-            $listener->throw($this->value, $this);
+            $this->listeners[] = $listener;
         }
     }
 
@@ -487,8 +467,9 @@ trait StrandTrait
      * Finalize the strand by notifying any listeners of the exit and
      * terminating any linked strands.
      */
-    private function finalize()
+    private function exit()
     {
+        $this->state = StrandState::EXITED;
         $this->current = null;
 
         try {
