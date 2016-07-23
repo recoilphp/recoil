@@ -142,15 +142,15 @@ trait StrandTrait
                 // Trace the yielded value. This function is responsible for
                 // maintaining information about the strand's call stack when
                 // using instrumented code. It is performed inside an assertion
-                // so that the call is optimized out completely when running in
-                // production.
+                // so that the call is optimized away completely in production.
                 //
                 // The trace operation may resume the strand, in which case we
                 // jump back to "resume_generator" immediately. There's no way
                 // to include the 'goto' inside the assertion, so this incurs
                 // the minimal overhead of an integer comparison on each yield ...
                 assert(!$produced instanceof Trace || $this->trace($produced) || true);
-                if ($this->state === StrandState::RUNNING) {
+                if ($this->state === StrandState::READY) {
+                    $this->state = StrandState::RUNNING;
                     goto resume_generator;
                 }
 
@@ -219,8 +219,8 @@ trait StrandTrait
                 } catch (Throwable $e) {
                     // Update the exception's stack trace based on trace data
                     // on the strand's call stack. This is done inside an
-                    // assertion so that the call is optimized out completed
-                    // when running in production ...
+                    // assertion so that the call is optimized away completely
+                    // in production ...
                     assert($this->updateTrace($e) || true);
 
                     $this->action = 'throw';
@@ -266,10 +266,10 @@ trait StrandTrait
             $this->current = $current;
             $current = null;
 
-            // Update the exception's stack trace based on trace data
-            // on the strand's call stack. This is done inside an
-            // assertion so that the call is optimized out completed
-            // when running in production ...
+            // Update the exception's stack trace based on trace data on the
+            // strand's  call stack. This is done inside an assertion so that
+            // the call is optimized away completely in production ...
+            //
             assert($this->action !== 'throw' || $this->updateTrace($this->value) || true);
 
             $this->state = StrandState::RUNNING;
@@ -543,7 +543,7 @@ trait StrandTrait
             $this->current->coroutineTrace = $produced;
             $this->action = 'send';
             $this->value = null;
-            $this->state = StrandState::RUNNING;
+            $this->state = StrandState::READY;
         } elseif ($produced instanceof YieldTrace) {
             $this->current->yieldTrace = $produced;
             $produced = $produced->value();
@@ -606,21 +606,31 @@ trait StrandTrait
             // If this coroutine has a "yield trace", that tells us the position
             // that the function in the previous stack frame was called ...
             if ($yieldTrace) {
-                $frame = &$strandTrace[$strandTraceSize - 1];
-                $frame['file'] = $yieldTrace->file;
-                $frame['line'] = $yieldTrace->line;
+                $strandTrace[$strandTraceSize - 1]['file'] = $yieldTrace->file;
+                $strandTrace[$strandTraceSize - 1]['line'] = $yieldTrace->line;
+            } else {
+                $strandTrace[$strandTraceSize - 1]['file'] = 'Unknown';
+                $strandTrace[$strandTraceSize - 1]['line'] = 0;
             }
 
             // If this coroutine has a "coroutine trace", that gives us
             // information about the coroutine itself ...
             if ($coroutineTrace) {
                 // @todo object, args, class, type, etc
-                $strandTrace[] = ['function' => $coroutineTrace->function];
+                $strandTrace[] = [
+                    'function' => $coroutineTrace->function,
+                    'file' => 'Unknown',
+                    'line' => 0,
+                ];
 
             // The coroutine was not instrumented, but we still need to inject
             // a stack frame to represent it ...
             } else {
-                $strandTrace[] = ['function' => '<coroutine not instrumented>'];
+                $strandTrace[] = [
+                    'function' => '{uninstrumented coroutine}',
+                    'file' => 'Unknown',
+                    'line' => 0,
+                ];
             }
 
             ++$strandTraceSize;

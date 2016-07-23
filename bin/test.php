@@ -1,3 +1,4 @@
+#!/usr/bin/env php
 <?php
 
 declare (strict_types = 1);
@@ -56,17 +57,17 @@ function x() : \Generator
 {
 }
 
-try {
+// try {
     ReactKernel::start(outer());
-} catch (Throwable $e) {
-    echo get_class($e), ': ', $e->getMessage(), PHP_EOL;
-    echo 'Exception thrown on: ', $e->getFile(), ':', $e->getLine(), PHP_EOL;
-    foreach ($e->getTrace() as $frame) {
-        echo '---------------------------------------', PHP_EOL;
-        foreach ($frame as $key => $value) {
-            if ($key !== 'args') {
-                printf('%-10s: %s' . PHP_EOL, $key, $value);
-            }
-        }
-    }
-}
+// } catch (Throwable $e) {
+//     echo get_class($e), ': ', $e->getMessage(), PHP_EOL;
+//     echo 'Exception thrown on: ', $e->getFile(), ':', $e->getLine(), PHP_EOL;
+//     foreach ($e->getTrace() as $frame) {
+//         echo '---------------------------------------', PHP_EOL;
+//         foreach ($frame as $key => $value) {
+//             if ($key !== 'args') {
+//                 printf('%-10s: %s' . PHP_EOL, $key, $value);
+//             }
+//         }
+//     }
+// }

@@ -1,3 +1,4 @@
+#!/usr/bin/env php
 <?php
 
 declare (strict_types = 1);
@@ -16,7 +17,7 @@ use Throwable;
  */
 function outer() : Chump
 {
-    yield \Recoil\Dev\Trace\Trace::coroutine('/Users/james/dev/git/recoilphp/recoil/bin/test.php', 17, __METHOD__);yield \Recoil\Dev\Trace\Trace::yield('/Users/james/dev/git/recoilphp/recoil/bin/test.php', __LINE__, middle());
+    yield \Recoil\Dev\Trace\Trace::coroutine('/Users/james/dev/git/recoilphp/recoil/bin/test.php', 18, __METHOD__);yield \Recoil\Dev\Trace\Trace::yield('/Users/james/dev/git/recoilphp/recoil/bin/test.php', __LINE__, middle());
 }
 
 /**
@@ -24,7 +25,7 @@ function outer() : Chump
  */
 function middle() : \Generator
 {
-    yield \Recoil\Dev\Trace\Trace::coroutine('/Users/james/dev/git/recoilphp/recoil/bin/test.php', 25, __METHOD__);yield \Recoil\Dev\Trace\Trace::yield('/Users/james/dev/git/recoilphp/recoil/bin/test.php', __LINE__, inner());
+    yield \Recoil\Dev\Trace\Trace::coroutine('/Users/james/dev/git/recoilphp/recoil/bin/test.php', 26, __METHOD__);yield \Recoil\Dev\Trace\Trace::yield('/Users/james/dev/git/recoilphp/recoil/bin/test.php', __LINE__, inner());
 }
 
 /**
@@ -32,7 +33,7 @@ function middle() : \Generator
  */
 function inner() : \Generator
 {
-    yield \Recoil\Dev\Trace\Trace::coroutine('/Users/james/dev/git/recoilphp/recoil/bin/test.php', 33, __METHOD__);yield from failer();
+    yield \Recoil\Dev\Trace\Trace::coroutine('/Users/james/dev/git/recoilphp/recoil/bin/test.php', 34, __METHOD__);yield from failer();
 }
 
 /**
@@ -40,7 +41,7 @@ function inner() : \Generator
  */
 function failer() : Chump
 {
-    yield \Recoil\Dev\Trace\Trace::coroutine('/Users/james/dev/git/recoilphp/recoil/bin/test.php', 41, __METHOD__);yield \Recoil\Dev\Trace\Trace::yield('/Users/james/dev/git/recoilphp/recoil/bin/test.php', __LINE__);
+    yield \Recoil\Dev\Trace\Trace::coroutine('/Users/james/dev/git/recoilphp/recoil/bin/test.php', 42, __METHOD__);yield \Recoil\Dev\Trace\Trace::yield('/Users/james/dev/git/recoilphp/recoil/bin/test.php', __LINE__);
     fail();
 }
 
@@ -56,17 +57,17 @@ function x() : \Generator
 {
 }
 
-try {
+// try {
     ReactKernel::start(outer());
-} catch (Throwable $e) {
-    echo get_class($e), ': ', $e->getMessage(), PHP_EOL;
-    echo 'Exception thrown on: ', $e->getFile(), ':', $e->getLine(), PHP_EOL;
-    foreach ($e->getTrace() as $frame) {
-        echo '---------------------------------------', PHP_EOL;
-        foreach ($frame as $key => $value) {
-            if ($key !== 'args') {
-                printf('%-10s: %s' . PHP_EOL, $key, $value);
-            }
-        }
-    }
-}
+// } catch (Throwable $e) {
+//     echo get_class($e), ': ', $e->getMessage(), PHP_EOL;
+//     echo 'Exception thrown on: ', $e->getFile(), ':', $e->getLine(), PHP_EOL;
+//     foreach ($e->getTrace() as $frame) {
+//         echo '---------------------------------------', PHP_EOL;
+//         foreach ($frame as $key => $value) {
+//             if ($key !== 'args') {
+//                 printf('%-10s: %s' . PHP_EOL, $key, $value);
+//             }
+//         }
+//     }
+// }
