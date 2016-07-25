@@ -50,6 +50,10 @@ final class Instrumentor extends NodeVisitorAbstract
      */
     public function instrument(string $source) : string
     {
+        if (\strpos($source, '@recoil-coroutine') === false) {
+            return $source;
+        }
+
         $this->input = $source;
         $this->output = '';
         $this->position = 0;
