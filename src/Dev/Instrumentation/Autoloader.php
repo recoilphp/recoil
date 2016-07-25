@@ -2,7 +2,7 @@
 
 declare (strict_types = 1); // @codeCoverageIgnore
 
-namespace Recoil\Dev;
+namespace Recoil\Dev\Instrumentation;
 
 use Composer\Autoload\ClassLoader;
 
@@ -24,7 +24,7 @@ final class Autoloader
      */
     public function register() : bool
     {
-        InstrumentedStream::install();
+        StreamWrapper::install();
         spl_autoload_register([$this, 'loadClass'], true, true);
 
         return true;
@@ -58,7 +58,7 @@ final class Autoloader
         }
 
         (static function () {
-            require InstrumentedStream::SCHEME . '://' . func_get_arg(0);
+            require StreamWrapper::SCHEME . '://' . func_get_arg(0);
         })($filename);
     }
 

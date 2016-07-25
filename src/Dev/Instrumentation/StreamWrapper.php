@@ -2,16 +2,16 @@
 
 declare (strict_types = 1); // @codeCoverageIgnore
 
-namespace Recoil\Dev;
+namespace Recoil\Dev\Instrumentation;
 
 use PhpParser\Error;
 
 /**
  * A PHP stream wrapper that instruments code.
  */
-final class InstrumentedStream
+final class StreamWrapper
 {
-    const SCHEME = 'recoil-dev';
+    const SCHEME = 'recoil-instrumentation';
     const PREFIX = self::SCHEME . '://';
 
     /**

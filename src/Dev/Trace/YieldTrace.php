@@ -4,16 +4,14 @@ declare (strict_types = 1); // @codeCoverageIgnore
 
 namespace Recoil\Dev\Trace;
 
+use Recoil\Dev\Instrumentation\InstrumentationDirective;
+use Recoil\Kernel\Strand;
+
 /**
  * Provides information about a yield statement inside a coroutine.
  */
-final class YieldTrace implements Trace
+final class YieldTrace implements InstrumentationDirective
 {
-    /**
-     * @var int The line number.
-     */
-    public $line;
-
     /**
      * @param int   $line  The line number of the yielded value.
      * @param mixed $value The yielded value.
@@ -25,22 +23,34 @@ final class YieldTrace implements Trace
     }
 
     /**
-     * Get the yielded value.
+     * Execute the directive.
      *
-     * This method must only be called once. The value is removed from the trace
-     * after it is fetched to prevent keeping a reference to it as this may
-     * cause the presence or absence of traces to affect the program behaviour.
+     * This method is invoked when this value is yielded from a strand.
      *
-     * @return mixed
+     * @param Strand $strand The strand that yielded this value.
+     * @param mixed  $key    The yielded key.
+     * @param object $frame  A context object on which information may be stored
+     *                       for the current stack frame.
+     *
+     * @return tuple<bool, mixed> A 2-tuple. If the first value is true, the
+     *                     strand must treat the second element as though
+     *                     it were the yielded value.
      */
-    public function value()
+    public function execute(Strand $strand, $key, $frame) : array
     {
-        try {
-            return $this->value;
-        } finally {
-            $this->value = null;
-        }
+        assert(isset($frame->trace));
+        $frame->trace->yieldLineNumber = $this->line;
+
+        return [true, $this->value];
     }
 
+    /**
+     * @var int The line number.
+     */
+    public $line;
+
+    /**
+     * @var mixed The original yielded value.
+     */
     private $value;
 }

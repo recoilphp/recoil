@@ -2,7 +2,7 @@
 
 declare (strict_types = 1); // @codeCoverageIgnore
 
-namespace Recoil\Dev;
+namespace Recoil\Dev\Instrumentation;
 
 use PhpParser\Lexer;
 use PhpParser\Node;
