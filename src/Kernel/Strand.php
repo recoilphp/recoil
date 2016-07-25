@@ -125,7 +125,9 @@ interface Strand extends Listener, AwaitableProvider
     /**
      * Set the current trace for this strand.
      *
-     * Traces can only be set when assertions are enabled.
+     * A trace may only be set on a strand when assertions are enabled. When
+     * assertions are disabled, all tracing related code is disabled, and setting
+     * a trace has no effect.
      */
     public function setTrace(StrandTrace $trace = null);
 }
