@@ -1,8 +1,0 @@
-#!/usr/bin/env php
-<?php
-declare (strict_types = 1);
-
-$autoloader = require __DIR__ . '/../../vendor/autoload.php';
-(new \Recoil\Dev\Instrumentation\Autoloader($autoloader))->register();
-
-require \Recoil\Dev\Instrumentation\StreamWrapper::PREFIX . __DIR__ . '/include.php';
