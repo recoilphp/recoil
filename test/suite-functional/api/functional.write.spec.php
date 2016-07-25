@@ -88,42 +88,43 @@ rit('synchronises access across multiple strands', function () {
     do {
         $bytes = fwrite(
             $stream,
-            str_repeat('.', 8192)
+            str_repeat('X', 8192)
         );
         $size += $bytes;
     } while ($bytes > 0);
 
-    // this has to be big enough to exceed the length able to be written
-    // in a single call to fwrite()
-    $writeBuffer = str_repeat('<chunk>', $size);
+    // queue up two write calls, both with buffers larger than the write buffer
+    // size ...
+    $bufferA = str_repeat('A', $size + 1);
+    $bufferB = str_repeat('B', $size + 1);
 
-    yield Recoil::execute(function () use ($stream, $writeBuffer) {
-        yield Recoil::write($stream, $writeBuffer);
+    yield Recoil::execute(function () use ($stream, $bufferA) {
+        yield Recoil::write($stream, $bufferA);
     });
 
-    yield Recoil::execute(function () use ($stream, $writeBuffer) {
-        yield Recoil::write($stream, $writeBuffer);
+    yield Recoil::execute(function () use ($stream, $bufferB) {
+        yield Recoil::write($stream, $bufferB);
     });
 
-    // free up a single byte of write buffer at a time and yield to allow the
-    // writing strands to execute. in order to verify that access is truly
-    // synchronised, we can not allow either strand to write their entire buffer
-    // in a single call to fwrite()
-    do {
-        expect(fread($stream, 1))->to->satisfy('is_string');
-        yield;
-    } while (--$size);
-
-    // keep reading to get the actual data written by the strands
+    // read data from the strands, allowing the write strands to use the stream
+    // ensure that we read less than the buffer size so that we don't read all
+    // the data before its been written ...
     $buffer = '';
     do {
-        $data = fread($stream, 8192);
+        $data = fread($stream, $size - 1);
         $buffer .= $data;
         yield;
     } while ($data != '');
 
+    fclose($stream);
+    unlink($temp);
+
+    $padding = str_repeat('X', $size);
+
     // we don't know which order the strands will write their data, but the
     // content should never be jumbled ...
-    expect(strlen($buffer))->to->equal(strlen($writeBuffer) * 2);
-    expect($buffer)->to->equal($writeBuffer . $writeBuffer);
+    expect(
+        $buffer === $padding . $bufferA . $bufferB ||
+        $buffer === $padding . $bufferB . $bufferA
+    )->to->be->true('buffer does not match expected value');
 });
