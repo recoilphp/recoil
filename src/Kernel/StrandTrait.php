@@ -7,8 +7,6 @@ namespace Recoil\Kernel;
 use Closure;
 use Generator;
 use InvalidArgumentException;
-use Recoil\Dev\Instrumentation\InstrumentationDirective;
-use Recoil\Dev\Trace\Trace;
 use Recoil\Exception\TerminatedException;
 use Recoil\Kernel\Exception\PrimaryListenerRemovedException;
 use Recoil\Kernel\Exception\StrandListenerException;
@@ -119,6 +117,14 @@ trait StrandTrait
                 assert($this->action === 'send' || $this->action === 'throw', 'action must be "send" or "throw"');
                 assert($this->action !== 'throw' || $this->value instanceof Throwable, 'value must be throwable');
 
+                // Trace the resume, this is performed inside an assertion so
+                // that it can be optimised away completely in production ...
+                assert(
+                    $this->trace === null ||
+                    $this->trace->resume($this, $this->action, $this->value) ||
+                    true
+                );
+
                 $this->current->{$this->action}($this->value);
                 $this->action = $this->value = null;
             }
@@ -133,6 +139,15 @@ trait StrandTrait
             // therefore it has yielded, rather than returned ...
             if ($this->current->valid()) {
                 $produced = $this->current->current();
+
+                // Trace the yield, this is performed inside an assertion so
+                // that it can be optimised away completely in production ...
+                assert(
+                    $this->trace === null ||
+                    $this->trace->yield($this, $this->current->key(), $this->value) ||
+                    true
+                );
+
                 $this->state = StrandState::SUSPENDED_ACTIVE;
 
                 try {
@@ -143,6 +158,16 @@ trait StrandTrait
                         $this->stack[$this->depth++] = $this->current;
                         $this->current = $produced;
                         $this->state = StrandState::RUNNING;
+
+                        // Trace the stack push, this is performed inside an
+                        // assertion so that it can be optimised away completely
+                        // in production ...
+                        assert(
+                            $this->trace === null ||
+                            $this->trace->push($this, $this->depth + 1) ||
+                            true
+                        );
+
                         goto start_generator;
 
                     // A coroutine provider was yielded. Extract the coroutine
@@ -156,6 +181,16 @@ trait StrandTrait
                         $this->stack[$this->depth++] = $this->current;
                         $this->current = $produced;
                         $this->state = StrandState::RUNNING;
+
+                        // Trace the stack push, this is performed inside an
+                        // assertion so that it can be optimised away completely
+                        // in production ...
+                        assert(
+                            $this->trace === null ||
+                            $this->trace->push($this, $this->depth + 1) ||
+                            true
+                        );
+
                         goto start_generator;
 
                     // An API call was made through the Recoil static facade ...
@@ -172,6 +207,16 @@ trait StrandTrait
                             $this->stack[$this->depth++] = $this->current;
                             $this->current = $produced;
                             $this->state = StrandState::RUNNING;
+
+                            // Trace the stack push, this is performed inside an
+                            // assertion so that it can be optimised away
+                            // completely in production ...
+                            assert(
+                                $this->trace === null ||
+                                $this->trace->push($this, $this->depth + 1) ||
+                                true
+                            );
+
                             goto start_generator;
                         }
 
@@ -182,10 +227,6 @@ trait StrandTrait
                     // An awaitable provider was yielded ...
                     } elseif ($produced instanceof AwaitableProvider) {
                         $produced->awaitable()->await($this, $this->api);
-
-                    // An instrumentation directive was yielded ...
-                    } elseif ($produced instanceof InstrumentationDirective) {
-                        $produced->execute($this, $this->current); // @codeCoverageIgnore
 
                     // Some unidentified value was yielded, allow the API to
                     // dispatch the operation as it sees fit ...
@@ -202,16 +243,6 @@ trait StrandTrait
                 // sent back to the current coroutine (i.e., the one that yielded
                 // the value) ...
                 } catch (Throwable $e) {
-                    // Update the exception's stack trace to reflect the strand's
-                    // call stack, rather than the PHP call stack. This is done
-                    // inside an assertion so that the call is optimized away
-                    // completely in production ...
-                    assert(
-                        !\class_exists(Trace::class) ||
-                        Trace::update($this, $e, array_merge($this->stack, [$this->current])) ||
-                        true
-                    );
-
                     $this->action = 'throw';
                     $this->value = $e;
                     $this->state = StrandState::RUNNING;
@@ -230,6 +261,14 @@ trait StrandTrait
                 // action will be performed until send() or throw() is called ...
                 } elseif ($this->state !== StrandState::EXITED) {
                     $this->state = StrandState::SUSPENDED_INACTIVE;
+
+                    // Trace the suspend, this is performed inside an assertion
+                    // so that it can be optimised away completely in production ...
+                    assert(
+                        $this->trace === null ||
+                        $this->trace->suspend($this) ||
+                        true
+                    );
                 }
 
                 return;
@@ -240,18 +279,16 @@ trait StrandTrait
             $this->action = 'send';
             $this->value = $this->current->getReturn();
 
-        // An exception was thrown during the execution of the generator ...
-        } catch (Throwable $e) {
-            // Update the exception's stack trace to reflect the strand's
-            // call stack, rather than the PHP call stack. This is done
-            // inside an assertion so that the call is optimized away
-            // completely in production ...
+            // Trace the return, this is performed inside an assertion so
+            // that it can be optimised away completely in production ...
             assert(
-                !\class_exists(Trace::class) ||
-                Trace::update($this, $e, $this->stack) ||
+                $this->trace === null ||
+                $this->trace->return($this, $this->value) ||
                 true
             );
 
+        // An exception was thrown during the execution of the generator ...
+        } catch (Throwable $e) {
             $this->action = 'throw';
             $this->value = $e;
         }
@@ -264,6 +301,14 @@ trait StrandTrait
             $current = &$this->stack[--$this->depth];
             $this->current = $current;
             $current = null;
+
+            // Trace the stack pop, this is performed inside an assertion so
+            // that it can be optimised away completely in production ...
+            assert(
+                $this->trace === null ||
+                $this->trace->pop($this) ||
+                true
+            );
 
             $this->state = StrandState::RUNNING;
             goto resume_generator;
@@ -489,6 +534,28 @@ trait StrandTrait
     }
 
     /**
+     * Get the current trace for this strand.
+     *
+     * @return StrandTrace|null
+     */
+    public function trace(StrandTrace $trace)
+    {
+        return $this->trace;
+    }
+
+    /**
+     * Set the current trace for this strand.
+     *
+     * A trace may only be set on a strand when assertions are enabled. When
+     * assertions are disabled, all tracing related code is disabled, and setting
+     * a trace has no effect.
+     */
+    public function setTrace(StrandTrace $trace = null)
+    {
+        assert($this->trace = $trace || true);
+    }
+
+    /**
      * Finalize the strand by notifying any listeners of the exit and
      * terminating any linked strands.
      */
@@ -496,6 +563,14 @@ trait StrandTrait
     {
         $this->state = StrandState::EXITED;
         $this->current = null;
+
+        // Trace the exit. This is performed inside an assertion so that it can
+        // be optimised away completely in production ...
+        assert(
+            $this->trace === null ||
+            $this->trace->exit($this, $this->action, $this->value) ||
+            true
+        );
 
         try {
             $this->primaryListener->{$this->action}($this->value, $this);
@@ -594,4 +669,9 @@ trait StrandTrait
      *            has exited.
      */
     private $value;
+
+    /**
+     * @var StrandTrace|null The strand trace, if set.
+     */
+    private $trace;
 }

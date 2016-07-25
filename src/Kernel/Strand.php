@@ -114,4 +114,18 @@ interface Strand extends Listener, AwaitableProvider
      * @return null
      */
     public function unlink(Strand $strand);
+
+    /**
+     * Get the current trace for this strand.
+     *
+     * @return StrandTrace|null
+     */
+    public function trace(StrandTrace $trace);
+
+    /**
+     * Set the current trace for this strand.
+     *
+     * Traces can only be set when assertions are enabled.
+     */
+    public function setTrace(StrandTrace $trace = null);
 }
