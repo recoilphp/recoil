@@ -322,7 +322,7 @@ describe(StrandTrait::class, function () {
                 $provider = Phony::mock(CoroutineProvider::class);
                 $provider->coroutine->generates()->returns('<result>');
                 $fn = Phony::stub();
-                $fn->generates([$provider->get()]); // @todo https://github.com/eloquent/phony/issues/144
+                $fn->generates([$provider]);
                 ($this->initializeSubject)($fn);
                 $this->subject->get()->start();
 
@@ -353,7 +353,7 @@ describe(StrandTrait::class, function () {
             it('attaches the strand to awaitables', function () {
                 $awaitable = Phony::mock(Awaitable::class);
                 $fn = Phony::stub();
-                $fn->generates([$awaitable->get()]); // @todo https://github.com/eloquent/phony/issues/144
+                $fn->generates([$awaitable]);
                 ($this->initializeSubject)($fn);
                 $this->subject->get()->start();
 
@@ -367,7 +367,7 @@ describe(StrandTrait::class, function () {
                 $provider = Phony::mock(AwaitableProvider::class);
                 $provider->awaitable->returns($awaitable);
                 $fn = Phony::stub();
-                $fn->generates([$provider->get()]); // @todo https://github.com/eloquent/phony/issues/144
+                $fn->generates([$provider]);
                 ($this->initializeSubject)($fn);
                 $this->subject->get()->start();
 

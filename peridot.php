@@ -7,11 +7,7 @@ use Peridot\Console\Environment;
 use Peridot\Reporter\CodeCoverage\AbstractCodeCoverageReporter;
 use Peridot\Reporter\CodeCoverageReporters;
 
-$autoloader = require __DIR__ . '/vendor/autoload.php';
-assert(
-    (new \Recoil\Dev\Instrumentation\Autoloader($autoloader))->register() ||
-    true
-);
+require __DIR__ . '/vendor/autoload.php';
 
 return function (EventEmitterInterface $emitter) {
     (new CodeCoverageReporters($emitter))->register();

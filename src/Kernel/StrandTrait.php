@@ -187,7 +187,7 @@ trait StrandTrait
 
                     // An instrumentation directive was yielded ...
                     } elseif ($produced instanceof InstrumentationDirective) {
-                        $produced->execute($this, $this->current);
+                        $produced->execute($this, $this->current); // @codeCoverageIgnore
 
                     // Some unidentified value was yielded, allow the API to
                     // dispatch the operation as it sees fit ...
