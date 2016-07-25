@@ -135,7 +135,6 @@ trait StrandTrait
             // therefore it has yielded, rather than returned ...
             if ($this->current->valid()) {
                 $produced = $this->current->current();
-                generator_yielded:
                 $this->state = StrandState::SUSPENDED_ACTIVE;
 
                 try {
@@ -186,17 +185,9 @@ trait StrandTrait
                     } elseif ($produced instanceof AwaitableProvider) {
                         $produced->awaitable()->await($this, $this->api);
 
-                    // Executes an instrumentation directive ...
+                    // An instrumentation directive was yielded ...
                     } elseif ($produced instanceof InstrumentationDirective) {
-                        list($again, $produced) = $produced->execute(
-                            $this,
-                            $this->current->key(),
-                            $this->current
-                        );
-
-                        if ($again) {
-                            goto generator_yielded;
-                        }
+                        $produced->execute($this, $this->current);
 
                     // Some unidentified value was yielded, allow the API to
                     // dispatch the operation as it sees fit ...

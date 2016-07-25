@@ -22,7 +22,7 @@ function outer(int $value) : Chump
  */
 function middle(int $value) : \Generator
 {
-    yield 1;
+    yield 0.25;
     yield inner($value + 1);
 }
 

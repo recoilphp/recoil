@@ -31,9 +31,6 @@ final class Instrumentor extends NodeVisitorAbstract
             new Lexer(['usedAttributes' => [
                 'comments',
                 'startLine',
-                'endLine',
-                'startTokenPos',
-                'endTokenPos',
                 'startFilePos',
                 'endFilePos',
             ]])
@@ -47,17 +44,15 @@ final class Instrumentor extends NodeVisitorAbstract
     /**
      * Instrument the given source code and return the instrumented code.
      *
-     * @param string      $source   The original source code.
-     * @param string|null $filename The original filename (null = unknown).
+     * @param string $source The original source code.
      *
      * @return string The instrumented code.
      */
-    public function instrument(string $source, string $filename = null) : string
+    public function instrument(string $source) : string
     {
         $this->input = $source;
         $this->output = '';
         $this->position = 0;
-        $this->filename = $filename === null ? '__FILE__' : var_export($filename, true);
 
         $ast = $this->parser->parse($source);
         $this->traverser->traverse($ast);
@@ -77,28 +72,39 @@ final class Instrumentor extends NodeVisitorAbstract
     {
         $statements = $node->getStmts();
 
-        // Insert a 'call trace' at the first statement of the coroutine ...
+        // Insert a 'coroutine trace' at the first statement of the coroutine ...
         $this->consume($statements[0]->getAttribute('startFilePos'));
-        $this->output .= 'yield new \\' . CoroutineTrace::class . '(' . $this->filename . ', __FUNCTION__, \func_get_args());';
+        $this->lastYieldLine = $statements[0]->getAttribute('startLine');
+        $this->generateDirective(
+            CoroutineTrace::class,
+            '__FILE__',
+            '__LINE__',
+            '__FUNCTION__',
+            '\func_get_args()'
+        );
 
         // Search all statements for yields and insert 'yield traces' ...
         foreach ($statements as $statement) {
             if ($statement instanceof Yield_) {
-                // This yield has no value (i.e. "yield;") ...
-                if ($statement->value === null) {
-                    $this->consume($statement->getAttribute('endFilePos') + 1);
-                    $this->output .= ' new \\' . YieldTrace::class . '(__LINE__)';
+                $lineNumber = $statement->getAttribute('startLine');
 
-                // This yield has a value (i.e. "yield $x;" - it may also have a
-                // key. In this case we wrap the value in the trace call ...
-                } else {
-                    $this->consume($statement->value->getAttribute('startFilePos'));
-                    $this->output .= 'new \\' . YieldTrace::class . '(__LINE__, ';
-                    $this->consume($statement->value->getAttribute('endFilePos') + 1);
-                    $this->output .= ')';
+                if ($lineNumber > $this->lastYieldLine) {
+                    $this->lastYieldLine = $lineNumber;
+                    $this->consume($statement->getAttribute('startFilePos'));
+                    $this->generateDirective(YieldTrace::class, '__LINE__');
                 }
             }
         }
+    }
+
+    private function generateDirective(string $class, ...$arguments)
+    {
+        $this->output .= \sprintf(
+            'assert(!\class_exists(%s) || yield new \\%s(%s)); ',
+            var_export($class, true),
+            $class,
+            implode(', ', $arguments)
+        );
     }
 
     /**
@@ -185,8 +191,7 @@ final class Instrumentor extends NodeVisitorAbstract
     private $position;
 
     /**
-     * @var string A snippet of PHP code that resolves to the filename being
-     *             instrumented.
+     * @var int The line number of the most recently encountered yield statement.
      */
-    private $filename;
+    private $lastYieldLine;
 }

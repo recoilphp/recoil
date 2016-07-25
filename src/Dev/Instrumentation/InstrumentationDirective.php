@@ -17,13 +17,8 @@ interface InstrumentationDirective
      * This method is invoked when this value is yielded from a strand.
      *
      * @param Strand $strand The strand that yielded this value.
-     * @param mixed  $key    The yielded key.
      * @param object $frame  A context object on which information may be stored
      *                       for the current stack frame.
-     *
-     * @return tuple<bool, mixed> A 2-tuple. If the first value is true, the
-     *                     strand must treat the second element as though
-     *                     it were the yielded value.
      */
-    public function execute(Strand $strand, $key, $frame) : array;
+    public function execute(Strand $strand, $frame);
 }

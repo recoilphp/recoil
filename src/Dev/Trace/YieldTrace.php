@@ -13,13 +13,11 @@ use Recoil\Kernel\Strand;
 final class YieldTrace implements InstrumentationDirective
 {
     /**
-     * @param int   $line  The line number of the yielded value.
-     * @param mixed $value The yielded value.
+     * @param int $line The line number of the yield statement.
      */
-    public function __construct(int $line, $value = null)
+    public function __construct(int $line)
     {
         $this->line = $line;
-        $this->value = $value;
     }
 
     /**
@@ -28,29 +26,19 @@ final class YieldTrace implements InstrumentationDirective
      * This method is invoked when this value is yielded from a strand.
      *
      * @param Strand $strand The strand that yielded this value.
-     * @param mixed  $key    The yielded key.
      * @param object $frame  A context object on which information may be stored
      *                       for the current stack frame.
-     *
-     * @return tuple<bool, mixed> A 2-tuple. If the first value is true, the
-     *                     strand must treat the second element as though
-     *                     it were the yielded value.
      */
-    public function execute(Strand $strand, $key, $frame) : array
+    public function execute(Strand $strand, $frame)
     {
-        assert(isset($frame->trace));
-        $frame->trace->yieldLineNumber = $this->line;
+        assert(isset($frame->trace), 'no coroutine trace present for this frame');
 
-        return [true, $this->value];
+        $frame->trace->yieldLine = $this->line;
+        $strand->send(true, $strand);
     }
 
     /**
      * @var int The line number.
      */
     public $line;
-
-    /**
-     * @var mixed The original yielded value.
-     */
-    private $value;
 }

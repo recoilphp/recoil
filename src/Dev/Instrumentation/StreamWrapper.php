@@ -81,7 +81,7 @@ final class StreamWrapper
         }
 
         try {
-            $source = $this->instrumentor->instrument($source, $path);
+            $source = $this->instrumentor->instrument($source);
         } catch (Error $e) {
             // ignore
         }

@@ -39,28 +39,28 @@ final class Trace
         // stack frames ...
         foreach (array_reverse($stack) as $frame) {
             if (isset($frame->trace)) {
-                $strandTrace[$lastIndex]['line'] = $frame->trace->yieldLineNumber;
+                $strandTrace[$lastIndex]['line'] = $frame->trace->yieldLine;
                 $strandTrace[$lastIndex]['file'] = $frame->trace->file;
 
                 $strandTrace[] = [
                     // @todo object, class, type, etc
                     'function' => $frame->trace->function,
                     'args' => $frame->trace->arguments,
-                    'file' => 'Unknown',
-                    'line' => 0,
                     'recoil' => true,
                 ];
             } else {
+                $strandTrace[$lastIndex]['file'] = 'Unknown';
+
                 $strandTrace[] = [
                     'function' => '{uninstrumented coroutine}',
-                    'file' => 'Unknown',
-                    'line' => 0,
                     'recoil' => true,
                 ];
             }
 
             ++$lastIndex;
         }
+
+        $strandTrace[$lastIndex]['file'] = '{strand entry-point}';
 
         // Replace the exception's trace proprety with the strand stack trace ...
         $property = $reflector->getProperty('trace');
