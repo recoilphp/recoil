@@ -48,7 +48,7 @@ rit('stops waiting for the stream when the strand is terminated', function () {
 
     $strand = yield Recoil::execute(function () use ($stream) {
         yield Recoil::read($stream);
-        assert(false, 'strand was not terminated');
+        expect(false)->to->be->ok('strand was not terminated');
     });
 
     yield;

@@ -60,7 +60,7 @@ rit('stops waiting for the stream when the strand is terminated', function () {
 
     $strand = yield Recoil::execute(function () use ($stream) {
         yield Recoil::write($stream, '<buffer>');
-        assert(false, 'strand was not terminated');
+        expect(false)->to->be->ok('strand was not terminated');
     });
 
     yield;
@@ -110,7 +110,7 @@ rit('synchronises access across multiple strands', function () {
     // synchronised, we can not allow either strand to write their entire buffer
     // in a single call to fwrite()
     do {
-        assert(fread($stream, 1) !== false);
+        expect(fread($stream, 1))->to->satisfy('is_string');
         yield;
     } while (--$size);
 

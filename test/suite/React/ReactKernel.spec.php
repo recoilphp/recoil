@@ -39,7 +39,7 @@ describe(ReactKernel::class, function () {
                     throw new Exception('<exception>');
                     yield;
                 });
-                assert(false, 'expected exception was not thrown');
+                expect(false)->to->be->ok('expected exception was not thrown');
             } catch (Exception $e) {
                 expect($e->getMessage())->to->equal('<exception>');
             }

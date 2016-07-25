@@ -24,7 +24,7 @@ rit('runs a coroutine in a new strand', function () {
 
 rit('allows the strand to be terminated immediately', function () {
     $strand = yield Recoil::execute(function () {
-        assert(false, 'strand was not terminated');
+        expect(false)->to->be->ok('strand was not terminated');
         yield;
     });
 

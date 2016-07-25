@@ -42,7 +42,7 @@ rit('propagates exception if the coroutine throws before the timeout', function 
                 yield;
             }
         );
-        assert(false, 'expected exception was not thrown');
+        expect(false)->to->be->ok('expected exception was not thrown');
     } catch (Exception $e) {
         expect($e->getMessage())->to->equal('<exception>');
     }
@@ -56,7 +56,7 @@ rit('propagates exception if the coroutine is terminated before the timeout', fu
                 yield Recoil::terminate();
             }
         );
-        assert(false, 'expected exception was not thrown');
+        expect(false)->to->be->ok('expected exception was not thrown');
     } catch (TerminatedException $e) {
         // ok ...
     }
@@ -69,7 +69,7 @@ rit('terminates the substrand if the calling strand is terminated', function () 
                 0.02,
                 function () {
                     yield 0.01;
-                    assert(false, 'strand was not terminated');
+                    expect(false)->to->be->ok('strand was not terminated');
                 }
             );
         })();

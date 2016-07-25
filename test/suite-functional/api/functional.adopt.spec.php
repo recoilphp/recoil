@@ -24,16 +24,16 @@ rit('resumes the calling strand on failure', function () {
 
     try {
         yield Recoil::adopt($substrand);
-        assert(false, 'expected exception was not thrown');
+        expect(false)->to->be->ok('expected exception was not thrown');
     } catch (Exception $e) {
-        assert($e === $exception);
+        expect($e === $exception)->to->be->true;
     }
 });
 
 rit('terminates the substrand if the calling strand is terminated', function () {
     $substrand = yield Recoil::execute(function () {
         yield;
-        assert(false, 'strand was not terminated');
+        expect(false)->to->be->ok('strand was not terminated');
     });
 
     $strand = yield Recoil::execute(function () use ($substrand) {

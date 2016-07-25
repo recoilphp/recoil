@@ -227,7 +227,7 @@ describe(ApiTrait::class, function () {
         it('throws when no strand is passed', function () {
             try {
                 $this->subject->get()->unknown();
-                assert(false, 'expected exception was not thrown');
+                expect(false)->to->be->ok('expected exception was not thrown');
             } catch (Error $e) {
                 // okay
             }

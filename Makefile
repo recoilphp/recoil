@@ -14,6 +14,7 @@ prepare: deps lint coverage
 	travis lint
 
 ci: lint
+	php -c test/etc/php.ini -d zend.assertions=-1 vendor/bin/peridot
 	phpdbg -c test/etc/php.ini -qrr vendor/bin/peridot --reporter clover-code-coverage --code-coverage-path=artifacts/tests/coverage/clover.xml
 
 .PHONY: FORCE test coverage lint deps prepare ci

@@ -76,7 +76,7 @@ describe(StrandTrait::class, function () {
         it('throws when passed a regular function', function () {
             try {
                 ($this->initializeSubject)(function () {});
-                assert(false, 'expected exception was not thrown');
+                expect(false)->to->be->ok('expected exception was not thrown');
             } catch (InvalidArgumentException $e) {
                 expect($e->getMessage())->to->equal('Callable must return a generator.');
             }

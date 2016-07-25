@@ -11,7 +11,7 @@ rit('suspends the calling strand', function () {
     $strand = yield Recoil::execute(function () use (&$suspending) {
         $suspending = true;
         yield Recoil::suspend();
-        assert(false, 'strand was not suspended');
+        expect(false)->to->be->ok('strand was not suspended');
     });
 
     yield; // yield once to allow the other strand to run
@@ -41,7 +41,7 @@ rit('invokes the terminate callback if the strand is terminated', function () {
                 expect($strand)->to->equal($expected);
             }
         );
-        assert(false, 'strand was not terminated');
+        expect(false)->to->be->ok('strand was not terminated');
     });
 
     yield;
@@ -116,6 +116,6 @@ context('when resumed with an error', function () {
         $expected = new Exception('<exception>');
         yield Recoil::throw($strand, $expected);
 
-        assert($exception === $expected);
+        expect($exception === $expected)->to->be->true;
     });
 });

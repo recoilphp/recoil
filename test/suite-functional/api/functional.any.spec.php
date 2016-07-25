@@ -29,8 +29,8 @@ rit('terminates the substrands when the calling strand is terminated', function 
     $strand = yield Recoil::execute(function () {
         yield (function () {
             yield Recoil::any(
-                function () { yield; assert(false, 'strand was not terminated'); },
-                function () { yield; assert(false, 'strand was not terminated'); }
+                function () { yield; expect(false)->to->be->ok('strand was not terminated'); },
+                function () { yield; expect(false)->to->be->ok('strand was not terminated'); }
             );
         })();
     });
@@ -59,7 +59,7 @@ context('when one of the substrands succeeds', function () {
         yield Recoil::any(
             function () {
                 yield;
-                assert(false, 'strand was not terminated');
+                expect(false)->to->be->ok('strand was not terminated');
             },
             function () {
                 return;
@@ -76,7 +76,7 @@ context('when all of the substrands fail or are terminated', function () {
                 function () { yield Recoil::terminate(); },
                 function () { throw new Exception('<exception>'); yield; }
             );
-            assert(false, 'expected exception was not thrown');
+            expect(false)->to->be->ok('expected exception was not thrown');
         } catch (CompositeException $e) {
             expect($e->exceptions())->to->have->length(2);
             expect($e->exceptions()[0])->to->be->an->instanceof(TerminatedException::class);
@@ -90,7 +90,7 @@ context('when all of the substrands fail or are terminated', function () {
                 function () { yield; yield; throw new Exception('<exception-a>'); },
                 function () { yield; throw new Exception('<exception-b>'); }
             );
-            assert(false, 'expected exception was not thrown');
+            expect(false)->to->be->ok('expected exception was not thrown');
         } catch (CompositeException $e) {
             expect(array_keys($e->exceptions()))->to->equal([1, 0]);
         }

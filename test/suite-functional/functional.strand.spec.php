@@ -81,7 +81,7 @@ rit('prefers await() to awaitable()', function () {
     {
         public function awaitable() : Awaitable
         {
-            assert(false, 'awaitable() was called');
+            expect(false)->to->be->ok('awaitable() was called');
         }
 
         public function await(Listener $listener, Api $api)
@@ -101,7 +101,7 @@ rit('exception propagates up the call-stack', function () {
         };
 
         yield $fn();
-        assert(false, 'expected exception was not thrown');
+        expect(false)->to->be->ok('expected exception was not thrown');
     } catch (Exception $e) {
         expect($e->getMessage())->to->equal('<exception>');
     }

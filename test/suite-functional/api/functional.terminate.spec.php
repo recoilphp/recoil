@@ -7,7 +7,7 @@ namespace Recoil;
 rit('terminates the calling strand', function () {
     $strand = yield Recoil::execute(function () {
         yield Recoil::terminate();
-        assert(false, 'strand was not terminated');
+        expect(false)->to->be->ok('strand was not terminated');
     });
 
     yield;

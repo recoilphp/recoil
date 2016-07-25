@@ -11,7 +11,7 @@ use Recoil\Kernel\Strand;
 it('causes wait() to return false', function () {
     $this->kernel->execute(function () {
         yield;
-        assert(false, 'not stopped');
+        expect(false)->to->be->ok('not stopped');
     });
     $this->kernel->execute(function () {
         $this->kernel->stop();
@@ -26,7 +26,7 @@ it('causes wait() to return false', function () {
 it('causes waitForStrand() to throw', function () {
     $strand = $this->kernel->execute(function () {
         yield;
-        assert(false, 'not stopped');
+        expect(false)->to->be->ok('not stopped');
     });
     $this->kernel->execute(function () {
         $this->kernel->stop();
@@ -37,7 +37,7 @@ it('causes waitForStrand() to throw', function () {
 
     try {
         $this->kernel->waitForStrand($strand);
-        assert(false, 'expected exception was not thrown');
+        expect(false)->to->be->ok('expected exception was not thrown');
     } catch (KernelStoppedException $e) {
         // ok ...
     }
@@ -54,9 +54,9 @@ it('causes waitFor() to throw', function () {
     try {
         $this->kernel->waitFor(function () {
             yield;
-            assert(false, 'not stopped');
+            expect(false)->to->be->ok('not stopped');
         });
-        assert(false, 'expected exception was not thrown');
+        expect(false)->to->be->ok('expected exception was not thrown');
     } catch (KernelStoppedException $e) {
         // ok ...
     }
@@ -72,7 +72,7 @@ it('causes all nested wait[For[Strand]]() calls to return/throw', function () {
                     return;
                     yield;
                 });
-                assert(false, 'expected exception was not thrown');
+                expect(false)->to->be->ok('expected exception was not thrown');
             } catch (KernelStoppedException $e) {
                 // ok ...
             }
@@ -83,7 +83,7 @@ it('causes all nested wait[For[Strand]]() calls to return/throw', function () {
 
         try {
             $this->kernel->waitForStrand($strand);
-            assert(false, 'expected exception was not thrown');
+            expect(false)->to->be->ok('expected exception was not thrown');
         } catch (KernelStoppedException $e) {
             // ok ...
         }

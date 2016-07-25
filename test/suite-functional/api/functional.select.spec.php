@@ -43,7 +43,7 @@ context('when reading', function () {
     rit('allows the strand to be terminated', function () {
         $strand = yield Recoil::execute(function () use (&$count) {
             yield Recoil::select([$this->stream]);
-            assert(false, 'strand was not terminated');
+            expect(false)->to->be->ok('strand was not terminated');
         });
 
         yield;
@@ -69,7 +69,7 @@ context('when reading', function () {
         rit('resumes the strand with an exception on timeout', function () {
             try {
                 yield Recoil::select([$this->stream], null, 0.05);
-                assert(false, 'expected exception was not thrown');
+                expect(false)->to->be->ok('expected exception was not thrown');
             } catch (TimeoutException $e) {
                 expect($e->getMessage())->to->equal('The operation timed out after 0.05 second(s).');
             }
@@ -78,7 +78,7 @@ context('when reading', function () {
         rit('allows the strand to be terminated', function () {
             $strand = yield Recoil::execute(function () use (&$count) {
                 yield Recoil::select([$this->stream], null, 0.05);
-                assert(false, 'strand was not terminated');
+                expect(false)->to->be->ok('strand was not terminated');
             });
 
             yield;
@@ -130,7 +130,7 @@ context('when writing', function () {
 
         $strand = yield Recoil::execute(function () use (&$count) {
             yield Recoil::select(null, [$this->stream]);
-            assert(false, 'strand was not terminated');
+            expect(false)->to->be->ok('strand was not terminated');
         });
 
         yield;
@@ -164,7 +164,7 @@ context('when writing', function () {
 
             try {
                 yield Recoil::select(null, [$this->stream], 0.05);
-                assert(false, 'expected exception was not thrown');
+                expect(false)->to->be->ok('expected exception was not thrown');
             } catch (TimeoutException $e) {
                 expect($e->getMessage())->to->equal('The operation timed out after 0.05 second(s).');
             }

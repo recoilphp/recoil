@@ -20,10 +20,10 @@ context('when there is no exception handler', function () {
     it('causes wait() to throw an exception', function () {
         try {
             $this->kernel->wait();
-            assert(false, 'expected exception was not thrown');
+            expect(false)->to->be->ok('expected exception was not thrown');
         } catch (StrandException $e) {
             expect($e->strand())->to->equal($this->strand);
-            assert($e->getPrevious() === $this->exception);
+            expect($e->getPrevious() === $this->exception)->to->be->true;
         }
     });
 
@@ -36,9 +36,9 @@ context('when there is no exception handler', function () {
 
         try {
             $this->kernel->wait();
-            assert(false, 'expected exception was not thrown');
+            expect(false)->to->be->ok('expected exception was not thrown');
         } catch (StrandException $e) {
-            assert($e === $exception);
+            expect($e === $exception)->to->be->true;
         }
     });
 
@@ -48,10 +48,10 @@ context('when there is no exception handler', function () {
                 yield;
             });
             $this->kernel->waitForStrand($otherStrand);
-            assert(false, 'expected exception was not thrown');
+            expect(false)->to->be->ok('expected exception was not thrown');
         } catch (StrandException $e) {
             expect($e->strand())->to->equal($this->strand);
-            assert($e->getPrevious() === $this->exception);
+            expect($e->getPrevious() === $this->exception)->to->be->true;
         }
     });
 
@@ -67,9 +67,9 @@ context('when there is no exception handler', function () {
                 yield;
             });
             $this->kernel->waitForStrand($otherStrand);
-            assert(false, 'expected exception was not thrown');
+            expect(false)->to->be->ok('expected exception was not thrown');
         } catch (StrandException $e) {
-            assert($e === $exception);
+            expect($e === $exception)->to->be->true;
         }
     });
 
@@ -78,10 +78,10 @@ context('when there is no exception handler', function () {
             $this->kernel->waitFor(function () {
                 yield;
             });
-            assert(false, 'expected exception was not thrown');
+            expect(false)->to->be->ok('expected exception was not thrown');
         } catch (StrandException $e) {
             expect($e->strand())->to->equal($this->strand);
-            assert($e->getPrevious() === $this->exception);
+            expect($e->getPrevious() === $this->exception)->to->be->true;
         }
     });
 
@@ -97,9 +97,9 @@ context('when there is no exception handler', function () {
                 yield;
             });
             $this->kernel->waitForStrand($otherStrand);
-            assert(false, 'expected exception was not thrown');
+            expect(false)->to->be->ok('expected exception was not thrown');
         } catch (StrandException $e) {
-            assert($e === $exception);
+            expect($e === $exception)->to->be->true;
         }
     });
 });
@@ -134,7 +134,7 @@ context('when there is an exception handler set', function () {
 
     it('is passed the exception as an argument', function () {
         $this->kernel->wait();
-        assert($this->handledException === $this->exception);
+        expect($this->handledException === $this->exception)->to->be->true;
     });
 
     context('when the exception handler returns false', function () {
@@ -147,10 +147,10 @@ context('when there is an exception handler set', function () {
         it('causes wait() to throw an exception', function () {
             try {
                 $this->kernel->wait();
-                assert(false, 'expected exception was not thrown');
+                expect(false)->to->be->ok('expected exception was not thrown');
             } catch (StrandException $e) {
                 expect($e->strand())->to->equal($this->strand);
-                assert($e->getPrevious() === $this->exception);
+                expect($e->getPrevious() === $this->exception)->to->be->true;
             }
         });
 
@@ -163,9 +163,9 @@ context('when there is an exception handler set', function () {
 
             try {
                 $this->kernel->wait();
-                assert(false, 'expected exception was not thrown');
+                expect(false)->to->be->ok('expected exception was not thrown');
             } catch (StrandException $e) {
-                assert($e === $exception);
+                expect($e === $exception)->to->be->true;
             }
         });
 
@@ -175,7 +175,7 @@ context('when there is an exception handler set', function () {
                     yield;
                 });
                 $this->kernel->waitForStrand($otherStrand);
-                assert(false, 'expected exception was not thrown');
+                expect(false)->to->be->ok('expected exception was not thrown');
             } catch (StrandException $e) {
                 expect($e->strand())->to->equal($this->strand);
                 expect($e->getPrevious())->to->equal($this->exception);
@@ -194,9 +194,9 @@ context('when there is an exception handler set', function () {
                     yield;
                 });
                 $this->kernel->waitForStrand($otherStrand);
-                assert(false, 'expected exception was not thrown');
+                expect(false)->to->be->ok('expected exception was not thrown');
             } catch (StrandException $e) {
-                assert($e === $exception);
+                expect($e === $exception)->to->be->true;
             }
         });
 
@@ -205,10 +205,10 @@ context('when there is an exception handler set', function () {
                 $this->kernel->waitFor(function () {
                     yield;
                 });
-                assert(false, 'expected exception was not thrown');
+                expect(false)->to->be->ok('expected exception was not thrown');
             } catch (StrandException $e) {
                 expect($e->strand())->to->equal($this->strand);
-                assert($e->getPrevious() === $this->exception);
+                expect($e->getPrevious() === $this->exception)->to->be->true;
             }
         });
 
@@ -224,9 +224,9 @@ context('when there is an exception handler set', function () {
                     yield;
                 });
                 $this->kernel->waitForStrand($otherStrand);
-                assert(false, 'expected exception was not thrown');
+                expect(false)->to->be->ok('expected exception was not thrown');
             } catch (StrandException $e) {
-                assert($e === $exception);
+                expect($e === $exception)->to->be->true;
             }
         });
     });
