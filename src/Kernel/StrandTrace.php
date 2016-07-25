@@ -27,18 +27,24 @@ interface StrandTrace
 
     /**
      * Record values yielded from the coroutine on the head of the stack.
+     *
+     * The value may be modified.
      */
-    public function yield(Strand $strand, $key, $value);
+    public function yield(Strand $strand, $key, &$value);
 
     /**
      * Record the action and value used to resume a yielded coroutine.
+     *
+     * The action and value may be modified.
      */
-    public function resume(Strand $strand, string $action, $value);
+    public function resume(Strand $strand, string &$action, &$value);
 
     /**
      * Record the return value from the coroutine on the head of the stack.
+     *
+     * The value may be modified.
      */
-    public function return(Strand $strand, $value);
+    public function return(Strand $strand, &$value);
 
     /**
      * Record the suspension of a strand.
@@ -47,6 +53,8 @@ interface StrandTrace
 
     /**
      * Record the action and value when a strand exits.
+     *
+     * The action and value may be modified.
      */
-    public function exit(Strand $strand, string $action, $value);
+    public function exit(Strand $strand, string &$action, &$value);
 }
