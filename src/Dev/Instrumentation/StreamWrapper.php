@@ -73,7 +73,7 @@ final class StreamWrapper
         }
 
         $path = self::extractPath($path);
-        $openedPath = $path;
+        $openedPath = \realpath($path);
         $source = file_get_contents($path);
 
         if ($source === false) {

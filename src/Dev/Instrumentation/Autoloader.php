@@ -22,22 +22,18 @@ final class Autoloader
     /**
      * Register the autoloader before all existing autoloaders.
      */
-    public function register() : bool
+    public function register()
     {
         StreamWrapper::install();
         spl_autoload_register([$this, 'loadClass'], true, true);
-
-        return true;
     }
 
     /**
      * Unregister the autoloader.
      */
-    public function unregister() : bool
+    public function unregister()
     {
         spl_autoload_unregister([$this, 'loadClass']);
-
-        return true;
     }
 
     /**
