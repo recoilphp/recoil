@@ -538,7 +538,7 @@ trait StrandTrait
      *
      * @return StrandTrace|null
      */
-    public function trace(StrandTrace $trace)
+    public function trace()
     {
         return $this->trace;
     }

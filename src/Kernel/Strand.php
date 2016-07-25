@@ -120,7 +120,7 @@ interface Strand extends Listener, AwaitableProvider
      *
      * @return StrandTrace|null
      */
-    public function trace(StrandTrace $trace);
+    public function trace();
 
     /**
      * Set the current trace for this strand.
@@ -128,6 +128,8 @@ interface Strand extends Listener, AwaitableProvider
      * A trace may only be set on a strand when assertions are enabled. When
      * assertions are disabled, all tracing related code is disabled, and setting
      * a trace has no effect.
+     *
+     * @return null
      */
     public function setTrace(StrandTrace $trace = null);
 }

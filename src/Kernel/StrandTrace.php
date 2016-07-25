@@ -17,11 +17,15 @@ interface StrandTrace
 {
     /**
      * Record a push to the call stack.
+     *
+     * @return null
      */
     public function push(Strand $strand, int $depth);
 
     /**
      * Record a pop from the call stack.
+     *
+     * @return null
      */
     public function pop(Strand $strand);
 
@@ -29,6 +33,8 @@ interface StrandTrace
      * Record values yielded from the coroutine on the head of the stack.
      *
      * The value may be modified.
+     *
+     * @return null
      */
     public function yield(Strand $strand, $key, &$value);
 
@@ -36,6 +42,8 @@ interface StrandTrace
      * Record the action and value used to resume a yielded coroutine.
      *
      * The action and value may be modified.
+     *
+     * @return null
      */
     public function resume(Strand $strand, string &$action, &$value);
 
@@ -43,11 +51,15 @@ interface StrandTrace
      * Record the return value from the coroutine on the head of the stack.
      *
      * The value may be modified.
+     *
+     * @return null
      */
     public function return(Strand $strand, &$value);
 
     /**
      * Record the suspension of a strand.
+     *
+     * @return null
      */
     public function suspend(Strand $strand);
 
@@ -55,6 +67,8 @@ interface StrandTrace
      * Record the action and value when a strand exits.
      *
      * The action and value may be modified.
+     *
+     * @return null
      */
     public function exit(Strand $strand, string &$action, &$value);
 }
