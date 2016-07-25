@@ -12,7 +12,7 @@
         "eloquent/phony": "^0.13",
         "friendsofphp/php-cs-fixer": "^1",
         "hamcrest/hamcrest-php": "^2",
-        "peridot-php/leo": "dev-php7",
+        "peridot-php/leo": "^1",
         "peridot-php/peridot": "^1",
         "peridot-php/peridot-code-coverage-reporters": "^2",
         "react/dns": "^0.4"
@@ -43,12 +43,6 @@
             "homepage": "https://github.com/jmalloc"
         }
     ],
-    "repositories": {
-        "temporary jmalloc fork of peridot-php/leo": {
-            "type": "vcs",
-            "url": "https://github.com/jmalloc/leo"
-        }
-    },
     "config": {
         "sort-packages": true
     }
