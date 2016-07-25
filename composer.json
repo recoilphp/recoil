@@ -4,7 +4,6 @@
     "require": {
         "php": "^7",
         "icecave/repr": "^1",
-        "nikic/php-parser": "^2.1",
         "react/event-loop": "^0.4",
         "react/promise": "^2"
     },
