@@ -138,7 +138,7 @@ trait StrandTrait
                 $this->state = StrandState::SUSPENDED_ACTIVE;
 
                 try {
-                    // Another generated was yielded, push it onto the call
+                    // Another generator was yielded, push it onto the call
                     // stack and execute it ...
                     if ($produced instanceof Generator) {
                         // "fast" functionless stack-push ...
@@ -147,7 +147,7 @@ trait StrandTrait
                         $this->state = StrandState::RUNNING;
                         goto start_generator;
 
-                    // A coroutine provided was yielded. Extract the coroutine
+                    // A coroutine provider was yielded. Extract the coroutine
                     // then push it onto the call stack and execute it ...
                     } elseif ($produced instanceof CoroutineProvider) {
                         // The coroutine is extracted from the provider before the
@@ -181,7 +181,7 @@ trait StrandTrait
                     } elseif ($produced instanceof Awaitable) {
                         $produced->await($this, $this->api);
 
-                    // An awaitable provider was yeilded ...
+                    // An awaitable provider was yielded ...
                     } elseif ($produced instanceof AwaitableProvider) {
                         $produced->awaitable()->await($this, $this->api);
 
@@ -220,7 +220,7 @@ trait StrandTrait
                     goto resume_generator;
                 }
 
-                // The strand has alraedy been set back to the READY state. This
+                // The strand has already been set back to the READY state. This
                 // means that send() or throw() was called while handling the
                 // yielded value. Resume the current coroutine immediately ...
                 if ($this->state === StrandState::READY) {
