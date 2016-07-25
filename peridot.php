@@ -18,6 +18,5 @@ return function (EventEmitterInterface $emitter) {
 
     $emitter->on('code-coverage.start', function (AbstractCodeCoverageReporter $reporter) {
         $reporter->addDirectoryToWhitelist(__DIR__ . '/src');
-        $reporter->addDirectoryToWhitelist(__DIR__ . '/src-internal');
     });
 };
