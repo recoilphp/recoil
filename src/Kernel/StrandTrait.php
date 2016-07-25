@@ -5,8 +5,6 @@ declare (strict_types = 1); // @codeCoverageIgnore
 namespace Recoil\Kernel;
 
 use Closure;
-use Error;
-use Exception;
 use Generator;
 use InvalidArgumentException;
 use Recoil\Dev\Instrumentation\InstrumentationDirective;
