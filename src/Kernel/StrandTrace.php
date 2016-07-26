@@ -39,11 +39,7 @@ interface StrandTrace
     /**
      * Record values yielded from the coroutine on the head of the stack.
      *
-     * This method returns the value that should actually be processed by the
-     * strand. This is to allow debug tools to inject additional yields into
-     * coroutines and expose a different yielded value to the strand logic.
-     *
-     * @return mixed The yield value as seen by the strand.
+     * @return null
      */
     public function yield(Strand $strand, $key, $value);
 

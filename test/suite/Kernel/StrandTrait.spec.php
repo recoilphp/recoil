@@ -829,26 +829,6 @@ describe(StrandTrait::class, function () {
                     $this->trace->suspend->never()->called();
                     $this->trace->exit->once()->called();
                 });
-
-                it('allows modification of the yielded value', function () {
-                    $this->trace->yield->returns((function () {
-                        return 100;
-                        yield;
-                    })());
-
-                    $fn = function () {
-                        return (yield) + 200;
-                    };
-
-                    ($this->initializeSubject)($fn());
-                    $this->subject->get()->start();
-
-                    $this->trace->exit->calledWith(
-                        $this->subject->get(),
-                        'send',
-                        300
-                    );
-                });
             });
         });
     } else {

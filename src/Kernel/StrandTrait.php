@@ -153,7 +153,7 @@ trait StrandTrait
                 // that it can be optimised away completely in production ...
                 assert(
                     $this->trace === null ||
-                    ($produced = $this->trace->yield($this, $this->current->key(), $produced)) ||
+                    $this->trace->yield($this, $this->current->key(), $produced) ||
                     true
                 );
 
