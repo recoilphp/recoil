@@ -130,7 +130,7 @@ trait StrandTrait
                 // that it can be optimised away completely in production ...
                 assert(
                     $this->trace === null ||
-                    $this->trace->resume($this, $this->action, $this->value) ||
+                    $this->trace->resume($this, $this->depth + 1, $this->action, $this->value) ||
                     true
                 );
 
@@ -153,7 +153,7 @@ trait StrandTrait
                 // that it can be optimised away completely in production ...
                 assert(
                     $this->trace === null ||
-                    $this->trace->yield($this, $this->current->key(), $produced) ||
+                    $this->trace->yield($this, $this->depth + 1, $this->current->key(), $produced) ||
                     true
                 );
 
@@ -275,7 +275,7 @@ trait StrandTrait
                     // so that it can be optimised away completely in production ...
                     assert(
                         $this->trace === null ||
-                        $this->trace->suspend($this) ||
+                        $this->trace->suspend($this, $this->depth + 1) ||
                         true
                     );
                 }
@@ -315,6 +315,14 @@ trait StrandTrait
             goto resume_generator;
         }
 
+        // Trace the exit. This is performed inside an assertion so that it can
+        // be optimised away completely in production ...
+        assert(
+            $this->trace === null ||
+            $this->trace->exit($this, 0, $this->action, $this->value) ||
+            true
+        );
+
         // Otherwise the call-stack is empty, the strand has exited ...
         return $this->exit();
     }
@@ -336,6 +344,14 @@ trait StrandTrait
         $this->stack = [];
         $this->action = 'throw';
         $this->value = new TerminatedException($this);
+
+        // Trace the exit. This is performed inside an assertion so that it can
+        // be optimised away completely in production ...
+        assert(
+            $this->trace === null ||
+            $this->trace->exit($this, $this->depth + 1, $this->action, $this->value) ||
+            true
+        );
 
         if ($this->terminator) {
             ($this->terminator)($this);
@@ -564,14 +580,6 @@ trait StrandTrait
     {
         $this->state = StrandState::EXITED;
         $this->current = null;
-
-        // Trace the exit. This is performed inside an assertion so that it can
-        // be optimised away completely in production ...
-        assert(
-            $this->trace === null ||
-            $this->trace->exit($this, $this->action, $this->value) ||
-            true
-        );
 
         try {
             $this->primaryListener->{$this->action}($this->value, $this);

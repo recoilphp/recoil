@@ -746,32 +746,35 @@ describe(StrandTrait::class, function () {
                     Phony::inOrder(
                         $this->trace->push->calledWith(
                             $this->subject->get(),
-                            0
+                            0 // call-stack depth
                         ),
                         $this->trace->yield->calledWith(
                             $this->subject->get(),
+                            1, // call-stack depth
                             '<key>',
                             IsInstanceOf::anInstanceOf(Generator::class)
                         ),
                         $this->trace->push->calledWith(
                             $this->subject->get(),
-                            1
+                            1 // call-stack depth
                         ),
                         $this->trace->pop->calledWith(
                             $this->subject->get(),
-                            1
+                            1 // call-stack depth
                         ),
                         $this->trace->resume->calledWith(
                             $this->subject->get(),
+                            1, // call-stack depth
                             'send',
                             100
                         ),
                         $this->trace->pop->calledWith(
                             $this->subject->get(),
-                            0
+                            0 // call-stack depth
                         ),
                         $this->trace->exit->calledWith(
                             $this->subject->get(),
+                            0, // call-stack depth
                             'send',
                             300
                         )
@@ -793,15 +796,17 @@ describe(StrandTrait::class, function () {
                     Phony::inOrder(
                         $this->trace->push->calledWith(
                             $this->subject->get(),
-                            0
+                            0 // call-stack depth
                         ),
                         $this->trace->yield->calledWith(
                             $this->subject->get(),
+                            1, // call-stack depth
                             0,
                             null
                         ),
                         $this->trace->suspend->calledWith(
-                            $this->subject->get()
+                            $this->subject->get(),
+                            1 // call-stack depth
                         )
                     );
 
@@ -814,17 +819,23 @@ describe(StrandTrait::class, function () {
                 });
 
                 it('traces strand termination', function () {
-                    $this->subject->get()->terminate();
+                    $this->api->dispatch->does(function () {
+                        $this->subject->get()->terminate();
+                    });
+                    $fn = function () { yield; };
+                    ($this->initializeSubject)($fn());
+                    $this->subject->get()->start();
 
                     $this->trace->exit->calledWith(
                         $this->subject->get(),
+                        1, // call-stack depth
                         'throw',
                         IsInstanceOf::anInstanceOf(TerminatedException::class)
                     );
 
-                    $this->trace->push->never()->called();
+                    $this->trace->push->once()->called();
                     $this->trace->pop->never()->called();
-                    $this->trace->yield->never()->called();
+                    $this->trace->yield->once()->called();
                     $this->trace->resume->never()->called();
                     $this->trace->suspend->never()->called();
                     $this->trace->exit->once()->called();
