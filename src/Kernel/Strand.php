@@ -36,7 +36,7 @@ interface Strand extends Listener, AwaitableProvider
      * If the strand is suspended waiting on an asynchronous operation, that
      * operation is cancelled.
      *
-     * The call stack is not unwound, it is simply discarded.
+     * The call-stack is not unwound, it is simply discarded.
      *
      * @return null
      */
@@ -45,7 +45,7 @@ interface Strand extends Listener, AwaitableProvider
     /**
      * Resume execution of a suspended strand.
      *
-     * @param mixed       $value  The value to send to the coroutine on the the top of the call stack.
+     * @param mixed       $value  The value to send to the coroutine on the the top of the call-stack.
      * @param Strand|null $strand The strand that resumed this one, if any.
      *
      * @return null
@@ -55,7 +55,7 @@ interface Strand extends Listener, AwaitableProvider
     /**
      * Resume execution of a suspended strand with an error.
      *
-     * @param Throwable   $exception The exception to send to the coroutine on the top of the call stack.
+     * @param Throwable   $exception The exception to send to the coroutine on the top of the call-stack.
      * @param Strand|null $strand    The strand that resumed this one, if any.
      *
      * @return null
@@ -114,4 +114,20 @@ interface Strand extends Listener, AwaitableProvider
      * @return null
      */
     public function unlink(Strand $strand);
+
+    /**
+     * Get the current trace for this strand.
+     *
+     * @return StrandTrace|null
+     */
+    public function trace();
+
+    /**
+     * Set the current trace for this strand.
+     *
+     * This method has no effect when assertions are disabled.
+     *
+     * @return null
+     */
+    public function setTrace(StrandTrace $trace = null);
 }

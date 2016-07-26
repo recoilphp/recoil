@@ -16,7 +16,5 @@ interface StrandState
     const RUNNING = 1;
     const SUSPENDED_ACTIVE = 2;
     const SUSPENDED_INACTIVE = 3;
-    const EXIT_SUCCESS = 4;
-    const EXIT_FAIL = 5;
-    const EXIT_TERMINATED = 6;
+    const EXITED = 4;
 }

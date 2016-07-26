@@ -4,10 +4,10 @@ declare (strict_types = 1); // @codeCoverageIgnore
 
 namespace Recoil\Kernel;
 
-use AssertionError;
 use Eloquent\Phony\Phony;
 use Exception;
 use Generator;
+use Hamcrest\Core\IsInstanceOf;
 use InvalidArgumentException;
 use Recoil\Exception\TerminatedException;
 use Recoil\Kernel\Exception\PrimaryListenerRemovedException;
@@ -19,6 +19,9 @@ describe(StrandTrait::class, function () {
     beforeEach(function () {
         $this->kernel = Phony::mock(Kernel::class);
         $this->api = Phony::mock(Api::class);
+        $this->trace = Phony::mock(StrandTrace::class);
+        $this->trace->yield->returnsArgument(2);
+
         $this->initializeSubject = function ($entryPoint = null) {
             $this->subject = Phony::partialMock(
                 [Strand::class, Awaitable::class, StrandTrait::class],
@@ -29,6 +32,8 @@ describe(StrandTrait::class, function () {
                     $entryPoint,
                 ]
             );
+
+            $this->subject->get()->setTrace($this->trace->get());
         };
 
         ($this->initializeSubject)();
@@ -42,10 +47,16 @@ describe(StrandTrait::class, function () {
         $this->strand2 = Phony::mock(Strand::class);
     });
 
+    afterEach(function () {
+        if (ini_get('zend.assertions') <= 0) {
+            $this->trace->noInteraction();
+        }
+    });
+
     describe('->__construct()', function () {
         it('accepts a generator object', function () {
             $fn = Phony::stub()->generates(['<key>' => '<value>'])->returns();
-            ($this->initializeSubject)($fn);
+            ($this->initializeSubject)($fn());
             $this->subject->get()->start();
 
             $this->api->dispatch->calledWith($this->subject, '<key>', '<value>');
@@ -109,8 +120,6 @@ describe(StrandTrait::class, function () {
                         return '<result>';
                         yield;
                     })();
-
-                    return '<ok>';
                 });
 
                 ($this->initializeSubject)($fn);
@@ -202,6 +211,7 @@ describe(StrandTrait::class, function () {
 
                     $this->strand1->terminate->never()->called();
                 });
+
             });
         });
 
@@ -323,7 +333,7 @@ describe(StrandTrait::class, function () {
                 $provider = Phony::mock(CoroutineProvider::class);
                 $provider->coroutine->generates()->returns('<result>');
                 $fn = Phony::stub();
-                $fn->generates([$provider->get()]); // @todo https://github.com/eloquent/phony/issues/144
+                $fn->generates([$provider]);
                 ($this->initializeSubject)($fn);
                 $this->subject->get()->start();
 
@@ -354,7 +364,7 @@ describe(StrandTrait::class, function () {
             it('attaches the strand to awaitables', function () {
                 $awaitable = Phony::mock(Awaitable::class);
                 $fn = Phony::stub();
-                $fn->generates([$awaitable->get()]); // @todo https://github.com/eloquent/phony/issues/144
+                $fn->generates([$awaitable]);
                 ($this->initializeSubject)($fn);
                 $this->subject->get()->start();
 
@@ -368,7 +378,7 @@ describe(StrandTrait::class, function () {
                 $provider = Phony::mock(AwaitableProvider::class);
                 $provider->awaitable->returns($awaitable);
                 $fn = Phony::stub();
-                $fn->generates([$provider->get()]); // @todo https://github.com/eloquent/phony/issues/144
+                $fn->generates([$provider]);
                 ($this->initializeSubject)($fn);
                 $this->subject->get()->start();
 
@@ -566,32 +576,17 @@ describe(StrandTrait::class, function () {
             $this->subject->get()->start();
         });
 
-        it('->start() fails', function () {
-            try {
-                $this->subject->get()->start();
-                assert(false, 'expected exception was not thrown');
-            } catch (AssertionError $e) {
-                expect($e->getMessage())->to->equal('strand must be READY or SUSPENDED_INACTIVE to start');
-            }
+        it('->start() does nothing', function () {
+            $this->subject->get()->start();
         });
 
-        it('->send() fails', function () {
-            try {
-                $this->subject->get()->send('<result>');
-                assert(false, 'expected exception was not thrown');
-            } catch (AssertionError $e) {
-                expect($e->getMessage())->to->equal('strand must be suspended to resume');
-            }
+        it('->send() does nothing', function () {
+            $this->subject->get()->send('<result>');
         });
 
-        it('->throw() fails', function () {
-            try {
-                $exception = Phony::mock(Throwable::class);
-                $this->subject->get()->throw($exception->get());
-                assert(false, 'expected exception was not thrown');
-            } catch (AssertionError $e) {
-                expect($e->getMessage())->to->equal('strand must be suspended to resume');
-            }
+        it('->throw() does nothing', function () {
+            $exception = Phony::mock(Throwable::class);
+            $this->subject->get()->throw($exception->get());
         });
 
         it('->terminate() does nothing', function () {
@@ -617,32 +612,17 @@ describe(StrandTrait::class, function () {
             $this->subject->get()->start();
         });
 
-        it('->start() fails', function () {
-            try {
-                $this->subject->get()->start();
-                assert(false, 'expected exception was not thrown');
-            } catch (AssertionError $e) {
-                expect($e->getMessage())->to->equal('strand must be READY or SUSPENDED_INACTIVE to start');
-            }
+        it('->start() does nothing', function () {
+            $this->subject->get()->start();
         });
 
-        it('->send() fails', function () {
-            try {
-                $this->subject->get()->send('<result>');
-                assert(false, 'expected exception was not thrown');
-            } catch (AssertionError $e) {
-                expect($e->getMessage())->to->equal('strand must be suspended to resume');
-            }
+        it('->send() does nothing', function () {
+            $this->subject->get()->send('<result>');
         });
 
-        it('->throw() fails', function () {
-            try {
-                $exception = Phony::mock(Throwable::class);
-                $this->subject->get()->throw($exception->get());
-                assert(false, 'expected exception was not thrown');
-            } catch (AssertionError $e) {
-                expect($e->getMessage())->to->equal('strand must be suspended to resume');
-            }
+        it('->throw() does nothing', function () {
+            $exception = Phony::mock(Throwable::class);
+            $this->subject->get()->throw($exception->get());
         });
 
         it('->terminate() does nothing', function () {
@@ -725,5 +705,160 @@ describe(StrandTrait::class, function () {
             $this->subject->get()->unlink($this->strand1->get());
         });
     });
+
+    if (ini_get('zend.assertions') > 0) {
+        context('when assertions are enabled', function () {
+            describe('->trace', function () {
+                it('returns the trace object', function () {
+                    expect($this->subject->get()->trace())->to->be->equal($this->trace->get());
+                });
+            });
+
+            describe('->setTrace', function () {
+                it('sets the trace object', function () {
+                    $trace = Phony::mock(StrandTrace::class)->get();
+                    $this->subject->get()->setTrace($trace);
+
+                    expect($this->subject->get()->trace())->to->equal($trace);
+                });
+
+                it('can set the trace object to null', function () {
+                    $this->subject->get()->setTrace(null);
+
+                    expect($this->subject->get()->trace())->to->be->null;
+                });
+            });
+
+            context('when the strand is tracing', function () {
+                it('traces the events in order', function () {
+                    $fn = function () {
+                        $value = yield '<key>' => (function () {
+                            return 100;
+                            yield;
+                        })();
+
+                        return $value + 200;
+                    };
+
+                    ($this->initializeSubject)($fn());
+                    $this->subject->get()->start();
+
+                    Phony::inOrder(
+                        $this->trace->push->calledWith(
+                            $this->subject->get(),
+                            0 // call-stack depth
+                        ),
+                        $this->trace->yield->calledWith(
+                            $this->subject->get(),
+                            1, // call-stack depth
+                            '<key>',
+                            IsInstanceOf::anInstanceOf(Generator::class)
+                        ),
+                        $this->trace->push->calledWith(
+                            $this->subject->get(),
+                            1 // call-stack depth
+                        ),
+                        $this->trace->pop->calledWith(
+                            $this->subject->get(),
+                            1 // call-stack depth
+                        ),
+                        $this->trace->resume->calledWith(
+                            $this->subject->get(),
+                            1, // call-stack depth
+                            'send',
+                            100
+                        ),
+                        $this->trace->pop->calledWith(
+                            $this->subject->get(),
+                            0 // call-stack depth
+                        ),
+                        $this->trace->exit->calledWith(
+                            $this->subject->get(),
+                            0, // call-stack depth
+                            'send',
+                            300
+                        )
+                    );
+
+                    $this->trace->push->twice()->called();
+                    $this->trace->pop->twice()->called();
+                    $this->trace->yield->once()->called();
+                    $this->trace->resume->once()->called();
+                    $this->trace->suspend->never()->called();
+                    $this->trace->exit->once()->called();
+                });
+
+                it('traces strand suspension', function () {
+                    $fn = function () { yield; };
+                    ($this->initializeSubject)($fn());
+                    $this->subject->get()->start();
+
+                    Phony::inOrder(
+                        $this->trace->push->calledWith(
+                            $this->subject->get(),
+                            0 // call-stack depth
+                        ),
+                        $this->trace->yield->calledWith(
+                            $this->subject->get(),
+                            1, // call-stack depth
+                            0,
+                            null
+                        ),
+                        $this->trace->suspend->calledWith(
+                            $this->subject->get(),
+                            1 // call-stack depth
+                        )
+                    );
+
+                    $this->trace->push->once()->called();
+                    $this->trace->pop->never()->called();
+                    $this->trace->yield->once()->called();
+                    $this->trace->resume->never()->called();
+                    $this->trace->suspend->once()->called();
+                    $this->trace->exit->never()->called();
+                });
+
+                it('traces strand termination', function () {
+                    $this->api->dispatch->does(function () {
+                        $this->subject->get()->terminate();
+                    });
+                    $fn = function () { yield; };
+                    ($this->initializeSubject)($fn());
+                    $this->subject->get()->start();
+
+                    $this->trace->exit->calledWith(
+                        $this->subject->get(),
+                        1, // call-stack depth
+                        'throw',
+                        IsInstanceOf::anInstanceOf(TerminatedException::class)
+                    );
+
+                    $this->trace->push->once()->called();
+                    $this->trace->pop->never()->called();
+                    $this->trace->yield->once()->called();
+                    $this->trace->resume->never()->called();
+                    $this->trace->suspend->never()->called();
+                    $this->trace->exit->once()->called();
+                });
+            });
+        });
+    } else {
+        context('when assertions are disabled', function () {
+            describe('->trace', function () {
+                it('always returns null', function () {
+                    expect($this->subject->get()->trace())->to->be->null;
+                });
+            });
+
+            describe('->setTrace', function () {
+                it('does not set the trace object', function () {
+                    $trace = Phony::mock(StrandTrace::class)->get();
+                    $this->subject->get()->setTrace($trace);
+
+                    expect($this->subject->get()->trace())->to->be->null;
+                });
+            });
+        });
+    }
 
 });
