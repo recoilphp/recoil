@@ -95,12 +95,12 @@ trait StrandTrait
 
         assert(
             $this->state === StrandState::READY || $this->state === StrandState::SUSPENDED_INACTIVE,
-            'strand state must be READY or SUSPENDED_INACTIVE to start'
+            'strand state must be READY or SUSPENDED_INACTIVE to start the strand'
         );
 
         assert(
             $this->state !== StrandState::SUSPENDED_INACTIVE || $this->action !== null,
-            'value must be set to start when SUSPENDED_INACTIVE'
+            'action must be provided to start the strand when SUSPENDED_INACTIVE'
         );
 
         // Trace the stack push of the entry-point, this is performed inside an
