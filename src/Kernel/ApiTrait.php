@@ -178,54 +178,6 @@ trait ApiTrait
     }
 
     /**
-     * Resume execution of a suspended strand.
-     *
-     * This causes the suspended strand's blocking suspend() call to return
-     * $value.
-     *
-     * The suspended strand is not guaranteed to resume execution before this
-     * operation resumes the calling strand.
-     *
-     * @param Strand $strand    The strand executing the API call.
-     * @param Strand $suspended The suspended strand.
-     * @param mixed  $value     The value to pass to the resumed strand.
-     *
-     * @return Generator|null
-     */
-    public function resume(
-        Strand $strand,
-        Strand $suspended,
-        $value = null
-    ) {
-        $suspended->send($value, $strand);
-        $strand->send(null, $strand);
-    }
-
-    /**
-     * Resume execution of a suspended strand with an error.
-     *
-     * This causes the suspended strand's blocking suspend() call to throw
-     * $exception.
-     *
-     * The suspended strand is not guaranteed to resume execution before this
-     * operation resumes the calling strand.
-     *
-     * @param Strand    $strand    The strand executing the API call.
-     * @param Strand    $suspended The suspended strand.
-     * @param Throwable $exception The exception to pass to the resumed strand.
-     *
-     * @return Generator|null
-     */
-    public function throw(
-        Strand $strand,
-        Strand $suspended,
-        Throwable $exception
-    ) {
-        $suspended->throw($exception, $strand);
-        $strand->send(null, $strand);
-    }
-
-    /**
      * Terminate the calling strand.
      *
      * @param Strand $strand The strand executing the API call.

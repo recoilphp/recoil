@@ -326,38 +326,6 @@ describe(ApiTrait::class, function () {
         });
     });
 
-    describe('->resume()', function () {
-        it('resumes the suspended strand, then the calling strand', function () {
-            $this->subject->get()->resume(
-                $this->strand->get(),
-                $this->substrand1->get(),
-                '<value>'
-            );
-
-            Phony::inOrder(
-                $this->substrand1->send->calledWith('<value>', $this->strand),
-                $this->strand->send->calledWith(null, $this->strand)
-            );
-        });
-    });
-
-    describe('->throw()', function () {
-        it('resumes the suspended strand, then the calling strand', function () {
-            $exception = Phony::mock(Throwable::class)->get();
-
-            $this->subject->get()->throw(
-                $this->strand->get(),
-                $this->substrand1->get(),
-                $exception
-            );
-
-            Phony::inOrder(
-                $this->substrand1->throw->calledWith($exception, $this->strand),
-                $this->strand->send->calledWith(null, $this->strand)
-            );
-        });
-    });
-
     describe('->terminate()', function () {
         it('terminates the strand', function () {
             $this->subject->get()->terminate(
