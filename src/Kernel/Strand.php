@@ -125,9 +125,7 @@ interface Strand extends Listener, AwaitableProvider
     /**
      * Set the current trace for this strand.
      *
-     * A trace may only be set on a strand when assertions are enabled. When
-     * assertions are disabled, all tracing related code is disabled, and setting
-     * a trace has no effect.
+     * This method has no effect when assertions are disabled.
      *
      * @return null
      */

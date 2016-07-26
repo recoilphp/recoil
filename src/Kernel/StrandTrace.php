@@ -21,46 +21,66 @@ interface StrandTrace
     /**
      * Record a push to the call-stack.
      *
-     * @param $stackDepth The depth of the stack BEFORE the push operation.
+     * @param Strand $strand The strand being traced.
+     * @param int    $depth  The depth of the call-stack BEFORE the push operation.
      *
      * @return null
      */
-    public function push(Strand $strand, int $stackDepth);
+    public function push(Strand $strand, int $depth);
 
     /**
      * Record a pop from the call-stack.
      *
-     * @param $stackDepth The depth of the stack AFTER the pop operation.
+     * @param Strand $strand The strand being traced.
+     * @param int    $depth  The depth of the call-stack AFTER the pop operation.
      *
      * @return null
      */
-    public function pop(Strand $strand, int $stackDepth);
+    public function pop(Strand $strand, int $depth);
 
     /**
-     * Record values yielded from the coroutine on the head of the stack.
+     * Record keys and values yielded from the coroutine on the head of the stack.
+     *
+     * @param Strand $strand The strand being traced.
+     * @param int    $depth  The current depth of the call-stack.
+     * @param mixed  $key    The key yielded from the coroutine.
+     * @param mixed  $value  The value yielded from the coroutine.
      *
      * @return null
      */
-    public function yield(Strand $strand, int $stackDepth, $key, $value);
+    public function yield(Strand $strand, int $depth, $key, $value);
 
     /**
      * Record the action and value used to resume a yielded coroutine.
      *
+     * @param Strand $strand The strand being traced.
+     * @param int    $depth  The current depth of the call-stack.
+     * @param string $action The resume action ('send' or 'throw').
+     * @param mixed  $value  The resume value or exception.
+     *
      * @return null
      */
-    public function resume(Strand $strand, int $stackDepth, string $action, $value);
+    public function resume(Strand $strand, int $depth, string $action, $value);
 
     /**
      * Record the suspension of a strand.
      *
+     * @param Strand $strand The strand being traced.
+     * @param int    $depth  The current depth of the call-stack.
+     *
      * @return null
      */
-    public function suspend(Strand $strand, int $stackDepth);
+    public function suspend(Strand $strand, int $depth);
 
     /**
      * Record the action and value when a strand exits.
      *
+     * @param Strand $strand The strand being traced.
+     * @param int    $depth  The current depth of the call-stack.
+     * @param string $action The final action performed on the strand's listener ('send' or 'throw').
+     * @param mixed  $value  The strand result or exception.
+     *
      * @return null
      */
-    public function exit(Strand $strand, int $stackDepth, string $action, $value);
+    public function exit(Strand $strand, int $depth, string $action, $value);
 }
