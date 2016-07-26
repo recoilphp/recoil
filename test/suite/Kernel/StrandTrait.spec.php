@@ -732,7 +732,7 @@ describe(StrandTrait::class, function () {
             context('when the strand is tracing', function () {
                 it('traces the events in order', function () {
                     $fn = function () {
-                        $value = yield  '<key>' => (function () {
+                        $value = yield '<key>' => (function () {
                             return 100;
                             yield;
                         })();
@@ -813,10 +813,41 @@ describe(StrandTrait::class, function () {
                     $this->trace->exit->never()->called();
                 });
 
-                xit('traces strand termination', function () {
+                it('traces strand termination', function () {
+                    $this->subject->get()->terminate();
+
+                    $this->trace->exit->calledWith(
+                        $this->subject->get(),
+                        'throw',
+                        IsInstanceOf::anInstanceOf(TerminatedException::class)
+                    );
+
+                    $this->trace->push->never()->called();
+                    $this->trace->pop->never()->called();
+                    $this->trace->yield->never()->called();
+                    $this->trace->resume->never()->called();
+                    $this->trace->suspend->never()->called();
+                    $this->trace->exit->once()->called();
                 });
 
-                xit('allows modification of the yielded value', function () {
+                it('allows modification of the yielded value', function () {
+                    $this->trace->yield->returns((function () {
+                        return 100;
+                        yield;
+                    })());
+
+                    $fn = function () {
+                        return (yield) + 200;
+                    };
+
+                    ($this->initializeSubject)($fn());
+                    $this->subject->get()->start();
+
+                    $this->trace->exit->calledWith(
+                        $this->subject->get(),
+                        'send',
+                        300
+                    );
                 });
             });
         });
