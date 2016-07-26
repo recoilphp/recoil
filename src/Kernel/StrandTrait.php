@@ -103,6 +103,15 @@ trait StrandTrait
             'value must be set to start when SUSPENDED_INACTIVE'
         );
 
+        // Trace the stack push of the entry-point, this is performed inside an
+        // assertion so that it can be optimised away completely in production ...
+        assert(
+            $this->state !== StrandState::READY ||
+            $this->trace === null ||
+            $this->trace->push($this, 0) ||
+            true
+        );
+
         $this->state = StrandState::RUNNING;
 
         // Execute the next "tick" of the current coroutine ...
@@ -112,7 +121,7 @@ trait StrandTrait
             // "resume_generator" label, or by calling send() or throw() ...
             if ($this->action) {
                 resume_generator:
-                assert($this->current instanceof Generator, 'call stack must not be empty');
+                assert($this->current instanceof Generator, 'call-stack must not be empty');
                 assert($this->state === StrandState::RUNNING, 'strand state must be RUNNING');
                 assert($this->action === 'send' || $this->action === 'throw', 'action must be "send" or "throw"');
                 assert($this->action !== 'throw' || $this->value instanceof Throwable, 'value must be throwable');
@@ -130,9 +139,9 @@ trait StrandTrait
             }
 
             // The "start_generator" is jumped to when a new generator has been
-            // pushed onto the call stack ...
+            // pushed onto the call-stack ...
             start_generator:
-            assert($this->current instanceof Generator, 'call stack must not be empty');
+            assert($this->current instanceof Generator, 'call-stack must not be empty');
             assert($this->state === StrandState::RUNNING, 'strand state must be RUNNING');
 
             // If the generator is "valid" it has futher iterations to perform,
@@ -144,7 +153,7 @@ trait StrandTrait
                 // that it can be optimised away completely in production ...
                 assert(
                     $this->trace === null ||
-                    $this->trace->yield($this, $this->current->key(), $this->value) ||
+                    ($produced = $this->trace->yield($this, $this->current->key(), $produced)) ||
                     true
                 );
 
@@ -164,14 +173,14 @@ trait StrandTrait
                         // in production ...
                         assert(
                             $this->trace === null ||
-                            $this->trace->push($this, $this->depth + 1) ||
+                            $this->trace->push($this, $this->depth) ||
                             true
                         );
 
                         goto start_generator;
 
                     // A coroutine provider was yielded. Extract the coroutine
-                    // then push it onto the call stack and execute it ...
+                    // then push it onto the call-stack and execute it ...
                     } elseif ($produced instanceof CoroutineProvider) {
                         // The coroutine is extracted from the provider before the
                         // stack push is begun in case coroutine() throws ...
@@ -187,7 +196,7 @@ trait StrandTrait
                         // in production ...
                         assert(
                             $this->trace === null ||
-                            $this->trace->push($this, $this->depth + 1) ||
+                            $this->trace->push($this, $this->depth) ||
                             true
                         );
 
@@ -201,7 +210,7 @@ trait StrandTrait
                         );
 
                         // The API call is implemented as a generator coroutine,
-                        // push it onto the call stack and execute it ...
+                        // push it onto the call-stack and execute it ...
                         if ($produced instanceof Generator) {
                             // "fast" functionless stack-push ...
                             $this->stack[$this->depth++] = $this->current;
@@ -213,7 +222,7 @@ trait StrandTrait
                             // completely in production ...
                             assert(
                                 $this->trace === null ||
-                                $this->trace->push($this, $this->depth + 1) ||
+                                $this->trace->push($this, $this->depth) ||
                                 true
                             );
 
@@ -239,7 +248,7 @@ trait StrandTrait
                     }
 
                 // An exception occurred as a result of the yielded value. This
-                // exception is not propagated up the call stack, but rather
+                // exception is not propagated up the call-stack, but rather
                 // sent back to the current coroutine (i.e., the one that yielded
                 // the value) ...
                 } catch (Throwable $e) {
@@ -279,22 +288,22 @@ trait StrandTrait
             $this->action = 'send';
             $this->value = $this->current->getReturn();
 
-            // Trace the return, this is performed inside an assertion so
-            // that it can be optimised away completely in production ...
-            assert(
-                $this->trace === null ||
-                $this->trace->return($this, $this->value) ||
-                true
-            );
-
         // An exception was thrown during the execution of the generator ...
         } catch (Throwable $e) {
             $this->action = 'throw';
             $this->value = $e;
         }
 
+        // Trace the stack pop, this is performed inside an assertion so
+        // that it can be optimised away completely in production ...
+        assert(
+            $this->trace === null ||
+            $this->trace->pop($this, $this->depth) ||
+            true
+        );
+
         // The current coroutine has ended, either by returning or throwing. If
-        // there is a coroutine above it on the call stack, we pop the current
+        // there is a coroutine above it on the call-stack, we pop the current
         // coroutine from the stack and resume the parent ...
         if ($this->depth) {
             // "fast" functionless stack-pop ...
@@ -302,19 +311,11 @@ trait StrandTrait
             $this->current = $current;
             $current = null;
 
-            // Trace the stack pop, this is performed inside an assertion so
-            // that it can be optimised away completely in production ...
-            assert(
-                $this->trace === null ||
-                $this->trace->pop($this) ||
-                true
-            );
-
             $this->state = StrandState::RUNNING;
             goto resume_generator;
         }
 
-        // Otherwise the call stack is empty, the strand has exited ...
+        // Otherwise the call-stack is empty, the strand has exited ...
         return $this->exit();
     }
 
@@ -324,7 +325,7 @@ trait StrandTrait
      * If the strand is suspended waiting on an asynchronous operation, that
      * operation is cancelled.
      *
-     * The call stack is not unwound, it is simply discarded.
+     * The call-stack is not unwound, it is simply discarded.
      */
     public function terminate()
     {
@@ -346,7 +347,7 @@ trait StrandTrait
     /**
      * Resume execution of a suspended strand.
      *
-     * @param mixed       $value  The value to send to the coroutine on the the top of the call stack.
+     * @param mixed       $value  The value to send to the coroutine on the the top of the call-stack.
      * @param Strand|null $strand The strand that resumed this one, if any.
      */
     public function send($value = null, Strand $strand = null)
@@ -378,7 +379,7 @@ trait StrandTrait
     /**
      * Resume execution of a suspended strand with an error.
      *
-     * @param Throwable   $exception The exception to send to the coroutine on the top of the call stack.
+     * @param Throwable   $exception The exception to send to the coroutine on the top of the call-stack.
      * @param Strand|null $strand    The strand that resumed this one, if any.
      */
     public function throw(Throwable $exception, Strand $strand = null)
@@ -552,7 +553,7 @@ trait StrandTrait
      */
     public function setTrace(StrandTrace $trace = null)
     {
-        assert($this->trace = $trace || true);
+        assert(($this->trace = $trace) || true);
     }
 
     /**
@@ -618,17 +619,17 @@ trait StrandTrait
     private $id;
 
     /**
-     * @var array<Generator> The call stack (except for the top element).
+     * @var array<Generator> The call-stack (except for the top element).
      */
     private $stack = [];
 
     /**
-     * @var int The call stack depth (not including the top element).
+     * @var int The call-stack depth (not including the top element).
      */
     private $depth = 0;
 
     /**
-     * @var Generator|null The current top of the call stack.
+     * @var Generator|null The current top of the call-stack.
      */
     private $current;
 

@@ -12,49 +12,47 @@ namespace Recoil\Kernel;
  * A trace may only be set on a strand when assertions are enabled. When
  * assertions are disabled, all tracing related code is disabled, and setting
  * a trace has no effect.
+ *
+ * If an exception is thrown from any of the StrandTrace methods the kernel
+ * behaviour is undefined.
  */
 interface StrandTrace
 {
     /**
-     * Record a push to the call stack.
+     * Record a push to the call-stack.
+     *
+     * @param $depth The depth of the stack BEFORE the push operation.
      *
      * @return null
      */
     public function push(Strand $strand, int $depth);
 
     /**
-     * Record a pop from the call stack.
+     * Record a pop from the call-stack.
+     *
+     * @param $depth The depth of the stack AFTER the pop operation.
      *
      * @return null
      */
-    public function pop(Strand $strand);
+    public function pop(Strand $strand, int $depth);
 
     /**
      * Record values yielded from the coroutine on the head of the stack.
      *
-     * The value may be modified.
+     * This method returns the value that should actually be processed by the
+     * strand. This is to allow debug tools to inject additional yields into
+     * coroutines and expose a different yielded value to the strand logic.
      *
-     * @return null
+     * @return mixed The yield value as seen by the strand.
      */
-    public function yield(Strand $strand, $key, &$value);
+    public function yield(Strand $strand, $key, $value);
 
     /**
      * Record the action and value used to resume a yielded coroutine.
      *
-     * The action and value may be modified.
-     *
      * @return null
      */
-    public function resume(Strand $strand, string &$action, &$value);
-
-    /**
-     * Record the return value from the coroutine on the head of the stack.
-     *
-     * The value may be modified.
-     *
-     * @return null
-     */
-    public function return(Strand $strand, &$value);
+    public function resume(Strand $strand, string $action, $value);
 
     /**
      * Record the suspension of a strand.
@@ -66,9 +64,7 @@ interface StrandTrace
     /**
      * Record the action and value when a strand exits.
      *
-     * The action and value may be modified.
-     *
      * @return null
      */
-    public function exit(Strand $strand, string &$action, &$value);
+    public function exit(Strand $strand, string $action, $value);
 }

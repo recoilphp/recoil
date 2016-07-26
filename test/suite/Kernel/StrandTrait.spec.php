@@ -7,6 +7,7 @@ namespace Recoil\Kernel;
 use Eloquent\Phony\Phony;
 use Exception;
 use Generator;
+use Hamcrest\Core\IsInstanceOf;
 use InvalidArgumentException;
 use Recoil\Exception\TerminatedException;
 use Recoil\Kernel\Exception\PrimaryListenerRemovedException;
@@ -18,6 +19,9 @@ describe(StrandTrait::class, function () {
     beforeEach(function () {
         $this->kernel = Phony::mock(Kernel::class);
         $this->api = Phony::mock(Api::class);
+        $this->trace = Phony::mock(StrandTrace::class);
+        $this->trace->yield->returnsArgument(2);
+
         $this->initializeSubject = function ($entryPoint = null) {
             $this->subject = Phony::partialMock(
                 [Strand::class, Awaitable::class, StrandTrait::class],
@@ -28,6 +32,8 @@ describe(StrandTrait::class, function () {
                     $entryPoint,
                 ]
             );
+
+            $this->subject->get()->setTrace($this->trace->get());
         };
 
         ($this->initializeSubject)();
@@ -41,10 +47,16 @@ describe(StrandTrait::class, function () {
         $this->strand2 = Phony::mock(Strand::class);
     });
 
+    afterEach(function () {
+        if (ini_get('zend.assertions') <= 0) {
+            $this->trace->noInteraction();
+        }
+    });
+
     describe('->__construct()', function () {
         it('accepts a generator object', function () {
             $fn = Phony::stub()->generates(['<key>' => '<value>'])->returns();
-            ($this->initializeSubject)($fn);
+            ($this->initializeSubject)($fn());
             $this->subject->get()->start();
 
             $this->api->dispatch->calledWith($this->subject, '<key>', '<value>');
@@ -108,8 +120,6 @@ describe(StrandTrait::class, function () {
                         return '<result>';
                         yield;
                     })();
-
-                    return '<ok>';
                 });
 
                 ($this->initializeSubject)($fn);
@@ -201,6 +211,7 @@ describe(StrandTrait::class, function () {
 
                     $this->strand1->terminate->never()->called();
                 });
+
             });
         });
 
@@ -694,5 +705,138 @@ describe(StrandTrait::class, function () {
             $this->subject->get()->unlink($this->strand1->get());
         });
     });
+
+    if (ini_get('zend.assertions') > 0) {
+        context('when assertions are enabled', function () {
+            describe('->trace', function () {
+                it('returns the trace object', function () {
+                    expect($this->subject->get()->trace())->to->be->equal($this->trace->get());
+                });
+            });
+
+            describe('->setTrace', function () {
+                it('sets the trace object', function () {
+                    $trace = Phony::mock(StrandTrace::class)->get();
+                    $this->subject->get()->setTrace($trace);
+
+                    expect($this->subject->get()->trace())->to->equal($trace);
+                });
+
+                it('can set the trace object to null', function () {
+                    $this->subject->get()->setTrace(null);
+
+                    expect($this->subject->get()->trace())->to->be->null;
+                });
+            });
+
+            context('when the strand is tracing', function () {
+                it('traces the events in order', function () {
+                    $fn = function () {
+                        $value = yield  '<key>' => (function () {
+                            return 100;
+                            yield;
+                        })();
+
+                        return $value + 200;
+                    };
+
+                    ($this->initializeSubject)($fn());
+                    $this->subject->get()->start();
+
+                    Phony::inOrder(
+                        $this->trace->push->calledWith(
+                            $this->subject->get(),
+                            0
+                        ),
+                        $this->trace->yield->calledWith(
+                            $this->subject->get(),
+                            '<key>',
+                            IsInstanceOf::anInstanceOf(Generator::class)
+                        ),
+                        $this->trace->push->calledWith(
+                            $this->subject->get(),
+                            1
+                        ),
+                        $this->trace->pop->calledWith(
+                            $this->subject->get(),
+                            1
+                        ),
+                        $this->trace->resume->calledWith(
+                            $this->subject->get(),
+                            'send',
+                            100
+                        ),
+                        $this->trace->pop->calledWith(
+                            $this->subject->get(),
+                            0
+                        ),
+                        $this->trace->exit->calledWith(
+                            $this->subject->get(),
+                            'send',
+                            300
+                        )
+                    );
+
+                    $this->trace->push->twice()->called();
+                    $this->trace->pop->twice()->called();
+                    $this->trace->yield->once()->called();
+                    $this->trace->resume->once()->called();
+                    $this->trace->suspend->never()->called();
+                    $this->trace->exit->once()->called();
+                });
+
+                it('traces strand suspension', function () {
+                    $fn = function () { yield; };
+                    ($this->initializeSubject)($fn());
+                    $this->subject->get()->start();
+
+                    Phony::inOrder(
+                        $this->trace->push->calledWith(
+                            $this->subject->get(),
+                            0
+                        ),
+                        $this->trace->yield->calledWith(
+                            $this->subject->get(),
+                            0,
+                            null
+                        ),
+                        $this->trace->suspend->calledWith(
+                            $this->subject->get()
+                        )
+                    );
+
+                    $this->trace->push->once()->called();
+                    $this->trace->pop->never()->called();
+                    $this->trace->yield->once()->called();
+                    $this->trace->resume->never()->called();
+                    $this->trace->suspend->once()->called();
+                    $this->trace->exit->never()->called();
+                });
+
+                xit('traces strand termination', function () {
+                });
+
+                xit('allows modification of the yielded value', function () {
+                });
+            });
+        });
+    } else {
+        context('when assertions are disabled', function () {
+            describe('->trace', function () {
+                it('always returns null', function () {
+                    expect($this->subject->get()->trace())->to->be->null;
+                });
+            });
+
+            describe('->setTrace', function () {
+                it('does not set the trace object', function () {
+                    $trace = Phony::mock(StrandTrace::class)->get();
+                    $this->subject->get()->setTrace($trace);
+
+                    expect($this->subject->get()->trace())->to->be->null;
+                });
+            });
+        });
+    }
 
 });

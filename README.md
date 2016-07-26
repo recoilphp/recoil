@@ -88,8 +88,8 @@ though it takes a somewhat different approach.
 
 ### Strands
 
-A _Strand_ is Recoil's equivalent to your operating system's threads. Each strand has its own call stack and may be
-suspended, resumed, joined and terminated without affecting other strands. The elements on the call stack are not
+A _Strand_ is Recoil's equivalent to your operating system's threads. Each strand has its own call-stack and may be
+suspended, resumed, joined and terminated without affecting other strands. The elements on the call-stack are not
 regular functions, but are instead coroutines.
 
 Unlike threads, execution of a strand can only suspend or resume when a coroutine specifically requests to do so, hence
@@ -103,7 +103,7 @@ Recoil's concept of the strand is defined by the [Strand](src/Kernel/Strand.php)
 ### Awaitables
 
 An _Awaitable_ is any value that Recoil recognises when yielded by a coroutine. For example, yielding another generator
-pushes that generator onto the current strand's call stack and invokes it, thus making it a coroutine.
+pushes that generator onto the current strand's call-stack and invokes it, thus making it a coroutine.
 
 The are four kinds of awaitables:
 
