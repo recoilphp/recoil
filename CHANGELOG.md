@@ -1,12 +1,20 @@
 # Changelog
 
+## Next Release
+
+- **[BC]** Revert addition of `Api::resume()` and `throw()` (added in 0.5.2)
+- **[BC]** Added `Strand::trace()` and `setTrace()` methods
+- **[NEW]** `Api::suspend()` now accepts an optional terminator callback, which is invoked if the strand is terminated before it is resumed
+- **[NEW]** Added `StrandTrace` interface, a low-level strand observer to be used by debugging tools
+- **[FIXED]** `Strand::send()` and `throw()` no longer fail if the strand has already exited
+
 ## 0.5.2 (2016-07-15)
 
-- **[NEW]** Added `Api::resume()` and `throw()` to resume one strand from within another.
+- **[NEW]** Added `Api::resume()` and `throw()` to resume one strand from within another
 
 ## 0.5.1 (2016-07-12)
 
-- **[NEW]** Added a second callback parameter to `suspend()` API method which is invoked when a suspended strand is terminated.
+- **[NEW]** Added a second callback parameter to `suspend()` API method which is invoked when a suspended strand is terminated
 
 ## 0.5.0 (2016-07-11)
 
@@ -19,19 +27,19 @@ available as substitute functionality has not yet been added.
 There are far too many changes to list here individually, however much of the
 kernel API remains the same.
 
-- **[BC]** Channels and streams have been removed from the core package.
-- **[BC]** `Recoil::run()` has been removed (see `ReactKernel::start()`).
+- **[BC]** Channels and streams have been removed from the core package
+- **[BC]** `Recoil::run()` has been removed (see `ReactKernel::start()`)
 
 Kernel API changes:
 
-- **[BC]** `kernel()` has been removed.
-- **[BC]** `eventLoop()` is only available when using `ReactKernel`.
-- **[BC]** `return_()` has been removed, as generators can return values in PHP 7.
-- **[BC]** `throw_()` has been removed.
-- **[BC]** `finally_()` has been removed.
-- **[BC]** `noop()` has been removed.
-- **[BC]** `stop()` has been removed.
-- **[BC]** `select()` now operates on PHP streams, rather than strands.
+- **[BC]** `kernel()` has been removed
+- **[BC]** `eventLoop()` is only available when using `ReactKernel`
+- **[BC]** `return_()` has been removed, as generators can return values in PHP 7
+- **[BC]** `throw_()` has been removed
+- **[BC]** `finally_()` has been removed
+- **[BC]** `noop()` has been removed
+- **[BC]** `stop()` has been removed
+- **[BC]** `select()` now operates on PHP streams, rather than strands
 - **[NEW]** Added `read()` and `write()`
 - **[NEW]** Added `callback()`
 - **[NEW]** Added `link()` and `unlink()`
