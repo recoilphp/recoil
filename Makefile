@@ -7,11 +7,13 @@ coverage: deps
 lint: $(shell find src)
 	composer validate
 	vendor/bin/php-cs-fixer fix
+ifndef TRAVIS
+	travis lint
+endif
 
 deps: vendor
 
 prepare: deps lint coverage
-	travis lint
 
 ci: lint
 	php -c test/etc/php.ini -d zend.assertions=-1 vendor/bin/peridot
@@ -25,5 +27,5 @@ vendor: composer.lock
 composer.lock: composer.json
 	composer update
 
-src/%.php: FORCE
+%.php: FORCE
 	@php -l $@ > /dev/null
