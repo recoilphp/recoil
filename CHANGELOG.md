@@ -1,6 +1,6 @@
 # Changelog
 
-## Next Release
+## 0.6.0 (2016-07-29)
 
 - **[BC]** Revert addition of `Api::resume()` and `throw()` (added in 0.5.2)
 - **[BC]** Added `Strand::trace()` and `setTrace()` methods
