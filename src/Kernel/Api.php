@@ -184,6 +184,12 @@ interface Api
      * The calling strand is resumed with the return value or exception of the
      * substrand upon exit.
      *
+     * Adopting a strand prevents the kernel's exception handler from being
+     * invoked. It is the calling strand's responsibility to handle the
+     * exception.
+     *
+     * @see Kernel::setExceptionHandler()
+     *
      * @param Strand $strand    The strand executing the API call.
      * @param Strand $substrand The strand to monitor.
      *
