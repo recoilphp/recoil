@@ -42,7 +42,7 @@ describe(ReactApi::class, function () {
 
             $fn();
 
-            $this->strand->send->calledWith(null, $this->strand);
+            $this->strand->send->calledWith();
         });
     });
 
@@ -60,7 +60,7 @@ describe(ReactApi::class, function () {
 
             $fn();
 
-            $this->strand->send->calledWith(null, $this->strand);
+            $this->strand->send->calledWith();
         });
 
         it('cancels the timer if the strand is terminated', function () {
@@ -90,7 +90,7 @@ describe(ReactApi::class, function () {
 
             $fn();
 
-            $this->strand->send->calledWith(null, $this->strand);
+            $this->strand->send->calledWith();
             $this->eventLoop->addTimer->never()->called();
         });
 
@@ -107,7 +107,7 @@ describe(ReactApi::class, function () {
 
             $fn();
 
-            $this->strand->send->calledWith(null, $this->strand);
+            $this->strand->send->calledWith();
             $this->eventLoop->addTimer->never()->called();
         });
     });
@@ -134,7 +134,7 @@ describe(ReactApi::class, function () {
                 $this->strand->get()
             );
 
-            $this->strand->send->calledWith($this->eventLoop, $this->strand);
+            $this->strand->send->calledWith($this->eventLoop);
         });
     });
 

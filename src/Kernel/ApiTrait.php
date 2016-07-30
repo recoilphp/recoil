@@ -68,8 +68,7 @@ trait ApiTrait
                     . ', '
                     . Repr::repr($value)
                     . ') does not describe any known operation.'
-                ),
-                $strand
+                )
             );
         }
     }
@@ -85,8 +84,7 @@ trait ApiTrait
             $strand->throw(
                 new BadMethodCallException(
                     'The API does not implement an operation named "' . $name . '".'
-                ),
-                $strand
+                )
             );
         })($name, ...$arguments);
     }
@@ -109,10 +107,7 @@ trait ApiTrait
      */
     public function execute(Strand $strand, $coroutine)
     {
-        $strand->send(
-            $strand->kernel()->execute($coroutine),
-            $strand
-        );
+        $strand->send($strand->kernel()->execute($coroutine));
     }
 
     /**
@@ -136,8 +131,7 @@ trait ApiTrait
         $strand->send(
             static function (...$arguments) use ($kernel, $coroutine) {
                 $kernel->execute($coroutine(...$arguments));
-            },
-            $strand
+            }
         );
     }
 
@@ -150,7 +144,7 @@ trait ApiTrait
      */
     public function strand(Strand $strand)
     {
-        $strand->send($strand, $strand);
+        $strand->send($strand);
     }
 
     /**
@@ -210,7 +204,7 @@ trait ApiTrait
         $strandA->link($strandB);
         $strandB->link($strandA);
 
-        $strand->send(null, $strand);
+        $strand->send();
     }
 
     /**
@@ -234,7 +228,7 @@ trait ApiTrait
         $strandA->unlink($strandB);
         $strandB->unlink($strandA);
 
-        $strand->send(null, $strand);
+        $strand->send();
     }
 
     /**
@@ -362,8 +356,7 @@ trait ApiTrait
                     . ' coroutines, count must be between 1 and '
                     . $max
                     . ', inclusive.'
-                ),
-                $strand
+                )
             );
 
             return;

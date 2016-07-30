@@ -364,7 +364,7 @@ trait StrandTrait
      * Resume execution of a suspended strand.
      *
      * @param mixed       $value  The value to send to the coroutine on the the top of the call-stack.
-     * @param Strand|null $strand The strand that resumed this one, if any.
+     * @param Strand|null $strand The strand that produced this result upon exit, if any.
      */
     public function send($value = null, Strand $strand = null)
     {
@@ -395,8 +395,8 @@ trait StrandTrait
     /**
      * Resume execution of a suspended strand with an error.
      *
-     * @param Throwable   $exception The exception to send to the coroutine on the top of the call-stack.
-     * @param Strand|null $strand    The strand that resumed this one, if any.
+     * @param Throwable   $exception The operation result.
+     * @param Strand|null $strand    The strand that produced this exception upon exit, if any.
      */
     public function throw(Throwable $exception, Strand $strand = null)
     {

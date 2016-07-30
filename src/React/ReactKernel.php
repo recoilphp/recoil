@@ -239,23 +239,27 @@ final class ReactKernel implements Kernel
      * Send the result of a successful operation.
      *
      * @param mixed       $value  The operation result.
-     * @param Strand|null $strand The strand that that is the source of the result, if any.
+     * @param Strand|null $strand The strand that produced this result upon exit, if any.
      */
     public function send($value = null, Strand $strand = null)
     {
+        assert(
+            $strand !== null && $strand->kernel() === $this,
+            'kernel can only handle notifications from its own strands'
+        );
     }
 
     /**
-     * Send the result of an un successful operation.
+     * Send the result of an unsuccessful operation.
      *
      * @param Throwable   $exception The operation result.
-     * @param Strand|null $strand    The strand that that is the source of the result, if any.
+     * @param Strand|null $strand    The strand that produced this exception upon exit, if any.
      */
     public function throw(Throwable $exception, Strand $strand = null)
     {
         assert(
             $strand !== null && $strand->kernel() === $this,
-            'kernel can only handle exceptions from its own strands'
+            'kernel can only handle notifications from its own strands'
         );
 
         // Ignore exceptions indicating termination if they originate

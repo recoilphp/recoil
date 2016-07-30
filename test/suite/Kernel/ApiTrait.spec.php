@@ -204,8 +204,7 @@ describe(ApiTrait::class, function () {
             $this->strand->throw->calledWith(
                 new UnexpectedValueException(
                     'The yielded pair (123, "<string>") does not describe any known operation.'
-                ),
-                $this->strand
+                )
             );
         });
     });
@@ -219,8 +218,7 @@ describe(ApiTrait::class, function () {
             $this->strand->throw->calledWith(
                 new BadMethodCallException(
                     'The API does not implement an operation named "unknown".'
-                ),
-                $this->strand
+                )
             );
         });
 
@@ -247,10 +245,7 @@ describe(ApiTrait::class, function () {
         });
 
         it('resumes the strand with the substrand', function () {
-            $this->strand->send->calledWith(
-                $this->substrand1,
-                $this->strand
-            );
+            $this->strand->send->calledWith($this->substrand1);
         });
     });
 
@@ -266,7 +261,7 @@ describe(ApiTrait::class, function () {
             $fn = $this
                 ->strand
                 ->send
-                ->calledWith('~', $this->strand)
+                ->calledWith('~')
                 ->firstCall()
                 ->argument();
 
@@ -287,7 +282,7 @@ describe(ApiTrait::class, function () {
                 $this->strand->get()
             );
 
-            $this->strand->send->calledWith($this->strand, $this->strand);
+            $this->strand->send->calledWith($this->strand);
         });
     });
 
@@ -480,8 +475,7 @@ describe(ApiTrait::class, function () {
             $this->strand->throw->calledWith(
                 new InvalidArgumentException(
                     'Can not wait for 0 coroutines, count must be between 1 and 2, inclusive.'
-                ),
-                $this->strand
+                )
             );
         });
 
@@ -496,8 +490,7 @@ describe(ApiTrait::class, function () {
             $this->strand->throw->calledWith(
                 new InvalidArgumentException(
                     'Can not wait for 3 coroutines, count must be between 1 and 2, inclusive.'
-                ),
-                $this->strand
+                )
             );
         });
     });

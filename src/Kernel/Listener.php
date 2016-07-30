@@ -15,17 +15,17 @@ interface Listener
      * Send the result of a successful operation.
      *
      * @param mixed       $value  The operation result.
-     * @param Strand|null $strand The strand that that is the source of the result, if any.
+     * @param Strand|null $strand The strand that produced this result upon exit, if any.
      *
      * @return null
      */
     public function send($value = null, Strand $strand = null);
 
     /**
-     * Send the result of an un successful operation.
+     * Send the result of an unsuccessful operation.
      *
      * @param Throwable   $exception The operation result.
-     * @param Strand|null $strand    The strand that that is the source of the result, if any.
+     * @param Strand|null $strand    The strand that produced this exception upon exit, if any.
      *
      * @return null
      */

@@ -30,10 +30,8 @@ final class DeferredAdaptor implements Listener
     /**
      * Resume execution.
      *
-     * @param mixed       $value  The value to send.
-     * @param Strand|null $strand The strand that resumed this object, if any.
-     *
-     * @return null
+     * @param mixed       $value  The operation result.
+     * @param Strand|null $strand The strand that produced this result upon exit, if any.
      */
     public function send($value = null, Strand $strand = null)
     {
@@ -43,10 +41,8 @@ final class DeferredAdaptor implements Listener
     /**
      * Resume execution, indicating an error state.
      *
-     * @param Throwable   $exception The exception describing the error.
-     * @param Strand|null $strand    The strand that resumed this object, if any.
-     *
-     * @return null
+     * @param Throwable   $exception The operation result.
+     * @param Strand|null $strand    The strand that produced this exception upon exit, if any.
      */
     public function throw(Throwable $exception, Strand $strand = null)
     {
