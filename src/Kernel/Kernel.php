@@ -28,13 +28,16 @@ interface Kernel extends Listener
      * execution until a particular asynchronous operation is complete. Care
      * must be taken to avoid deadlocks.
      *
-     * @return bool            False if the kernel was stopped with {@see Kernel::stop()}; otherwise, true.
-     * @throws StrandException A strand failure was not handled by the exception handler.
+     * @return null
+     * @throws StrandException One or more strands produced unhandled exceptions.
      */
-    public function wait() : bool;
+    public function wait();
 
     /**
      * Run the kernel until a specific strand exits or the kernel is stopped.
+     *
+     * If the strand fails, its exception is NOT passed to the kernel's
+     * exception handler, instead it is re-thrown by this method.
      *
      * Calls to {@see Kernel::wait()}, waitForStrand() and {@see Kernel::waitFor()}
      * may be nested. This can be useful within synchronous code to block
@@ -46,8 +49,8 @@ interface Kernel extends Listener
      * @return mixed                  The strand result, on success.
      * @throws Throwable              The exception thrown by the strand, if failed.
      * @throws TerminatedException    The strand has been terminated.
-     * @throws KernelStoppedException Execution was stopped with {@see Kernel::stop()}.
-     * @throws StrandException        A strand failure was not handled by the exception handler.
+     * @throws KernelStoppedException Execution was stopped with {@see Kernel::stop()} before the strand exited.
+     * @throws StrandException        One or more other strands produced unhandled exceptions.
      */
     public function waitForStrand(Strand $strand);
 
@@ -58,6 +61,9 @@ interface Kernel extends Listener
      *
      *      $strand = $kernel->execute($coroutine);
      *      $kernel->waitForStrand($strand);
+     *
+     * If the strand fails, its exception is NOT passed to the kernel's
+     * exception handler, instead it is re-thrown by this method.
      *
      * Calls to {@see Kernel::wait()}, {@see Kernel::waitForStrand()} and waitFor()
      * may be nested. This can be useful within synchronous code to block
@@ -70,38 +76,42 @@ interface Kernel extends Listener
      * @throws Throwable              The exception produced by the coroutine, if any.
      * @throws TerminatedException    The strand has been terminated.
      * @throws KernelStoppedException Execution was stopped with {@see Kernel::stop()}.
-     * @throws StrandException        A strand failure was not handled by the exception handler.
+     * @throws StrandException        One or more other strands produced unhandled exceptions.
      */
     public function waitFor($coroutine);
 
     /**
      * Stop the kernel.
      *
-     * All nested calls to {@see Kernel::wait()}, {@see Kernel::waitForStrand()}
-     * or {@see Kernel::waitFor()} are stopped.
-     *
-     * wait() returns false when the kernel is stopped, the other variants throw
-     * a {@see KernelStoppedException}.
+     * The kernel can not be restarted until the outer-most call to {@see Kernel::wait()},
+     * {@see Kernel::waitForStrand()} and {@see Kernel::waitFor()} has returned.
      *
      * @return null
      */
     public function stop();
 
     /**
-     * Set the exception handler.
+     * Set a user-defined exception handler function.
      *
-     * The exception handler is invoked whenever an exception propagates to the
-     * top of a strand's call-stack, or when a strand's primary listener throws
-     * an exception.
+     * The exception handler function is invoked when a strand exits with an
+     * unhandled failure. That is, whenever an exception propagates to the top
+     * of the strand's call-stack and the strand does not already have a
+     * mechanism in place to deal with the exception.
      *
-     * The exception handler function must accept a single parameter of type
-     * {@see StrandException} and return a boolean indicating whether or not the
-     * exception was handled.
+     * The exception handler function must have the following signature:
      *
-     * If the exception handler returns false, or is not set (the default), the
-     * exception will be thrown by the outer-most call to {@see Kernel::wait()},
-     * {@see Kernel::waitForStrand()} or {@see Kernel::waitFor()}, after which
-     * the kernel may not be restarted.
+     *      function (Strand $strand, Throwable $exception)
+     *
+     * The first parameter is the strand that produced the exception, the second
+     * is the exception itself.
+     *
+     * The handler may re-throw the exception to indicate that it cannot be
+     * handled. In this case (or when there is no exception handler) a {@see StrandException}
+     * is thrown by all nested calls to {@see Kernel::wait()}, {@see Kernel::waitForStrand()}
+     * or {@see Kernel::waitFor()}.
+     *
+     * The kernel can not be restarted until the outer-most call to {@see Kernel::wait()},
+     * {@see Kernel::waitForStrand()} and {@see Kernel::waitFor()} has thrown.
      *
      * @param callable|null $fn The exception handler (null = remove).
      *
