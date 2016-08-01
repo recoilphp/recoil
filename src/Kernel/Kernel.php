@@ -29,7 +29,8 @@ interface Kernel extends Listener
      * must be taken to avoid deadlocks.
      *
      * @return null
-     * @throws StrandException One or more strands produced unhandled exceptions.
+     * @throws StrandException        One or more strands produced unhandled exceptions.
+     * @throws KernelStoppedException The kernel has been stopped and the outer-most wait() call has not yet returned.
      */
     public function wait();
 
@@ -50,6 +51,7 @@ interface Kernel extends Listener
      * @throws Throwable              The exception thrown by the strand, if failed.
      * @throws TerminatedException    The strand has been terminated.
      * @throws KernelStoppedException Execution was stopped with {@see Kernel::stop()} before the strand exited.
+     * @throws KernelStoppedException The kernel has been stopped and the outer-most wait() call has not yet returned.
      * @throws StrandException        One or more other strands produced unhandled exceptions.
      */
     public function waitForStrand(Strand $strand);
@@ -76,6 +78,7 @@ interface Kernel extends Listener
      * @throws Throwable              The exception produced by the coroutine, if any.
      * @throws TerminatedException    The strand has been terminated.
      * @throws KernelStoppedException Execution was stopped with {@see Kernel::stop()}.
+     * @throws KernelStoppedException The kernel has been stopped and the outer-most wait() call has not yet returned.
      * @throws StrandException        One or more other strands produced unhandled exceptions.
      */
     public function waitFor($coroutine);
