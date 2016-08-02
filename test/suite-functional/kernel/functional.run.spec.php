@@ -7,7 +7,7 @@ namespace Recoil;
 use Exception;
 use Recoil\Kernel\Strand;
 
-describe('->wait()', function () {
+describe('->run()', function () {
     it('waits for all strands to exit', function () {
         $this->kernel->execute(function () {
             echo 'a';
@@ -23,28 +23,19 @@ describe('->wait()', function () {
         });
 
         ob_start();
-        $this->kernel->wait();
+        $this->kernel->run();
         expect(ob_get_clean())->to->equal('ab');
-    });
-
-    it('returns true when all strands have exited', function () {
-        $this->kernel->execute(function () {
-            return;
-            yield;
-        });
-
-        expect($this->kernel->wait())->to->be->true;
     });
 });
 
-describe('->waitForStrand()', function () {
+describe('->adoptSync()', function () {
     it('returns the strand entry-point return value', function () {
         $strand = $this->kernel->execute(function () {
             return '<ok>';
             yield;
         });
 
-        expect($this->kernel->waitForStrand($strand))->to->equal('<ok>');
+        expect($this->kernel->adoptSync($strand))->to->equal('<ok>');
     });
 
     it('propagates uncaught exceptions', function () {
@@ -54,7 +45,7 @@ describe('->waitForStrand()', function () {
         });
 
         try {
-            $this->kernel->waitForStrand($strand);
+            $this->kernel->adoptSync($strand);
             expect(false)->to->be->ok('expected exception was not thrown');
         } catch (Exception $e) {
             expect($e->getMessage())->to->equal('<exception>');
@@ -76,7 +67,7 @@ describe('->waitForStrand()', function () {
         });
 
         ob_start();
-        $this->kernel->waitForStrand($strand);
+        $this->kernel->adoptSync($strand);
         expect(ob_get_clean())->to->equal('ab');
     });
 
@@ -93,27 +84,27 @@ describe('->waitForStrand()', function () {
         });
 
         ob_start();
-        $this->kernel->waitForStrand($strand);
+        $this->kernel->adoptSync($strand);
         expect(ob_get_clean())->to->equal('a');
     });
 
-    it('can be nested inside wait()', function () {
+    it('can be nested inside run()', function () {
         $this->kernel->execute(function () {
             echo 'a';
 
             $strand = yield Recoil::execute(function () {
-                yield; // ensure that this strand is delayed such
-                       // that the waitForStrand call is actually necessary
+                yield; // ensure that this strand is delayed such that the
+                       // adoptSync call is actually necessary
                 echo 'c';
             });
 
             echo 'b';
-            $this->kernel->waitForStrand($strand);
+            $this->kernel->adoptSync($strand);
             echo 'd';
         });
 
         ob_start();
-        $this->kernel->wait();
+        $this->kernel->run();
         expect(ob_get_clean())->to->equal('abcd');
     });
 
@@ -127,7 +118,7 @@ describe('->waitForStrand()', function () {
             });
             $strand2 = yield Recoil::execute(function () use ($strand1) {
                 echo 'c';
-                $this->kernel->waitForStrand($strand1);
+                $this->kernel->adoptSync($strand1);
                 echo 'e';
 
                 return;
@@ -135,19 +126,19 @@ describe('->waitForStrand()', function () {
             });
 
             echo 'b';
-            $this->kernel->waitForStrand($strand2);
+            $this->kernel->adoptSync($strand2);
             echo 'f';
         });
 
         ob_start();
-        $this->kernel->wait();
+        $this->kernel->run();
         expect(ob_get_clean())->to->equal('abcdef');
     });
 });
 
-describe('->waitFor()', function () {
+describe('->executeSync()', function () {
     it('returns the coroutine return value', function () {
-        expect($this->kernel->waitFor(function () {
+        expect($this->kernel->executeSync(function () {
             return '<ok>';
             yield;
         }))->to->equal('<ok>');
@@ -155,7 +146,7 @@ describe('->waitFor()', function () {
 
     it('propagates uncaught exceptions', function () {
         try {
-            $this->kernel->waitFor(function () {
+            $this->kernel->executeSync(function () {
                 throw new Exception('<exception>');
                 yield;
             });
@@ -174,7 +165,7 @@ describe('->waitFor()', function () {
         });
 
         ob_start();
-        $this->kernel->waitFor(function () {
+        $this->kernel->executeSync(function () {
             echo 'b';
 
             return;
@@ -190,7 +181,7 @@ describe('->waitFor()', function () {
         });
 
         ob_start();
-        $this->kernel->waitFor(function () {
+        $this->kernel->executeSync(function () {
             echo 'a';
 
             return;
@@ -199,12 +190,12 @@ describe('->waitFor()', function () {
         expect(ob_get_clean())->to->equal('a');
     });
 
-    it('can be nested inside wait()', function () {
+    it('can be nested inside run()', function () {
         $this->kernel->execute(function () {
             echo 'a';
-            $this->kernel->waitFor(function () {
-                yield; // ensure that this strand is delayed such
-                       // that the waitForStrand call is actually necessary
+            $this->kernel->executeSync(function () {
+                yield; // ensure that this strand is delayed such that the
+                       // executeSync call is actually necessary
                 echo 'b';
             });
             echo 'c';
@@ -214,7 +205,7 @@ describe('->waitFor()', function () {
         });
 
         ob_start();
-        $this->kernel->wait();
+        $this->kernel->run();
         expect(ob_get_clean())->to->equal('abc');
     });
 });

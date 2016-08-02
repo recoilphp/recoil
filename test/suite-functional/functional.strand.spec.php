@@ -129,6 +129,6 @@ it('can be awaited by multiple strands', function () {
     });
 
     ob_start();
-    $this->kernel->wait();
+    $this->kernel->run();
     expect(ob_get_clean())->to->equal('abc');
 });

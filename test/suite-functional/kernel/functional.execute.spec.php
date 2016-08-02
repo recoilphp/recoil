@@ -22,7 +22,7 @@ it('accepts a generator object', function () {
     })());
 
     ob_start();
-    $this->kernel->wait();
+    $this->kernel->run();
     expect(ob_get_clean())->to->equal('<ok>');
 });
 
@@ -35,7 +35,7 @@ it('accepts a generator function', function () {
     });
 
     ob_start();
-    $this->kernel->wait();
+    $this->kernel->run();
     expect(ob_get_clean())->to->equal('<ok>');
 });
 
@@ -60,7 +60,7 @@ it('accepts a coroutine provider', function () {
     });
 
     ob_start();
-    $this->kernel->wait();
+    $this->kernel->run();
     expect(ob_get_clean())->to->equal('<ok>');
 });
 
@@ -80,7 +80,7 @@ it('accepts an awaitable provider', function () {
     });
 
     ob_start();
-    $this->kernel->wait();
+    $this->kernel->run();
     expect(ob_get_clean())->to->equal('<ok>');
 });
 
@@ -94,7 +94,7 @@ it('accepts an awaitable', function () {
     });
 
     ob_start();
-    $this->kernel->wait();
+    $this->kernel->run();
     expect(ob_get_clean())->to->equal('<ok>');
 });
 
@@ -109,7 +109,7 @@ it('dispatches other types via the kernel api', function () {
     ]);
 
     ob_start();
-    $this->kernel->wait();
+    $this->kernel->run();
     expect(ob_get_clean())->to->equal('<ok>');
 });
 
@@ -131,6 +131,6 @@ it('defers execution', function () {
     expect(ob_get_clean())->to->equal('');
 
     ob_start();
-    $this->kernel->wait();
+    $this->kernel->run();
     expect(ob_get_clean())->to->equal('<ok>');
 });

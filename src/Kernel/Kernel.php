@@ -4,7 +4,9 @@ declare (strict_types = 1); // @codeCoverageIgnore
 
 namespace Recoil\Kernel;
 
-use Recoil\Kernel\Exception\StrandException;
+use Recoil\Exception\TerminatedException;
+use Recoil\Kernel\Exception\KernelPanicException;
+use Recoil\Kernel\Exception\KernelStoppedException;
 use Throwable;
 
 interface Kernel extends Listener
@@ -28,7 +30,7 @@ interface Kernel extends Listener
     /**
      * Stop the kernel.
      *
-     * Stopping the kernel causes all blocking calls to {@see Kernel::executeSync()}
+     * Stopping the kernel causes all calls to {@see Kernel::executeSync()}
      * or {@see Kernel::adoptSync()} to throw a {@see KernelStoppedException}.
      *
      * The kernel cannot run again until it has stopped completely. That is,

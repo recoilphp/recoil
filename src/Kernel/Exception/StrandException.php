@@ -5,14 +5,12 @@ declare (strict_types = 1); // @codeCoverageIgnore
 namespace Recoil\Kernel\Exception;
 
 use Recoil\Kernel\Strand;
-use RuntimeException;
 use Throwable;
 
 /**
- * An exception has propagated to the top of a strand's call-stack and was not
- * handled by the strand's primary listener.
+ * A strand has caused a kernel panic.
  */
-class StrandException extends RuntimeException
+class StrandException extends KernelPanicException
 {
     /**
      * @param Strand    $strand    The failed strand.
@@ -29,7 +27,6 @@ class StrandException extends RuntimeException
                 get_class($previous),
                 $previous->getMessage()
             ),
-            0,
             $previous
         );
     }

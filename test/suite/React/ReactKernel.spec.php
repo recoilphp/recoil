@@ -79,27 +79,35 @@ describe(ReactKernel::class, function () {
         });
     });
 
-    describe('->wait()', function () {
+    describe('->run()', function () {
         it('runs the event loop', function () {
-            $this->subject->wait();
+            $this->subject->run();
             $this->eventLoop->run->called();
         });
     });
 
     describe('->stop()', function () {
         it('stops the event loop', function () {
-            $this->subject->stop();
+            $this->eventLoop->run->does(function () {
+                $this->subject->stop();
+            });
+            $this->subject->run();
             $this->eventLoop->stop->called();
         });
 
-        it('causes wait() to return', function () {
+        it('does nothing if the kernel is stopped', function () {
+            $this->subject->stop();
+            $this->eventLoop->noInteraction();
+        });
+
+        it('causes run() to return', function () {
             $exception = Phony::mock(Throwable::class)->get();
             $this->eventLoop->run->does(function () use ($exception) {
                 $this->subject->stop();
             });
 
             expect(function () {
-                $this->subject->wait();
+                $this->subject->run();
             })->to->be->ok;
         });
     });

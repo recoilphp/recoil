@@ -6,24 +6,27 @@ namespace Recoil;
 
 use Exception;
 use Recoil\Kernel\Exception\KernelStoppedException;
-use Recoil\Kernel\Strand;
 
-it('causes wait() to return false', function () {
+it('causes run() to return', function () {
     $this->kernel->execute(function () {
         yield;
         expect(false)->to->be->ok('not stopped');
     });
-    $this->kernel->execute(function () {
+
+    $stopCalled = false;
+    $this->kernel->execute(function () use (&$stopCalled) {
         $this->kernel->stop();
+        $stopCalled = true;
 
         return;
         yield;
     });
 
-    expect($this->kernel->wait())->to->be->false;
+    $this->kernel->run();
+    expect($stopCalled)->to->be->true;
 });
 
-it('causes waitForStrand() to throw', function () {
+it('causes adoptSync() to throw', function () {
     $strand = $this->kernel->execute(function () {
         yield;
         expect(false)->to->be->ok('not stopped');
@@ -36,14 +39,14 @@ it('causes waitForStrand() to throw', function () {
     });
 
     try {
-        $this->kernel->waitForStrand($strand);
+        $this->kernel->adoptSync($strand);
         expect(false)->to->be->ok('expected exception was not thrown');
     } catch (KernelStoppedException $e) {
         // ok ...
     }
 });
 
-it('causes waitFor() to throw', function () {
+it('causes executeSync() to throw', function () {
     $this->kernel->execute(function () {
         $this->kernel->stop();
 
@@ -52,7 +55,7 @@ it('causes waitFor() to throw', function () {
     });
 
     try {
-        $this->kernel->waitFor(function () {
+        $this->kernel->executeSync(function () {
             yield;
             expect(false)->to->be->ok('not stopped');
         });
@@ -62,11 +65,11 @@ it('causes waitFor() to throw', function () {
     }
 });
 
-it('causes all nested wait[For[Strand]]() calls to return/throw', function () {
+it('causes all nested to run(), executeSync() and adoptSync() to return/throw', function () {
     $this->kernel->execute(function () {
         $strand = yield Recoil::execute(function () {
             try {
-                $this->kernel->waitFor(function () {
+                $this->kernel->executeSync(function () {
                     $this->kernel->stop();
 
                     return;
@@ -82,12 +85,12 @@ it('causes all nested wait[For[Strand]]() calls to return/throw', function () {
         });
 
         try {
-            $this->kernel->waitForStrand($strand);
+            $this->kernel->adoptSync($strand);
             expect(false)->to->be->ok('expected exception was not thrown');
         } catch (KernelStoppedException $e) {
             // ok ...
         }
     });
 
-    expect($this->kernel->wait())->to->be->false;
+    expect($this->kernel->run())->to->be->false;
 });

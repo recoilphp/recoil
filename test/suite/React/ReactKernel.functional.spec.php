@@ -8,7 +8,7 @@ describe('ReactPHP Integration', function () {
 
     \Recoil\importFunctionalTests(
         function () {
-            return new ReactKernel();
+            return ReactKernel::create();
         }
     );
 
