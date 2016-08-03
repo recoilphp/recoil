@@ -200,7 +200,7 @@ final class ReactKernel implements Kernel
         $listener = new AdoptSyncListener();
         $strand->setPrimaryListener($listener);
 
-        if ($strand->hasExited()) {
+        if ($listener->isDone) {
             return $listener->get();
         }
 
@@ -228,7 +228,7 @@ final class ReactKernel implements Kernel
                 } else {
                     throw $this->panicExceptions->dequeue();
                 }
-            } elseif ($strand->hasExited()) {
+            } elseif ($listener->isDone) {
                 return $listener->get();
             }
 

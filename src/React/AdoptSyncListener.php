@@ -10,6 +10,8 @@ use Throwable;
 
 /**
  * @access private
+ *
+ * This listener is used to implement ReactKernel::adoptSync()
  */
 final class AdoptSyncListener implements Listener
 {
@@ -19,6 +21,11 @@ final class AdoptSyncListener implements Listener
     public $eventLoop;
 
     /**
+     * @var bool True if the listener has been notified of a result.
+     */
+    public $isDone = false;
+
+    /**
      * Send the result of a successful operation.
      *
      * @param mixed       $value  The operation result.
@@ -26,6 +33,7 @@ final class AdoptSyncListener implements Listener
      */
     public function send($value = null, Strand $strand = null)
     {
+        $this->isDone = true;
         $this->value = $value;
 
         if ($this->eventLoop) {
@@ -41,6 +49,7 @@ final class AdoptSyncListener implements Listener
      */
     public function throw(Throwable $exception, Strand $strand = null)
     {
+        $this->isDone = true;
         $this->exception = $exception;
 
         if ($this->eventLoop) {
