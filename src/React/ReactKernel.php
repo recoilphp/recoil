@@ -84,19 +84,19 @@ final class ReactKernel implements Kernel
      */
     public function run()
     {
-        if ($this->state !== self::STATE_STOPPED) {
+        if ($this->isRunning) {
             return;
         } elseif (!$this->panicExceptions->isEmpty()) {
             throw $this->panicExceptions->dequeue();
         }
 
         try {
-            $this->state = self::STATE_RUNNING;
+            $this->isRunning = true;
             $this->eventLoop->run();
         } catch (Throwable $e) {
             $this->throw($e);
         } finally {
-            $this->state = self::STATE_STOPPED;
+            $this->isRunning = false;
         }
 
         if (!$this->panicExceptions->isEmpty()) {
@@ -109,8 +109,7 @@ final class ReactKernel implements Kernel
      */
     public function stop()
     {
-        if ($this->state === self::STATE_RUNNING) {
-            $this->state = self::STATE_STOPPING;
+        if ($this->isRunning) {
             $this->eventLoop->stop();
         }
     }
@@ -236,16 +235,10 @@ final class ReactKernel implements Kernel
 
         $this->panicExceptions->enqueue($exception);
 
-        if ($this->state === self::STATE_RUNNING) {
-            $this->state = self::STATE_PANIC;
+        if ($this->isRunning) {
             $this->eventLoop->stop();
         }
     }
-
-    const STATE_STOPPED = 0;
-    const STATE_RUNNING = 1;
-    const STATE_STOPPING = 2;
-    const STATE_PANIC = 3;
 
     /**
      * @var LoopInterface The event loop.
@@ -263,9 +256,9 @@ final class ReactKernel implements Kernel
     private $nextId = 1;
 
     /**
-     * @var int The current kernel state.
+     * @var bool True if the event loop is currently running.
      */
-    private $state = self::STATE_STOPPED;
+    private $isRunning = false;
 
     /**
      * @var callable|null The exception handler.

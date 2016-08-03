@@ -182,3 +182,27 @@ context('when there is an exception handler set', function () {
     });
 
 });
+
+context('when there are multiple unhandled exceptions', function () {
+    it('subsequent exceptions are thrown on the next attempt ot run the kernel', function () {
+        $exception = new Exception('<another-exception>');
+        $strand = $this->kernel->execute(function () use ($exception) {
+            throw $exception;
+            yield;
+        });
+
+        try {
+            $this->kernel->run();
+        } catch (StrandException $e) {
+            // ok ...
+        }
+
+        try {
+            $this->kernel->run();
+            expect(false)->to->be->ok('expected exception was not thrown');
+        } catch (StrandException $e) {
+            expect($e->strand())->to->equal($strand);
+            expect($e->getPrevious() === $exception)->to->be->true;
+        }
+    });
+});

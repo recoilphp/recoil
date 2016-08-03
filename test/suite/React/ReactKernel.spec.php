@@ -10,6 +10,7 @@ use React\EventLoop\Factory;
 use React\EventLoop\LoopInterface;
 use Recoil\Kernel\Api;
 use Recoil\Kernel\Exception\KernelPanicException;
+use Recoil\Kernel\Exception\KernelStoppedException;
 use Recoil\Recoil;
 use Throwable;
 
@@ -43,6 +44,22 @@ describe(ReactKernel::class, function () {
                 expect(false)->to->be->ok('expected exception was not thrown');
             } catch (Exception $e) {
                 expect($e->getMessage())->to->equal('<exception>');
+            }
+        });
+
+        it('throws an exception if the kernel is stopped before the strand exits', function () {
+            try {
+                ReactKernel::start(function () {
+                    yield Recoil::execute(function () {
+                        $strand = yield Recoil::strand();
+                        $strand->kernel()->stop();
+                    });
+
+                    yield 10;
+                });
+                expect(false)->to->be->ok('expected exception was not thrown');
+            } catch (KernelStoppedException $e) {
+                // ok ...
             }
         });
 
