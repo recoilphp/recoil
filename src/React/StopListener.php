@@ -4,7 +4,7 @@ declare (strict_types = 1); // @codeCoverageIgnore
 
 namespace Recoil\React;
 
-use React\EventLoop\LoopInterface;
+use Recoil\Kernel\Kernel;
 use Recoil\Kernel\Listener;
 use Recoil\Kernel\Strand;
 use Throwable;
@@ -12,19 +12,22 @@ use Throwable;
 /**
  * @access private
  *
- * This listener is used to implement ReactKernel::adoptSync()
+ * This listener is used to implement ReactKernel::start()
  */
-final class AdoptSyncListener implements Listener
+final class StopListener implements Listener
 {
     /**
-     * @var LoopInterface|null The event loop to stop when the strand completes.
-     */
-    public $eventLoop;
-
-    /**
-     * @var bool True if the listener has been notified of a result.
+     * @var bool
      */
     public $isDone = false;
+
+    /**
+     * @param Kernel $kernel The kernel to stop when the listener is notified.
+     */
+    public function __construct(Kernel $kernel)
+    {
+        $this->kernel = $kernel;
+    }
 
     /**
      * Send the result of a successful operation.
@@ -34,15 +37,9 @@ final class AdoptSyncListener implements Listener
      */
     public function send($value = null, Strand $strand = null)
     {
-        if (!$this->isDone) {
-            $this->isDone = true;
-            $this->value = $value;
-
-            if ($this->eventLoop) {
-                $this->eventLoop->stop();
-                $this->eventLoop = null;
-            }
-        }
+        $this->isDone = true;
+        $this->value = $value;
+        $this->kernel->stop();
     }
 
     /**
@@ -53,15 +50,9 @@ final class AdoptSyncListener implements Listener
      */
     public function throw(Throwable $exception, Strand $strand = null)
     {
-        if (!$this->isDone) {
-            $this->isDone = true;
-            $this->exception = $exception;
-
-            if ($this->eventLoop) {
-                $this->eventLoop->stop();
-                $this->eventLoop = null;
-            }
-        }
+        $this->isDone = true;
+        $this->exception = $exception;
+        $this->kernel->stop();
     }
 
     /**
@@ -79,6 +70,11 @@ final class AdoptSyncListener implements Listener
 
         return $this->value;
     }
+
+    /**
+     * @var KernelInterface
+     */
+    public $kernel;
 
     /**
      * @var mixed The strand result.

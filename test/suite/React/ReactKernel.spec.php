@@ -125,20 +125,4 @@ describe(ReactKernel::class, function () {
         });
     });
 
-    describe('->adoptSync()', function () {
-        it('throws a KernelPanicException if the loop throws', function () {
-            $exception = Phony::mock(Throwable::class)->get();
-            $this->eventLoop->run->throws($exception);
-
-            $strand = $this->subject->execute(function () { yield; });
-
-            try {
-                $this->subject->adoptSync($strand);
-                expect(false)->to->be->ok('expected exception was not thrown');
-            } catch (KernelPanicException $e) {
-                expect($e->getPrevious() === $exception)->to->be->true;
-            }
-        });
-    });
-
 });

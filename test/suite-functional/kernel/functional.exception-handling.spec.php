@@ -28,7 +28,7 @@ context('when there is no exception handler', function () {
         }
     });
 
-    it('adoptSync() throws a StrandException', function () {
+    xit('adoptSync() throws a StrandException', function () {
         try {
             $otherStrand = $this->kernel->execute(function () {
                 yield;
@@ -41,7 +41,7 @@ context('when there is no exception handler', function () {
         }
     });
 
-    it('executeSync() throws a StrandException', function () {
+    xit('executeSync() throws a StrandException', function () {
         try {
             $this->kernel->executeSync(function () {
                 yield;
@@ -83,14 +83,14 @@ context('when there is an exception handler set', function () {
             $this->kernel->run();
         });
 
-        it('adoptSync() does not throw', function () {
+        xit('adoptSync() does not throw', function () {
             $otherStrand = $this->kernel->execute(function () {
                 yield;
             });
             $this->kernel->adoptSync($otherStrand);
         });
 
-        it('executeSync() does not throw', function () {
+        xit('executeSync() does not throw', function () {
             $this->kernel->executeSync(function () {
                 yield;
             });
@@ -114,7 +114,7 @@ context('when there is an exception handler set', function () {
             }
         });
 
-        it('adoptSync() throws a StrandException', function () {
+        xit('adoptSync() throws a StrandException', function () {
             try {
                 $otherStrand = $this->kernel->execute(function () {
                     yield;
@@ -127,7 +127,7 @@ context('when there is an exception handler set', function () {
             }
         });
 
-        it('executeSync() throws a StrandException', function () {
+        xit('executeSync() throws a StrandException', function () {
             try {
                 $this->kernel->executeSync(function () {
                     yield;
@@ -157,7 +157,7 @@ context('when there is an exception handler set', function () {
             }
         });
 
-        it('adoptSync() throws a KernelPanicException', function () {
+        xit('adoptSync() throws a KernelPanicException', function () {
             try {
                 $otherStrand = $this->kernel->execute(function () {
                     yield;
@@ -169,7 +169,7 @@ context('when there is an exception handler set', function () {
             }
         });
 
-        it('executeSync() throws a KernelPanicException', function () {
+        xit('executeSync() throws a KernelPanicException', function () {
             try {
                 $this->kernel->executeSync(function () {
                     yield;
@@ -180,9 +180,5 @@ context('when there is an exception handler set', function () {
             }
         });
     });
-
-});
-
-context('when the kernel is started recursively', function () {
 
 });

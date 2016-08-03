@@ -24,10 +24,7 @@ final class ReactKernel implements Kernel
     /**
      * Execute a coroutine on a new kernel.
      *
-     * This is a convenience method for:
-     *
-     *     $kernel = new Kernel($eventLoop);
-     *     $kernel->executeSync($coroutine);
+     * The kernel runs until the coroutine returns.
      *
      * @param mixed              $coroutine The coroutine to execute.
      * @param LoopInterface|null $eventLoop The event loop to use (null = default).
@@ -41,8 +38,18 @@ final class ReactKernel implements Kernel
     public static function start($coroutine, LoopInterface $eventLoop = null)
     {
         $kernel = self::create($eventLoop);
+        $listener = new StopListener($kernel);
 
-        return $kernel->executeSync($coroutine);
+        $strand = $kernel->execute($coroutine);
+        $strand->setPrimaryListener($listener);
+
+        $kernel->run();
+
+        if ($listener->isDone) {
+            return $listener->get();
+        }
+
+        throw new KernelStoppedException();
     }
 
     /**
@@ -99,13 +106,6 @@ final class ReactKernel implements Kernel
 
     /**
      * Stop the kernel.
-     *
-     * Stopping the kernel causes all calls to {@see Kernel::executeSync()}
-     * or {@see Kernel::adoptSync()} to throw a {@see KernelStoppedException}.
-     *
-     * The kernel cannot run again until it has stopped completely. That is,
-     * the PHP call-stack has unwound to the outer-most call to {@see Kernel::run()},
-     * {@see Kernel::executeSync()} or {@see Kernel::adoptSync()}.
      */
     public function stop()
     {
@@ -137,111 +137,10 @@ final class ReactKernel implements Kernel
     }
 
     /**
-     * Execute a coroutine on a new strand and block until it exits.
-     *
-     * If the kernel is not running, it is run until the strand exits, the
-     * kernel is stopped explicitly, or a different strand causes a kernel panic.
-     *
-     * The kernel's exception handler is bypassed for this strand. Instead, if
-     * the strand produces an exception it is re-thrown by this method.
-     *
-     * This is a convenience method equivalent to:
-     *
-     *      $strand = $kernel->execute($coroutine);
-     *      $kernel->adoptSync($strand);
-     *
-     * @param mixed $coroutine The coroutine to execute.
-     *
-     * @return mixed                  The return value of the coroutine.
-     * @throws Throwable              The exception produced by the coroutine.
-     * @throws TerminatedException    The strand has been terminated.
-     * @throws KernelStoppedException The kernel was stopped before the strand exited.
-     * @throws KernelPanicException   Some other strand has caused a kernel panic.
-     */
-    public function executeSync($coroutine)
-    {
-        $strand = $this->execute($coroutine);
-
-        return $this->adoptSync($strand);
-    }
-
-    /**
-     * Block until a strand exits.
-     *
-     * If the kernel is not running, it is run until the strand exits, the
-     * kernel is stopped explicitly, or a different strand causes a kernel panic.
-     *
-     * The kernel's exception handler is bypassed for this strand. Instead, if
-     * the strand produces an exception it is re-thrown by this method.
-     *
-     * @param Strand $strand The strand to wait for.
-     *
-     * @return mixed                  The return value of the coroutine.
-     * @throws Throwable              The exception produced by the coroutine.
-     * @throws TerminatedException    The strand has been terminated.
-     * @throws KernelStoppedException The kernel was stopped before the strand exited.
-     * @throws KernelPanicException   Some other strand has caused a kernel panic.
-     */
-    public function adoptSync(Strand $strand)
-    {
-        assert($strand->kernel() === $this, 'kernel can only wait for its own strands');
-
-        if ($this->state === self::STATE_PANIC) {
-            throw new KernelPanicException();
-        } elseif ($this->state === self::STATE_STOPPING) {
-            throw new KernelStoppedException();
-        } elseif (!$this->panicExceptions->isEmpty()) {
-            throw $this->panicExceptions->dequeue();
-        }
-
-        $listener = new AdoptSyncListener();
-        $strand->setPrimaryListener($listener);
-
-        if ($listener->isDone) {
-            return $listener->get();
-        }
-
-        $listener->eventLoop = $this->eventLoop;
-        $isFirstLoopRun = $this->state === self::STATE_STOPPED;
-        $this->state = self::STATE_RUNNING;
-
-        try {
-            try {
-                run:
-                $this->eventLoop->run();
-            } catch (Throwable $e) {
-                $this->throw($e);
-            }
-
-            if ($this->state === self::STATE_STOPPING) {
-                throw new KernelStoppedException();
-            } elseif ($this->state === self::STATE_PANIC) {
-                if ($isFirstLoopRun) {
-                    throw $this->panicExceptions->dequeue();
-                } else {
-                    throw new KernelPanicException();
-                }
-            } elseif ($listener->isDone) {
-                return $listener->get();
-            } else {
-                goto run;
-            }
-        } finally {
-            if ($isFirstLoopRun) {
-                $this->state = self::STATE_STOPPED;
-            }
-        }
-    }
-
-    /**
      * Set a user-defined exception handler function.
      *
      * The exception handler is invoked when a strand exits with an exception or
      * an internal error occurs in the kernel.
-     *
-     * The handler will not be called for strands that have a primary listener
-     * set, such as those that have been passed to adoptSync() or started by
-     * executeSync().
      *
      * The exception handler must accept a single KernelPanicException argument.
      * If the exception was caused by a strand the exception will be the sub-type
