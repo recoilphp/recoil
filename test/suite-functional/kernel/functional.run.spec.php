@@ -26,6 +26,16 @@ describe('->run()', function () {
         $this->kernel->run();
         expect(ob_get_clean())->to->equal('ab');
     });
+
+    it('returns immediately if kernel is already running', function () {
+        $this->kernel->execute(function () {
+            yield;
+            $this->kernel->run();
+            // if this test fails, this function will block forever
+        });
+
+        $this->kernel->run();
+    });
 });
 
 describe('->adoptSync()', function () {
