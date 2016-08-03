@@ -87,14 +87,14 @@ final class ReactKernel implements Kernel
         try {
             $this->state = self::STATE_RUNNING;
             $this->eventLoop->run();
-
-            if ($this->state === self::STATE_PANIC) {
-                throw $this->panicExceptions->dequeue();
-            }
         } catch (Throwable $e) {
             throw new KernelPanicException('Kernel panic: ' . $e->getMessage(), $e);
         } finally {
             $this->state = self::STATE_STOPPED;
+        }
+
+        if (!$this->panicExceptions->isEmpty()) {
+            throw $this->panicExceptions->dequeue();
         }
     }
 
@@ -328,6 +328,8 @@ final class ReactKernel implements Kernel
         if ($this->exceptionHandler) {
             try {
                 ($this->exceptionHandler)($strand, $exception);
+
+                return;
             } catch (Throwable $e) {
                 if ($e === $exception) {
                     $exception = new StrandException($strand, $exception);
