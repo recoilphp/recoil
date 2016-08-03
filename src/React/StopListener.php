@@ -72,7 +72,7 @@ final class StopListener implements Listener
     }
 
     /**
-     * @var KernelInterface
+     * @var Kernel The kernel to stop when the listener is notified.
      */
     public $kernel;
 
