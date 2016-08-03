@@ -4,6 +4,7 @@ declare (strict_types = 1); // @codeCoverageIgnore
 
 namespace Recoil\React;
 
+use React\EventLoop\LoopInterface;
 use Recoil\Kernel\Listener;
 use Recoil\Kernel\Strand;
 use Throwable;
@@ -33,11 +34,14 @@ final class AdoptSyncListener implements Listener
      */
     public function send($value = null, Strand $strand = null)
     {
-        $this->isDone = true;
-        $this->value = $value;
+        if (!$this->isDone) {
+            $this->isDone = true;
+            $this->value = $value;
 
-        if ($this->eventLoop) {
-            $this->eventLoop->stop();
+            if ($this->eventLoop) {
+                $this->eventLoop->stop();
+                $this->eventLoop = null;
+            }
         }
     }
 
@@ -49,11 +53,14 @@ final class AdoptSyncListener implements Listener
      */
     public function throw(Throwable $exception, Strand $strand = null)
     {
-        $this->isDone = true;
-        $this->exception = $exception;
+        if (!$this->isDone) {
+            $this->isDone = true;
+            $this->exception = $exception;
 
-        if ($this->eventLoop) {
-            $this->eventLoop->stop();
+            if ($this->eventLoop) {
+                $this->eventLoop->stop();
+                $this->eventLoop = null;
+            }
         }
     }
 

@@ -18,7 +18,7 @@ beforeEach(function () {
 });
 
 context('when there is no exception handler', function () {
-    it('causes run() to throw an exception', function () {
+    it('run() throws a StrandException', function () {
         try {
             $this->kernel->run();
             expect(false)->to->be->ok('expected exception was not thrown');
@@ -28,22 +28,7 @@ context('when there is no exception handler', function () {
         }
     });
 
-    xit('causes run() to throw the same exception if invoked subsequently', function () {
-        try {
-            $this->kernel->run();
-        } catch (StrandException $exception) {
-            // ok ...
-        }
-
-        try {
-            $this->kernel->run();
-            expect(false)->to->be->ok('expected exception was not thrown');
-        } catch (StrandException $e) {
-            expect($e === $exception)->to->be->true;
-        }
-    });
-
-    it('causes adoptSync() to throw an exception', function () {
+    it('adoptSync() throws a StrandException', function () {
         try {
             $otherStrand = $this->kernel->execute(function () {
                 yield;
@@ -56,25 +41,7 @@ context('when there is no exception handler', function () {
         }
     });
 
-    xit('causes waitForStrand() to throw the same exception if invoked subsequently', function () {
-        try {
-            $this->kernel->run();
-        } catch (StrandException $exception) {
-            // ok ...
-        }
-
-        try {
-            $otherStrand = $this->kernel->execute(function () {
-                yield;
-            });
-            $this->kernel->waitForStrand($otherStrand);
-            expect(false)->to->be->ok('expected exception was not thrown');
-        } catch (StrandException $e) {
-            expect($e === $exception)->to->be->true;
-        }
-    });
-
-    it('causes executeSync() to throw an exception', function () {
+    it('executeSync() throws a StrandException', function () {
         try {
             $this->kernel->executeSync(function () {
                 yield;
@@ -83,24 +50,6 @@ context('when there is no exception handler', function () {
         } catch (StrandException $e) {
             expect($e->strand())->to->equal($this->strand);
             expect($e->getPrevious() === $this->exception)->to->be->true;
-        }
-    });
-
-    xit('causes waitFor() to throw the same exception if invoked subsequently', function () {
-        try {
-            $this->kernel->run();
-        } catch (StrandException $exception) {
-            // ok ...
-        }
-
-        try {
-            $this->kernel->waitFor(function () {
-                yield;
-            });
-            $this->kernel->waitForStrand($otherStrand);
-            expect(false)->to->be->ok('expected exception was not thrown');
-        } catch (StrandException $e) {
-            expect($e === $exception)->to->be->true;
         }
     });
 });
@@ -116,27 +65,29 @@ context('when there is an exception handler set', function () {
         });
     });
 
-    it('prevents run() from throwing', function () {
-        $this->kernel->run();
-    });
-
-    it('prevents adoptSync() from throwing', function () {
-        $otherStrand = $this->kernel->execute(function () {
-            yield;
-        });
-        $this->kernel->adoptSync($otherStrand);
-    });
-
-    it('prevents executeSync() from throwing', function () {
-        $this->kernel->executeSync(function () {
-            yield;
-        });
-    });
-
-    it('is passed the strand and exception as an arguments', function () {
+    it('is passed the strand and exception as arguments', function () {
         $this->kernel->run();
         expect($this->handledStrand === $this->strand)->to->be->true;
         expect($this->handledException === $this->exception)->to->be->true;
+    });
+
+    context('when the exception is handled', function () {
+        it('run() does not throw', function () {
+            $this->kernel->run();
+        });
+
+        it('adoptSync() does not throw', function () {
+            $otherStrand = $this->kernel->execute(function () {
+                yield;
+            });
+            $this->kernel->adoptSync($otherStrand);
+        });
+
+        it('executeSync() does not throw', function () {
+            $this->kernel->executeSync(function () {
+                yield;
+            });
+        });
     });
 
     context('when the exception handler rethrows the exception', function () {
@@ -146,7 +97,7 @@ context('when there is an exception handler set', function () {
             });
         });
 
-        it('throws a StrandException from run()', function () {
+        it('run() throws a StrandException', function () {
             try {
                 $this->kernel->run();
                 expect(false)->to->be->ok('expected exception was not thrown');
@@ -156,7 +107,7 @@ context('when there is an exception handler set', function () {
             }
         });
 
-        it('throws a StrandException from adoptSync()', function () {
+        it('adoptSync() throws a StrandException', function () {
             try {
                 $otherStrand = $this->kernel->execute(function () {
                     yield;
@@ -169,7 +120,7 @@ context('when there is an exception handler set', function () {
             }
         });
 
-        it('throws a StrandException from executeSync', function () {
+        it('executeSync() throws a StrandException', function () {
             try {
                 $this->kernel->executeSync(function () {
                     yield;
@@ -178,57 +129,6 @@ context('when there is an exception handler set', function () {
             } catch (StrandException $e) {
                 expect($e->strand())->to->equal($this->strand);
                 expect($e->getPrevious() === $this->exception)->to->be->true;
-            }
-        });
-
-        xit('causes wait() to throw the same exception if invoked subsequently', function () {
-            try {
-                $this->kernel->run();
-            } catch (StrandException $exception) {
-                // ok ...
-            }
-
-            try {
-                $this->kernel->run();
-                expect(false)->to->be->ok('expected exception was not thrown');
-            } catch (StrandException $e) {
-                expect($e === $exception)->to->be->true;
-            }
-        });
-
-        xit('causes waitForStrand() to throw the same exception if invoked subsequently', function () {
-            try {
-                $this->kernel->run();
-            } catch (StrandException $exception) {
-                // ok ...
-            }
-
-            try {
-                $otherStrand = $this->kernel->execute(function () {
-                    yield;
-                });
-                $this->kernel->waitForStrand($otherStrand);
-                expect(false)->to->be->ok('expected exception was not thrown');
-            } catch (StrandException $e) {
-                expect($e === $exception)->to->be->true;
-            }
-        });
-
-        xit('causes waitFor() to throw the same exception if invoked subsequently', function () {
-            try {
-                $this->kernel->run();
-            } catch (StrandException $exception) {
-                // ok ...
-            }
-
-            try {
-                $this->kernel->waitFor(function () {
-                    yield;
-                });
-                $this->kernel->waitForStrand($otherStrand);
-                expect(false)->to->be->ok('expected exception was not thrown');
-            } catch (StrandException $e) {
-                expect($e === $exception)->to->be->true;
             }
         });
     });
@@ -241,7 +141,7 @@ context('when there is an exception handler set', function () {
             });
         });
 
-        it('throws a KernelPanicException from run()', function () {
+        it('run() throws a KernelPanicException', function () {
             try {
                 $this->kernel->run();
                 expect(false)->to->be->ok('expected exception was not thrown');
@@ -250,7 +150,7 @@ context('when there is an exception handler set', function () {
             }
         });
 
-        it('throws a KernelPanicException from adoptSync()', function () {
+        it('adoptSync() throws a KernelPanicException', function () {
             try {
                 $otherStrand = $this->kernel->execute(function () {
                     yield;
@@ -262,7 +162,7 @@ context('when there is an exception handler set', function () {
             }
         });
 
-        it('throws a KernelPanicException from executeSync', function () {
+        it('executeSync() throws a KernelPanicException', function () {
             try {
                 $this->kernel->executeSync(function () {
                     yield;
@@ -274,4 +174,7 @@ context('when there is an exception handler set', function () {
         });
     });
 
+});
+
+context('when the kernel is started recursively', function () {
 });
