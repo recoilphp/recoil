@@ -155,6 +155,38 @@ describe('->adoptSync()', function () {
         $this->kernel->run();
         expect(ob_get_clean())->to->equal('abcdef');
     });
+
+    it('continues to block when another adopted strand exits first', function () {
+        $strand1 = $this->kernel->execute(function () {
+            yield 0.01;
+
+            return 1;
+        });
+
+        $strand2 = $this->kernel->execute(function () {
+            yield 0.02;
+
+            return 2;
+        });
+
+        $this->kernel->execute(function () use ($strand1) {
+            $result = $this->kernel->adoptSync($strand1);
+            expect($result)->to->equal(1);
+
+            return;
+            yield;
+        });
+
+        $this->kernel->execute(function () use ($strand2) {
+            $result = $this->kernel->adoptSync($strand2);
+            expect($result)->to->equal(2);
+
+            return;
+            yield;
+        });
+
+        $this->kernel->run();
+    });
 });
 
 describe('->executeSync()', function () {
