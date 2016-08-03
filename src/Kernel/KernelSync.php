@@ -41,7 +41,7 @@ interface KernelSync extends Kernel
      * @throws Throwable              The exception produced by the coroutine.
      * @throws TerminatedException    The strand has been terminated.
      * @throws KernelStoppedException The kernel was stopped before the strand exited.
-     * @throws KernelPanicException   Some other strand has caused a kernel panic.
+     * @throws KernelPanicException   An unhandled exception has stopped the kernel.
      */
     public function executeSync($coroutine);
 
@@ -60,7 +60,7 @@ interface KernelSync extends Kernel
      * @throws Throwable              The exception produced by the coroutine.
      * @throws TerminatedException    The strand has been terminated.
      * @throws KernelStoppedException The kernel was stopped before the strand exited.
-     * @throws KernelPanicException   Some other strand has caused a kernel panic.
+     * @throws KernelPanicException   An unhandled exception has stopped the kernel.
      */
     public function adoptSync(Strand $strand);
 }

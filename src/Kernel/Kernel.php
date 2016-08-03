@@ -20,7 +20,7 @@ interface Kernel extends Listener
      * @see Kernel::setExceptionHandler()
      *
      * @return null
-     * @throws KernelPanicException A strand has caused a kernel panic.
+     * @throws KernelPanicException An unhandled exception has stopped the kernel.
      */
     public function run();
 
