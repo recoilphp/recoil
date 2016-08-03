@@ -98,6 +98,17 @@ describe('->adoptSync()', function () {
         expect(ob_get_clean())->to->equal('a');
     });
 
+    it('returns if the strand has already exited', function () {
+        $strand = $this->kernel->execute(function () {
+            return '<ok>';
+            yield;
+        });
+
+        $this->kernel->adoptSync($strand);
+
+        expect($this->kernel->adoptSync($strand))->to->equal('<ok>');
+    });
+
     it('can be nested inside run()', function () {
         $this->kernel->execute(function () {
             echo 'a';
