@@ -73,7 +73,6 @@ final class ReactKernel implements Kernel
      *
      * @see Kernel::setExceptionHandler()
      *
-     * @return null
      * @throws KernelPanicException A strand has caused a kernel panic.
      */
     public function run()
@@ -88,7 +87,7 @@ final class ReactKernel implements Kernel
             $this->state = self::STATE_RUNNING;
             $this->eventLoop->run();
         } catch (Throwable $e) {
-            throw new KernelPanicException('Kernel panic: ' . $e->getMessage(), $e);
+            $this->throw($e);
         } finally {
             $this->state = self::STATE_STOPPED;
         }
@@ -107,8 +106,6 @@ final class ReactKernel implements Kernel
      * The kernel cannot run again until it has stopped completely. That is,
      * the PHP call-stack has unwound to the outer-most call to {@see Kernel::run()},
      * {@see Kernel::executeSync()} or {@see Kernel::adoptSync()}.
-     *
-     * @return null
      */
     public function stop()
     {
@@ -205,36 +202,32 @@ final class ReactKernel implements Kernel
         }
 
         $listener->eventLoop = $this->eventLoop;
-        $isNestedRun = $this->state === self::STATE_RUNNING;
-
-        run:
-        try {
-            $this->state = self::STATE_RUNNING;
-            $this->eventLoop->run();
-        } catch (Throwable $e) {
-            $this->state = $isNestedRun
-                         ? self::STATE_PANIC
-                         : self::STATE_STOPPED;
-
-            throw new KernelPanicException('Kernel panic: ' . $e->getMessage(), $e);
-        }
+        $isFirstLoopRun = $this->state === self::STATE_STOPPED;
+        $this->state = self::STATE_RUNNING;
 
         try {
+            try {
+                run:
+                $this->eventLoop->run();
+            } catch (Throwable $e) {
+                $this->throw($e);
+            }
+
             if ($this->state === self::STATE_STOPPING) {
                 throw new KernelStoppedException();
             } elseif ($this->state === self::STATE_PANIC) {
-                if ($isNestedRun) {
-                    throw new KernelPanicException();
-                } else {
+                if ($isFirstLoopRun) {
                     throw $this->panicExceptions->dequeue();
+                } else {
+                    throw new KernelPanicException();
                 }
             } elseif ($listener->isDone) {
                 return $listener->get();
+            } else {
+                goto run;
             }
-
-            goto run;
         } finally {
-            if (!$isNestedRun) {
+            if ($isFirstLoopRun) {
                 $this->state = self::STATE_STOPPED;
             }
         }
@@ -243,24 +236,23 @@ final class ReactKernel implements Kernel
     /**
      * Set a user-defined exception handler function.
      *
-     * The exception handler function is invoked when a strand exits with an
-     * unhandled exception. That is, whenever an exception propagates to the top
-     * of the strand's call-stack and the strand does not already have a
-     * mechanism in place to deal with the exception.
+     * The exception handler is invoked when a strand exits with an exception or
+     * an internal error occurs in the kernel.
      *
-     * The exception handler function must have the following signature:
+     * The handler will not be called for strands that have a primary listener
+     * set, such as those that have been passed to adoptSync() or started by
+     * executeSync().
      *
-     *      function (Strand $strand, Throwable $exception)
+     * The exception handler must accept a single KernelPanicException argument.
+     * If the exception was caused by a strand the exception will be the sub-type
+     * StrandException. The previous exception is the exception that triggered
+     * the call to the exception handler.
      *
-     * The first parameter is the strand that produced the exception, the second
-     * is the exception itself.
-     *
-     * A kernel panic is caused if the handler function throws an exception, or
-     * there is no handler installed when a strand fails.
+     * If the exception handler is unable to handle the exception it can simply
+     * re-throw it (or any other exception). This causes the kernel panic and
+     * stop running. This is also the behaviour when no exception handler is set.
      *
      * @param callable|null $fn The exception handler (null = remove).
-     *
-     * @return null
      */
     public function setExceptionHandler(callable $fn = null)
     {
@@ -313,11 +305,11 @@ final class ReactKernel implements Kernel
     public function throw(Throwable $exception, Strand $strand = null)
     {
         assert(
-            $strand !== null && $strand->kernel() === $this,
+            $strand === null || $strand->kernel() === $this,
             'kernel can only handle notifications from its own strands'
         );
 
-        // Don't treat termination of this strand as an error ...
+        // Termination is not an error ...
         if (
             $exception instanceof TerminatedException &&
             $strand === $exception->strand()
@@ -325,20 +317,22 @@ final class ReactKernel implements Kernel
             return;
         }
 
-        if ($this->exceptionHandler) {
-            try {
-                ($this->exceptionHandler)($strand, $exception);
-
-                return;
-            } catch (Throwable $e) {
-                if ($e === $exception) {
-                    $exception = new StrandException($strand, $exception);
-                } else {
-                    $exception = new KernelPanicException('Kernel panic: ' . $e->getMessage(), $e);
-                }
-            }
+        if ($strand === null) {
+            $exception = new KernelPanicException('Kernel panic: ' . $exception->getMessage(), $exception);
         } else {
             $exception = new StrandException($strand, $exception);
+        }
+
+        if ($this->exceptionHandler) {
+            try {
+                ($this->exceptionHandler)($exception);
+
+                return;
+            } catch (KernelPanicException $e) {
+                $exception = $e;
+            } catch (Throwable $e) {
+                $exception = new KernelPanicException('Kernel panic: ' . $e->getMessage(), $e);
+            }
         }
 
         $this->panicExceptions->enqueue($exception);
@@ -380,7 +374,7 @@ final class ReactKernel implements Kernel
     private $exceptionHandler;
 
     /**
-     * @var SplQueue<Exception> A queue of exceptions that caused the kernel to panic.
+     * @var SplQueue<KernelPanicException> A queue of exceptions that caused the kernel to panic.
      */
     private $panicExceptions;
 }

@@ -72,16 +72,14 @@ it('causes all nested to run(), executeSync() and adoptSync() to return/throw', 
                 $this->kernel->executeSync(function () {
                     $this->kernel->stop();
 
-                    return;
-                    yield;
+                    yield Recoil::suspend();
                 });
                 expect(false)->to->be->ok('expected exception was not thrown');
             } catch (KernelStoppedException $e) {
                 // ok ...
             }
 
-            return;
-            yield;
+            yield Recoil::suspend();
         });
 
         try {
@@ -92,5 +90,5 @@ it('causes all nested to run(), executeSync() and adoptSync() to return/throw', 
         }
     });
 
-    expect($this->kernel->run())->to->be->false;
+    $this->kernel->run();
 });

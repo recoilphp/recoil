@@ -9,6 +9,7 @@ use Exception;
 use React\EventLoop\Factory;
 use React\EventLoop\LoopInterface;
 use Recoil\Kernel\Api;
+use Recoil\Kernel\Exception\KernelPanicException;
 use Recoil\Recoil;
 use Throwable;
 
@@ -84,6 +85,18 @@ describe(ReactKernel::class, function () {
             $this->subject->run();
             $this->eventLoop->run->called();
         });
+
+        it('throws a KernelPanicException if the loop throws', function () {
+            $exception = Phony::mock(Throwable::class)->get();
+            $this->eventLoop->run->throws($exception);
+
+            try {
+                $this->subject->run();
+                expect(false)->to->be->ok('expected exception was not thrown');
+            } catch (KernelPanicException $e) {
+                expect($e->getPrevious() === $exception)->to->be->true;
+            }
+        });
     });
 
     describe('->stop()', function () {
@@ -109,6 +122,22 @@ describe(ReactKernel::class, function () {
             expect(function () {
                 $this->subject->run();
             })->to->be->ok;
+        });
+    });
+
+    describe('->adoptSync()', function () {
+        it('throws a KernelPanicException if the loop throws', function () {
+            $exception = Phony::mock(Throwable::class)->get();
+            $this->eventLoop->run->throws($exception);
+
+            $strand = $this->subject->execute(function () { yield; });
+
+            try {
+                $this->subject->adoptSync($strand);
+                expect(false)->to->be->ok('expected exception was not thrown');
+            } catch (KernelPanicException $e) {
+                expect($e->getPrevious() === $exception)->to->be->true;
+            }
         });
     });
 

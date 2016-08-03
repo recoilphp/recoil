@@ -97,20 +97,21 @@ interface Kernel extends Listener
     /**
      * Set a user-defined exception handler function.
      *
-     * The exception handler function is invoked when a strand exits with an
-     * unhandled exception. That is, whenever an exception propagates to the top
-     * of the strand's call-stack and the strand does not already have a
-     * mechanism in place to deal with the exception.
+     * The exception handler is invoked when a strand exits with an exception or
+     * an internal error occurs in the kernel.
      *
-     * The exception handler function must have the following signature:
+     * The handler will not be called for strands that have a primary listener
+     * set, such as those that have been passed to adoptSync() or started by
+     * executeSync().
      *
-     *      function (Strand $strand, Throwable $exception)
+     * The exception handler must accept a single KernelPanicException argument.
+     * If the exception was caused by a strand the exception will be the sub-type
+     * StrandException. The previous exception is the exception that triggered
+     * the call to the exception handler.
      *
-     * The first parameter is the strand that produced the exception, the second
-     * is the exception itself.
-     *
-     * A kernel panic is caused if the handler function throws an exception, or
-     * there is no handler installed when a strand fails.
+     * If the exception handler is unable to handle the exception it can simply
+     * re-throw it (or any other exception). This causes the kernel panic and
+     * stop running. This is also the behaviour when no exception handler is set.
      *
      * @param callable|null $fn The exception handler (null = remove).
      *

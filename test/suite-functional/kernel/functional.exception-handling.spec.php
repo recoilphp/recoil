@@ -56,19 +56,26 @@ context('when there is no exception handler', function () {
 
 context('when there is an exception handler set', function () {
     beforeEach(function () {
-        $this->handledStrand = null;
         $this->handledException = null;
 
-        $this->kernel->setExceptionHandler(function ($strand, $exception) {
-            $this->handledStrand = $strand;
+        $this->kernel->setExceptionHandler(function ($exception) {
             $this->handledException = $exception;
         });
     });
 
-    it('is passed the strand and exception as arguments', function () {
+    it('is passed a StrandException argument when a strand exits with an exception', function () {
         $this->kernel->run();
-        expect($this->handledStrand === $this->strand)->to->be->true;
-        expect($this->handledException === $this->exception)->to->be->true;
+        expect($this->handledException instanceof StrandException)->to->be->true;
+        expect($this->handledException->strand())->to->equal($this->strand);
+        expect($this->handledException->getPrevious() === $this->exception)->to->be->true;
+    });
+
+    it('is passed a KernelPanicException when an internal error occurs', function () {
+        $this->kernel->throw($this->exception, null);
+        $this->kernel->run();
+        expect($this->handledException instanceof KernelPanicException)->to->be->true;
+        expect(!$this->handledException instanceof StrandException)->to->be->false;
+        expect($this->handledException->getPrevious() === $this->exception)->to->be->true;
     });
 
     context('when the exception is handled', function () {
@@ -92,7 +99,7 @@ context('when there is an exception handler set', function () {
 
     context('when the exception handler rethrows the exception', function () {
         beforeEach(function () {
-            $this->kernel->setExceptionHandler(function ($strand, $exception) {
+            $this->kernel->setExceptionHandler(function ($exception) {
                 throw $exception;
             });
         });
@@ -136,7 +143,7 @@ context('when there is an exception handler set', function () {
     context('when the exception handler throws a different exception', function () {
         beforeEach(function () {
             $this->handlerException = new Exception('<handler>');
-            $this->kernel->setExceptionHandler(function ($strand, $exception) {
+            $this->kernel->setExceptionHandler(function ($exception) {
                 throw $this->handlerException;
             });
         });
@@ -177,4 +184,5 @@ context('when there is an exception handler set', function () {
 });
 
 context('when the kernel is started recursively', function () {
+
 });
