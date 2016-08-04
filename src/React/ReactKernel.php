@@ -73,14 +73,14 @@ final class ReactKernel implements Kernel
      * Run the kernel until all strands exit, the kernel is stopped or a kernel
      * panic occurs.
      *
-     * A kernel panic occurs when a strand throws an exception that is not
-     * handled by the kernel's exception handler.
+     * A kernel panic occurs when an exception occurs that is not handled by the
+     * kernel's exception handler.
      *
      * This method returns immediately if the kernel is already running.
      *
      * @see Kernel::setExceptionHandler()
      *
-     * @throws KernelPanicException A strand has caused a kernel panic.
+     * @throws KernelPanicException An unhandled exception has stopped the kernel.
      */
     public function run()
     {
@@ -117,7 +117,7 @@ final class ReactKernel implements Kernel
     /**
      * Schedule a coroutine for execution on a new strand.
      *
-     * Execution begins when the kernel is started; or, if called within a
+     * Execution begins when the kernel is run; or, if called from within a
      * strand, when that strand cooperates.
      *
      * @param mixed $coroutine The coroutine to execute.
@@ -141,13 +141,16 @@ final class ReactKernel implements Kernel
      * The exception handler is invoked when a strand exits with an exception or
      * an internal error occurs in the kernel.
      *
-     * The exception handler must accept a single KernelPanicException argument.
-     * If the exception was caused by a strand the exception will be the sub-type
-     * StrandException. The previous exception is the exception that triggered
-     * the call to the exception handler.
+     * The handler function signature is:
+     *
+     *     function (KernelPanicException $e)
+     *
+     * If the exception was caused by a strand the exception will be the
+     * sub-type StrandException. $e->getPrevious() returns the exception that
+     * triggered the call to the exception handler.
      *
      * If the exception handler is unable to handle the exception it can simply
-     * re-throw it (or any other exception). This causes the kernel panic and
+     * re-throw it (or any other exception). This causes the kernel to panic and
      * stop running. This is also the behaviour when no exception handler is set.
      *
      * @param callable|null $fn The exception handler (null = remove).
