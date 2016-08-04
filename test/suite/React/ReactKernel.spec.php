@@ -9,6 +9,8 @@ use Exception;
 use React\EventLoop\Factory;
 use React\EventLoop\LoopInterface;
 use Recoil\Kernel\Api;
+use Recoil\Kernel\Exception\KernelPanicException;
+use Recoil\Kernel\Exception\KernelStoppedException;
 use Recoil\Recoil;
 use Throwable;
 
@@ -42,6 +44,22 @@ describe(ReactKernel::class, function () {
                 expect(false)->to->be->ok('expected exception was not thrown');
             } catch (Exception $e) {
                 expect($e->getMessage())->to->equal('<exception>');
+            }
+        });
+
+        it('throws an exception if the kernel is stopped before the strand exits', function () {
+            try {
+                ReactKernel::start(function () {
+                    yield Recoil::execute(function () {
+                        $strand = yield Recoil::strand();
+                        $strand->kernel()->stop();
+                    });
+
+                    yield 10;
+                });
+                expect(false)->to->be->ok('expected exception was not thrown');
+            } catch (KernelStoppedException $e) {
+                // ok ...
             }
         });
 
@@ -79,27 +97,47 @@ describe(ReactKernel::class, function () {
         });
     });
 
-    describe('->wait()', function () {
+    describe('->run()', function () {
         it('runs the event loop', function () {
-            $this->subject->wait();
+            $this->subject->run();
             $this->eventLoop->run->called();
+        });
+
+        it('throws a KernelPanicException if the loop throws', function () {
+            $exception = Phony::mock(Throwable::class)->get();
+            $this->eventLoop->run->throws($exception);
+
+            try {
+                $this->subject->run();
+                expect(false)->to->be->ok('expected exception was not thrown');
+            } catch (KernelPanicException $e) {
+                expect($e->getPrevious() === $exception)->to->be->true;
+            }
         });
     });
 
     describe('->stop()', function () {
         it('stops the event loop', function () {
-            $this->subject->stop();
+            $this->eventLoop->run->does(function () {
+                $this->subject->stop();
+            });
+            $this->subject->run();
             $this->eventLoop->stop->called();
         });
 
-        it('causes wait() to return', function () {
+        it('does nothing if the kernel is stopped', function () {
+            $this->subject->stop();
+            $this->eventLoop->noInteraction();
+        });
+
+        it('causes run() to return', function () {
             $exception = Phony::mock(Throwable::class)->get();
             $this->eventLoop->run->does(function () use ($exception) {
                 $this->subject->stop();
             });
 
             expect(function () {
-                $this->subject->wait();
+                $this->subject->run();
             })->to->be->ok;
         });
     });

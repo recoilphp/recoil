@@ -4,104 +4,60 @@ declare (strict_types = 1); // @codeCoverageIgnore
 
 namespace Recoil\Kernel;
 
-use Recoil\Kernel\Exception\StrandException;
-use Throwable;
+use Recoil\Kernel\Exception\KernelPanicException;
 
 interface Kernel extends Listener
 {
     /**
-     * Execute a coroutine on a new strand.
+     * Run the kernel until all strands exit, the kernel is stopped or a kernel
+     * panic occurs.
      *
-     * Execution is deferred until control returns to the kernel. This allows
-     * the caller to manipulate the returned {@see Strand} object before
-     * execution begins.
+     * A kernel panic occurs when an exception occurs that is not handled by the
+     * kernel's exception handler.
      *
-     * @param mixed $coroutine The strand's entry-point.
+     * This method returns immediately if the kernel is already running.
+     *
+     * @see Kernel::setExceptionHandler()
+     *
+     * @return null
+     * @throws KernelPanicException An unhandled exception has stopped the kernel.
      */
-    public function execute($coroutine) : Strand;
-
-    /**
-     * Run the kernel until all strands exit or the kernel is stopped.
-     *
-     * Calls to wait(), {@see Kernel::waitForStrand()} and {@see Kernel::waitFor()}
-     * may be nested. This can be useful within synchronous code to block
-     * execution until a particular asynchronous operation is complete. Care
-     * must be taken to avoid deadlocks.
-     *
-     * @return bool            False if the kernel was stopped with {@see Kernel::stop()}; otherwise, true.
-     * @throws StrandException A strand failure was not handled by the exception handler.
-     */
-    public function wait() : bool;
-
-    /**
-     * Run the kernel until a specific strand exits or the kernel is stopped.
-     *
-     * Calls to {@see Kernel::wait()}, waitForStrand() and {@see Kernel::waitFor()}
-     * may be nested. This can be useful within synchronous code to block
-     * execution until a particular asynchronous operation is complete. Care
-     * must be taken to avoid deadlocks.
-     *
-     * @param Strand $strand The strand to wait for.
-     *
-     * @return mixed                  The strand result, on success.
-     * @throws Throwable              The exception thrown by the strand, if failed.
-     * @throws TerminatedException    The strand has been terminated.
-     * @throws KernelStoppedException Execution was stopped with {@see Kernel::stop()}.
-     * @throws StrandException        A strand failure was not handled by the exception handler.
-     */
-    public function waitForStrand(Strand $strand);
-
-    /**
-     * Run the kernel until the given coroutine returns or the kernel is stopped.
-     *
-     * This is a convenience method equivalent to:
-     *
-     *      $strand = $kernel->execute($coroutine);
-     *      $kernel->waitForStrand($strand);
-     *
-     * Calls to {@see Kernel::wait()}, {@see Kernel::waitForStrand()} and waitFor()
-     * may be nested. This can be useful within synchronous code to block
-     * execution until a particular asynchronous operation is complete. Care
-     * must be taken to avoid deadlocks.
-     *
-     * @param mixed $coroutine The coroutine to execute.
-     *
-     * @return mixed                  The return value of the coroutine.
-     * @throws Throwable              The exception produced by the coroutine, if any.
-     * @throws TerminatedException    The strand has been terminated.
-     * @throws KernelStoppedException Execution was stopped with {@see Kernel::stop()}.
-     * @throws StrandException        A strand failure was not handled by the exception handler.
-     */
-    public function waitFor($coroutine);
+    public function run();
 
     /**
      * Stop the kernel.
-     *
-     * All nested calls to {@see Kernel::wait()}, {@see Kernel::waitForStrand()}
-     * or {@see Kernel::waitFor()} are stopped.
-     *
-     * wait() returns false when the kernel is stopped, the other variants throw
-     * a {@see KernelStoppedException}.
      *
      * @return null
      */
     public function stop();
 
     /**
-     * Set the exception handler.
+     * Schedule a coroutine for execution on a new strand.
      *
-     * The exception handler is invoked whenever an exception propagates to the
-     * top of a strand's call-stack, or when a strand's primary listener throws
-     * an exception.
+     * Execution begins when the kernel is run; or, if called from within a
+     * strand, when that strand cooperates.
      *
-     * The exception handler function must accept a single parameter of type
-     * {@see StrandException} and return a boolean indicating whether or not the
-     * exception was handled.
+     * @param mixed $coroutine The coroutine to execute.
+     */
+    public function execute($coroutine) : Strand;
+
+    /**
+     * Set a user-defined exception handler function.
      *
-     * If the exception handler returns false, or is not set (the default), the
-     * exception will be thrown by the outer-most call to {@see Kernel::wait()},
-     * {@see Kernel::waitForStrand()} or {@see Kernel::waitFor()}, after which
-     * the kernel may not be restarted.
+     * The exception handler is invoked when a strand exits with an exception or
+     * an internal error occurs in the kernel.
+     *
+     * The handler function signature is:
+     *
+     *     function (KernelPanicException $e)
+     *
+     * If the exception was caused by a strand the exception will be the
+     * sub-type StrandException. $e->getPrevious() returns the exception that
+     * triggered the call to the exception handler.
+     *
+     * If the exception handler is unable to handle the exception it can simply
+     * re-throw it (or any other exception). This causes the kernel to panic and
+     * stop running. This is also the behaviour when no exception handler is set.
      *
      * @param callable|null $fn The exception handler (null = remove).
      *

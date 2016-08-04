@@ -29,7 +29,7 @@ it('does not delay the kernel when a sleeping strand is terminated', function ()
         $strand->terminate();
         yield;
     });
-    $this->kernel->wait();
+    $this->kernel->run();
     $diff = microtime(true) - $time;
 
     expect($diff)->to->be->below(0.01);

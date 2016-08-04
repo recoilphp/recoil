@@ -23,7 +23,7 @@ function rit(string $description, callable $test)
         }
 
         try {
-            $this->kernel->wait();
+            $this->kernel->run();
         } catch (StrandException $e) {
             throw $e->getPrevious();
         }
