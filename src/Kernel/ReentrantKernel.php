@@ -10,16 +10,20 @@ use Recoil\Kernel\Exception\KernelStoppedException;
 use Throwable;
 
 /**
- * A kernel that supports re-entrant, blocking operations.
+ * A kernel that may be started recursively.
  *
- * Stopping the kernel causes all calls to {@see KernelSync::executeSync()}
- * or {@see KernelSync::adoptSync()} to throw a {@see KernelStoppedException}.
+ * A re-entrant kernel provides non-coroutine methods for blocking until a
+ * strand or coroutine exits. This is especially useful when traditional
+ * synchronous code depends on the result of an asynchronous operation.
+ *
+ * Stopping the kernel causes all calls to {@see ReentrantKernel::executeSync()}
+ * or {@see ReentrantKernel::adoptSync()} to throw a {@see KernelStoppedException}.
  *
  * The kernel cannot run again until it has stopped completely. That is,
  * the PHP call-stack has unwound to the outer-most call to {@see Kernel::run()},
  * {@see Kernel::executeSync()} or {@see Kernel::adoptSync()}.
  */
-interface KernelSync extends Kernel
+interface ReentrantKernel extends Kernel
 {
     /**
      * Execute a coroutine on a new strand and block until it exits.
@@ -56,8 +60,8 @@ interface KernelSync extends Kernel
      *
      * @param Strand $strand The strand to wait for.
      *
-     * @return mixed                  The return value of the coroutine.
-     * @throws Throwable              The exception produced by the coroutine.
+     * @return mixed                  The return value of the strand.
+     * @throws Throwable              The exception produced by the strand.
      * @throws TerminatedException    The strand has been terminated.
      * @throws KernelStoppedException The kernel was stopped before the strand exited.
      * @throws KernelPanicException   An unhandled exception has stopped the kernel.
