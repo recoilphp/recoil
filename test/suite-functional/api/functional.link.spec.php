@@ -161,6 +161,31 @@ context('when called with 1 parameter', function () {
 
         $strandA->terminate();
     });
+
+    rit('can link to self', function () {
+        $strand = yield Recoil::execute(function () {
+            yield Recoil::link(yield Recoil::strand());
+            yield 10;
+        });
+
+        yield;
+        $strand->terminate();
+
+        expect($strand->hasExited())->to->be->true;
+    });
+
+    rit('can unlink from self', function () {
+        $strand = yield Recoil::execute(function () {
+            yield Recoil::link(yield Recoil::strand());
+            yield Recoil::unlink(yield Recoil::strand());
+            yield 10;
+        });
+
+        yield;
+        $strand->terminate();
+
+        expect($strand->hasExited())->to->be->true;
+    });
 });
 
 context('when called with 2 parameters', function () {
@@ -328,5 +353,30 @@ context('when called with 2 parameters', function () {
         expect($strandB->hasExited())->to->be->true;
 
         $strandA->terminate();
+    });
+
+    rit('can link to self', function () {
+        $strand = yield Recoil::execute(function () {
+            yield 10;
+        });
+
+        yield;
+        yield Recoil::link($strand, $strand);
+        $strand->terminate();
+
+        expect($strand->hasExited())->to->be->true;
+    });
+
+    rit('can unlink from self', function () {
+        $strand = yield Recoil::execute(function () {
+            yield 10;
+        });
+
+        yield;
+        yield Recoil::link($strand, $strand);
+        yield Recoil::unlink($strand, $strand);
+        $strand->terminate();
+
+        expect($strand->hasExited())->to->be->true;
     });
 });
