@@ -162,7 +162,7 @@ context('when called with 1 parameter', function () {
         $strandA->terminate();
     });
 
-    rit('can link to self', function () {
+    rit('does not fail if linked to itself', function () {
         $strand = yield Recoil::execute(function () {
             yield Recoil::link(yield Recoil::strand());
             yield 10;
@@ -174,7 +174,7 @@ context('when called with 1 parameter', function () {
         expect($strand->hasExited())->to->be->true;
     });
 
-    rit('can unlink from self', function () {
+    rit('does not fail if unlinked from itself', function () {
         $strand = yield Recoil::execute(function () {
             yield Recoil::link(yield Recoil::strand());
             yield Recoil::unlink(yield Recoil::strand());
@@ -355,7 +355,7 @@ context('when called with 2 parameters', function () {
         $strandA->terminate();
     });
 
-    rit('can link to self', function () {
+    rit('does not fail if linked to itself', function () {
         $strand = yield Recoil::execute(function () {
             yield 10;
         });
@@ -367,7 +367,7 @@ context('when called with 2 parameters', function () {
         expect($strand->hasExited())->to->be->true;
     });
 
-    rit('can unlink from self', function () {
+    rit('does not fail if unlinked from itself', function () {
         $strand = yield Recoil::execute(function () {
             yield 10;
         });

@@ -211,7 +211,7 @@ describe(StrandTrait::class, function () {
                     $this->strand1->terminate->never()->called();
                 });
 
-                it('can link with self', function () {
+                it('does not fail if linked to itself', function () {
                     ($this->initializeSubject)(
                         Phony::stub()->generates()->returns('<result>')
                     );
@@ -222,7 +222,7 @@ describe(StrandTrait::class, function () {
                     $this->subject->link->calledWith($this->subject);
                 });
 
-                it('can unlink with self', function () {
+                it('does not fail if unlinked from itself', function () {
                     ($this->initializeSubject)(
                         Phony::stub()->generates()->returns('<result>')
                     );
