@@ -4,15 +4,15 @@ declare(strict_types=1); // @codeCoverageIgnore
 
 namespace Recoil\Kernel\Exception;
 
-use Recoil\Kernel\Listener;
-use Recoil\Kernel\Strand;
-use RuntimeException;
+use Exception;
+use Recoil\Listener;
+use Recoil\Strand;
 use Throwable;
 
 /**
  * An exception was thrown by a listener while a strand is exiting.
  */
-class StrandListenerException extends RuntimeException
+class StrandListenerException extends Exception
 {
     /**
      * @param Strand    $strand    The exited strand.

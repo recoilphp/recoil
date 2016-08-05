@@ -4,6 +4,9 @@ declare(strict_types=1); // @codeCoverageIgnore
 
 namespace Recoil\Kernel;
 
+use Recoil\Awaitable;
+use Recoil\Listener;
+use Recoil\Strand;
 use Throwable;
 
 /**
@@ -11,7 +14,7 @@ use Throwable;
  */
 final class StrandWaitFirst implements Awaitable, Listener
 {
-    public function __construct(Strand ...$substrands)
+    public function __construct(SystemStrand ...$substrands)
     {
         $this->substrands = $substrands;
     }
@@ -22,9 +25,9 @@ final class StrandWaitFirst implements Awaitable, Listener
      * @param Listener $listener The object to resume when the work is complete.
      * @param Api      $api      The API implementation for the current kernel.
      */
-    public function await(Listener $listener, Api $api)
+    public function await(Listener $listener)
     {
-        if ($listener instanceof Strand) {
+        if ($listener instanceof SystemStrand) {
             $listener->setTerminator([$this, 'cancel']);
         }
 
@@ -96,7 +99,7 @@ final class StrandWaitFirst implements Awaitable, Listener
     private $listener;
 
     /**
-     * @var array<Strand> The strands to wait for.
+     * @var array<SystemStrand> The strands to wait for.
      */
     private $substrands;
 }

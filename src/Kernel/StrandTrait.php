@@ -7,25 +7,32 @@ namespace Recoil\Kernel;
 use Closure;
 use Generator;
 use InvalidArgumentException;
+use Recoil\ApiCall;
+use Recoil\Awaitable;
+use Recoil\AwaitableProvider;
+use Recoil\CoroutineProvider;
 use Recoil\Exception\TerminatedException;
 use Recoil\Kernel\Exception\PrimaryListenerRemovedException;
 use Recoil\Kernel\Exception\StrandListenerException;
+use Recoil\Listener;
+use Recoil\Strand;
+use Recoil\StrandTrace;
 use SplObjectStorage;
 use Throwable;
 
 /**
- * The standard strand implementation.
+ * The standard {@see SystemStrand} implementation.
  */
 trait StrandTrait
 {
     /**
-     * @param Kernel $kernel     The kernel on which the strand is executing.
-     * @param Api    $api        The kernel API used to handle yielded values.
-     * @param int    $id         The strand ID.
-     * @param mixed  $entryPoint The strand's entry-point coroutine.
+     * @param SystemKernel $kernel     The kernel on which the strand is executing.
+     * @param Api          $api        The kernel API used to handle yielded values.
+     * @param int          $id         The strand ID.
+     * @param mixed        $entryPoint The strand's entry-point coroutine.
      */
     public function __construct(
-        Kernel $kernel,
+        SystemKernel $kernel,
         Api $api,
         int $id,
         $entryPoint
@@ -72,7 +79,7 @@ trait StrandTrait
     /**
      * @return Kernel The kernel on which the strand is executing.
      */
-    public function kernel() : Kernel
+    public function kernel() : SystemKernel
     {
         return $this->kernel;
     }
@@ -206,9 +213,9 @@ trait StrandTrait
 
                     // An API call was made through the Recoil static facade ...
                     } elseif ($produced instanceof ApiCall) {
-                        $produced = $this->api->{$produced->name}(
+                        $produced = $this->api->{$produced->__name}(
                             $this,
-                            ...$produced->arguments
+                            ...$produced->__arguments
                         );
 
                         // The API call is implemented as a generator coroutine,
@@ -233,16 +240,16 @@ trait StrandTrait
 
                     // A generic awaitable object was yielded ...
                     } elseif ($produced instanceof Awaitable) {
-                        $produced->await($this, $this->api);
+                        $produced->await($this);
 
                     // An awaitable provider was yielded ...
                     } elseif ($produced instanceof AwaitableProvider) {
-                        $produced->awaitable()->await($this, $this->api);
+                        $produced->awaitable()->await($this);
 
                     // Some unidentified value was yielded, allow the API to
                     // dispatch the operation as it sees fit ...
                     } else {
-                        $this->api->dispatch(
+                        $this->api->__dispatch(
                             $this,
                             $this->current->key(),
                             $produced
@@ -345,7 +352,7 @@ trait StrandTrait
 
         $this->stack = [];
         $this->action = 'throw';
-        $this->value = new TerminatedException($this);
+        $this->value = TerminatedException::create($this);
 
         // Trace the exit. This is performed inside an assertion so that it can
         // be optimised away completely in production ...
@@ -513,7 +520,7 @@ trait StrandTrait
      *
      * @return null
      */
-    public function await(Listener $listener, Api $api)
+    public function await(Listener $listener)
     {
         if ($this->state === StrandState::EXITED) {
             $listener->{$this->action}($this->value, $this);
@@ -529,7 +536,7 @@ trait StrandTrait
      *
      * @return null
      */
-    public function link(Strand $strand)
+    public function link(SystemStrand $strand)
     {
         if ($this === $strand) {
             return;
@@ -547,7 +554,7 @@ trait StrandTrait
      *
      * @return null
      */
-    public function unlink(Strand $strand)
+    public function unlink(SystemStrand $strand)
     {
         if ($this->linkedStrands !== null) {
             $this->linkedStrands->detach($strand);

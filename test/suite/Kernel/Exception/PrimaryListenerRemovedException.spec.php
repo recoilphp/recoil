@@ -5,8 +5,8 @@ declare(strict_types=1); // @codeCoverageIgnore
 namespace Recoil\Kernel\Exception;
 
 use Eloquent\Phony\Phony;
-use Recoil\Kernel\Listener;
-use Recoil\Kernel\Strand;
+use Recoil\Listener;
+use Recoil\Strand;
 
 describe(PrimaryListenerRemovedException::class, function () {
     beforeEach(function () {

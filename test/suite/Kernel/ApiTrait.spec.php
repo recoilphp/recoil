@@ -9,18 +9,18 @@ use Eloquent\Phony\Phony;
 use Error;
 use Hamcrest\Core\IsInstanceOf;
 use InvalidArgumentException;
-use Recoil\Exception\RejectedException;
+use Recoil\Kernel\Exception\RejectedException;
 use Throwable;
 use UnexpectedValueException;
 
 describe(ApiTrait::class, function () {
     beforeEach(function () {
-        $this->kernel = Phony::mock(Kernel::class);
-        $this->strand = Phony::mock(Strand::class);
+        $this->kernel = Phony::mock(SystemKernel::class);
+        $this->strand = Phony::mock(SystemStrand::class);
         $this->strand->kernel->returns($this->kernel);
 
-        $this->substrand1 = Phony::mock(Strand::class);
-        $this->substrand2 = Phony::mock(Strand::class);
+        $this->substrand1 = Phony::mock(SystemStrand::class);
+        $this->substrand2 = Phony::mock(SystemStrand::class);
         $this->kernel->execute->returns(
             $this->substrand1,
             $this->substrand2
@@ -29,9 +29,9 @@ describe(ApiTrait::class, function () {
         $this->subject = Phony::partialMock([Api::class, ApiTrait::class]);
     });
 
-    describe('->dispatch()', function () {
+    describe('->__dispatch()', function () {
         it('performs ->cooperate() when $value is null', function () {
-            $this->subject->get()->dispatch(
+            $this->subject->get()->__dispatch(
                 $this->strand->get(),
                 0, // current generator key
                 null
@@ -42,7 +42,7 @@ describe(ApiTrait::class, function () {
         });
 
         it('performs ->sleep($value) when $value is an integer', function () {
-            $this->subject->get()->dispatch(
+            $this->subject->get()->__dispatch(
                 $this->strand->get(),
                 0, // current generator key
                 10
@@ -57,7 +57,7 @@ describe(ApiTrait::class, function () {
         });
 
         it('performs ->sleep($value) when $value is a float', function () {
-            $this->subject->get()->dispatch(
+            $this->subject->get()->__dispatch(
                 $this->strand->get(),
                 0, // current generator key
                 10.5
@@ -74,7 +74,7 @@ describe(ApiTrait::class, function () {
         it('performs ->all(...$value) when $value is an array', function () {
             $this->subject->all->returns(null);
 
-            $this->subject->get()->dispatch(
+            $this->subject->get()->__dispatch(
                 $this->strand->get(),
                 0, // current generator key
                 ['<a>', '<b>']
@@ -99,7 +99,7 @@ describe(ApiTrait::class, function () {
             });
 
             it('reads from the stream if $key is an integer (the default)', function () {
-                $this->subject->get()->dispatch(
+                $this->subject->get()->__dispatch(
                     $this->strand->get(),
                     123,
                     $this->resource
@@ -108,12 +108,13 @@ describe(ApiTrait::class, function () {
                 $this->subject->read->calledWith(
                     $this->strand,
                     $this->resource,
-                    1
+                    1,
+                    PHP_INT_MAX
                 );
             });
 
             it('writes to the stream if $key is a string', function () {
-                $this->subject->get()->dispatch(
+                $this->subject->get()->__dispatch(
                     $this->strand->get(),
                     '<buffer>',
                     $this->resource
@@ -122,7 +123,8 @@ describe(ApiTrait::class, function () {
                 $this->subject->write->calledWith(
                     $this->strand,
                     $this->resource,
-                    '<buffer>'
+                    '<buffer>',
+                    PHP_INT_MAX
                 );
             });
         });
@@ -133,7 +135,7 @@ describe(ApiTrait::class, function () {
                     ['function then' => null]
                 );
 
-                $this->subject->get()->dispatch(
+                $this->subject->get()->__dispatch(
                     $this->strand->get(),
                     0, // current generator key
                     $this->thenable->get()
@@ -176,7 +178,7 @@ describe(ApiTrait::class, function () {
                     ]
                 );
 
-                $this->subject->get()->dispatch(
+                $this->subject->get()->__dispatch(
                     $this->strand->get(),
                     0, // current generator key
                     $this->thenable->get()
@@ -221,7 +223,7 @@ describe(ApiTrait::class, function () {
                     ]
                 );
 
-                $this->subject->get()->dispatch(
+                $this->subject->get()->__dispatch(
                     $this->strand->get(),
                     0, // current generator key
                     $this->thenable->get()
@@ -238,7 +240,7 @@ describe(ApiTrait::class, function () {
         });
 
         it('resumes the strand with an exception if $value is not actionable', function () {
-            $this->subject->get()->dispatch(
+            $this->subject->get()->__dispatch(
                 $this->strand->get(),
                 123, // current generator key
                 '<string>'

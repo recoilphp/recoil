@@ -12,12 +12,12 @@ describe(StrandWaitAny::class, function () {
     beforeEach(function () {
         $this->api = Phony::mock(Api::class);
 
-        $this->strand = Phony::mock(Strand::class);
+        $this->strand = Phony::mock(SystemStrand::class);
 
-        $this->substrand1 = Phony::mock(Strand::class);
+        $this->substrand1 = Phony::mock(SystemStrand::class);
         $this->substrand1->id->returns(1);
 
-        $this->substrand2 = Phony::mock(Strand::class);
+        $this->substrand2 = Phony::mock(SystemStrand::class);
         $this->substrand2->id->returns(2);
 
         $this->subject = new StrandWaitAny(
@@ -53,7 +53,7 @@ describe(StrandWaitAny::class, function () {
             $this->subject->throw($exception1->get(), $this->substrand1->get());
 
             $this->strand->throw->calledWith(
-                new CompositeException(
+                CompositeException::create(
                     [
                         1 => $exception2->get(),
                         0 => $exception1->get(),

@@ -2,7 +2,7 @@
 
 declare(strict_types=1); // @codeCoverageIgnore
 
-namespace Recoil\Exception;
+namespace Recoil\Kernel\Exception;
 
 use Icecave\Repr\Repr;
 use RuntimeException;

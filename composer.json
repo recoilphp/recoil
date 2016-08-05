@@ -1,27 +1,22 @@
 {
     "name": "recoil/recoil",
-    "description": "A generator-based cooperative multitasking kernel for React.",
+    "description": "Asynchronous coroutines for PHP 7.",
     "require": {
         "php": "^7",
         "icecave/repr": "^1",
-        "react/event-loop": "^0.4",
-        "react/promise": "^2"
+        "recoil/api": "dev-master"
     },
     "require-dev": {
-        "ext-posix": "*",
         "eloquent/phony": "^0.13",
         "friendsofphp/php-cs-fixer": "^1",
         "hamcrest/hamcrest-php": "^2",
         "peridot-php/leo": "^1",
-        "peridot-php/peridot": "^1",
         "peridot-php/peridot-code-coverage-reporters": "^2",
-        "react/dns": "^0.4"
+        "peridot-php/peridot": "^1",
+        "recoil/dev": "dev-124-split-repos"
     },
     "autoload": { "psr-4": { "Recoil\\": "src" } },
-    "autoload-dev": {
-        "psr-4": { "Recoil\\": "test/src" },
-        "files": [ "test/src/functional-tests.php" ]
-    },
+    "autoload-dev": { "psr-4": { "Recoil\\": "test/src" } },
     "keywords": [
         "coroutine",
         "generator",

@@ -5,8 +5,7 @@ declare(strict_types=1); // @codeCoverageIgnore
 namespace Recoil;
 
 use Generator;
-use Recoil\Kernel\Exception\StrandException;
-use Recoil\Kernel\Kernel;
+use Recoil\Exception\StrandException;
 
 /**
  * A coroutine-based version of it.
@@ -25,7 +24,11 @@ function rit(string $description, callable $test)
         try {
             $this->kernel->run();
         } catch (StrandException $e) {
-            throw $e->getPrevious();
+            if ($e->strand() === $strand) {
+                throw $e->getPrevious();
+            }
+
+            throw $e;
         }
 
         if ($strand) {

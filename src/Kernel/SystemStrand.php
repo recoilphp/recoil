@@ -5,46 +5,18 @@ declare(strict_types=1); // @codeCoverageIgnore
 namespace Recoil\Kernel;
 
 use Recoil\Kernel\Exception\PrimaryListenerRemovedException;
+use Recoil\Listener;
+use Recoil\Strand;
 
-interface Strand extends Listener, AwaitableProvider
+/**
+ * A low-level strand interface for use within the kernel.
+ */
+interface SystemStrand extends Strand
 {
     /**
-     * Get the strand's ID.
-     *
-     * No two active on the same kernel may share an ID.
-     *
-     * @return int The strand ID.
+     * Get the kernel that the strand is running on.
      */
-    public function id() : int;
-
-    /**
-     * @return Kernel The kernel on which the strand is executing.
-     */
-    public function kernel() : Kernel;
-
-    /**
-     * Start the strand.
-     *
-     * @return null
-     */
-    public function start();
-
-    /**
-     * Terminate execution of the strand.
-     *
-     * If the strand is suspended waiting on an asynchronous operation, that
-     * operation is cancelled.
-     *
-     * The call-stack is not unwound, it is simply discarded.
-     *
-     * @return null
-     */
-    public function terminate();
-
-    /**
-     * Check if the strand has exited.
-     */
-    public function hasExited() : bool;
+    public function kernel() : SystemKernel;
 
     /**
      * Set the primary listener.
@@ -85,28 +57,12 @@ interface Strand extends Listener, AwaitableProvider
      *
      * @return null
      */
-    public function link(Strand $strand);
+    public function link(SystemStrand $strand);
 
     /**
      * Break a previously created uni-directional link to another strand.
      *
      * @return null
      */
-    public function unlink(Strand $strand);
-
-    /**
-     * Get the current trace for this strand.
-     *
-     * @return StrandTrace|null
-     */
-    public function trace();
-
-    /**
-     * Set the current trace for this strand.
-     *
-     * This method has no effect when assertions are disabled.
-     *
-     * @return null
-     */
-    public function setTrace(StrandTrace $trace = null);
+    public function unlink(SystemStrand $strand);
 }

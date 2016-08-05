@@ -6,12 +6,6 @@ namespace Recoil;
 
 use Exception;
 use Generator;
-use Recoil\Kernel\Api;
-use Recoil\Kernel\Awaitable;
-use Recoil\Kernel\AwaitableProvider;
-use Recoil\Kernel\CoroutineProvider;
-use Recoil\Kernel\Listener;
-use Recoil\Kernel\Strand;
 
 rit('can invoke generator as coroutine', function () {
     $result = yield (function () {
@@ -50,7 +44,7 @@ rit('can invoke awaitable provider', function () {
         public function awaitable() : Awaitable
         {
             return new class() implements Awaitable {
-                public function await(Listener $listener, Api $api)
+                public function await(Listener $listener)
                 {
                     $listener->send('<ok>');
                 }
@@ -63,7 +57,7 @@ rit('can invoke awaitable provider', function () {
 
 rit('can invoke awaitable', function () {
     $result = yield new class() implements Awaitable {
-        public function await(Listener $listener, Api $api)
+        public function await(Listener $listener)
         {
             $listener->send('<ok>');
         }
@@ -79,7 +73,7 @@ rit('prefers await() to awaitable()', function () {
             expect(false)->to->be->ok('awaitable() was called');
         }
 
-        public function await(Listener $listener, Api $api)
+        public function await(Listener $listener)
         {
             $listener->send('<ok>');
         }

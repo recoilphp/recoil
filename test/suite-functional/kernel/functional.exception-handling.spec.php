@@ -5,9 +5,9 @@ declare(strict_types=1); // @codeCoverageIgnore
 namespace Recoil;
 
 use Exception;
-use Recoil\Kernel\Exception\KernelPanicException;
-use Recoil\Kernel\Exception\StrandException;
-use Recoil\Kernel\Strand;
+use Recoil\Exception\KernelException;
+use Recoil\Exception\PanicException;
+use Recoil\Exception\StrandException;
 
 beforeEach(function () {
     $this->exception = new Exception('<exception>');
@@ -40,16 +40,16 @@ context('when there is an exception handler set', function () {
 
     it('is passed a StrandException argument when a strand exits with an exception', function () {
         $this->kernel->run();
-        expect($this->handledException instanceof StrandException)->to->be->true;
+        expect(\get_class($this->handledException))->to->equal(StrandException::class);
         expect($this->handledException->strand())->to->equal($this->strand);
         expect($this->handledException->getPrevious() === $this->exception)->to->be->true;
     });
 
-    it('is passed a KernelPanicException when an internal error occurs', function () {
+    it('is passed a KernelException when an internal error occurs', function () {
+        $this->strand->terminate();
         $this->kernel->throw($this->exception, null);
         $this->kernel->run();
-        expect($this->handledException instanceof KernelPanicException)->to->be->true;
-        expect(!$this->handledException instanceof StrandException)->to->be->false;
+        expect(\get_class($this->handledException))->to->equal(KernelException::class);
         expect($this->handledException->getPrevious() === $this->exception)->to->be->true;
     });
 
@@ -85,11 +85,11 @@ context('when there is an exception handler set', function () {
             });
         });
 
-        it('run() throws a KernelPanicException', function () {
+        it('run() throws a PanicException', function () {
             try {
                 $this->kernel->run();
                 expect(false)->to->be->ok('expected exception was not thrown');
-            } catch (KernelPanicException $e) {
+            } catch (PanicException $e) {
                 expect($e->getPrevious() === $this->handlerException)->to->be->true;
             }
         });

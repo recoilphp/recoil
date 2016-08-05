@@ -6,8 +6,8 @@ namespace Recoil\Kernel\Exception;
 
 use Eloquent\Phony\Phony;
 use Error;
-use Recoil\Kernel\Listener;
-use Recoil\Kernel\Strand;
+use Recoil\Listener;
+use Recoil\Strand;
 
 describe(StrandListenerException::class, function () {
     beforeEach(function () {

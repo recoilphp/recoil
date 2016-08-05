@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "0e455cf7f4b9414e065ab25969fdff28",
-    "content-hash": "a7ea1cafe496f5cead3380316a0b3bb7",
+    "hash": "e1d231bb93f40fab10221be91cc19016",
+    "content-hash": "2c8a380e1bbc1596a8fd58e9eca13fb5",
     "packages": [
         {
             "name": "icecave/repr",
@@ -59,79 +59,34 @@
             "time": "2014-07-25 05:44:41"
         },
         {
-            "name": "react/event-loop",
-            "version": "v0.4.2",
+            "name": "recoil/api",
+            "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "https://github.com/reactphp/event-loop.git",
-                "reference": "164799f73175e1c80bba92a220ea35df6ca371dd"
+                "url": "https://github.com/recoilphp/api.git",
+                "reference": "cbb30c5351e0e43c30bf6a9e39aa54370e8fb8b3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/reactphp/event-loop/zipball/164799f73175e1c80bba92a220ea35df6ca371dd",
-                "reference": "164799f73175e1c80bba92a220ea35df6ca371dd",
+                "url": "https://api.github.com/repos/recoilphp/api/zipball/cbb30c5351e0e43c30bf6a9e39aa54370e8fb8b3",
+                "reference": "cbb30c5351e0e43c30bf6a9e39aa54370e8fb8b3",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.4.0"
+                "php": "^7"
             },
-            "suggest": {
-                "ext-event": "~1.0",
-                "ext-libev": "*",
-                "ext-libevent": ">=0.1.0"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "0.5-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "React\\EventLoop\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "description": "Event loop abstraction layer that libraries can use for evented I/O.",
-            "keywords": [
-                "asynchronous",
-                "event-loop"
-            ],
-            "time": "2016-03-08 02:09:32"
-        },
-        {
-            "name": "react/promise",
-            "version": "v2.4.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/reactphp/promise.git",
-                "reference": "8025426794f1944de806618671d4fa476dc7626f"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/reactphp/promise/zipball/8025426794f1944de806618671d4fa476dc7626f",
-                "reference": "8025426794f1944de806618671d4fa476dc7626f",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.4.0"
+            "require-dev": {
+                "eloquent/phony": "^0.13",
+                "friendsofphp/php-cs-fixer": "^1",
+                "peridot-php/leo": "^1",
+                "peridot-php/peridot": "^1",
+                "peridot-php/peridot-code-coverage-reporters": "^2"
             },
             "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "2.0-dev"
-                }
-            },
             "autoload": {
                 "psr-4": {
-                    "React\\Promise\\": "src/"
-                },
-                "files": [
-                    "src/functions_include.php"
-                ]
+                    "Recoil\\": "src"
+                }
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
@@ -139,15 +94,80 @@
             ],
             "authors": [
                 {
-                    "name": "Jan Sorgalla",
-                    "email": "jsorgalla@gmail.com"
+                    "name": "James Harris",
+                    "email": "james.harris@icecave.com.au",
+                    "homepage": "https://github.com/jmalloc"
                 }
             ],
-            "description": "A lightweight implementation of CommonJS Promises/A for PHP",
-            "time": "2016-05-03 17:50:52"
+            "description": "The public Recoil API, for library and application developers.",
+            "homepage": "https://github.com/recoilphp/api",
+            "keywords": [
+                "Thread",
+                "async",
+                "asynchronous",
+                "continuation",
+                "coroutine",
+                "event",
+                "generator",
+                "green",
+                "multitasking",
+                "react"
+            ],
+            "time": "2016-08-14 04:19:56"
         }
     ],
     "packages-dev": [
+        {
+            "name": "eloquent/enumeration",
+            "version": "5.1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/eloquent/enumeration.git",
+                "reference": "0242859435d9b135939816858348556d3cde9e3c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/eloquent/enumeration/zipball/0242859435d9b135939816858348556d3cde9e3c",
+                "reference": "0242859435d9b135939816858348556d3cde9e3c",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3"
+            },
+            "require-dev": {
+                "icecave/archer": "dev-develop",
+                "phpunit/phpunit": "^4",
+                "sami/sami": "^3"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Eloquent\\Enumeration\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Erin Millard",
+                    "email": "ezzatron@gmail.com",
+                    "homepage": "http://ezzatron.com/"
+                }
+            ],
+            "description": "An enumeration implementation for PHP.",
+            "homepage": "https://github.com/eloquent/enumeration",
+            "keywords": [
+                "class",
+                "enum",
+                "enumeration",
+                "multiton",
+                "set",
+                "type"
+            ],
+            "time": "2015-11-03 22:21:38"
+        },
         {
             "name": "eloquent/phony",
             "version": "0.13.4",
@@ -374,6 +394,57 @@
                 "test"
             ],
             "time": "2016-01-20 08:20:44"
+        },
+        {
+            "name": "nikic/php-parser",
+            "version": "v2.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/nikic/PHP-Parser.git",
+                "reference": "47b254ea51f1d6d5dc04b9b299e88346bf2369e3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/nikic/PHP-Parser/zipball/47b254ea51f1d6d5dc04b9b299e88346bf2369e3",
+                "reference": "47b254ea51f1d6d5dc04b9b299e88346bf2369e3",
+                "shasum": ""
+            },
+            "require": {
+                "ext-tokenizer": "*",
+                "php": ">=5.4"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~4.0"
+            },
+            "bin": [
+                "bin/php-parse"
+            ],
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.1-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "PhpParser\\": "lib/PhpParser"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Nikita Popov"
+                }
+            ],
+            "description": "A PHP parser written in PHP",
+            "keywords": [
+                "parser",
+                "php"
+            ],
+            "time": "2016-04-19 13:41:41"
         },
         {
             "name": "peridot-php/leo",
@@ -808,164 +879,71 @@
             "time": "2015-09-15 10:49:45"
         },
         {
-            "name": "react/cache",
-            "version": "v0.4.1",
+            "name": "recoil/dev",
+            "version": "dev-124-split-repos",
             "source": {
                 "type": "git",
-                "url": "https://github.com/reactphp/cache.git",
-                "reference": "558f614891341b1d817a8cdf9a358948ec49638f"
+                "url": "https://github.com/recoilphp/dev.git",
+                "reference": "ec0eba8e2e52ea68d6ed7379029ffae1b18a833b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/reactphp/cache/zipball/558f614891341b1d817a8cdf9a358948ec49638f",
-                "reference": "558f614891341b1d817a8cdf9a358948ec49638f",
+                "url": "https://api.github.com/repos/recoilphp/dev/zipball/ec0eba8e2e52ea68d6ed7379029ffae1b18a833b",
+                "reference": "ec0eba8e2e52ea68d6ed7379029ffae1b18a833b",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.3.0",
-                "react/promise": "~2.0|~1.1"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "React\\Cache\\": "src\\"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "description": "Async caching.",
-            "keywords": [
-                "cache"
-            ],
-            "time": "2016-02-25 18:17:16"
-        },
-        {
-            "name": "react/dns",
-            "version": "v0.4.3",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/reactphp/dns.git",
-                "reference": "751b3129556e04944f164e3556a20ca6e201e459"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/reactphp/dns/zipball/751b3129556e04944f164e3556a20ca6e201e459",
-                "reference": "751b3129556e04944f164e3556a20ca6e201e459",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3.0",
-                "react/cache": "~0.4.0|~0.3.0",
-                "react/promise": "~2.1|~1.2",
-                "react/socket": "~0.4.0|~0.3.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "React\\Dns\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "description": "Async DNS resolver.",
-            "keywords": [
-                "dns",
-                "dns-resolver"
-            ],
-            "time": "2016-08-01 10:09:07"
-        },
-        {
-            "name": "react/socket",
-            "version": "v0.4.3",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/reactphp/socket.git",
-                "reference": "ce015ec5879b96f5d30905f035f223aa85013fcc"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/reactphp/socket/zipball/ce015ec5879b96f5d30905f035f223aa85013fcc",
-                "reference": "ce015ec5879b96f5d30905f035f223aa85013fcc",
-                "shasum": ""
-            },
-            "require": {
-                "evenement/evenement": "~2.0|~1.0",
-                "php": ">=5.3.0",
-                "react/event-loop": "0.4.*|0.3.*",
-                "react/stream": "0.4.*|0.3.*"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "0.4-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "React\\Socket\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "description": "Library for building an evented socket server.",
-            "keywords": [
-                "Socket"
-            ],
-            "time": "2016-03-01 20:10:35"
-        },
-        {
-            "name": "react/stream",
-            "version": "v0.4.3",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/reactphp/stream.git",
-                "reference": "305b2328d2a2e157bc13b61a0f5c6e41b666b188"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/reactphp/stream/zipball/305b2328d2a2e157bc13b61a0f5c6e41b666b188",
-                "reference": "305b2328d2a2e157bc13b61a0f5c6e41b666b188",
-                "shasum": ""
-            },
-            "require": {
-                "evenement/evenement": "^2.0|^1.0",
-                "php": ">=5.3.8"
+                "composer-plugin-api": "^1",
+                "eloquent/enumeration": "^5",
+                "nikic/php-parser": "^2.1",
+                "php": "^7",
+                "recoil/api": "dev-master"
             },
             "require-dev": {
-                "react/event-loop": "^0.4|^0.3",
-                "react/promise": "^2.0|^1.0"
+                "composer/composer": "1.0.0",
+                "eloquent/phony": "^0.13",
+                "friendsofphp/php-cs-fixer": "^1",
+                "peridot-php/leo": "^1",
+                "peridot-php/peridot": "^1",
+                "peridot-php/peridot-code-coverage-reporters": "^2",
+                "recoil/peridot": "^0.2"
             },
-            "suggest": {
-                "react/event-loop": "^0.4",
-                "react/promise": "^2.0"
-            },
-            "type": "library",
+            "type": "composer-plugin",
             "extra": {
-                "branch-alias": {
-                    "dev-master": "0.5-dev"
-                }
+                "class": "Recoil\\Dev\\Composer\\Plugin"
             },
             "autoload": {
                 "psr-4": {
-                    "React\\Stream\\": "src"
-                }
+                    "Recoil\\Dev\\": "src"
+                },
+                "files": [
+                    "src/Peridot/dsl.php"
+                ]
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
-            "description": "Basic readable and writable stream interfaces that support piping.",
-            "keywords": [
-                "pipe",
-                "stream"
+            "authors": [
+                {
+                    "name": "James Harris",
+                    "email": "james.harris@icecave.com.au",
+                    "homepage": "https://github.com/jmalloc"
+                }
             ],
-            "time": "2015-10-07 18:32:58"
+            "description": "Development and debugging tools for Recoil applications.",
+            "homepage": "https://github.com/recoilphp/dev",
+            "keywords": [
+                "async",
+                "asynchronous",
+                "debug",
+                "exception",
+                "instrumentation",
+                "recoil",
+                "stack",
+                "trace"
+            ],
+            "time": "2016-08-22 02:13:12"
         },
         {
             "name": "sebastian/diff",
@@ -1482,13 +1460,14 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "recoil/api": 20,
+        "recoil/dev": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
         "php": "^7"
     },
-    "platform-dev": {
-        "ext-posix": "*"
-    }
+    "platform-dev": []
 }
