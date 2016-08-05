@@ -12,7 +12,7 @@
         "hamcrest/hamcrest-php": "^2",
         "peridot-php/leo": "^1",
         "peridot-php/peridot-code-coverage-reporters": "^2",
-        "peridot-php/peridot": "^1",
+        "peridot-php/peridot": "dev-feature/focused-specs as 1.0.99999999999",
         "recoil/dev": "dev-master"
     },
     "autoload": { "psr-4": { "Recoil\\": "src" } },

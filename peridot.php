@@ -6,11 +6,17 @@ use Evenement\EventEmitterInterface;
 use Peridot\Console\Environment;
 use Peridot\Reporter\CodeCoverage\AbstractCodeCoverageReporter;
 use Peridot\Reporter\CodeCoverageReporters;
+use Recoil\Dev\Peridot\Scope;
+use Recoil\ReferenceKernel\ReferenceKernel;
 
 require __DIR__ . '/vendor/autoload.php';
 
 return function (EventEmitterInterface $emitter) {
     (new CodeCoverageReporters($emitter))->register();
+
+    Scope::install($emitter, function () {
+        return ReferenceKernel::create();
+    });
 
     $emitter->on('peridot.start', function (Environment $environment) {
         $environment->getDefinition()->getArgument('path')->setDefault('test/suite');
