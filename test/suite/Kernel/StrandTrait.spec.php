@@ -20,7 +20,6 @@ describe(StrandTrait::class, function () {
         $this->kernel = Phony::mock(Kernel::class);
         $this->api = Phony::mock(Api::class);
         $this->trace = Phony::mock(StrandTrace::class);
-        $this->trace->yield->returnsArgument(2);
 
         $this->initializeSubject = function ($entryPoint = null) {
             $this->subject = Phony::partialMock(
@@ -708,13 +707,13 @@ describe(StrandTrait::class, function () {
 
     if (ini_get('zend.assertions') > 0) {
         context('when assertions are enabled', function () {
-            describe('->trace', function () {
+            describe('->trace()', function () {
                 it('returns the trace object', function () {
                     expect($this->subject->get()->trace())->to->be->equal($this->trace->get());
                 });
             });
 
-            describe('->setTrace', function () {
+            describe('->setTrace()', function () {
                 it('sets the trace object', function () {
                     $trace = Phony::mock(StrandTrace::class)->get();
                     $this->subject->get()->setTrace($trace);
@@ -844,13 +843,13 @@ describe(StrandTrait::class, function () {
         });
     } else {
         context('when assertions are disabled', function () {
-            describe('->trace', function () {
+            describe('->trace()', function () {
                 it('always returns null', function () {
                     expect($this->subject->get()->trace())->to->be->null;
                 });
             });
 
-            describe('->setTrace', function () {
+            describe('->setTrace()', function () {
                 it('does not set the trace object', function () {
                     $trace = Phony::mock(StrandTrace::class)->get();
                     $this->subject->get()->setTrace($trace);
