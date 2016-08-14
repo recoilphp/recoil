@@ -492,6 +492,15 @@ describe(StrandTrait::class, function () {
             $fn->once()->calledWith($this->subject);
         });
 
+        it('does not call the terminator function after the strand is started', function () {
+            $fn = Phony::spy();
+            $this->subject->get()->setTerminator($fn);
+            $this->subject->get()->start();
+            $this->subject->get()->terminate();
+
+            $fn->never()->called();
+        });
+
         it('notifies the primary listener', function () {
             $this->subject->get()->setPrimaryListener($this->primaryListener->get());
             $this->subject->get()->terminate();

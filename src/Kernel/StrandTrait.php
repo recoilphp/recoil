@@ -113,6 +113,7 @@ trait StrandTrait
         );
 
         $this->state = StrandState::RUNNING;
+        $this->terminator = null;
 
         // Execute the next "tick" of the current coroutine ...
         try {
@@ -134,6 +135,7 @@ trait StrandTrait
                     true
                 );
 
+                $this->terminator = null;
                 $this->current->{$this->action}($this->value);
                 $this->action = $this->value = null;
             }
@@ -381,7 +383,6 @@ trait StrandTrait
             'strand must be suspended to resume'
         );
 
-        $this->terminator = null;
         $this->action = 'send';
         $this->value = $value;
 
@@ -413,7 +414,6 @@ trait StrandTrait
             'strand must be suspended to resume'
         );
 
-        $this->terminator = null;
         $this->action = 'throw';
         $this->value = $exception;
 
