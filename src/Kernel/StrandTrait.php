@@ -531,6 +531,10 @@ trait StrandTrait
      */
     public function link(Strand $strand)
     {
+        if ($this === $strand) {
+            return;
+        }
+
         if ($this->linkedStrands === null) {
             $this->linkedStrands = new SplObjectStorage();
         }

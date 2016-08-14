@@ -211,6 +211,32 @@ describe(StrandTrait::class, function () {
                     $this->strand1->terminate->never()->called();
                 });
 
+                it('does not fail if linked to itself', function () {
+                    ($this->initializeSubject)(
+                        Phony::stub()->generates()->returns('<result>')
+                    );
+
+                    $this->subject->get()->link($this->subject->get());
+                    $this->subject->get()->start();
+
+                    $this->subject->link->calledWith($this->subject);
+                });
+
+                it('does not fail if unlinked from itself', function () {
+                    ($this->initializeSubject)(
+                        Phony::stub()->generates()->returns('<result>')
+                    );
+
+                    $this->subject->get()->link($this->subject->get());
+                    $this->subject->get()->unlink($this->subject->get());
+                    $this->subject->get()->start();
+
+                    Phony::inOrder(
+                        $this->subject->link->calledWith($this->subject),
+                        $this->subject->unlink->calledWith($this->subject)
+                    );
+                });
+
             });
         });
 
