@@ -4,56 +4,142 @@ declare (strict_types = 1); // @codeCoverageIgnore
 
 namespace Recoil;
 
-// context('can be invoked by yielding a thenable', function () {
-//     rit('that does fulfill', function () {
-//         $resolved = false;
+use Eloquent\Phony\Phony;
 
-//         $promise = Phony::mock(
-//             [
-//                 'function then' => function () use (&$resolved) { $resolved = true; },
-//                 'function resolve' => function () { $this->then(); },
-//             ]
-//         );
+context('can be invoked by yielding a thenable', function () {
+    rit('that does fulfill', function () {
+        $promise = Phony::partialMock(
+            [
+                'then' => function (callable $fulfill, callable $reject) {
+                    $fulfill('<value>');
+                },
+            ]
+        );
 
-//         yield $promise;
+        expect(yield $promise->get())->to->equal('<value>');
+    });
 
-//         $promise->resolve();
+    rit('that does reject with throwable', function () {
+        $promise = Phony::partialMock(
+            [
+                'then' => function (callable $fulfill, callable $reject) {
+                    $reject(new \Exception('<rejected>'));
+                },
+            ]
+        );
 
-//         expect($resolved)->to->be(true);
-//     });
+        try {
+            yield $promise->get();
+            expect(false)->to->equal('Expected exception was not thrown.');
+        } catch (\Exception $e) {
+            expect($e->getMessage())->to->equal('<rejected>');
+        }
+    });
 
-//     rit('that does reject with throwable', function () {
-//         // TODO
-//     });
+    rit('that does reject with non throwable', function () {
+        $promise = Phony::partialMock(
+            [
+                'then' => function (callable $fulfill, callable $reject) {
+                    $reject('<rejected>');
+                },
+            ]
+        );
 
-//     rit('that does reject with non throwable', function () {
-//         // TODO
-//     });
+        try {
+            yield $promise->get();
+            expect(false)->to->equal('Expected exception was not thrown.');
+        } catch (\Exception $e) {
+            expect($e->getMessage())->to->equal('<rejected>');
+        }
+    });
 
-//     rit('that does cancel', function () {
-//         // TODO
-//     });
-// });
+    rit('that does cancel', function () {
+        $promise = Phony::partialMock(
+            [
+                'then' => function (callable $fulfill, callable $reject) {},
+                'cancel' => function () {},
+            ]
+        );
 
-// context('can be invoked by yielding a thenable that is doneable', function () {
-//     rit('can be invoked by yielding a thenable that is doneable', function () {
-//         $this->thenable = Phony::mock(
-//             [
-//                 'function then' => null,
-//                 'function done' => null,
-//             ]
-//         );
-//     });
+        $strand = yield Recoil::execute(function () use ($promise) {
+            yield $promise->get();
+        });
 
-//     rit('that does reject with throwable', function () {
-//         // TODO
-//     });
+        yield;
 
-//     rit('that does reject with non throwable', function () {
-//         // TODO
-//     });
+        $strand->terminate();
 
-//     rit('that does cancel', function () {
-//         // TODO
-//     });
-// });
+        $promise->cancel->called();
+    });
+});
+
+context('can be invoked by yielding a thenable that is also a doneable', function () {
+    rit('that does fulfill', function () {
+        $promise = Phony::partialMock(
+            [
+                'then' => function (callable $fulfill, callable $reject) {},
+                'done' => function (callable $fulfill, callable $reject) {
+                    $fulfill('<value>');
+                },
+            ]
+        );
+
+        expect(yield $promise->get())->to->equal('<value>');
+    });
+
+    rit('that does reject with throwable', function () {
+        $promise = Phony::partialMock(
+            [
+                'then' => function (callable $fulfill, callable $reject) {},
+                'done' => function (callable $fulfill, callable $reject) {
+                    $reject(new \Exception('<rejected>'));
+                },
+            ]
+        );
+
+        try {
+            yield $promise->get();
+            expect(false)->to->equal('Expected exception was not thrown.');
+        } catch (\Exception $e) {
+            expect($e->getMessage())->to->equal('<rejected>');
+        }
+    });
+
+    rit('that does reject with non throwable', function () {
+        $promise = Phony::partialMock(
+            [
+                'then' => function (callable $fulfill, callable $reject) {},
+                'done' => function (callable $fulfill, callable $reject) {
+                    $reject('<rejected>');
+                },
+            ]
+        );
+
+        try {
+            yield $promise->get();
+            expect(false)->to->equal('Expected exception was not thrown.');
+        } catch (\Exception $e) {
+            expect($e->getMessage())->to->equal('<rejected>');
+        }
+    });
+
+    rit('that does cancel', function () {
+        $promise = Phony::partialMock(
+            [
+                'then' => function (callable $fulfill, callable $reject) {},
+                'done' => function (callable $fulfill, callable $reject) {},
+                'cancel' => function () {},
+            ]
+        );
+
+        $strand = yield Recoil::execute(function () use ($promise) {
+            yield $promise->get();
+        });
+
+        yield;
+
+        $strand->terminate();
+
+        $promise->cancel->called();
+    });
+});
