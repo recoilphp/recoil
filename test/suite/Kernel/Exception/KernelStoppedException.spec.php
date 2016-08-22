@@ -1,11 +1,10 @@
 <?php
 
-declare (strict_types = 1); // @codeCoverageIgnore
+declare(strict_types=1); // @codeCoverageIgnore
 
 namespace Recoil\Kernel\Exception;
 
 describe(KernelStoppedException::class, function () {
-
     beforeEach(function () {
         $this->subject = new KernelStoppedException();
     });
@@ -15,5 +14,4 @@ describe(KernelStoppedException::class, function () {
             'The kernel has been explicitly stopped.'
         );
     });
-
 });

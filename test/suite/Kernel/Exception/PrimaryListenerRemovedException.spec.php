@@ -1,6 +1,6 @@
 <?php
 
-declare (strict_types = 1); // @codeCoverageIgnore
+declare(strict_types=1); // @codeCoverageIgnore
 
 namespace Recoil\Kernel\Exception;
 
@@ -9,7 +9,6 @@ use Recoil\Kernel\Listener;
 use Recoil\Kernel\Strand;
 
 describe(PrimaryListenerRemovedException::class, function () {
-
     beforeEach(function () {
         $this->listener = Phony::mock(Listener::class);
         $this->strand = Phony::mock(Strand::class);
@@ -34,5 +33,4 @@ describe(PrimaryListenerRemovedException::class, function () {
     it('exposes the strand', function () {
         expect($this->subject->strand())->to->equal($this->strand->get());
     });
-
 });

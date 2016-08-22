@@ -1,6 +1,6 @@
 <?php
 
-declare (strict_types = 1); // @codeCoverageIgnore
+declare(strict_types=1); // @codeCoverageIgnore
 
 namespace Recoil\React;
 
@@ -8,7 +8,6 @@ use Eloquent\Phony\Phony;
 use React\EventLoop\LoopInterface;
 
 describe(StreamQueue::class, function () {
-
     beforeEach(function () {
         $this->eventLoop = Phony::mock(LoopInterface::class);
         $this->readStream = tmpfile();
@@ -21,19 +20,24 @@ describe(StreamQueue::class, function () {
 
     context('->read()', function () {
         it('adds the stream to the event loop', function () {
-            $this->subject->read($this->readStream, function () {});
+            $this->subject->read($this->readStream, function () {
+            });
             $this->eventLoop->addReadStream->calledWith($this->readStream, '~');
         });
 
         it('only adds the stream to the event loop one', function () {
-            $this->subject->read($this->readStream, function () {});
-            $this->subject->read($this->readStream, function () {});
+            $this->subject->read($this->readStream, function () {
+            });
+            $this->subject->read($this->readStream, function () {
+            });
             $this->eventLoop->addReadStream->once()->called();
         });
 
         it('removes the stream from the event loop once all callbacks are done', function () {
-            $done1 = $this->subject->read($this->readStream, function () {});
-            $done2 = $this->subject->read($this->readStream, function () {});
+            $done1 = $this->subject->read($this->readStream, function () {
+            });
+            $done2 = $this->subject->read($this->readStream, function () {
+            });
 
             $done1();
             $this->eventLoop->removeReadStream->never()->called();
@@ -95,19 +99,24 @@ describe(StreamQueue::class, function () {
 
     context('->write()', function () {
         it('adds the stream to the event loop', function () {
-            $this->subject->write($this->writeStream, function () {});
+            $this->subject->write($this->writeStream, function () {
+            });
             $this->eventLoop->addWriteStream->calledWith($this->writeStream, '~');
         });
 
         it('only adds the stream to the event loop one', function () {
-            $this->subject->write($this->writeStream, function () {});
-            $this->subject->write($this->writeStream, function () {});
+            $this->subject->write($this->writeStream, function () {
+            });
+            $this->subject->write($this->writeStream, function () {
+            });
             $this->eventLoop->addWriteStream->once()->called();
         });
 
         it('removes the stream from the event loop once all callbacks are done', function () {
-            $done1 = $this->subject->write($this->writeStream, function () {});
-            $done2 = $this->subject->write($this->writeStream, function () {});
+            $done1 = $this->subject->write($this->writeStream, function () {
+            });
+            $done2 = $this->subject->write($this->writeStream, function () {
+            });
 
             $done1();
             $this->eventLoop->removeWriteStream->never()->called();
@@ -166,5 +175,4 @@ describe(StreamQueue::class, function () {
             });
         });
     });
-
 });

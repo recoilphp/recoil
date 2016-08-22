@@ -1,6 +1,6 @@
 <?php
 
-declare (strict_types = 1); // @codeCoverageIgnore
+declare(strict_types=1); // @codeCoverageIgnore
 
 namespace Recoil\React;
 
@@ -15,7 +15,6 @@ use Recoil\Recoil;
 use Throwable;
 
 describe(ReactKernel::class, function () {
-
     beforeEach(function () {
         $this->eventLoop = Phony::mock(LoopInterface::class);
         $this->api = Phony::mock(Api::class);
@@ -141,5 +140,4 @@ describe(ReactKernel::class, function () {
             })->to->be->ok;
         });
     });
-
 });

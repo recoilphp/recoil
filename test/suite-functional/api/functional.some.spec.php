@@ -1,6 +1,6 @@
 <?php
 
-declare (strict_types = 1); // @codeCoverageIgnore
+declare(strict_types=1); // @codeCoverageIgnore
 
 namespace Recoil;
 
@@ -34,8 +34,14 @@ rit('terminates the substrands when the calling strand is terminated', function 
         yield (function () {
             yield Recoil::some(
                 2,
-                function () { yield; expect(false)->to->be->ok('strand was not terminated'); },
-                function () { yield; expect(false)->to->be->ok('strand was not terminated'); }
+                function () {
+                    yield;
+                    expect(false)->to->be->ok('strand was not terminated');
+                },
+                function () {
+                    yield;
+                    expect(false)->to->be->ok('strand was not terminated');
+                }
             );
         })();
     });
@@ -49,8 +55,10 @@ rit('throws when the count is zero', function () {
     try {
         yield Recoil::some(
             0,
-            function () {},
-            function () {}
+            function () {
+            },
+            function () {
+            }
         );
     } catch (InvalidArgumentException $e) {
         expect($e->getMessage())->to->equal(
@@ -63,8 +71,10 @@ rit('throws when the count is negative', function () {
     try {
         yield Recoil::some(
             -1,
-            function () {},
-            function () {}
+            function () {
+            },
+            function () {
+            }
         );
     } catch (InvalidArgumentException $e) {
         expect($e->getMessage())->to->equal(
@@ -77,8 +87,10 @@ rit('throws when the count is greater than the number of coroutines', function (
     try {
         yield Recoil::some(
             3,
-            function () {},
-            function () {}
+            function () {
+            },
+            function () {
+            }
         );
     } catch (InvalidArgumentException $e) {
         expect($e->getMessage())->to->equal(
@@ -130,9 +142,16 @@ context('when too many substrands fail', function () {
         try {
             yield Recoil::some(
                 2,
-                function () { yield Recoil::terminate(); },
-                function () { throw new Exception('<exception>'); yield; },
-                function () { yield; }
+                function () {
+                    yield Recoil::terminate();
+                },
+                function () {
+                    throw new Exception('<exception>');
+                    yield;
+                },
+                function () {
+                    yield;
+                }
             );
             expect(false)->to->be->ok('expected exception was not thrown');
         } catch (CompositeException $e) {
@@ -146,9 +165,18 @@ context('when too many substrands fail', function () {
         try {
             yield Recoil::some(
                 2,
-                function () { yield; yield; throw new Exception('<exception-a>'); },
-                function () { yield; throw new Exception('<exception-b>'); },
-                function () { yield; }
+                function () {
+                    yield;
+                    yield;
+                    throw new Exception('<exception-a>');
+                },
+                function () {
+                    yield;
+                    throw new Exception('<exception-b>');
+                },
+                function () {
+                    yield;
+                }
             );
             expect(false)->to->be->ok('expected exception was not thrown');
         } catch (CompositeException $e) {

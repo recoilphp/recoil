@@ -1,6 +1,6 @@
 <?php
 
-declare (strict_types = 1); // @codeCoverageIgnore
+declare(strict_types=1); // @codeCoverageIgnore
 
 namespace Recoil\React;
 
@@ -295,8 +295,7 @@ final class ReactApi implements Api
             return;
         }
 
-        $context = new class()
-        {
+        $context = new class() {
             public $strand;
             public $read;
             public $write;

@@ -1,6 +1,6 @@
 <?php
 
-declare (strict_types = 1); // @codeCoverageIgnore
+declare(strict_types=1); // @codeCoverageIgnore
 
 namespace Recoil\Kernel;
 
@@ -8,7 +8,6 @@ use Eloquent\Phony\Phony;
 use Throwable;
 
 describe(StrandWaitAll::class, function () {
-
     beforeEach(function () {
         $this->api = Phony::mock(Api::class);
 
@@ -86,5 +85,4 @@ describe(StrandWaitAll::class, function () {
             );
         });
     });
-
 });

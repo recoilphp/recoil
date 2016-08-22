@@ -1,6 +1,6 @@
 <?php
 
-declare (strict_types = 1); // @codeCoverageIgnore
+declare(strict_types=1); // @codeCoverageIgnore
 
 namespace Recoil\Kernel\Exception;
 
@@ -9,7 +9,6 @@ use Error;
 use Recoil\Kernel\Strand;
 
 describe(StrandException::class, function () {
-
     beforeEach(function () {
         $this->strand = Phony::mock(Strand::class);
         $this->strand->id->returns(123);
@@ -34,5 +33,4 @@ describe(StrandException::class, function () {
     it('exposes the previous exception', function () {
         expect($this->subject->getPrevious())->to->equal($this->previous);
     });
-
 });

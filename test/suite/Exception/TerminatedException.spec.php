@@ -1,6 +1,6 @@
 <?php
 
-declare (strict_types = 1); // @codeCoverageIgnore
+declare(strict_types=1); // @codeCoverageIgnore
 
 namespace Recoil\Exception;
 
@@ -8,7 +8,6 @@ use Eloquent\Phony\Phony;
 use Recoil\Kernel\Strand;
 
 describe(TerminatedException::class, function () {
-
     beforeEach(function () {
         $this->strand = Phony::mock(Strand::class);
         $this->strand->id->returns(123);
@@ -23,5 +22,4 @@ describe(TerminatedException::class, function () {
     it('exposes the terminated strand', function () {
         expect($this->subject->strand())->to->equal($this->strand->get());
     });
-
 });

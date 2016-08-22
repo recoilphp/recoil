@@ -1,6 +1,6 @@
 <?php
 
-declare (strict_types = 1); // @codeCoverageIgnore
+declare(strict_types=1); // @codeCoverageIgnore
 
 namespace Recoil;
 
@@ -41,15 +41,15 @@ it('accepts a generator function', function () {
 
 it('does not accept regular functions', function () {
     try {
-        $this->kernel->execute(function () {});
+        $this->kernel->execute(function () {
+        });
     } catch (InvalidArgumentException $e) {
         expect($e->getMessage())->to->equal('Callable must return a generator.');
     }
 });
 
 it('accepts a coroutine provider', function () {
-    $this->kernel->execute(new class() implements CoroutineProvider
-    {
+    $this->kernel->execute(new class() implements CoroutineProvider {
         public function coroutine() : Generator
         {
             echo '<ok>';
@@ -65,12 +65,10 @@ it('accepts a coroutine provider', function () {
 });
 
 it('accepts an awaitable provider', function () {
-    $this->kernel->execute(new class() implements AwaitableProvider
-    {
+    $this->kernel->execute(new class() implements AwaitableProvider {
         public function awaitable() : Awaitable
         {
-            return new class() implements Awaitable
-            {
+            return new class() implements Awaitable {
                 public function await(Listener $listener, Api $api)
                 {
                     echo '<ok>';
@@ -85,8 +83,7 @@ it('accepts an awaitable provider', function () {
 });
 
 it('accepts an awaitable', function () {
-    $this->kernel->execute(new class() implements Awaitable
-    {
+    $this->kernel->execute(new class() implements Awaitable {
         public function await(Listener $listener, Api $api)
         {
             echo '<ok>';

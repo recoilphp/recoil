@@ -1,6 +1,6 @@
 <?php
 
-declare (strict_types = 1); // @codeCoverageIgnore
+declare(strict_types=1); // @codeCoverageIgnore
 
 namespace Recoil;
 
@@ -34,8 +34,7 @@ rit('can invoke generator as coroutine with yield from', function () {
 });
 
 rit('can invoke coroutine provider', function () {
-    $result = yield new class() implements CoroutineProvider
-    {
+    $result = yield new class() implements CoroutineProvider {
         public function coroutine() : Generator
         {
             return '<ok>';
@@ -47,12 +46,10 @@ rit('can invoke coroutine provider', function () {
 });
 
 rit('can invoke awaitable provider', function () {
-    $result = yield new class() implements AwaitableProvider
-    {
+    $result = yield new class() implements AwaitableProvider {
         public function awaitable() : Awaitable
         {
-            return new class() implements Awaitable
-            {
+            return new class() implements Awaitable {
                 public function await(Listener $listener, Api $api)
                 {
                     $listener->send('<ok>');
@@ -65,8 +62,7 @@ rit('can invoke awaitable provider', function () {
 });
 
 rit('can invoke awaitable', function () {
-    $result = yield new class() implements Awaitable
-    {
+    $result = yield new class() implements Awaitable {
         public function await(Listener $listener, Api $api)
         {
             $listener->send('<ok>');
@@ -77,8 +73,7 @@ rit('can invoke awaitable', function () {
 });
 
 rit('prefers await() to awaitable()', function () {
-    $result = yield new class() implements AwaitableProvider, Awaitable
-    {
+    $result = yield new class() implements AwaitableProvider, Awaitable {
         public function awaitable() : Awaitable
         {
             expect(false)->to->be->ok('awaitable() was called');

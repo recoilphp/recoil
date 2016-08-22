@@ -1,6 +1,6 @@
 <?php
 
-declare (strict_types = 1); // @codeCoverageIgnore
+declare(strict_types=1); // @codeCoverageIgnore
 
 namespace Recoil;
 
@@ -29,8 +29,14 @@ rit('terminates the substrands when the calling strand is terminated', function 
     $strand = yield Recoil::execute(function () {
         yield (function () {
             yield Recoil::any(
-                function () { yield; expect(false)->to->be->ok('strand was not terminated'); },
-                function () { yield; expect(false)->to->be->ok('strand was not terminated'); }
+                function () {
+                    yield;
+                    expect(false)->to->be->ok('strand was not terminated');
+                },
+                function () {
+                    yield;
+                    expect(false)->to->be->ok('strand was not terminated');
+                }
             );
         })();
     });
@@ -73,8 +79,13 @@ context('when all of the substrands fail or are terminated', function () {
     rit('throws a composite exception', function () {
         try {
             yield Recoil::any(
-                function () { yield Recoil::terminate(); },
-                function () { throw new Exception('<exception>'); yield; }
+                function () {
+                    yield Recoil::terminate();
+                },
+                function () {
+                    throw new Exception('<exception>');
+                    yield;
+                }
             );
             expect(false)->to->be->ok('expected exception was not thrown');
         } catch (CompositeException $e) {
@@ -87,8 +98,15 @@ context('when all of the substrands fail or are terminated', function () {
     rit('sorts the previous exceptions based on the order that the substrands exit', function () {
         try {
             yield Recoil::any(
-                function () { yield; yield; throw new Exception('<exception-a>'); },
-                function () { yield; throw new Exception('<exception-b>'); }
+                function () {
+                    yield;
+                    yield;
+                    throw new Exception('<exception-a>');
+                },
+                function () {
+                    yield;
+                    throw new Exception('<exception-b>');
+                }
             );
             expect(false)->to->be->ok('expected exception was not thrown');
         } catch (CompositeException $e) {

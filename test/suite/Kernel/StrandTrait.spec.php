@@ -1,6 +1,6 @@
 <?php
 
-declare (strict_types = 1); // @codeCoverageIgnore
+declare(strict_types=1); // @codeCoverageIgnore
 
 namespace Recoil\Kernel;
 
@@ -15,7 +15,6 @@ use Recoil\Kernel\Exception\StrandListenerException;
 use Throwable;
 
 describe(StrandTrait::class, function () {
-
     beforeEach(function () {
         $this->kernel = Phony::mock(Kernel::class);
         $this->api = Phony::mock(Api::class);
@@ -85,7 +84,8 @@ describe(StrandTrait::class, function () {
 
         it('throws when passed a regular function', function () {
             try {
-                ($this->initializeSubject)(function () {});
+                ($this->initializeSubject)(function () {
+                });
                 expect(false)->to->be->ok('expected exception was not thrown');
             } catch (InvalidArgumentException $e) {
                 expect($e->getMessage())->to->equal('Callable must return a generator.');
@@ -236,7 +236,6 @@ describe(StrandTrait::class, function () {
                         $this->subject->unlink->calledWith($this->subject)
                     );
                 });
-
             });
         });
 
@@ -823,7 +822,9 @@ describe(StrandTrait::class, function () {
                 });
 
                 it('traces strand suspension', function () {
-                    $fn = function () { yield; };
+                    $fn = function () {
+                        yield;
+                    };
                     ($this->initializeSubject)($fn());
                     $this->subject->get()->start();
 
@@ -856,7 +857,9 @@ describe(StrandTrait::class, function () {
                     $this->api->dispatch->does(function () {
                         $this->subject->get()->terminate();
                     });
-                    $fn = function () { yield; };
+                    $fn = function () {
+                        yield;
+                    };
                     ($this->initializeSubject)($fn());
                     $this->subject->get()->start();
 
@@ -894,5 +897,4 @@ describe(StrandTrait::class, function () {
             });
         });
     }
-
 });

@@ -1,6 +1,6 @@
 <?php
 
-declare (strict_types = 1); // @codeCoverageIgnore
+declare(strict_types=1); // @codeCoverageIgnore
 
 namespace Recoil;
 
@@ -28,8 +28,14 @@ rit('terminates the substrands when the calling strand is terminated', function 
     $strand = yield Recoil::execute(function () {
         yield (function () {
             yield Recoil::first(
-                function () { yield; expect(false)->to->be->ok('strand was not terminated'); },
-                function () { yield; expect(false)->to->be->ok('strand was not terminated'); }
+                function () {
+                    yield;
+                    expect(false)->to->be->ok('strand was not terminated');
+                },
+                function () {
+                    yield;
+                    expect(false)->to->be->ok('strand was not terminated');
+                }
             );
         })();
     });
@@ -72,8 +78,13 @@ context('when one of the substrands fails', function () {
     rit('propagates the exception', function () {
         try {
             yield Recoil::first(
-                function () { yield; },
-                function () { throw new Exception('<exception>'); yield; }
+                function () {
+                    yield;
+                },
+                function () {
+                    throw new Exception('<exception>');
+                    yield;
+                }
             );
         } catch (Exception $e) {
             expect($e->getMessage())->to->equal('<exception>');
@@ -83,8 +94,14 @@ context('when one of the substrands fails', function () {
     rit('terminates the remaining strands', function () {
         try {
             yield Recoil::first(
-                function () { yield; expect(false)->to->be->ok('strand was not terminated'); },
-                function () { throw new Exception('<exception>'); yield; }
+                function () {
+                    yield;
+                    expect(false)->to->be->ok('strand was not terminated');
+                },
+                function () {
+                    throw new Exception('<exception>');
+                    yield;
+                }
             );
         } catch (Exception $e) {
             // ok ...
@@ -97,7 +114,10 @@ context('when one of the substrands is terminated', function () {
         $id = null;
         try {
             yield Recoil::first(
-                function () { yield; yield; },
+                function () {
+                    yield;
+                    yield;
+                },
                 function () use (&$id) {
                     $id = (yield Recoil::strand())->id();
                     yield Recoil::terminate();
@@ -112,8 +132,14 @@ context('when one of the substrands is terminated', function () {
     rit('terminates the remaining strands', function () {
         try {
             yield Recoil::first(
-                function () { yield; expect(false)->to->be->ok('strand was not terminated'); },
-                function () { throw new Exception('<exception>'); yield; }
+                function () {
+                    yield;
+                    expect(false)->to->be->ok('strand was not terminated');
+                },
+                function () {
+                    throw new Exception('<exception>');
+                    yield;
+                }
             );
         } catch (Exception $e) {
             // ok ...

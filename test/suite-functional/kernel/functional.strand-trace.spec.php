@@ -1,6 +1,6 @@
 <?php
 
-declare (strict_types = 1); // @codeCoverageIgnore
+declare(strict_types=1); // @codeCoverageIgnore
 
 namespace Recoil\Kernel;
 
@@ -9,7 +9,6 @@ use Recoil\Recoil;
 use function Recoil\rit;
 
 describe(StrandTrait::class, function () {
-
     beforeEach(function () {
         $this->trace = Phony::mock(StrandTrace::class);
     });
@@ -190,5 +189,4 @@ describe(StrandTrait::class, function () {
             });
         });
     }
-
 });

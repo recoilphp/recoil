@@ -1,11 +1,10 @@
 <?php
 
-declare (strict_types = 1); // @codeCoverageIgnore
+declare(strict_types=1); // @codeCoverageIgnore
 
 namespace Recoil\Exception;
 
 describe(RejectedException::class, function () {
-
     it('uses string rejection reasons as the exception message', function () {
         $exception = new RejectedException('<string>');
 
@@ -32,5 +31,4 @@ describe(RejectedException::class, function () {
 
         expect($exception->reason())->to->equal([1, 2, 3]);
     });
-
 });

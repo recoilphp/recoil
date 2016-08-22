@@ -1,6 +1,6 @@
 <?php
 
-declare (strict_types = 1); // @codeCoverageIgnore
+declare(strict_types=1); // @codeCoverageIgnore
 
 namespace Recoil;
 
@@ -94,7 +94,6 @@ context('when there is an exception handler set', function () {
             }
         });
     });
-
 });
 
 context('when there are multiple unhandled exceptions', function () {

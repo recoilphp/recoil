@@ -1,6 +1,6 @@
 <?php
 
-declare (strict_types = 1); // @codeCoverageIgnore
+declare(strict_types=1); // @codeCoverageIgnore
 
 namespace Recoil\React;
 
@@ -12,7 +12,6 @@ use Recoil\Kernel\Kernel;
 use Recoil\Kernel\Strand;
 
 describe(ReactApi::class, function () {
-
     beforeEach(function () {
         $this->eventLoop = Phony::mock(LoopInterface::class);
         $this->timer = Phony::mock(TimerInterface::class);
@@ -137,5 +136,4 @@ describe(ReactApi::class, function () {
             $this->strand->send->calledWith($this->eventLoop);
         });
     });
-
 });

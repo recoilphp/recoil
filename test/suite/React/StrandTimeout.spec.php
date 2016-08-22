@@ -1,6 +1,6 @@
 <?php
 
-declare (strict_types = 1); // @codeCoverageIgnore
+declare(strict_types=1); // @codeCoverageIgnore
 
 namespace Recoil\React;
 
@@ -13,7 +13,6 @@ use Recoil\Kernel\Strand;
 use Throwable;
 
 describe(StrandTimeout::class, function () {
-
     beforeEach(function () {
         $this->api = Phony::mock(Api::class);
         $this->timer = Phony::mock(TimerInterface::class);
@@ -92,5 +91,4 @@ describe(StrandTimeout::class, function () {
             $this->substrand->terminate->never()->called();
         });
     });
-
 });

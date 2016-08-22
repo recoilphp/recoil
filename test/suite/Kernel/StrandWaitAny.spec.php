@@ -1,6 +1,6 @@
 <?php
 
-declare (strict_types = 1); // @codeCoverageIgnore
+declare(strict_types=1); // @codeCoverageIgnore
 
 namespace Recoil\Kernel;
 
@@ -9,7 +9,6 @@ use Recoil\Exception\CompositeException;
 use Throwable;
 
 describe(StrandWaitAny::class, function () {
-
     beforeEach(function () {
         $this->api = Phony::mock(Api::class);
 
@@ -90,5 +89,4 @@ describe(StrandWaitAny::class, function () {
             );
         });
     });
-
 });

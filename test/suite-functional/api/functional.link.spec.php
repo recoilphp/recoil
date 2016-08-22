@@ -1,6 +1,6 @@
 <?php
 
-declare (strict_types = 1); // @codeCoverageIgnore
+declare(strict_types=1); // @codeCoverageIgnore
 
 namespace Recoil;
 
@@ -229,7 +229,7 @@ context('when called with 2 parameters', function () {
     });
 
     context('when a strand exits with an exception', function () {
-         rit('terminates the linked strand', function () {
+        rit('terminates the linked strand', function () {
             $strandA = yield Recoil::execute(function () {
                 yield 10;
             });
@@ -250,9 +250,9 @@ context('when called with 2 parameters', function () {
                 expect($strandA->hasExited())->to->be->true;
                 expect($strandB->hasExited())->to->be->true;
             }
-         });
+        });
 
-         rit('does not terminate unlinked strand', function () {
+        rit('does not terminate unlinked strand', function () {
             $strandA = yield Recoil::execute(function () {
                 yield 10;
             });
@@ -276,7 +276,7 @@ context('when called with 2 parameters', function () {
             }
 
             $strandA->terminate();
-         });
+        });
     });
 
     context('when a strand is terminated', function () {

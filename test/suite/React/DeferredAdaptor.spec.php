@@ -1,6 +1,6 @@
 <?php
 
-declare (strict_types = 1); // @codeCoverageIgnore
+declare(strict_types=1); // @codeCoverageIgnore
 
 namespace Recoil\React;
 
@@ -10,7 +10,6 @@ use Recoil\Kernel\Strand;
 use Throwable;
 
 describe(DeferredAdaptor::class, function () {
-
     beforeEach(function () {
         $this->deferred = Phony::mock(Deferred::class);
         $this->strand = Phony::mock(Strand::class);
@@ -40,5 +39,4 @@ describe(DeferredAdaptor::class, function () {
 
         $this->deferred->reject->calledWith($exception);
     });
-
 });

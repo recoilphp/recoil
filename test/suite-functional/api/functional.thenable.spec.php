@@ -1,6 +1,6 @@
 <?php
 
-declare (strict_types = 1); // @codeCoverageIgnore
+declare(strict_types=1); // @codeCoverageIgnore
 
 namespace Recoil;
 
@@ -56,8 +56,10 @@ context('when it has a then method', function () {
     rit('cancels the promise when the strand is terminated', function () {
         $promise = Phony::partialMock(
             [
-                'then' => function (callable $resolve, callable $reject) {},
-                'cancel' => function () {},
+                'then' => function (callable $resolve, callable $reject) {
+                },
+                'cancel' => function () {
+                },
             ]
         );
 
@@ -77,7 +79,8 @@ context('when it has both then and done methods', function () {
     rit('resumes the strand when the promise is resolved', function () {
         $promise = Phony::partialMock(
             [
-                'then' => function (callable $resolve, callable $reject) {},
+                'then' => function (callable $resolve, callable $reject) {
+                },
                 'done' => function (callable $resolve, callable $reject) {
                     $resolve('<value>');
                 },
@@ -90,7 +93,8 @@ context('when it has both then and done methods', function () {
     rit('resumes the strand with an exception when the promise is rejected', function () {
         $promise = Phony::partialMock(
             [
-                'then' => function (callable $resolve, callable $reject) {},
+                'then' => function (callable $resolve, callable $reject) {
+                },
                 'done' => function (callable $resolve, callable $reject) {
                     $reject(new \Exception('<rejected>'));
                 },
@@ -108,7 +112,8 @@ context('when it has both then and done methods', function () {
     rit('resumes the strand with an exception when the promise is rejected with a non-exception', function () {
         $promise = Phony::partialMock(
             [
-                'then' => function (callable $resolve, callable $reject) {},
+                'then' => function (callable $resolve, callable $reject) {
+                },
                 'done' => function (callable $resolve, callable $reject) {
                     $reject('<rejected>');
                 },
@@ -126,9 +131,12 @@ context('when it has both then and done methods', function () {
     rit('cancels the promise when the strand is terminated', function () {
         $promise = Phony::partialMock(
             [
-                'then' => function (callable $resolve, callable $reject) {},
-                'done' => function (callable $resolve, callable $reject) {},
-                'cancel' => function () {},
+                'then' => function (callable $resolve, callable $reject) {
+                },
+                'done' => function (callable $resolve, callable $reject) {
+                },
+                'cancel' => function () {
+                },
             ]
         );
 

@@ -1,6 +1,6 @@
 <?php
 
-declare (strict_types = 1); // @codeCoverageIgnore
+declare(strict_types=1); // @codeCoverageIgnore
 
 namespace Recoil\Kernel;
 
@@ -14,7 +14,6 @@ use Throwable;
 use UnexpectedValueException;
 
 describe(ApiTrait::class, function () {
-
     beforeEach(function () {
         $this->kernel = Phony::mock(Kernel::class);
         $this->strand = Phony::mock(Strand::class);
@@ -31,7 +30,6 @@ describe(ApiTrait::class, function () {
     });
 
     describe('->dispatch()', function () {
-
         it('performs ->cooperate() when $value is null', function () {
             $this->subject->get()->dispatch(
                 $this->strand->get(),
@@ -563,5 +561,4 @@ describe(ApiTrait::class, function () {
             expect($call1->argument())->to->equal($call2->argument());
         });
     });
-
 });
