@@ -6,12 +6,12 @@ namespace Recoil;
 
 use Eloquent\Phony\Phony;
 
-context('can be invoked by yielding a thenable', function () {
-    rit('that does fulfill', function () {
+context('when it has a then method', function () {
+    rit('resumes the strand when resolved', function () {
         $promise = Phony::partialMock(
             [
-                'then' => function (callable $fulfill, callable $reject) {
-                    $fulfill('<value>');
+                'then' => function (callable $resolve, callable $reject) {
+                    $resolve('<value>');
                 },
             ]
         );
@@ -19,10 +19,10 @@ context('can be invoked by yielding a thenable', function () {
         expect(yield $promise->get())->to->equal('<value>');
     });
 
-    rit('that does reject with throwable', function () {
+    rit('resumes the strand with an exception when rejected', function () {
         $promise = Phony::partialMock(
             [
-                'then' => function (callable $fulfill, callable $reject) {
+                'then' => function (callable $resolve, callable $reject) {
                     $reject(new \Exception('<rejected>'));
                 },
             ]
@@ -36,10 +36,10 @@ context('can be invoked by yielding a thenable', function () {
         }
     });
 
-    rit('that does reject with non throwable', function () {
+    rit('resumes the strand with a value when rejected', function () {
         $promise = Phony::partialMock(
             [
-                'then' => function (callable $fulfill, callable $reject) {
+                'then' => function (callable $resolve, callable $reject) {
                     $reject('<rejected>');
                 },
             ]
@@ -53,10 +53,10 @@ context('can be invoked by yielding a thenable', function () {
         }
     });
 
-    rit('that does cancel', function () {
+    rit('terminates the strand when cancelled', function () {
         $promise = Phony::partialMock(
             [
-                'then' => function (callable $fulfill, callable $reject) {},
+                'then' => function (callable $resolve, callable $reject) {},
                 'cancel' => function () {},
             ]
         );
@@ -73,13 +73,13 @@ context('can be invoked by yielding a thenable', function () {
     });
 });
 
-context('can be invoked by yielding a thenable that is also a doneable', function () {
-    rit('that does fulfill', function () {
+context('when it has both then and done methods', function () {
+    rit('resumes the strand when resolved', function () {
         $promise = Phony::partialMock(
             [
-                'then' => function (callable $fulfill, callable $reject) {},
-                'done' => function (callable $fulfill, callable $reject) {
-                    $fulfill('<value>');
+                'then' => function (callable $resolve, callable $reject) {},
+                'done' => function (callable $resolve, callable $reject) {
+                    $resolve('<value>');
                 },
             ]
         );
@@ -87,11 +87,11 @@ context('can be invoked by yielding a thenable that is also a doneable', functio
         expect(yield $promise->get())->to->equal('<value>');
     });
 
-    rit('that does reject with throwable', function () {
+    rit('resumes the strand with an exception when rejected', function () {
         $promise = Phony::partialMock(
             [
-                'then' => function (callable $fulfill, callable $reject) {},
-                'done' => function (callable $fulfill, callable $reject) {
+                'then' => function (callable $resolve, callable $reject) {},
+                'done' => function (callable $resolve, callable $reject) {
                     $reject(new \Exception('<rejected>'));
                 },
             ]
@@ -105,11 +105,11 @@ context('can be invoked by yielding a thenable that is also a doneable', functio
         }
     });
 
-    rit('that does reject with non throwable', function () {
+    rit('resumes the strand with a value when rejected', function () {
         $promise = Phony::partialMock(
             [
-                'then' => function (callable $fulfill, callable $reject) {},
-                'done' => function (callable $fulfill, callable $reject) {
+                'then' => function (callable $resolve, callable $reject) {},
+                'done' => function (callable $resolve, callable $reject) {
                     $reject('<rejected>');
                 },
             ]
@@ -123,11 +123,11 @@ context('can be invoked by yielding a thenable that is also a doneable', functio
         }
     });
 
-    rit('that does cancel', function () {
+    rit('terminates the strand when cancelled', function () {
         $promise = Phony::partialMock(
             [
-                'then' => function (callable $fulfill, callable $reject) {},
-                'done' => function (callable $fulfill, callable $reject) {},
+                'then' => function (callable $resolve, callable $reject) {},
+                'done' => function (callable $resolve, callable $reject) {},
                 'cancel' => function () {},
             ]
         );
