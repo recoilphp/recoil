@@ -10,7 +10,7 @@
     "require-dev": {
         "ext-posix": "*",
         "eloquent/phony": "^0.13",
-        "friendsofphp/php-cs-fixer": "^1",
+        "friendsofphp/php-cs-fixer": "1.11.6",
         "hamcrest/hamcrest-php": "^2",
         "peridot-php/leo": "^1",
         "peridot-php/peridot": "^1",

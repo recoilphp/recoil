@@ -129,19 +129,19 @@ describe(ApiTrait::class, function () {
             });
         });
 
-        context('when $value is thennable', function () {
+        context('when $value is thenable', function () {
             beforeEach(function () {
-                $this->thennable = Phony::mock(
+                $this->thenable = Phony::mock(
                     ['function then' => null]
                 );
 
                 $this->subject->get()->dispatch(
                     $this->strand->get(),
                     0, // current generator key
-                    $this->thennable->get()
+                    $this->thenable->get()
                 );
 
-                list($this->resolve, $this->reject) = $this->thennable->then->calledWith(
+                list($this->resolve, $this->reject) = $this->thenable->then->calledWith(
                     '~',
                     '~'
                 )->firstCall()->arguments()->all();
@@ -169,9 +169,54 @@ describe(ApiTrait::class, function () {
             });
         });
 
-        context('when $value is thennable and cancellable', function () {
+        context('when $value is thenable and doneable', function () {
             beforeEach(function () {
-                $this->thennable = Phony::mock(
+                $this->thenable = Phony::mock(
+                    [
+                        'function then' => null,
+                        'function done' => null,
+                    ]
+                );
+
+                $this->subject->get()->dispatch(
+                    $this->strand->get(),
+                    0, // current generator key
+                    $this->thenable->get()
+                );
+
+                list($this->resolve, $this->reject) = $this->thenable->done->calledWith(
+                    '~',
+                    '~'
+                )->firstCall()->arguments()->all();
+
+                $this->thenable->then->never()->called();
+
+                expect($this->resolve)->to->satisfy('is_callable');
+                expect($this->reject)->to->satisfy('is_callable');
+
+                $this->strand->noInteraction();
+            });
+
+            it('resumes the strand when resolved', function () {
+                ($this->resolve)('<result>');
+                $this->strand->send->calledWith('<result>');
+            });
+
+            it('resumes the strand with an exception when rejected', function () {
+                $exception = Phony::mock(Throwable::class);
+                ($this->reject)($exception->get());
+                $this->strand->throw->calledWith($exception);
+            });
+
+            it('resumes the strand with an exception when rejected with a non-exception', function () {
+                ($this->reject)('<reason>');
+                $this->strand->throw->calledWith(new RejectedException('<reason>'));
+            });
+        });
+
+        context('when $value is thenable and cancellable', function () {
+            beforeEach(function () {
+                $this->thenable = Phony::mock(
                     [
                         'function then' => null,
                         'function cancel' => null,
@@ -181,16 +226,16 @@ describe(ApiTrait::class, function () {
                 $this->subject->get()->dispatch(
                     $this->strand->get(),
                     0, // current generator key
-                    $this->thennable->get()
+                    $this->thenable->get()
                 );
             });
 
-            it('cancels the thennable when the strand is terminated', function () {
+            it('cancels the thenable when the strand is terminated', function () {
                 $terminator = $this->strand->setTerminator->calledWith('~')->firstCall()->argument();
                 expect($terminator)->to->satisfy('is_callable');
-                $this->thennable->cancel->never()->called();
+                $this->thenable->cancel->never()->called();
                 $terminator();
-                $this->thennable->cancel->called();
+                $this->thenable->cancel->called();
             });
         });
 

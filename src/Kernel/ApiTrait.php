@@ -42,18 +42,23 @@ trait ApiTrait
                 $this->read($strand, $value, 1);
             }
         } elseif (\method_exists($value, 'then')) {
-            $value->then(
-                static function ($result) use ($strand) {
-                    $strand->send($result);
-                },
-                static function ($reason) use ($strand) {
-                    if ($reason instanceof Throwable) {
-                        $strand->throw($reason);
-                    } else {
-                        $strand->throw(new RejectedException($reason));
-                    }
+            $onFulfilled = static function ($result) use ($strand) {
+                $strand->send($result);
+            };
+
+            $onRejected = static function ($reason) use ($strand) {
+                if ($reason instanceof Throwable) {
+                    $strand->throw($reason);
+                } else {
+                    $strand->throw(new RejectedException($reason));
                 }
-            );
+            };
+
+            if (\method_exists($value, 'done')) {
+                $value->done($onFulfilled, $onRejected);
+            } else {
+                $value->then($onFulfilled, $onRejected);
+            }
 
             if (\method_exists($value, 'cancel')) {
                 $strand->setTerminator(function () use ($value) {
