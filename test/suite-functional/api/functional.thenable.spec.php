@@ -7,7 +7,7 @@ namespace Recoil;
 use Eloquent\Phony\Phony;
 
 context('when it has a then method', function () {
-    rit('resumes the strand when resolved', function () {
+    rit('resumes the strand when the promise is resolved', function () {
         $promise = Phony::partialMock(
             [
                 'then' => function (callable $resolve, callable $reject) {
@@ -19,7 +19,7 @@ context('when it has a then method', function () {
         expect(yield $promise->get())->to->equal('<value>');
     });
 
-    rit('resumes the strand with an exception when rejected', function () {
+    rit('resumes the strand with an exception when the promise is rejected', function () {
         $promise = Phony::partialMock(
             [
                 'then' => function (callable $resolve, callable $reject) {
@@ -36,7 +36,7 @@ context('when it has a then method', function () {
         }
     });
 
-    rit('resumes the strand with a value when rejected', function () {
+    rit('resumes the strand with an exception when the promise is rejected with a non-exception', function () {
         $promise = Phony::partialMock(
             [
                 'then' => function (callable $resolve, callable $reject) {
@@ -53,7 +53,7 @@ context('when it has a then method', function () {
         }
     });
 
-    rit('terminates the strand when cancelled', function () {
+    rit('cancels the promise when the strand is terminated', function () {
         $promise = Phony::partialMock(
             [
                 'then' => function (callable $resolve, callable $reject) {},
@@ -74,7 +74,7 @@ context('when it has a then method', function () {
 });
 
 context('when it has both then and done methods', function () {
-    rit('resumes the strand when resolved', function () {
+    rit('resumes the strand when the promise is resolved', function () {
         $promise = Phony::partialMock(
             [
                 'then' => function (callable $resolve, callable $reject) {},
@@ -87,7 +87,7 @@ context('when it has both then and done methods', function () {
         expect(yield $promise->get())->to->equal('<value>');
     });
 
-    rit('resumes the strand with an exception when rejected', function () {
+    rit('resumes the strand with an exception when the promise is rejected', function () {
         $promise = Phony::partialMock(
             [
                 'then' => function (callable $resolve, callable $reject) {},
@@ -105,7 +105,7 @@ context('when it has both then and done methods', function () {
         }
     });
 
-    rit('resumes the strand with a value when rejected', function () {
+    rit('resumes the strand with an exception when the promise is rejected with a non-exception', function () {
         $promise = Phony::partialMock(
             [
                 'then' => function (callable $resolve, callable $reject) {},
@@ -123,7 +123,7 @@ context('when it has both then and done methods', function () {
         }
     });
 
-    rit('terminates the strand when cancelled', function () {
+    rit('cancels the promise when the strand is terminated', function () {
         $promise = Phony::partialMock(
             [
                 'then' => function (callable $resolve, callable $reject) {},
