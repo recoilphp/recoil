@@ -4,7 +4,7 @@
     "require": {
         "php": "^7",
         "icecave/repr": "^1",
-        "recoil/api": "dev-master"
+        "recoil/api": "^0.1"
     },
     "require-dev": {
         "eloquent/phony": "^0.13",
@@ -13,7 +13,7 @@
         "peridot-php/leo": "^1",
         "peridot-php/peridot-code-coverage-reporters": "^2",
         "peridot-php/peridot": "^1",
-        "recoil/dev": "dev-124-split-repos"
+        "recoil/dev": "dev-master"
     },
     "autoload": { "psr-4": { "Recoil\\": "src" } },
     "autoload-dev": { "psr-4": { "Recoil\\": "test/src" } },
