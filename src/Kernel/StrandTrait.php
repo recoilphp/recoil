@@ -77,7 +77,7 @@ trait StrandTrait
     }
 
     /**
-     * @return Kernel The kernel on which the strand is executing.
+     * Get the kernel that the strand is running on.
      */
     public function kernel() : SystemKernel
     {
@@ -621,7 +621,7 @@ trait StrandTrait
     }
 
     /**
-     * @var Kernel The kernel.
+     * @var SystemKernel The kernel.
      */
     private $kernel;
 
