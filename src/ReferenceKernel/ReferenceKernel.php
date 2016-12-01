@@ -59,7 +59,7 @@ final class ReferenceKernel implements SystemKernel
         $hasIO = false;
 
         do {
-            if ($timeout !== null && !$hasIO) {
+            if ($timeout > 0 && !$hasIO) {
                 \usleep($timeout);
             }
 

@@ -5,7 +5,6 @@ declare(strict_types=1); // @codeCoverageIgnore
 namespace Recoil\ReferenceKernel;
 
 use ErrorException;
-use Recoil\Exception\TimeoutException;
 use Recoil\Kernel\Api;
 use Recoil\Kernel\ApiTrait;
 use Recoil\Kernel\SystemStrand;
@@ -74,24 +73,13 @@ final class ReferenceApi implements Api
      */
     public function timeout(SystemStrand $strand, float $timeout, $coroutine)
     {
-        $substrand = $strand->kernel()->execute($coroutine);
-
-        $cancelEvent = $this->events->schedule(
+        $awaitable = new Timeout(
+            $this->events,
             $timeout,
-            function () use ($strand, $timeout, $substrand) {
-                $substrand->clearPrimaryListener();
-                $substrand->terminate();
-                $strand->send(TimeoutException::create($timeout));
-            }
+            $strand->kernel()->execute($coroutine)
         );
 
-        $strand->setTerminator(function () use ($substrand, $cancelEvent) {
-            $substrand->clearPrimaryListener();
-            $substrand->terminate();
-            $cancelEvent();
-        });
-
-        $substrand->setPrimaryListener($strand);
+        $awaitable->await($strand);
     }
 
     /**

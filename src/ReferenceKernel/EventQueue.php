@@ -43,7 +43,7 @@ final class EventQueue
 
         while (
             $this->pendingEvents > 0 &&
-            $this->nextTime < $time
+            $this->nextTime <= $time
         ) {
             $event = $this->queue->extract();
             --$this->queueSize;
