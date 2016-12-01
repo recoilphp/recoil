@@ -156,6 +156,13 @@ trait KernelTrait
         $this->stop();
     }
 
+    /**
+     * The kernel's main event loop. Invoked inside the run() method.
+     *
+     * Loop must return when $this->state is KernelState::STOPPING.
+     *
+     * @return null
+     */
     abstract protected function loop();
 
     /**

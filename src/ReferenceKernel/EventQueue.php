@@ -7,7 +7,12 @@ namespace Recoil\ReferenceKernel;
 use SplPriorityQueue;
 
 /**
+ * Please note that this code is not part of the public API. It may be
+ * changed or removed at any time without notice.
+ *
  * @access private
+ *
+ * EventQueue is used to schedule events for execution after a delay.
  */
 final class EventQueue
 {
@@ -16,7 +21,18 @@ final class EventQueue
         $this->queue = new SplPriorityQueue();
     }
 
-    public function schedule(float $delay, callable $fn)
+    /**
+     * Schedule an event for execution.
+     *
+     * Any events scheduled from within an event action function are
+     * guaranteed not to be executed during the current tick.
+     *
+     * @param float    $delay The delay before execution, in seconds.
+     * @param callable $fn    The action to perform after the delay.
+     *
+     * @return callable A function used to cancel the event.
+     */
+    public function schedule(float $delay, callable $fn) : callable
     {
         $time = \microtime(true) + $delay;
         $event = new Event($time, $fn);
@@ -37,6 +53,11 @@ final class EventQueue
         };
     }
 
+    /**
+     * Execute any pending events and remove them from the queue.
+     *
+     * @return int|null The number if microseconds until the next event (null = none).
+     */
     public function tick()
     {
         $time = \microtime(true);

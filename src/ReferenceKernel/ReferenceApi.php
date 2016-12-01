@@ -9,8 +9,20 @@ use Recoil\Kernel\Api;
 use Recoil\Kernel\ApiTrait;
 use Recoil\Kernel\SystemStrand;
 
+/**
+ * Please note that this code is not part of the public API. It may be
+ * changed or removed at any time without notice.
+ *
+ * @access private
+ *
+ * The reference kernel's API implementation.
+ */
 final class ReferenceApi implements Api
 {
+    /**
+     * @param EventQueue $events The queue used to schedule events.
+     * @param IO         $io     The object used to perform IO.
+     */
     public function __construct(EventQueue $events, IO $io)
     {
         $this->events = $events;
@@ -220,8 +232,19 @@ final class ReferenceApi implements Api
 
     use ApiTrait;
 
+    /**
+     * The maximum number of bytes to read from a stream in a single call to
+     * fread().
+     */
     const MAX_READ_LENGTH = 32768;
 
+    /**
+     * @var EventQueue The queue used to schedule events.
+     */
     private $events;
+
+    /**
+     * @var IO The object used to perform IO.
+     */
     private $io;
 }

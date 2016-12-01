@@ -5,10 +5,26 @@ declare(strict_types=1); // @codeCoverageIgnore
 namespace Recoil\ReferenceKernel;
 
 /**
+ * Please note that this code is not part of the public API. It may be
+ * changed or removed at any time without notice.
+ *
  * @access private
+ *
+ * IO invokes callbacks when streams become readable and/or writable.
  */
 final class IO
 {
+    /**
+     * Register a callback to be invoked when a stream becomes readable.
+     *
+     * Each time the stream becomes ready, only the callback that was
+     * registered the earliest is called.
+     *
+     * @param resource $stream The stream to read.
+     * @param callable $fn     The function to invoke.
+     *
+     * @return callable A function used to remove the callback.
+     */
     public function read($stream, callable $fn): callable
     {
         assert(is_resource($stream));
@@ -32,6 +48,17 @@ final class IO
         };
     }
 
+    /**
+     * Register a callback to be invoked when a stream becomes writable.
+     *
+     * Each time the stream becomes ready, only the callback that was
+     * registered the earliest is called.
+     *
+     * @param resource $stream The stream to write.
+     * @param callable $fn     The function to invoke.
+     *
+     * @return callable A function used to remove the callback.
+     */
     public function write($stream, callable $fn): callable
     {
         assert(is_resource($stream));
@@ -54,6 +81,13 @@ final class IO
         };
     }
 
+    /**
+     * Wait for streams to become ready for reading and/or writing.
+     *
+     * @param int|null The maximum time to wait for IO, in microseconds (null = forever).
+
+     * @return bool True if there is more IO to perform.
+     */
     public function tick(int $timeout = null) : bool
     {
         if (
@@ -102,9 +136,30 @@ final class IO
                !empty($this->writeStreams);
     }
 
+    /**
+     * @param int A sequence of IDs used to identify registered callbacks.
+     */
     private $nextId = 0;
+
+    /**
+     * @param array<int, stream> A map of resource ID to stream for reading.
+     */
     private $readStreams = [];
+
+    /**
+     * @param array<int, array<int, callable>> A map of resource ID to a queue
+     *                                         of callback functions for that stream.
+     */
     private $readQueue = [];
+
+    /**
+     * @param array<int, stream> A map of resource ID to stream for writing.
+     */
     private $writeStreams = [];
+
+    /**
+     * @param array<int, array<int, callable>> A map of resource ID to a queue
+     *                                         of callback functions for that stream.
+     */
     private $writeQueue = [];
 }

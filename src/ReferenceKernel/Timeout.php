@@ -18,7 +18,8 @@ use Throwable;
  *
  * @access private
  *
- * React timer based implementation of Api::timeout().
+ * An implementation of Api::timeout() based on the reference kernel's event
+ * queue.
  */
 final class Timeout implements Awaitable, Listener
 {

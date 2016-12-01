@@ -10,6 +10,9 @@ use Recoil\Kernel\KernelTrait;
 use Recoil\Kernel\SystemKernel;
 use Recoil\Strand;
 
+/**
+ * The reference kernel implementation.
+ */
 final class ReferenceKernel implements SystemKernel
 {
     /**
@@ -71,6 +74,11 @@ final class ReferenceKernel implements SystemKernel
         );
     }
 
+    /**
+     * @param EventQueue $events The queue used to schedule events.
+     * @param IO         $io     The object used to perform IO.
+     * @param Api        $api    The kernel API exposed to strands.
+     */
     public function __construct(EventQueue $events, IO $io, Api $api)
     {
         $this->events = $events;
@@ -81,14 +89,19 @@ final class ReferenceKernel implements SystemKernel
     use KernelTrait;
 
     /**
-     * @var EventQueue
+     * @var EventQueue The queue used to schedule events.
      */
     private $events;
 
     /**
-     * @var IO
+     * @var IO The object used to perform IO.
      */
     private $io;
+
+    /**
+     * @var Api The kernel API exposed to strands.
+     */
+    private $api;
 
     /**
      * @var int The next strand ID.
