@@ -5,6 +5,7 @@ declare(strict_types=1); // @codeCoverageIgnore
 namespace Recoil\Kernel;
 
 use Recoil\Exception\KernelException;
+use Recoil\Exception\PanicException;
 use Recoil\Exception\StrandException;
 use Recoil\Exception\TerminatedException;
 use Recoil\Strand;
@@ -143,9 +144,7 @@ trait KernelTrait
             } catch (PanicException $e) {
                 $exception = $e;
             } catch (Throwable $e) {
-                if ($e !== $exception) {
-                    $exception = KernelException::create($e);
-                }
+                $exception = KernelException::create($e);
             }
         }
 
