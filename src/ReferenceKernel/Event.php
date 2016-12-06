@@ -16,7 +16,7 @@ namespace Recoil\ReferenceKernel;
 final class Event
 {
     /**
-     * @var int The time at which the event is scheduled, in microseconds.
+     * @var float The time at which the event is scheduled, in seconds.
      */
     public $time;
 

@@ -56,21 +56,31 @@ final class ReferenceKernel implements SystemKernel
         return $strand;
     }
 
-    private function loop()
+    /**
+     * The kernel's main event loop. Invoked inside the run() method.
+     *
+     * Loop must return when $this->state is KernelState::STOPPING.
+     *
+     * @return null
+     */
+    protected function loop()
     {
         $timeout = null;
-        $hasIO = false;
+        $ioState = IO::INACTIVE;
 
         do {
-            if ($timeout > 0 && !$hasIO) {
+            if (
+                $timeout > 0 &&
+                $ioState === IO::INACTIVE
+            ) {
                 \usleep($timeout);
             }
 
             $timeout = $this->events->tick();
-            $hasIO = $this->io->tick($timeout);
+            $ioState = $this->io->tick($timeout);
         } while (
             $this->state === KernelState::RUNNING &&
-            ($timeout !== null || $hasIO)
+            ($timeout !== null || $ioState !== IO::INACTIVE)
         );
     }
 

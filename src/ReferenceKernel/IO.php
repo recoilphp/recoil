@@ -14,6 +14,10 @@ namespace Recoil\ReferenceKernel;
  */
 final class IO
 {
+    const INACTIVE = 0;
+    const ACTIVE = 1;
+    const INTERRUPT = 2;
+
     /**
      * Register a callback to be invoked when a stream becomes readable.
      *
@@ -86,15 +90,15 @@ final class IO
      *
      * @param int|null The maximum time to wait for IO, in microseconds (null = forever).
 
-     * @return bool True if there is more IO to perform.
+     * @return int One of the ACTIVE, INACTIVE or INTERRUPTED constants.
      */
-    public function tick(int $timeout = null) : bool
+    public function tick(int $timeout = null) : int
     {
         if (
             empty($this->readStreams) &&
             empty($this->writeStreams)
         ) {
-            return false;
+            return self::INACTIVE;
         }
 
         $readStreams = $this->readStreams;
@@ -110,10 +114,19 @@ final class IO
         );
 
         if ($count === false) {
-            // TODO: ...
-            assert(false, 'error in stream select (signal interrupt?)');
+            $error = \error_get_last();
 
-            return true;
+            if (stripos($error['message'], 'interrupted system call') === false) {
+                throw new ErrorException(
+                   $error['message'],
+                   $error['type'],
+                   1, // severity
+                   $error['file'],
+                   $error['line']
+               );
+            }
+
+            return self::INTERRUPT;
         }
 
         foreach ($readStreams as $stream) {
@@ -132,8 +145,14 @@ final class IO
             }
         }
 
-        return !empty($this->readStreams) ||
-               !empty($this->writeStreams);
+        if (
+            empty($this->readStreams) &&
+            empty($this->writeStreams)
+        ) {
+            return self::INACTIVE;
+        }
+
+        return self::ACTIVE;
     }
 
     /**
