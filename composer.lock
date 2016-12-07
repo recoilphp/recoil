@@ -935,12 +935,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/recoilphp/dev.git",
-                "reference": "a775d5f2311f98ca49be93c4177b624b90135594"
+                "reference": "799bd3dee791bbc4c0bc277b4620c8f2b772e168"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/recoilphp/dev/zipball/a775d5f2311f98ca49be93c4177b624b90135594",
-                "reference": "a775d5f2311f98ca49be93c4177b624b90135594",
+                "url": "https://api.github.com/repos/recoilphp/dev/zipball/799bd3dee791bbc4c0bc277b4620c8f2b772e168",
+                "reference": "799bd3dee791bbc4c0bc277b4620c8f2b772e168",
                 "shasum": ""
             },
             "require": {
@@ -994,7 +994,7 @@
                 "stack",
                 "trace"
             ],
-            "time": "2016-12-01 01:40:08"
+            "time": "2016-12-07 00:08:00"
         },
         {
             "name": "sebastian/diff",
