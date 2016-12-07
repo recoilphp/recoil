@@ -21,7 +21,7 @@ use Throwable;
  * An implementation of Api::timeout() based on the reference kernel's event
  * queue.
  */
-final class Timeout implements Awaitable, Listener
+final class StrandTimeout implements Awaitable, Listener
 {
     public function __construct(
         EventQueue $events,
