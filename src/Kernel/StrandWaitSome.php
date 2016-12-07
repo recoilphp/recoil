@@ -4,7 +4,10 @@ declare(strict_types=1); // @codeCoverageIgnore
 
 namespace Recoil\Kernel;
 
+use Recoil\Awaitable;
 use Recoil\Exception\CompositeException;
+use Recoil\Listener;
+use Recoil\Strand;
 use Throwable;
 
 /**
@@ -12,7 +15,7 @@ use Throwable;
  */
 final class StrandWaitSome implements Awaitable, Listener
 {
-    public function __construct(int $count, Strand ...$substrands)
+    public function __construct(int $count, SystemStrand ...$substrands)
     {
         assert($count >= 1);
         assert($count <= \count($substrands));
@@ -41,9 +44,9 @@ final class StrandWaitSome implements Awaitable, Listener
      * @param Listener $listener The object to resume when the work is complete.
      * @param Api      $api      The API implementation for the current kernel.
      */
-    public function await(Listener $listener, Api $api)
+    public function await(Listener $listener)
     {
-        if ($listener instanceof Strand) {
+        if ($listener instanceof SystemStrand) {
             $listener->setTerminator([$this, 'cancel']);
         }
 
@@ -103,7 +106,7 @@ final class StrandWaitSome implements Awaitable, Listener
             }
 
             $this->listener->throw(
-                new CompositeException($this->exceptions)
+                CompositeException::create($this->exceptions)
             );
         }
     }
@@ -130,7 +133,7 @@ final class StrandWaitSome implements Awaitable, Listener
     private $count;
 
     /**
-     * @var array<Strand> The strands to wait for.
+     * @var array<SystemStrand> The strands to wait for.
      */
     private $substrands;
 

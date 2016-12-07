@@ -1,25 +1,21 @@
-test: deps
+test: vendor
 	php -c test/etc/php.ini vendor/bin/peridot
 
-coverage: deps
+coverage: vendor
 	phpdbg -c test/etc/php.ini -qrr vendor/bin/peridot --reporter html-code-coverage --code-coverage-path=artifacts/tests/coverage
 
-lint: $(shell find src)
-	composer validate
+lint: vendor $(shell find src)
 	vendor/bin/php-cs-fixer fix
-ifndef TRAVIS
+
+prepare: lint coverage
+	composer validate
 	travis lint
-endif
-
-deps: vendor
-
-prepare: deps lint coverage
 
 ci: lint
 	php -c test/etc/php.ini -d zend.assertions=-1 vendor/bin/peridot
 	phpdbg -c test/etc/php.ini -qrr vendor/bin/peridot --reporter clover-code-coverage --code-coverage-path=artifacts/tests/coverage/clover.xml
 
-.PHONY: FORCE test coverage lint deps prepare ci
+.PHONY: FORCE test coverage lint prepare ci
 
 vendor: composer.lock
 	composer install
