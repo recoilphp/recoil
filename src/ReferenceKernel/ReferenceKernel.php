@@ -57,6 +57,29 @@ final class ReferenceKernel implements SystemKernel
     }
 
     /**
+     * Please note that this code is not part of the public API. It may be
+     * changed or removed at any time without notice.
+     *
+     * @access private
+     *
+     * This constructor is public so that it may be used by auto-wiring
+     * dependency injection containers. If you are explicitly constructing an
+     * instance please use one of the static factory methods listed below.
+     *
+     * @see ReferenceKernel::create()
+     *
+     * @param EventQueue $events The queue used to schedule events.
+     * @param IO         $io     The object used to perform IO.
+     * @param Api        $api    The kernel API exposed to strands.
+     */
+    public function __construct(EventQueue $events, IO $io, Api $api)
+    {
+        $this->events = $events;
+        $this->io = $io;
+        $this->api = $api;
+    }
+
+    /**
      * The kernel's main event loop. Invoked inside the run() method.
      *
      * Loop must return when $this->state is KernelState::STOPPING.
@@ -78,18 +101,6 @@ final class ReferenceKernel implements SystemKernel
                 return;
             }
         } while ($timeout !== null || $io !== IO::INACTIVE);
-    }
-
-    /**
-     * @param EventQueue $events The queue used to schedule events.
-     * @param IO         $io     The object used to perform IO.
-     * @param Api        $api    The kernel API exposed to strands.
-     */
-    public function __construct(EventQueue $events, IO $io, Api $api)
-    {
-        $this->events = $events;
-        $this->io = $io;
-        $this->api = $api;
     }
 
     use KernelTrait;
