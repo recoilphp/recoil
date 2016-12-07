@@ -935,12 +935,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/recoilphp/dev.git",
-                "reference": "f9802cf0e8c49c3d71529cbaed04c256ad6cd200"
+                "reference": "c193141389435acded3342abf81afee7969cf4a9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/recoilphp/dev/zipball/f9802cf0e8c49c3d71529cbaed04c256ad6cd200",
-                "reference": "f9802cf0e8c49c3d71529cbaed04c256ad6cd200",
+                "url": "https://api.github.com/repos/recoilphp/dev/zipball/c193141389435acded3342abf81afee7969cf4a9",
+                "reference": "c193141389435acded3342abf81afee7969cf4a9",
                 "shasum": ""
             },
             "require": {
@@ -957,7 +957,7 @@
                 "peridot-php/leo": "^1",
                 "peridot-php/peridot": "^1",
                 "peridot-php/peridot-code-coverage-reporters": "^2",
-                "recoil/react": "dev-master"
+                "recoil/recoil": "dev-124-split-repos"
             },
             "type": "composer-plugin",
             "extra": {
@@ -994,7 +994,7 @@
                 "stack",
                 "trace"
             ],
-            "time": "2016-12-07 02:48:43"
+            "time": "2016-12-07 05:01:25"
         },
         {
             "name": "sebastian/diff",
