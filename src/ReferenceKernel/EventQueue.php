@@ -41,7 +41,7 @@ final class EventQueue
         ++$this->queueSize;
         ++$this->pendingEvents;
 
-        if ($time < $this->nextTime) {
+        if ($this->queueSize === 1 || $time < $this->nextTime) {
             $this->nextTime = $time;
         }
 
