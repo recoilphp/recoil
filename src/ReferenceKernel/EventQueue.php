@@ -11,10 +11,11 @@ use SplPriorityQueue;
  * changed or removed at any time without notice.
  *
  * @access private
+ * @final
  *
  * EventQueue is used to schedule events for execution after a delay.
  */
-final class EventQueue
+class EventQueue
 {
     public function __construct()
     {

@@ -9,10 +9,11 @@ namespace Recoil\ReferenceKernel;
  * changed or removed at any time without notice.
  *
  * @access private
+ * @final
  *
  * IO invokes callbacks when streams become readable and/or writable.
  */
-final class IO
+class IO
 {
     const INACTIVE = 0;
     const ACTIVE = 1;
@@ -98,6 +99,10 @@ final class IO
             empty($this->readStreams) &&
             empty($this->writeStreams)
         ) {
+            if ($timeout !== null) {
+                \usleep($timeout);
+            }
+
             return self::INACTIVE;
         }
 

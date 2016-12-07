@@ -65,23 +65,19 @@ final class ReferenceKernel implements SystemKernel
      */
     protected function loop()
     {
-        $timeout = null;
-        $ioState = IO::INACTIVE;
-
         do {
-            if (
-                $timeout > 0 &&
-                $ioState === IO::INACTIVE
-            ) {
-                \usleep($timeout);
+            $timeout = $this->events->tick();
+
+            if ($this->state !== KernelState::RUNNING) {
+                return;
             }
 
-            $timeout = $this->events->tick();
-            $ioState = $this->io->tick($timeout);
-        } while (
-            $this->state === KernelState::RUNNING &&
-            ($timeout !== null || $ioState !== IO::INACTIVE)
-        );
+            $io = $this->io->tick($timeout);
+
+            if ($this->state !== KernelState::RUNNING) {
+                return;
+            }
+        } while ($timeout !== null || $io !== IO::INACTIVE);
     }
 
     /**
