@@ -12,7 +12,8 @@
         "hamcrest/hamcrest-php": "^2",
         "peridot-php/leo": "^1",
         "peridot-php/peridot-code-coverage-reporters": "^2",
-        "peridot-php/peridot": "^1",
+        "peridot-php/peridot": "dev-focused-specs-cli as 1.0.9999999999",
+        "phpunit/php-code-coverage": "dev-phpdbg-workaround as 2.2.9999999999",
         "recoil/dev": "dev-master"
     },
     "autoload": { "psr-4": { "Recoil\\": "src" } },
@@ -40,5 +41,11 @@
     ],
     "config": {
         "sort-packages": true
+    },
+    "repositories": {
+        "php-code-coverage": {
+            "type": "vcs",
+            "url": "https://github.com/jmalloc/php-code-coverage"
+        }
     }
 }

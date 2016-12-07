@@ -5,16 +5,17 @@ declare(strict_types=1); // @codeCoverageIgnore
 namespace Recoil\Kernel;
 
 /**
- * Please note that this code is not part of the public API. It may be
- * changed or removed at any time without notice.
- *
- * @access private
+ * Enumeration of strand states, used by StrandTrait.
  */
-interface StrandState
+final class StrandState
 {
     const READY = 0;
     const RUNNING = 1;
     const SUSPENDED_ACTIVE = 2;
     const SUSPENDED_INACTIVE = 3;
     const EXITED = 4;
+
+    private function __construct()
+    {
+    }
 }
