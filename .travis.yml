@@ -16,7 +16,8 @@ script: make ci
 after_script: bash <(curl -s https://codecov.io/bash)
 env:
   global:
-    secure: bGBzw+mOfhC/3/VY5+okKwOD8FfliC1JQ/9JiR8ZYk0YxeuSAwj8u8Bm++NbtKe41rANCrd5GztYpTlZb3R3/7tbbD3PlREsrh0X6qZckiRTvgJ8hT2kpBl4J1IDrLFG+MyBD6VGAC4oPtR0yRz4oe0vjSHyduycBahHaWLe6Pw=
+    - RECOIL_INSTRUMENTATION=none
+    - secure: bGBzw+mOfhC/3/VY5+okKwOD8FfliC1JQ/9JiR8ZYk0YxeuSAwj8u8Bm++NbtKe41rANCrd5GztYpTlZb3R3/7tbbD3PlREsrh0X6qZckiRTvgJ8hT2kpBl4J1IDrLFG+MyBD6VGAC4oPtR0yRz4oe0vjSHyduycBahHaWLe6Pw=
 cache:
   directories:
   - $HOME/.composer
