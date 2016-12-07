@@ -118,6 +118,7 @@ class IO
             $timeout ?: 0
         );
 
+        // @codeCoverageIgnoreStart
         if ($count === false) {
             $error = \error_get_last();
 
@@ -133,6 +134,7 @@ class IO
 
             return self::INTERRUPT;
         }
+        // @codeCoverageIgnoreEnd
 
         foreach ($readStreams as $stream) {
             $queue = $this->readQueue[(int) $stream] ?? [];
