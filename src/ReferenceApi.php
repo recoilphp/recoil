@@ -85,10 +85,14 @@ final class ReferenceApi implements Api
      */
     public function timeout(SystemStrand $strand, float $timeout, $coroutine)
     {
+        $substrand = $strand->kernel()->execute($coroutine);
+
+        assert($substrand instanceof SystemStrand);
+
         $awaitable = new StrandTimeout(
             $this->events,
             $timeout,
-            $strand->kernel()->execute($coroutine)
+            $substrand
         );
 
         $awaitable->await($strand);

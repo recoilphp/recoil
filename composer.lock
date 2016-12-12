@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "d0e433aacf36fdaa3bd11f90e479f519",
-    "content-hash": "27e59e42964d18ec1492e319081bcbb0",
+    "hash": "403ed532a9157ce0211b96af9d1e3ef5",
+    "content-hash": "97d352e430dfb4f078026066bca79c90",
     "packages": [
         {
             "name": "icecave/repr",
@@ -114,6 +114,66 @@
                 "react"
             ],
             "time": "2016-08-22 04:10:11"
+        },
+        {
+            "name": "recoil/kernel",
+            "version": "0.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/recoilphp/kernel.git",
+                "reference": "38ae384afbe8f840f2602c2525f32cf233d31a3e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/recoilphp/kernel/zipball/38ae384afbe8f840f2602c2525f32cf233d31a3e",
+                "reference": "38ae384afbe8f840f2602c2525f32cf233d31a3e",
+                "shasum": ""
+            },
+            "require": {
+                "icecave/repr": "^1",
+                "php": "^7",
+                "recoil/api": "^0.1"
+            },
+            "require-dev": {
+                "eloquent/phony": "^0.14",
+                "friendsofphp/php-cs-fixer": "^1",
+                "hamcrest/hamcrest-php": "^2",
+                "peridot-php/leo": "^1",
+                "peridot-php/peridot": "^1",
+                "peridot-php/peridot-code-coverage-reporters": "^2"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Recoil\\Kernel\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "James Harris",
+                    "email": "james.harris@icecave.com.au",
+                    "homepage": "https://github.com/jmalloc"
+                }
+            ],
+            "description": "Reusable components for implementing Recoil kernels.",
+            "homepage": "https://github.com/recoilphp/kernel",
+            "keywords": [
+                "Thread",
+                "async",
+                "asynchronous",
+                "continuation",
+                "coroutine",
+                "event",
+                "generator",
+                "green",
+                "multitasking",
+                "react"
+            ],
+            "time": "2016-12-12 05:54:39"
         }
     ],
     "packages-dev": [
@@ -170,16 +230,16 @@
         },
         {
             "name": "eloquent/phony",
-            "version": "0.13.5",
+            "version": "0.14.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/eloquent/phony.git",
-                "reference": "42cb187e65f55c259e006982f51ae266132d4797"
+                "reference": "c6b42391a4ef418afa83078a2405242123f50c01"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/eloquent/phony/zipball/42cb187e65f55c259e006982f51ae266132d4797",
-                "reference": "42cb187e65f55c259e006982f51ae266132d4797",
+                "url": "https://api.github.com/repos/eloquent/phony/zipball/c6b42391a4ef418afa83078a2405242123f50c01",
+                "reference": "c6b42391a4ef418afa83078a2405242123f50c01",
                 "shasum": ""
             },
             "require": {
@@ -189,7 +249,7 @@
                 "athletic/athletic": "^0.1",
                 "counterpart/counterpart": "^1",
                 "danielstjules/pho": "^1",
-                "eloquent/asplode": "^2",
+                "errors/exceptions": "dev-master",
                 "ext-pdo": "*",
                 "friendsofphp/php-cs-fixer": "1.11.4",
                 "hamcrest/hamcrest-php": "^2",
@@ -241,7 +301,7 @@
                 "stubbing",
                 "test"
             ],
-            "time": "2016-09-20 00:27:59"
+            "time": "2016-12-07 06:02:42"
         },
         {
             "name": "evenement/evenement",
@@ -346,54 +406,6 @@
             ],
             "description": "A tool to automatically fix PHP code style",
             "time": "2016-12-01 00:05:05"
-        },
-        {
-            "name": "hamcrest/hamcrest-php",
-            "version": "v2.0.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/hamcrest/hamcrest-php.git",
-                "reference": "776503d3a8e85d4f9a1148614f95b7a608b046ad"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/hamcrest/hamcrest-php/zipball/776503d3a8e85d4f9a1148614f95b7a608b046ad",
-                "reference": "776503d3a8e85d4f9a1148614f95b7a608b046ad",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^5.3|^7.0"
-            },
-            "replace": {
-                "cordoval/hamcrest-php": "*",
-                "davedevelopment/hamcrest-php": "*",
-                "kodova/hamcrest-php": "*"
-            },
-            "require-dev": {
-                "phpunit/php-file-iterator": "1.3.3",
-                "phpunit/phpunit": "~4.0",
-                "satooshi/php-coveralls": "^1.0"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "2.0-dev"
-                }
-            },
-            "autoload": {
-                "classmap": [
-                    "hamcrest"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "BSD"
-            ],
-            "description": "This is the PHP port of Hamcrest Matchers",
-            "keywords": [
-                "test"
-            ],
-            "time": "2016-01-20 08:20:44"
         },
         {
             "name": "nikic/php-parser",
