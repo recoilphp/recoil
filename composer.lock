@@ -928,16 +928,16 @@
         },
         {
             "name": "recoil/dev",
-            "version": "0.1.0",
+            "version": "0.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/recoilphp/dev.git",
-                "reference": "3373a3fa575d4fb370395937724e037bf1fde3f9"
+                "reference": "0a9e1f51b4003ad3c26070a0988977974805775b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/recoilphp/dev/zipball/3373a3fa575d4fb370395937724e037bf1fde3f9",
-                "reference": "3373a3fa575d4fb370395937724e037bf1fde3f9",
+                "url": "https://api.github.com/repos/recoilphp/dev/zipball/0a9e1f51b4003ad3c26070a0988977974805775b",
+                "reference": "0a9e1f51b4003ad3c26070a0988977974805775b",
                 "shasum": ""
             },
             "require": {
@@ -956,6 +956,9 @@
                 "peridot-php/peridot-code-coverage-reporters": "^2",
                 "recoil/recoil": "dev-master#ed34cf7"
             },
+            "bin": [
+                "bin/recoil-instrument"
+            ],
             "type": "composer-plugin",
             "extra": {
                 "class": "Recoil\\Dev\\Composer\\Plugin"
@@ -991,7 +994,7 @@
                 "stack",
                 "trace"
             ],
-            "time": "2016-12-07 05:29:07"
+            "time": "2016-12-12 01:34:21"
         },
         {
             "name": "sebastian/diff",
