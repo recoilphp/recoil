@@ -5,9 +5,9 @@
 [![Code Quality](https://img.shields.io/scrutinizer/g/recoilphp/recoil/master.svg?style=flat-square)](https://scrutinizer-ci.com/g/recoilphp/recoil/)
 [![Latest Version](http://img.shields.io/packagist/v/recoil/recoil.svg?style=flat-square&label=semver)](https://semver.org)
 
-    composer require recoil/recoil
+An asynchronous coroutine kernel for PHP 7.
 
-Recoil requires PHP 7. For a version that works with PHP 5, please see the [0.4.0 release](https://github.com/recoilphp/recoil/releases/tag/0.4.0).
+    composer require recoil/recoil
 
 ## Overview
 
@@ -117,22 +117,20 @@ or [`CoroutineProvider`](src/Kernel/CoroutineProvider.php)
 
 The _kernel_ is responsible for creating and scheduling strands, much like the operating system kernel does for threads.
 
-There is currently a single kernel implementation bundled with Recoil, which is based on [React](https://github.com/reactphp/react),
-a well established reactor event-loop implementation. This allows applications to execute coroutine based code alongside
-"conventional" React code by sharing an event-loop instance.
+The kernel and strands are manipulated using the _kernel API_, a set of standard operations defined in the
+[Recoil API](https://github.com/recoilphp/api) and accessible using the [Recoil facade](https://github.com/recoilphp/api/blob/master/src/Recoil.php).
 
-In the future Recoil will ship with its own event-loop implementation and the React-specific code will be available as a
-set of "bindings".
-
-The kernel and strands are manipulated using the _kernel API_, a set of operations defined in [Api](src/Kernel/Api.php)
-and accessible using the [Recoil facade](src/Recoil.php).
+There are multiple kernel implementations available. This repository contains a stand-alone implementation based on
+`stream_select()`. There is also a kernel based on the [ReactPHP](https://github.com/reactphp/react) event-loop in
+[this repository](https://github.com/recoilphp/react).
 
 ## Examples
 
 The following examples illustrate the basic usage of coroutines and the kernel API. Additional examples are available in
 the [examples folder](examples/).
 
-References to `Recoil` and `ReactKernel` refer to the [Recoil facade](src/Recoil.php), and the [React kernel implementation](src/React/ReactKernel.php),
+References to `Recoil` and `ReactKernel` refer to the [Recoil facade](https://github.com/recoilphp/api/blob/master/src/Recoil.php),
+and the [React kernel implementation](https://github.com/recoilphp/react),
 respectively.
 
 ### Basic execution
