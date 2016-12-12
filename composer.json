@@ -3,20 +3,19 @@
     "description": "Asynchronous coroutines for PHP 7.",
     "require": {
         "php": "^7",
-        "icecave/repr": "^1",
-        "recoil/api": "^0.1"
+        "recoil/api": "^0.1",
+        "recoil/kernel": "^0.1"
     },
     "require-dev": {
-        "eloquent/phony": "^0.13",
+        "eloquent/phony": "^0.14",
         "friendsofphp/php-cs-fixer": "^1",
-        "hamcrest/hamcrest-php": "^2",
         "peridot-php/leo": "^1",
         "peridot-php/peridot-code-coverage-reporters": "^2",
         "peridot-php/peridot": "^1",
         "recoil/dev": "^0.1"
     },
-    "autoload": { "psr-4": { "Recoil\\": "src" } },
-    "autoload-dev": { "psr-4": { "Recoil\\": "test/src" } },
+    "autoload": { "psr-4": { "Recoil\\ReferenceKernel\\": "src" } },
+    "autoload-dev": { "psr-4": { "Recoil\\ReferenceKernel\\": "test/src" } },
     "keywords": [
         "coroutine",
         "generator",
