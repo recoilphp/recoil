@@ -9,7 +9,7 @@ declare(strict_types = 1);
 
 require __DIR__ . '/../vendor/autoload.php';
 
-use Recoil\React\ReactKernel;
+use Recoil\ReferenceKernel\ReferenceKernel;
 
 function multiply($a, $b)
 {
@@ -21,7 +21,7 @@ function multiply($a, $b)
     return $a * $b;
 }
 
-ReactKernel::start(function() {
+ReferenceKernel::start(function() {
     try {
         yield multiply(1, 'foo');
     } catch (InvalidArgumentException $e) {

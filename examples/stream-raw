@@ -10,10 +10,10 @@ declare(strict_types = 1);
 require __DIR__ . '/../vendor/autoload.php';
 
 
-use Recoil\React\ReactKernel;
+use Recoil\ReferenceKernel\ReferenceKernel;
 use Recoil\Recoil;
 
-ReactKernel::start(function () {
+ReferenceKernel::start(function () {
     $fp = tmpfile(); // please note that this is a *blocking* file operation
     stream_set_blocking($fp, false);
     stream_set_read_buffer($fp, 0);

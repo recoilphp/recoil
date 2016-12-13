@@ -4,7 +4,7 @@
     "require": {
         "php": "^7",
         "recoil/api": "^0.1",
-        "recoil/kernel": "^0.1"
+        "recoil/kernel": "^0.2"
     },
     "require-dev": {
         "eloquent/phony": "^0.14",
@@ -12,7 +12,9 @@
         "peridot-php/leo": "^1",
         "peridot-php/peridot-code-coverage-reporters": "^2",
         "peridot-php/peridot": "^1",
-        "recoil/dev": "^0.1"
+        "react/dns": "^0.4",
+        "recoil/dev": "^0.1",
+        "recoil/react": "dev-master"
     },
     "autoload": { "psr-4": { "Recoil\\ReferenceKernel\\": "src" } },
     "autoload-dev": { "psr-4": { "Recoil\\ReferenceKernel\\": "test/src" } },

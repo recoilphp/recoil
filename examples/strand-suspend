@@ -12,11 +12,11 @@ declare(strict_types = 1);
 
 require __DIR__ . '/../vendor/autoload.php';
 
-use Recoil\Kernel\Strand;
-use Recoil\React\ReactKernel;
+use Recoil\Strand;
+use Recoil\ReferenceKernel\ReferenceKernel;
 use Recoil\Recoil;
 
-ReactKernel::start(function () {
+ReferenceKernel::start(function () {
     echo 'Suspending the current strand.' . PHP_EOL;
 
     // The Recoil::suspend() API call pauses a strand until it is manually

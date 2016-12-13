@@ -9,7 +9,7 @@ declare(strict_types = 1);
 
 require __DIR__ . '/../vendor/autoload.php';
 
-use Recoil\React\ReactKernel;
+use Recoil\ReferenceKernel\ReferenceKernel;
 
 function hello()
 {
@@ -23,7 +23,7 @@ function world()
     yield;
 }
 
-ReactKernel::start(function () {
+ReferenceKernel::start(function () {
     yield hello();
     yield world();
 });
