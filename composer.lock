@@ -60,23 +60,23 @@
         },
         {
             "name": "recoil/api",
-            "version": "0.1.0",
+            "version": "0.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/recoilphp/api.git",
-                "reference": "cae1fea593f845bdb9f89c14dfdebf10b46345d0"
+                "reference": "9e0cf0b5ffc0e5fbde5452400dbadf911c5985df"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/recoilphp/api/zipball/cae1fea593f845bdb9f89c14dfdebf10b46345d0",
-                "reference": "cae1fea593f845bdb9f89c14dfdebf10b46345d0",
+                "url": "https://api.github.com/repos/recoilphp/api/zipball/9e0cf0b5ffc0e5fbde5452400dbadf911c5985df",
+                "reference": "9e0cf0b5ffc0e5fbde5452400dbadf911c5985df",
                 "shasum": ""
             },
             "require": {
                 "php": "^7"
             },
             "require-dev": {
-                "eloquent/phony": "^0.13",
+                "eloquent/phony": "^0.14",
                 "friendsofphp/php-cs-fixer": "^1",
                 "peridot-php/leo": "^1",
                 "peridot-php/peridot": "^1",
@@ -113,20 +113,20 @@
                 "multitasking",
                 "react"
             ],
-            "time": "2016-08-22 04:10:11"
+            "time": "2016-12-13 03:42:38"
         },
         {
             "name": "recoil/kernel",
-            "version": "0.2.0",
+            "version": "0.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/recoilphp/kernel.git",
-                "reference": "970cfc4186b3bcb6f85c2e420eb43c455fd2aeef"
+                "reference": "f388d5d43357abe78717b59235f1ae6908356dd9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/recoilphp/kernel/zipball/970cfc4186b3bcb6f85c2e420eb43c455fd2aeef",
-                "reference": "970cfc4186b3bcb6f85c2e420eb43c455fd2aeef",
+                "url": "https://api.github.com/repos/recoilphp/kernel/zipball/f388d5d43357abe78717b59235f1ae6908356dd9",
+                "reference": "f388d5d43357abe78717b59235f1ae6908356dd9",
                 "shasum": ""
             },
             "require": {
@@ -173,7 +173,7 @@
                 "multitasking",
                 "react"
             ],
-            "time": "2016-12-13 00:45:37"
+            "time": "2016-12-13 04:09:56"
         }
     ],
     "packages-dev": [
@@ -1184,16 +1184,16 @@
         },
         {
             "name": "recoil/dev",
-            "version": "0.1.1",
+            "version": "0.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/recoilphp/dev.git",
-                "reference": "0a9e1f51b4003ad3c26070a0988977974805775b"
+                "reference": "2d23599561aff966a778089f1faeff11e65d98a9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/recoilphp/dev/zipball/0a9e1f51b4003ad3c26070a0988977974805775b",
-                "reference": "0a9e1f51b4003ad3c26070a0988977974805775b",
+                "url": "https://api.github.com/repos/recoilphp/dev/zipball/2d23599561aff966a778089f1faeff11e65d98a9",
+                "reference": "2d23599561aff966a778089f1faeff11e65d98a9",
                 "shasum": ""
             },
             "require": {
@@ -1250,7 +1250,7 @@
                 "stack",
                 "trace"
             ],
-            "time": "2016-12-12 01:34:21"
+            "time": "2016-12-13 04:04:47"
         },
         {
             "name": "recoil/react",
