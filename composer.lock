@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "2e9f457993a1fa89eccc296354c657ea",
-    "content-hash": "0660001a069d2f107ddae22acdfbeee4",
+    "hash": "b85edb9ea3d28497687c586822ad396e",
+    "content-hash": "3b9f7ab72c760d5f13b6549f89010313",
     "packages": [
         {
             "name": "icecave/repr",
@@ -60,16 +60,16 @@
         },
         {
             "name": "recoil/api",
-            "version": "0.1.1",
+            "version": "1.0.0-alpha.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/recoilphp/api.git",
-                "reference": "9e0cf0b5ffc0e5fbde5452400dbadf911c5985df"
+                "reference": "66c0255cc1b71b576963800920dbc4a1ae7a6ebf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/recoilphp/api/zipball/9e0cf0b5ffc0e5fbde5452400dbadf911c5985df",
-                "reference": "9e0cf0b5ffc0e5fbde5452400dbadf911c5985df",
+                "url": "https://api.github.com/repos/recoilphp/api/zipball/66c0255cc1b71b576963800920dbc4a1ae7a6ebf",
+                "reference": "66c0255cc1b71b576963800920dbc4a1ae7a6ebf",
                 "shasum": ""
             },
             "require": {
@@ -113,26 +113,26 @@
                 "multitasking",
                 "react"
             ],
-            "time": "2016-12-13 03:42:38"
+            "time": "2016-12-13 23:07:28"
         },
         {
             "name": "recoil/kernel",
-            "version": "0.2.1",
+            "version": "1.0.0-alpha.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/recoilphp/kernel.git",
-                "reference": "f388d5d43357abe78717b59235f1ae6908356dd9"
+                "reference": "fec9716dfcbb7db05378107433d156626cfd9cb6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/recoilphp/kernel/zipball/f388d5d43357abe78717b59235f1ae6908356dd9",
-                "reference": "f388d5d43357abe78717b59235f1ae6908356dd9",
+                "url": "https://api.github.com/repos/recoilphp/kernel/zipball/fec9716dfcbb7db05378107433d156626cfd9cb6",
+                "reference": "fec9716dfcbb7db05378107433d156626cfd9cb6",
                 "shasum": ""
             },
             "require": {
                 "icecave/repr": "^1",
                 "php": "^7",
-                "recoil/api": "^0.1"
+                "recoil/api": "^1@alpha"
             },
             "require-dev": {
                 "eloquent/phony": "^0.14",
@@ -173,7 +173,7 @@
                 "multitasking",
                 "react"
             ],
-            "time": "2016-12-13 04:09:56"
+            "time": "2016-12-14 21:34:46"
         }
     ],
     "packages-dev": [
@@ -1184,16 +1184,16 @@
         },
         {
             "name": "recoil/dev",
-            "version": "0.1.2",
+            "version": "0.1.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/recoilphp/dev.git",
-                "reference": "2d23599561aff966a778089f1faeff11e65d98a9"
+                "reference": "c56edee985869e14595c1770643116254053ebf0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/recoilphp/dev/zipball/2d23599561aff966a778089f1faeff11e65d98a9",
-                "reference": "2d23599561aff966a778089f1faeff11e65d98a9",
+                "url": "https://api.github.com/repos/recoilphp/dev/zipball/c56edee985869e14595c1770643116254053ebf0",
+                "reference": "c56edee985869e14595c1770643116254053ebf0",
                 "shasum": ""
             },
             "require": {
@@ -1201,16 +1201,16 @@
                 "eloquent/enumeration": "^5",
                 "nikic/php-parser": "^2.1",
                 "php": "^7",
-                "recoil/api": "^0.1"
+                "recoil/api": "^0.1|^1@alpha"
             },
             "require-dev": {
                 "composer/composer": "1.0.0",
-                "eloquent/phony": "^0.13",
+                "eloquent/phony": "^0.14",
                 "friendsofphp/php-cs-fixer": "^1",
                 "peridot-php/leo": "^1",
                 "peridot-php/peridot": "^1",
                 "peridot-php/peridot-code-coverage-reporters": "^2",
-                "recoil/recoil": "dev-master#ed34cf7"
+                "recoil/recoil": "dev-master"
             },
             "bin": [
                 "bin/recoil-instrument"
@@ -1250,28 +1250,28 @@
                 "stack",
                 "trace"
             ],
-            "time": "2016-12-13 04:04:47"
+            "time": "2016-12-13 23:38:18"
         },
         {
             "name": "recoil/react",
-            "version": "dev-master",
+            "version": "1.0.0-alpha.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/recoilphp/react.git",
-                "reference": "fc6227c071c12523415aa08829ac3f6e0ac9dbf1"
+                "reference": "acc6d0658a569541a6aa180c26284aa2cd10a189"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/recoilphp/react/zipball/fc6227c071c12523415aa08829ac3f6e0ac9dbf1",
-                "reference": "fc6227c071c12523415aa08829ac3f6e0ac9dbf1",
+                "url": "https://api.github.com/repos/recoilphp/react/zipball/acc6d0658a569541a6aa180c26284aa2cd10a189",
+                "reference": "acc6d0658a569541a6aa180c26284aa2cd10a189",
                 "shasum": ""
             },
             "require": {
                 "php": "^7",
                 "react/event-loop": "^0.4",
                 "react/promise": "^2",
-                "recoil/api": "^0.1",
-                "recoil/kernel": "^0.2"
+                "recoil/api": "^1@alpha",
+                "recoil/kernel": "^1@alpha"
             },
             "require-dev": {
                 "eloquent/phony": "^0.14",
@@ -1314,7 +1314,7 @@
                 "promise",
                 "react"
             ],
-            "time": "2016-12-13 00:53:13"
+            "time": "2016-12-14 21:44:07"
         },
         {
             "name": "sebastian/diff",
@@ -1455,16 +1455,16 @@
         },
         {
             "name": "symfony/console",
-            "version": "v3.2.0",
+            "version": "v3.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/console.git",
-                "reference": "09d0fd33560e3573185a2ea17614e37ba38716c5"
+                "reference": "d12aa9ca20f4db83ec58410978dab6afcb9d6aaa"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/console/zipball/09d0fd33560e3573185a2ea17614e37ba38716c5",
-                "reference": "09d0fd33560e3573185a2ea17614e37ba38716c5",
+                "url": "https://api.github.com/repos/symfony/console/zipball/d12aa9ca20f4db83ec58410978dab6afcb9d6aaa",
+                "reference": "d12aa9ca20f4db83ec58410978dab6afcb9d6aaa",
                 "shasum": ""
             },
             "require": {
@@ -1514,11 +1514,11 @@
             ],
             "description": "Symfony Console Component",
             "homepage": "https://symfony.com",
-            "time": "2016-11-16 22:18:16"
+            "time": "2016-12-11 14:34:22"
         },
         {
             "name": "symfony/debug",
-            "version": "v3.2.0",
+            "version": "v3.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/debug.git",
@@ -1575,7 +1575,7 @@
         },
         {
             "name": "symfony/event-dispatcher",
-            "version": "v3.2.0",
+            "version": "v3.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/event-dispatcher.git",
@@ -1635,7 +1635,7 @@
         },
         {
             "name": "symfony/filesystem",
-            "version": "v3.2.0",
+            "version": "v3.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/filesystem.git",
@@ -1684,16 +1684,16 @@
         },
         {
             "name": "symfony/finder",
-            "version": "v3.2.0",
+            "version": "v3.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/finder.git",
-                "reference": "4263e35a1e342a0f195c9349c0dee38148f8a14f"
+                "reference": "a69cb5d455b4885ca376dc5bb3e1155cc8c08c4b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/finder/zipball/4263e35a1e342a0f195c9349c0dee38148f8a14f",
-                "reference": "4263e35a1e342a0f195c9349c0dee38148f8a14f",
+                "url": "https://api.github.com/repos/symfony/finder/zipball/a69cb5d455b4885ca376dc5bb3e1155cc8c08c4b",
+                "reference": "a69cb5d455b4885ca376dc5bb3e1155cc8c08c4b",
                 "shasum": ""
             },
             "require": {
@@ -1729,7 +1729,7 @@
             ],
             "description": "Symfony Finder Component",
             "homepage": "https://symfony.com",
-            "time": "2016-11-03 08:11:03"
+            "time": "2016-12-13 09:39:43"
         },
         {
             "name": "symfony/polyfill-mbstring",
@@ -1792,7 +1792,7 @@
         },
         {
             "name": "symfony/process",
-            "version": "v3.2.0",
+            "version": "v3.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/process.git",
@@ -1841,7 +1841,7 @@
         },
         {
             "name": "symfony/stopwatch",
-            "version": "v3.2.0",
+            "version": "v3.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/stopwatch.git",
@@ -1892,7 +1892,9 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "recoil/react": 20
+        "recoil/api": 15,
+        "recoil/kernel": 15,
+        "recoil/react": 15
     },
     "prefer-stable": false,
     "prefer-lowest": false,
