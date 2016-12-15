@@ -23,6 +23,11 @@ use Throwable;
  */
 final class StrandTimeout implements Awaitable, Listener
 {
+    /**
+     * @var EventQueue   The event queue used to schedule the timeout event.
+     * @var float        $timeout   The timeout, in seconds.
+     * @var SystemStrand $substrand The strand to wait for.
+     */
     public function __construct(
         EventQueue $events,
         float $timeout,
@@ -37,9 +42,6 @@ final class StrandTimeout implements Awaitable, Listener
      * Attach a listener to this object.
      *
      * @param Listener $listener The object to resume when the work is complete.
-     * @param Api      $api      The API implementation for the current kernel.
-     *
-     * @return null
      */
     public function await(Listener $listener)
     {

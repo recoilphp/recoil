@@ -108,29 +108,23 @@ Strands are very light-weight and are sometimes known as [green threads](http://
 
 Recoil's concept of the strand is defined by the [Strand](src/Kernel/Strand.php) interface.
 
-### Awaitables
+### Dispatchable Values
 
-An _Awaitable_ is any value that Recoil recognises when yielded by a coroutine. For example, yielding another generator
+An _Dispatchable Value_ is any value that Recoil recognises when yielded by a coroutine. For example, yielding another generator
 pushes that generator onto the current strand's call-stack and invokes it, thus making it a coroutine.
 
-The are four kinds of awaitables:
-
-1. PHP generators - coroutines to be executed on the current strand
-1. API calls - special operations used to manage strands
-1. Custom awaitables - implementations of [`Awaitable`](src/Kernel/Awaitable.php), [`AwaitableProvider`](src/Kernel/AwaitableProvider.php)
-or [`CoroutineProvider`](src/Kernel/CoroutineProvider.php)
-1. Adaptable values - values that can be adapted into a awaitable, such as the use of `float` to suspend execption for a given number of seconds
+The [Recoil facade](https://github.com/recoilphp/api/blob/master/src/Recoil.php) class describes the complete list of
+supported values.
 
 ### The Kernel and Kernel API
 
 The _kernel_ is responsible for creating and scheduling strands, much like the operating system kernel does for threads.
 
-The kernel and strands are manipulated using the _kernel API_, a set of standard operations defined in the
+The kernel and strands are manipulated using the _kernel API_, which is a set of standard operations defined in the
 [Recoil API](https://github.com/recoilphp/api) and accessible using the [Recoil facade](https://github.com/recoilphp/api/blob/master/src/Recoil.php).
 
 There are multiple kernel implementations available. This repository contains a stand-alone implementation based on
-`stream_select()`. There is also a kernel based on the [ReactPHP](https://github.com/reactphp/react) event-loop in
-[this repository](https://github.com/recoilphp/react).
+`stream_select()`. The [`recoil/react` package](https://github.com/recoilphp/react) provides a kernel based on the [ReactPHP](https://github.com/reactphp/react) event-loop.
 
 ## Examples
 
@@ -161,7 +155,7 @@ and allows the kernel to process other strands, though there are none in this ex
 ### Calling one coroutine from another
 
 A coroutine can be invoked by simply yielding it, as described in the section on coroutines above. You can also use the
-`yield from` syntax, which may perform better but only works with generators, whereas `yield` works with any awaitable
+`yield from` syntax, which may perform better but only works with generators, whereas `yield` works with any dispatchable
 value.
 
 ```php
