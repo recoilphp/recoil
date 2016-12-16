@@ -1,5 +1,25 @@
 # Changelog
 
+## 1.0.0-alpha.1 (2016-12-16)
+
+**UPGRADE WITH CAUTION**
+
+As of this version, the `recoil/recoil` package only contains the
+"reference kernel", which is an implementation of the kernel with no external
+dependencies. As such, it can not be used to execute ReactPHP code.
+
+The ReactPHP kernel is still available in the [recoil/react](https://github.com/recoilphp/react)
+package.
+
+Libraries and applications should be developed against the interfaces and
+classes provided by [recoil/api](https://github.com/recoilphp/api). The intent
+is to keep these interfaces as stable as possible across the various kernel
+implementations and versions.
+
+- **[BC]** Moved the ReactPHP-based kernel to the [recoil/react](https://github.com/recoilphp/react) package
+- **[BC]** Moved the public interfaces to the [recoil/api](https://github.com/recoilphp/api) package
+- **[BC]** Moved kernel implementation details to the [recoil/kernel](https://github.com/recoilphp/kernel) package
+
 ## 0.6.0 (2016-07-29)
 
 - **[BC]** Revert addition of `Api::resume()` and `throw()` (added in 0.5.2)
