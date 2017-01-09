@@ -121,9 +121,11 @@ final class ReferenceApi implements Api
 
         $buffer = '';
         $done = null;
-        $done = $this->io->read(
-            $stream,
-            function ($stream) use (
+        $done = $this->io->select(
+            [$stream],
+            [],
+            function () use (
+                $stream,
                 $strand,
                 &$minLength,
                 &$maxLength,
@@ -197,9 +199,11 @@ final class ReferenceApi implements Api
         }
 
         $done = null;
-        $done = $this->io->write(
-            $stream,
-            function ($stream) use (
+        $done = $this->io->select(
+            [],
+            [$stream],
+            function () use (
+                $stream,
                 $strand,
                 &$done,
                 &$buffer,
@@ -228,6 +232,32 @@ final class ReferenceApi implements Api
                     $length -= $bytes;
                     $buffer = \substr($buffer, $bytes);
                 }
+            }
+        );
+
+        $strand->setTerminator($done);
+    }
+
+    /**
+     * Wait for one or more streams to become readable or writable.
+     *
+     * @see Recoil::select() for the full specification.
+     *
+     * @param SystemStrand    $strand The strand executing the API call.
+     * @param array<resource> $read   The set of readable streams.
+     * @param array<resource> $read   The set of writable streams.
+     *
+     * @return Generator|null
+     */
+    public function select(SystemStrand $strand, array $read, array $write)
+    {
+        $done = null;
+        $done = $this->io->select(
+            $read,
+            $write,
+            function ($read, $write) use ($strand, &$done) {
+                $done();
+                $strand->send([$read, $write]);
             }
         );
 

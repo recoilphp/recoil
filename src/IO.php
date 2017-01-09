@@ -20,68 +20,64 @@ class IO
     const INTERRUPT = 2;
 
     /**
-     * Register a callback to be invoked when a stream becomes readable.
+     * Fire a callback when any of the given streams become ready for reading
+     * or writing.
      *
-     * Each time the stream becomes ready, only the callback that was
-     * registered the earliest is called.
-     *
-     * @param resource $stream The stream to read.
-     * @param callable $fn     The function to invoke.
-     *
-     * @return callable A function used to remove the callback.
+     * @param array<resource> $read
+     * @param array<resource> $write
+     * @param callable        $fn
      */
-    public function read($stream, callable $fn): callable
-    {
-        assert(is_resource($stream));
+    public function select(
+        array $read,
+        array $write,
+        callable $fn
+    ) : callable {
+        $select = new IOSelect(
+            ++$this->nextId,
+            $read,
+            $write,
+            $fn
+        );
 
-        $id = ++$this->nextId;
-        $fd = (int) $stream;
+        $this->selects[$select->id] = $select;
 
-        $this->readStreams[$fd] = $stream;
-        $this->readQueue[$fd][$id] = $fn;
+        foreach ($select->read as $fd => $stream) {
+            $this->readStreams[$fd] = $stream;
+            $this->readQueue[$fd][$select->id] = $select;
+        }
 
-        return function () use ($fd, $id) {
-            $queue = &$this->readQueue[$fd];
-            unset($queue[$id]);
+        foreach ($select->write as $fd => $stream) {
+            $this->writeStreams[$fd] = $stream;
+            $this->writeQueue[$fd][$select->id] = $select;
+        }
 
-            if (empty($queue)) {
-                unset(
-                    $this->readStreams[$fd],
-                    $this->readQueue[$fd]
-                );
+        return function () use ($select) {
+            unset($this->selects[$select->id]);
+
+            foreach ($select->read as $fd => $stream) {
+                $queue = &$this->readQueue[$fd];
+
+                unset($queue[$select->id]);
+
+                if (empty($queue)) {
+                    unset(
+                        $this->readStreams[$fd],
+                        $this->readQueue[$fd]
+                    );
+                }
             }
-        };
-    }
 
-    /**
-     * Register a callback to be invoked when a stream becomes writable.
-     *
-     * Each time the stream becomes ready, only the callback that was
-     * registered the earliest is called.
-     *
-     * @param resource $stream The stream to write.
-     * @param callable $fn     The function to invoke.
-     *
-     * @return callable A function used to remove the callback.
-     */
-    public function write($stream, callable $fn): callable
-    {
-        assert(is_resource($stream));
+            foreach ($select->write as $fd => $stream) {
+                $queue = &$this->writeQueue[$fd];
 
-        $id = ++$this->nextId;
-        $fd = (int) $stream;
-        $this->writeStreams[$fd] = $stream;
-        $this->writeQueue[$fd][$id] = $fn;
+                unset($queue[$select->id]);
 
-        return function () use ($fd, $id) {
-            $queue = &$this->writeQueue[$fd];
-            unset($queue[$id]);
-
-            if (empty($queue)) {
-                unset(
-                    $this->writeStreams[$fd],
-                    $this->writeQueue[$fd]
-                );
+                if (empty($queue)) {
+                    unset(
+                        $this->writeStreams[$fd],
+                        $this->writeQueue[$fd]
+                    );
+                }
             }
         };
     }
@@ -122,7 +118,7 @@ class IO
         if ($count === false) {
             $error = \error_get_last();
 
-            if (stripos($error['message'], 'interrupted system call') === false) {
+            if (\stripos($error['message'], 'interrupted system call') === false) {
                 throw new ErrorException(
                    $error['message'],
                    $error['type'],
@@ -136,20 +132,37 @@ class IO
         }
         // @codeCoverageIgnoreEnd
 
+        $ready = [];
+        $readyForRead = [];
+        $readyForWrite = [];
+
         foreach ($readStreams as $stream) {
-            $queue = $this->readQueue[(int) $stream] ?? [];
-            foreach ($queue as $fn) {
-                $fn($stream);
+            $fd = (int) $stream;
+            $queue = $this->readQueue[$fd] ?? [];
+
+            foreach ($queue as $select) {
+                $ready[$select->id] = $select;
+                $readyForRead[$select->id][] = $stream;
                 break;
             }
         }
 
         foreach ($writeStreams as $stream) {
-            $queue = $this->writeQueue[(int) $stream] ?? [];
-            foreach ($queue as $fn) {
-                $fn($stream);
+            $fd = (int) $stream;
+            $queue = $this->writeQueue[$fd] ?? [];
+
+            foreach ($queue as $select) {
+                $ready[$select->id] = $select;
+                $readyForWrite[$select->id][] = $stream;
                 break;
             }
+        }
+
+        foreach ($ready as $select) {
+            ($select->callback)(
+                $readyForRead[$select->id] ?? [],
+                $readyForWrite[$select->id] ?? []
+            );
         }
 
         if (
@@ -163,29 +176,34 @@ class IO
     }
 
     /**
-     * @param int A sequence of IDs used to identify registered callbacks.
+     * @var int A sequence of IDs used to identify registered callbacks.
      */
     private $nextId = 0;
 
     /**
-     * @param array<int, stream> A map of resource ID to stream for reading.
+     * @var array<int, IOSelect> A map of select ID to IOSelect object.
+     */
+    private $selects = [];
+
+    /**
+     * @var array<int, stream> A map of resource ID to stream for reading.
      */
     private $readStreams = [];
 
     /**
-     * @param array<int, array<int, callable>> A map of resource ID to a queue
-     *                                         of callback functions for that stream.
+     * @var array<int, array<int, IOSelect>> A map of resource ID to a queue
+     *                 of IOSelect objects for that stream.
      */
     private $readQueue = [];
 
     /**
-     * @param array<int, stream> A map of resource ID to stream for writing.
+     * @var array<int, stream> A map of resource ID to stream for writing.
      */
     private $writeStreams = [];
 
     /**
-     * @param array<int, array<int, callable>> A map of resource ID to a queue
-     *                                         of callback functions for that stream.
+     * @var array<int, array<int, IOSelect>> A map of resource ID to a queue
+     *                 of IOSelect objects for that stream.
      */
     private $writeQueue = [];
 }

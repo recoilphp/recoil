@@ -3,8 +3,8 @@
     "description": "Asynchronous coroutines for PHP 7.",
     "require": {
         "php": "^7",
-        "recoil/api": "^1@alpha",
-        "recoil/kernel": "^1@alpha"
+        "recoil/api": "dev-3-select as 1.0.0-alpha.9999",
+        "recoil/kernel": "dev-select as 1.0.0-alpha.9999"
     },
     "require-dev": {
         "eloquent/phony": "^0.14",
@@ -13,7 +13,7 @@
         "peridot-php/peridot-code-coverage-reporters": "^2",
         "peridot-php/peridot": "^1",
         "react/dns": "^0.4",
-        "recoil/dev": "^0.1",
+        "recoil/dev": "dev-select",
         "recoil/react": "^1@alpha"
     },
     "autoload": { "psr-4": { "Recoil\\ReferenceKernel\\": "src" } },
