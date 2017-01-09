@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.0-alpha.2 (2016-12-16)
+
+- **[NEW]** Add `select()` API operation
+
 ## 1.0.0-alpha.1 (2016-12-16)
 
 **UPGRADE WITH CAUTION**
