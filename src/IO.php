@@ -4,6 +4,8 @@ declare(strict_types=1); // @codeCoverageIgnore
 
 namespace Recoil\ReferenceKernel;
 
+use RuntimeException;
+
 /**
  * Please note that this code is not part of the public API. It may be
  * changed or removed at any time without notice.
@@ -117,6 +119,16 @@ class IO
         // @codeCoverageIgnoreStart
         if ($count === false) {
             $error = \error_get_last();
+
+            if ($error === null) {
+                // Handle cases where stream_select() returns false, but there
+                // is no error information. This seems to occur when in-memory
+                // streams are selected, but we can't guarantee that's the
+                // actual reason ...
+                throw new RuntimeException(
+                    'An unknown error occurred while waiting for stream activity.'
+                );
+            }
 
             if (\stripos($error['message'], 'interrupted system call') === false) {
                 throw new ErrorException(
