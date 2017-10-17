@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.0 (2017-10-18)
+
+This is the first stable release of `recoil/recoil`. There have been no changes
+to the API since the `1.0.0-alpha.2` release.
+
 ## 1.0.0-alpha.2 (2016-12-16)
 
 - **[NEW]** Add `select()` API operation
