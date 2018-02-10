@@ -9,6 +9,7 @@ coverage-open: artifacts/tests/coverage/index.html
 	open artifacts/tests/coverage/index.html
 
 lint: $(SOURCE) | vendor
+	@mkdir -p artifacts/
 	vendor/bin/php-cs-fixer fix
 
 prepare: lint coverage

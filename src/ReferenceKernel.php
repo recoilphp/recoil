@@ -18,7 +18,7 @@ final class ReferenceKernel implements SystemKernel
     /**
      * Create a new kernel.
      */
-    public static function create() : self
+    public static function create(): self
     {
         $events = new EventQueue();
         $io = new IO();
@@ -35,7 +35,7 @@ final class ReferenceKernel implements SystemKernel
      *
      * @param mixed $coroutine The coroutine to execute.
      */
-    public function execute($coroutine) : Strand
+    public function execute($coroutine): Strand
     {
         $strand = new ReferenceStrand(
             $this,

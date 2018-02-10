@@ -33,7 +33,7 @@ class IO
         array $read,
         array $write,
         callable $fn
-    ) : callable {
+    ): callable {
         $select = new IOSelect(
             ++$this->nextId,
             $read,
@@ -91,7 +91,7 @@ class IO
 
      * @return int One of the ACTIVE, INACTIVE or INTERRUPTED constants.
      */
-    public function tick(int $timeout = null) : int
+    public function tick(int $timeout = null): int
     {
         if (
             empty($this->readStreams) &&
