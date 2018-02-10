@@ -2,18 +2,10 @@
 
 $finder = PhpCsFixer\Finder::create()
     ->in(__DIR__)
-    ->exclude(
-        array(
-            'artifacts',
-            'assets',
-            'bower_components',
-            'build',
-            'node_modules',
-            'src-web',
-            'src-generated',
-            'vendor',
-        )
-    );
+    ->exclude([
+        'artifacts',
+        'vendor',
+    ]);
 
 return PhpCsFixer\Config::create()
     ->setFinder($finder)
