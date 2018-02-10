@@ -33,7 +33,7 @@ class EventQueue
      *
      * @return callable A function used to cancel the event.
      */
-    public function schedule(float $delay, callable $fn) : callable
+    public function schedule(float $delay, callable $fn): callable
     {
         $time = \microtime(true) + $delay;
         $event = new Event($time, $fn);
