@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.1 (2018-04-06)
+
+- **[FIX]** Handle `fwrite()` error conditions indicated by `0` return value ([recoilphp/react#6](https://github.com/recoilphp/react#6))
+
 ## 1.0.0 (2017-10-18)
 
 This is the first stable release of `recoil/recoil`. There have been no changes
