@@ -6,7 +6,6 @@ namespace Recoil\ReferenceKernel;
 
 use Recoil\Awaitable;
 use Recoil\Exception\TimeoutException;
-use Recoil\Kernel\Api;
 use Recoil\Kernel\SystemStrand;
 use Recoil\Listener;
 use Recoil\Strand;

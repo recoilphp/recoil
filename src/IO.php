@@ -27,7 +27,8 @@ class IO
      *
      * @param array<resource> $read
      * @param array<resource> $write
-     * @param callable        $fn
+     * @param callable $fn
+     * @return callable
      */
     public function select(
         array $read,
