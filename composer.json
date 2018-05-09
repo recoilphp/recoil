@@ -4,17 +4,18 @@
     "require": {
         "php": "^7",
         "recoil/api": "^1",
-        "recoil/kernel": "^1"
+        "recoil/kernel": "^1",
+        "react/dns": "^0.4",
+        "recoil/dev": "^0.3",
+        "recoil/react": "^1"
     },
     "require-dev": {
         "eloquent/phony": "^2",
         "friendsofphp/php-cs-fixer": "^2",
         "peridot-php/leo": "^1",
         "peridot-php/peridot": "^1",
-        "peridot-php/peridot-code-coverage-reporters": "^2",
-        "react/dns": "^0.4",
-        "recoil/dev": "^0.3",
-        "recoil/react": "^1"
+        "peridot-php/peridot-code-coverage-reporters": "^2"
+
     },
     "autoload": { "psr-4": { "Recoil\\ReferenceKernel\\": "src" } },
     "autoload-dev": { "psr-4": { "Recoil\\ReferenceKernel\\": "test/src" } },
