@@ -34,6 +34,7 @@ final class ReferenceKernel implements SystemKernel
      * strand, when that strand cooperates.
      *
      * @param mixed $coroutine The coroutine to execute.
+     * @return Strand
      */
     public function execute($coroutine): Strand
     {

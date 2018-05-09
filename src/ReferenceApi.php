@@ -36,7 +36,7 @@ final class ReferenceApi implements Api
      *
      * @param SystemStrand $strand The strand executing the API call.
      *
-     * @return Generator|null
+     * @return void
      */
     public function cooperate(SystemStrand $strand)
     {
@@ -55,10 +55,10 @@ final class ReferenceApi implements Api
      *
      * @see Recoil::sleep() for the full specification.
      *
-     * @param SystemStrand $strand   The strand executing the API call.
-     * @param float        $interval The interval to wait, in seconds.
+     * @param SystemStrand $strand The strand executing the API call.
+     * @param float $interval The interval to wait, in seconds.
      *
-     * @return Generator|null
+     * @return void
      */
     public function sleep(SystemStrand $strand, float $interval)
     {
@@ -77,11 +77,11 @@ final class ReferenceApi implements Api
      *
      * @see Recoil::timeout() for the full specification.
      *
-     * @param SystemStrand $strand    The strand executing the API call.
-     * @param float        $timeout   The interval to allow for execution, in seconds.
-     * @param mixed        $coroutine The coroutine to execute.
+     * @param SystemStrand $strand The strand executing the API call.
+     * @param float $timeout The interval to allow for execution, in seconds.
+     * @param mixed $coroutine The coroutine to execute.
      *
-     * @return Generator|null
+     * @return void
      */
     public function timeout(SystemStrand $strand, float $timeout, $coroutine)
     {
@@ -103,12 +103,12 @@ final class ReferenceApi implements Api
      *
      * @see Recoil::read() for the full specification.
      *
-     * @param SystemStrand $strand    The strand executing the API call.
-     * @param resource     $stream    A readable stream resource.
-     * @param int          $minLength The minimum number of bytes to read.
-     * @param int          $maxLength The maximum number of bytes to read.
+     * @param SystemStrand $strand The strand executing the API call.
+     * @param resource $stream A readable stream resource.
+     * @param int $minLength The minimum number of bytes to read.
+     * @param int $maxLength The maximum number of bytes to read.
      *
-     * @return Generator|null
+     * @return void
      */
     public function read(
         SystemStrand $strand,
@@ -180,11 +180,11 @@ final class ReferenceApi implements Api
      * @see Recoil::write() for the full specification.
      *
      * @param SystemStrand $strand The strand executing the API call.
-     * @param resource     $stream A writable stream resource.
-     * @param string       $buffer The data to write to the stream.
-     * @param int          $length The maximum number of bytes to write.
+     * @param resource $stream A writable stream resource.
+     * @param string $buffer The data to write to the stream.
+     * @param int $length The maximum number of bytes to write.
      *
-     * @return Generator|null
+     * @return void
      */
     public function write(
         SystemStrand $strand,
@@ -251,11 +251,10 @@ final class ReferenceApi implements Api
      *
      * @see Recoil::select() for the full specification.
      *
-     * @param SystemStrand    $strand The strand executing the API call.
-     * @param array<resource> $read   The set of readable streams.
-     * @param array<resource> $read   The set of writable streams.
-     *
-     * @return Generator|null
+     * @param SystemStrand $strand The strand executing the API call.
+     * @param array $read
+     * @param array $write
+     * @return void
      */
     public function select(SystemStrand $strand, array $read, array $write)
     {
