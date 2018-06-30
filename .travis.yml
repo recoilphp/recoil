@@ -11,7 +11,7 @@ matrix:
   - php: nightly
 before_install:
 - phpenv config-rm xdebug.ini || true
-- composer config --global github-oauth.github.com $GITHUB_TOKEN
+- "[[ $GITHUB_TOKEN ]] && composer config --global github-oauth.github.com $GITHUB_TOKEN"
 install: composer install --no-interaction
 script: make ci
 after_script: bash <(curl -s https://codecov.io/bash)
@@ -21,4 +21,4 @@ env:
     - secure: dCCJezYz/qPO+jZkqN78wavz7oRWXIAERvgwBxmKtSo6at0/pgeW/RrSnewM1RBOeYFCwxWI7YVrfu+OGgdSIvFYLvHU6ZHKMeGus02MmqkjIzi+kz4kB8gnjPSQeHkWxS/QsvZ5P8UcspZs+FAGStQXXPEsJumf7bPWJKeQ1/U=
 cache:
   directories:
-  - $HOME/.composer
+  - $HOME/.composer/cache
