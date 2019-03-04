@@ -16,7 +16,7 @@ prepare: lint coverage
 	composer validate
 	travis lint
 
-ci: lint artifacts/tests/coverage/clover.xml
+ci: artifacts/tests/coverage/clover.xml
 	php -c test/etc/php.ini -d zend.assertions=-1 vendor/bin/peridot
 
 .PHONY: FORCE test coverage coverage-open lint prepare ci
