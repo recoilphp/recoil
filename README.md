@@ -106,7 +106,7 @@ the term _cooperative multitasking_.
 Strands are very light-weight and are sometimes known as [green threads](http://en.wikipedia.org/wiki/Green_threads), or
 (perhaps less correctly) as [fibers](https://en.wikipedia.org/wiki/Fiber_(computer_science)).
 
-Recoil's concept of the strand is defined by the [Strand](src/Kernel/Strand.php) interface.
+Recoil's concept of the strand is defined by the [Strand](https://github.com/recoilphp/api/blob/master/src/Strand.php) interface.
 
 ### Dispatchable Values
 
