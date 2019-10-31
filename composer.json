@@ -7,7 +7,7 @@
         "recoil/kernel": "^1"
     },
     "require-dev": {
-        "eloquent/phony": "^3",
+        "eloquent/phony": "^3.2",
         "friendsofphp/php-cs-fixer": "^2",
         "peridot-php/leo": "^1",
         "peridot-php/peridot": "^1",
