@@ -4,30 +4,29 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9696c0f2abb74423ad50b1b69a169d94",
+    "content-hash": "2e6d9b29418d61e2106f1b345bd414e8",
     "packages": [
         {
             "name": "icecave/repr",
-            "version": "1.0.1",
+            "version": "2.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/icecave/repr.git",
-                "reference": "8a3d2953adf5f464a06e3e2587aeacc97e2bed07"
+                "reference": "87b7de87d0323c6ab99116bac3e66c4522c06be0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/icecave/repr/zipball/8a3d2953adf5f464a06e3e2587aeacc97e2bed07",
-                "reference": "8a3d2953adf5f464a06e3e2587aeacc97e2bed07",
+                "url": "https://api.github.com/repos/icecave/repr/zipball/87b7de87d0323c6ab99116bac3e66c4522c06be0",
+                "reference": "87b7de87d0323c6ab99116bac3e66c4522c06be0",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.3"
+                "php": ">=7.1"
             },
             "require-dev": {
-                "icecave/archer": "~1"
-            },
-            "suggest": {
-                "eloquent/asplode": "Drop-in exception-based error handling."
+                "friendsofphp/php-cs-fixer": "^2",
+                "phake/phake": "^1",
+                "phpunit/phpunit": "^7"
             },
             "type": "library",
             "autoload": {
@@ -42,12 +41,12 @@
             "authors": [
                 {
                     "name": "James Harris",
-                    "email": "james.harris@icecave.com.au",
+                    "email": "mailjamesharris@gmail.com",
                     "homepage": "https://github.com/jmalloc"
                 }
             ],
             "description": "A library for generating string representations of any value, inspired by Python's reprlib library.",
-            "homepage": "https://github.com/IcecaveStudios/repr",
+            "homepage": "https://github.com/icecave/repr",
             "keywords": [
                 "human",
                 "readable",
@@ -55,7 +54,7 @@
                 "representation",
                 "string"
             ],
-            "time": "2014-07-25T05:44:41+00:00"
+            "time": "2019-10-23T03:45:42+00:00"
         },
         {
             "name": "recoil/api",
@@ -116,26 +115,26 @@
         },
         {
             "name": "recoil/kernel",
-            "version": "1.0.1",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/recoilphp/kernel.git",
-                "reference": "38908af4e1ed3178afddc518338695e5c548c47f"
+                "reference": "9d141a1f73e893e699939a44f9dbb19c0fa4bf1e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/recoilphp/kernel/zipball/38908af4e1ed3178afddc518338695e5c548c47f",
-                "reference": "38908af4e1ed3178afddc518338695e5c548c47f",
+                "url": "https://api.github.com/repos/recoilphp/kernel/zipball/9d141a1f73e893e699939a44f9dbb19c0fa4bf1e",
+                "reference": "9d141a1f73e893e699939a44f9dbb19c0fa4bf1e",
                 "shasum": ""
             },
             "require": {
-                "icecave/repr": "^1",
-                "php": "^7",
+                "icecave/repr": "^2",
+                "php": "^7.1",
                 "recoil/api": "^1"
             },
             "require-dev": {
-                "eloquent/phony": "^2",
-                "friendsofphp/php-cs-fixer": "^1",
+                "eloquent/phony": "^3.2",
+                "friendsofphp/php-cs-fixer": "^2",
                 "hamcrest/hamcrest-php": "^2",
                 "peridot-php/leo": "^1",
                 "peridot-php/peridot": "^1",
@@ -172,7 +171,7 @@
                 "multitasking",
                 "react"
             ],
-            "time": "2017-12-13T03:55:11+00:00"
+            "time": "2019-10-31T07:45:52+00:00"
         }
     ],
     "packages-dev": [
@@ -1618,16 +1617,16 @@
         },
         {
             "name": "recoil/dev",
-            "version": "0.3.4",
+            "version": "0.3.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/recoilphp/dev.git",
-                "reference": "fb2d2032df42f669d28ad923767384b49228802a"
+                "reference": "aa381033687ad0c2808ab938f683f19c2285f03c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/recoilphp/dev/zipball/fb2d2032df42f669d28ad923767384b49228802a",
-                "reference": "fb2d2032df42f669d28ad923767384b49228802a",
+                "url": "https://api.github.com/repos/recoilphp/dev/zipball/aa381033687ad0c2808ab938f683f19c2285f03c",
+                "reference": "aa381033687ad0c2808ab938f683f19c2285f03c",
                 "shasum": ""
             },
             "require": {
@@ -1635,13 +1634,13 @@
                 "eloquent/enumeration": "^5",
                 "hamcrest/hamcrest-php": "^2",
                 "nikic/php-parser": "^3",
-                "php": "^7",
+                "php": "^7.1",
                 "recoil/api": "^1"
             },
             "require-dev": {
                 "composer/composer": "1.0.0",
-                "eloquent/phony": "^2",
-                "friendsofphp/php-cs-fixer": "^1",
+                "eloquent/phony": "^3.2",
+                "friendsofphp/php-cs-fixer": "^2",
                 "peridot-php/leo": "^1",
                 "peridot-php/peridot": "^1",
                 "peridot-php/peridot-code-coverage-reporters": "^2",
@@ -1682,7 +1681,7 @@
                 "stack",
                 "trace"
             ],
-            "time": "2017-12-13T01:20:33+00:00"
+            "time": "2019-10-31T08:09:07+00:00"
         },
         {
             "name": "recoil/react",
@@ -2560,9 +2559,18 @@
             "time": "2019-08-06T13:24:37+00:00"
         }
     ],
-    "aliases": [],
+    "aliases": [
+        {
+            "alias": "1.99.99",
+            "alias_normalized": "1.99.99.0",
+            "version": "9999999-dev",
+            "package": "recoil/kernel"
+        }
+    ],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "recoil/kernel": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
