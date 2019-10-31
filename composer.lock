@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2e6d9b29418d61e2106f1b345bd414e8",
+    "content-hash": "4212d8ef009809e0e41e8d577e5e14b1",
     "packages": [
         {
             "name": "icecave/repr",
@@ -115,16 +115,16 @@
         },
         {
             "name": "recoil/kernel",
-            "version": "dev-master",
+            "version": "1.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/recoilphp/kernel.git",
-                "reference": "9d141a1f73e893e699939a44f9dbb19c0fa4bf1e"
+                "reference": "cf307c4f8de2b82dfd3798b1bdd1d2c229239b3a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/recoilphp/kernel/zipball/9d141a1f73e893e699939a44f9dbb19c0fa4bf1e",
-                "reference": "9d141a1f73e893e699939a44f9dbb19c0fa4bf1e",
+                "url": "https://api.github.com/repos/recoilphp/kernel/zipball/cf307c4f8de2b82dfd3798b1bdd1d2c229239b3a",
+                "reference": "cf307c4f8de2b82dfd3798b1bdd1d2c229239b3a",
                 "shasum": ""
             },
             "require": {
@@ -171,7 +171,7 @@
                 "multitasking",
                 "react"
             ],
-            "time": "2019-10-31T07:45:52+00:00"
+            "time": "2019-10-31T08:17:10+00:00"
         }
     ],
     "packages-dev": [
@@ -2559,18 +2559,9 @@
             "time": "2019-08-06T13:24:37+00:00"
         }
     ],
-    "aliases": [
-        {
-            "alias": "1.99.99",
-            "alias_normalized": "1.99.99.0",
-            "version": "9999999-dev",
-            "package": "recoil/kernel"
-        }
-    ],
+    "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "recoil/kernel": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {

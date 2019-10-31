@@ -4,7 +4,7 @@
     "require": {
         "php": "^7.1",
         "recoil/api": "^1",
-        "recoil/kernel": "dev-master as 1.99.99"
+        "recoil/kernel": "^1.0.2"
     },
     "require-dev": {
         "eloquent/phony": "^3.2",
