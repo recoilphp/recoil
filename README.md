@@ -14,7 +14,7 @@ The Recoil project comprises the following packages:
 - [recoil/api](https://github.com/recoilphp/api) - The public Recoil API for application and library developers.
 - [recoil/dev](https://github.com/recoilphp/dev) - Development and debugging tools.
 - [recoil/recoil](https://github.com/recoilphp/recoil) (this package) - A reference implementation of the kernel described in the API.
-- [recoil/react](https://github.com/recoilphp/react) - A kernel implementation based on the [ReactPHP](https://github.com/reactphp/react) event loop.
+- [recoil/react](https://github.com/recoilphp/react) - A kernel implementation based on the [ReactPHP](https://github.com/reactphp/reactphp) event loop.
 - [recoil/kernel](https://github.com/recoilphp/kernel) - Common components used to implement the kernels.
 
 ## Overview
