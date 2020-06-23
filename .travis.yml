@@ -12,7 +12,7 @@ matrix:
   - php: 'nightly'
 before_install:
 - phpenv config-rm xdebug.ini || true
-- "[[ $GITHUB_TOKEN ]] && composer config --global github-oauth.github.com $GITHUB_TOKEN"
+- "[[ -z $GITHUB_TOKEN ]] || composer config --global github-oauth.github.com $GITHUB_TOKEN"
 install: composer install --no-interaction
 script: make ci
 after_script: bash <(curl -s https://codecov.io/bash)
