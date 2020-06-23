@@ -36,7 +36,7 @@ ReactKernel::start(function () {
         yield Recoil::eventLoop()
     );
 
-    // Yielding an array of coroutines exectutes them in parallel and waits
+    // Yielding an array of coroutines executes them in parallel and waits
     // until all have returned a value.
     yield [
         resolveDomainName('recoil.io', $resolver),
