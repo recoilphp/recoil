@@ -10,7 +10,7 @@ coverage-open: artifacts/tests/coverage/index.html
 
 lint: $(SOURCE) | vendor
 	@mkdir -p artifacts/
-	vendor/bin/php-cs-fixer fix
+	vendor/bin/php-cs-fixer fix --allow-risky=yes
 
 prepare: lint coverage
 	composer validate

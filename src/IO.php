@@ -132,12 +132,12 @@ class IO
 
             if (\stripos($error['message'], 'interrupted system call') === false) {
                 throw new ErrorException(
-                   $error['message'],
-                   $error['type'],
-                   1, // severity
-                   $error['file'],
-                   $error['line']
-               );
+                    $error['message'],
+                    $error['type'],
+                    1, // severity
+                    $error['file'],
+                    $error['line']
+                );
             }
 
             return self::INTERRUPT;
