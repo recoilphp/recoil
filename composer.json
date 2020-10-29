@@ -2,7 +2,7 @@
     "name": "recoil/recoil",
     "description": "Asynchronous coroutines for PHP 7.",
     "require": {
-        "php": "^7.1",
+        "php": "^7.2",
         "recoil/api": "^1",
         "recoil/kernel": "^1.0.2"
     },
@@ -13,7 +13,7 @@
         "peridot-php/peridot": "^1",
         "peridot-php/peridot-code-coverage-reporters": "^2",
         "react/dns": "^0.4",
-        "recoil/dev": "^0.3.5",
+        "recoil/dev": "^0.4",
         "recoil/react": "^1"
     },
     "autoload": { "psr-4": { "Recoil\\ReferenceKernel\\": "src" } },
@@ -42,7 +42,7 @@
     "config": {
         "sort-packages": true,
         "platform": {
-            "php": "7.1"
+            "php": "7.2"
         }
     }
 }
