@@ -7,15 +7,29 @@
     "recoil/kernel": "^1.0.2"
   },
   "require-dev": {
-    "eloquent/phony": "^3.2",
+    "eloquent/phony": "^5",
     "friendsofphp/php-cs-fixer": "^2",
-    "peridot-php/leo": "^1",
-    "peridot-php/peridot": "^1",
-    "peridot-php/peridot-code-coverage-reporters": "^2",
+    "peridot-php/leo": "dev-php-8 as 1.999.999",
+    "peridot-php/peridot": "dev-php-8 as 1.999.999",
+    "peridot-php/peridot-code-coverage-reporters": "dev-php-8 as 2.999.999",
     "react/dns": "^0.4",
     "recoil/dev": "^0.4",
     "recoil/react": "^1"
   },
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/recoilphp/leo"
+    },
+    {
+      "type": "vcs",
+      "url": "https://github.com/recoilphp/peridot"
+    },
+    {
+      "type": "vcs",
+      "url": "https://github.com/recoilphp/peridot-code-coverage-reporters"
+    }
+  ],
   "autoload": {
     "psr-4": {
       "Recoil\\ReferenceKernel\\": "src"
