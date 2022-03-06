@@ -63,35 +63,36 @@ class EventQueue
     {
         $time = \microtime(true);
 
-        while (
-            $this->pendingEvents > 0 &&
-            $this->nextTime <= $time
-        ) {
-            $event = $this->queue->extract();
-            --$this->queueSize;
+        $pendingEvents = $this->pendingEvents;
 
-            try {
+        try {
+            while (
+                $pendingEvents > 0 &&
+                $this->nextTime <= $time
+            ) {
+                $event = $this->queue->extract();
+                --$this->queueSize;
+
                 if ($event->fn) {
                     $fn = $event->fn;
                     $event->fn = null;
+                    --$pendingEvents;
                     --$this->pendingEvents;
                     $fn();
                 }
-            } finally {
-                if ($this->pendingEvents !== 0) {
-                    $nextEvent = $this->queue->top();
-                    $this->nextTime = $nextEvent->time;
+            }
+        } finally {
+            if ($this->pendingEvents === 0) {
+                if ($this->queueSize !== 0) {
+                    $this->queue = new SplPriorityQueue();
+                    $this->queueSize = 0;
                 }
-            }
-        }
 
-        if ($this->pendingEvents === 0) {
-            if ($this->queueSize !== 0) {
-                $this->queue = new SplPriorityQueue();
-                $this->queueSize = 0;
+                return null;
             }
 
-            return null;
+            $nextEvent = $this->queue->top();
+            $this->nextTime = $nextEvent->time;
         }
 
         $delta = $this->nextTime - \microtime(true);
