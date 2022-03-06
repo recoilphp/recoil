@@ -2,10 +2,10 @@ name: CI
 on:
   push:
     branches:
-    - '*'
+      - "*"
   pull_request:
   schedule:
-  - cron: 0 14 * * 0
+    - cron: 0 14 * * 0
 jobs:
   ci:
     name: PHP v${{ matrix.php }}
@@ -13,20 +13,20 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: ['7.2', '7.3', '7.4']
+        php: ["7.4", "8.0", "8.1"]
     steps:
-    - name: Set up PHP
-      uses: shivammathur/setup-php@master
-      with:
-        php-version: ${{ matrix.php }}
-        coverage: xdebug
-    - name: Check PHP version
-      run: php -v
-    - name: Checkout
-      uses: actions/checkout@v1
-    - name: Make
-      run: make ci
-    - name: Upload Coverage Reports
-      if: success()
-      run: |
-        [[ -z "${{ secrets.CODECOV_TOKEN }}" ]] || bash <(curl -s https://codecov.io/bash) -t "${{ secrets.CODECOV_TOKEN }}" -B "${{ github.ref }}"
+      - name: Set up PHP
+        uses: shivammathur/setup-php@master
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: xdebug
+      - name: Check PHP version
+        run: php -v
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Make
+        run: make ci
+      - name: Upload Coverage Reports
+        if: success()
+        run: |
+          [[ -z "${{ secrets.CODECOV_TOKEN }}" ]] || bash <(curl -s https://codecov.io/bash) -t "${{ secrets.CODECOV_TOKEN }}" -B "${{ github.ref }}"
