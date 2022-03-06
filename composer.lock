@@ -1991,16 +1991,16 @@
         },
         {
             "name": "recoil/dev",
-            "version": "0.4.1",
+            "version": "0.4.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/recoilphp/dev.git",
-                "reference": "9033a40a2d79e370e71401bd9402a5775dc5e98c"
+                "reference": "7e422c97bbc6931ef4baf83b46b7fb91678fa661"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/recoilphp/dev/zipball/9033a40a2d79e370e71401bd9402a5775dc5e98c",
-                "reference": "9033a40a2d79e370e71401bd9402a5775dc5e98c",
+                "url": "https://api.github.com/repos/recoilphp/dev/zipball/7e422c97bbc6931ef4baf83b46b7fb91678fa661",
+                "reference": "7e422c97bbc6931ef4baf83b46b7fb91678fa661",
                 "shasum": ""
             },
             "require": {
@@ -2057,39 +2057,39 @@
             ],
             "support": {
                 "issues": "https://github.com/recoilphp/dev/issues",
-                "source": "https://github.com/recoilphp/dev/tree/0.4.1"
+                "source": "https://github.com/recoilphp/dev/tree/0.4.2"
             },
-            "time": "2022-03-06T02:57:49+00:00"
+            "time": "2022-03-06T04:11:59+00:00"
         },
         {
             "name": "recoil/react",
-            "version": "1.0.2",
+            "version": "1.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/recoilphp/react.git",
-                "reference": "d385ab9ff8cbc99ab2d145ff9687895f9e8dcc0d"
+                "reference": "a928961155f2663a735fb03aa1c4941a3f70ff1a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/recoilphp/react/zipball/d385ab9ff8cbc99ab2d145ff9687895f9e8dcc0d",
-                "reference": "d385ab9ff8cbc99ab2d145ff9687895f9e8dcc0d",
+                "url": "https://api.github.com/repos/recoilphp/react/zipball/a928961155f2663a735fb03aa1c4941a3f70ff1a",
+                "reference": "a928961155f2663a735fb03aa1c4941a3f70ff1a",
                 "shasum": ""
             },
             "require": {
-                "php": "^7",
+                "php": ">=7.4",
                 "react/event-loop": "^1.0 || ^0.5 || ^0.4",
                 "react/promise": "^2",
-                "recoil/api": "^1",
+                "recoil/api": "^1.0.2",
                 "recoil/kernel": "^1"
             },
             "require-dev": {
-                "eloquent/phony": "^2",
+                "eloquent/phony": "^5",
                 "friendsofphp/php-cs-fixer": "^2",
                 "hamcrest/hamcrest-php": "^2",
-                "peridot-php/leo": "^1",
-                "peridot-php/peridot": "^1",
-                "peridot-php/peridot-code-coverage-reporters": "^2",
-                "recoil/dev": "^0.3"
+                "peridot-php/leo": "dev-php-8 as 1.999.999",
+                "peridot-php/peridot": "dev-php-8 as 1.999.999",
+                "peridot-php/peridot-code-coverage-reporters": "dev-php-8 as 2.999.999",
+                "recoil/dev": "^0.4"
             },
             "type": "library",
             "autoload": {
@@ -2125,9 +2125,9 @@
             ],
             "support": {
                 "issues": "https://github.com/recoilphp/react/issues",
-                "source": "https://github.com/recoilphp/react/tree/1.0.2"
+                "source": "https://github.com/recoilphp/react/tree/1.0.3"
             },
-            "time": "2018-04-29T21:00:07+00:00"
+            "time": "2022-03-06T04:17:15+00:00"
         },
         {
             "name": "sebastian/code-unit-reverse-lookup",
