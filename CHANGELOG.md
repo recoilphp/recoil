@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.2 (2022-03-06)
+
+- Add support for PHP 8
+- Drop support for PHP 7.0, 7.1, 7.2 and 7.3
+
 ## 1.0.1 (2018-04-06)
 
 - **[FIX]** Handle `fwrite()` error conditions indicated by `0` return value ([recoilphp/react#6](https://github.com/recoilphp/react#6))
